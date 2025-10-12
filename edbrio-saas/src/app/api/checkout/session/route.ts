@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-06-20',
-})
+// Mark this route as dynamic to prevent it from being prerendered at build time
+export const dynamic = 'force-dynamic'
+
+function getStripe() {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error('STRIPE_SECRET_KEY is not set')
+  }
+  return new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: '2024-06-20',
+  })
+}
 
 export async function POST(req: NextRequest) {
+  const stripe = getStripe()
   try {
     const { ticketId, priceId } = await req.json()
 
