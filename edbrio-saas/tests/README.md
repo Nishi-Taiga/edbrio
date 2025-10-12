@@ -48,7 +48,7 @@
 ### テストシナリオ
 
 #### 1. 講師アカウントテスト
-1. `/auth` でサインアップ・ログイン
+1. `/login` でサインアップ・ログイン
 2. `/teacher/dashboard` でダッシュボード確認
 3. `/teacher/profile` でプロフィール編集
 4. `/teacher/calendar` でシフト登録
@@ -56,7 +56,7 @@
 6. `/teacher/reports` でレポート作成
 
 #### 2. 保護者アカウントテスト
-1. 別ブラウザで `/auth` でサインアップ・ログイン
+1. 別ブラウザで `/login` でサインアップ・ログイン
 2. `/guardian/home` でホーム画面確認
 3. `/guardian/booking` で授業予約
 4. `/guardian/tickets` でチケット購入

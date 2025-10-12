@@ -11,7 +11,7 @@
 ## Step 2: Create Test Accounts
 
 ### Teacher Account
-1. Open browser: http://localhost:3001/auth
+1. Open browser: http://localhost:3001/login
 2. Click **Sign Up**
 3. Fill in:
    ```
@@ -24,7 +24,7 @@
 
 ### Guardian Account  
 1. Open **new incognito/private browser window**
-2. Go to: http://localhost:3001/auth
+2. Go to: http://localhost:3001/login
 3. Click **Sign Up**
 4. Fill in:
    ```
