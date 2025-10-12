@@ -86,7 +86,10 @@ export default function HomePage() {
         <section className="hero container" id="hero">
           <div className="hero-grid">
             <div>
-              <h1>家庭教師のための、予約・決済・レポート管理。</h1>
+              <h1>
+                家庭教師のための、<br />
+                予約・決済・レポート管理。
+              </h1>
               <p className="lead">シフトを公開すれば、保護者が予約。前払いチケットで支払いを先に。授業後はテンプレートでレポートを送信。同じ画面で完結します。</p>
               <div className="spacer"></div>
               <Link className="primary" href="/teacher/signup" data-analytics="cta-hero-signup" aria-label="無料登録へ">無料登録</Link>
