@@ -57,12 +57,12 @@ export function Header() {
             </>
           ) : (
             <div className="flex space-x-2">
-              <Link href="/auth">
+              <Link href="/login">
                 <Button variant="outline" size="sm">
                   ログイン
                 </Button>
               </Link>
-              <Link href="/auth">
+              <Link href="/login">
                 <Button size="sm">
                   無料登録
                 </Button>

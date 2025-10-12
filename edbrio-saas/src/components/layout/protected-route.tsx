@@ -14,7 +14,7 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ 
   children, 
   allowedRoles,
-  redirectTo = '/auth' 
+  redirectTo = '/login' 
 }: ProtectedRouteProps) {
   const { user, dbUser, loading } = useAuth()
   const router = useRouter()

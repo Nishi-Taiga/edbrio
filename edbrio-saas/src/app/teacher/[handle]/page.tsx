@@ -339,7 +339,7 @@ export default function TeacherPublicProfile({ params }: { params: { handle: str
                   })}
                 </div>
                 <div className="mt-6 text-center">
-                  <Link href="/auth">
+                  <Link href="/login">
                     <Button size="lg" className="px-8">
                       授業を予約する
                       <ArrowRight className="w-4 h-4 ml-2" />
@@ -468,12 +468,12 @@ export default function TeacherPublicProfile({ params }: { params: { handle: str
                 <p className="text-sm text-gray-600 mb-4">
                   まずはアカウント作成から始めましょう
                 </p>
-                <Link href="/auth">
+                <Link href="/login">
                   <Button className="w-full mb-2">
                     無料でアカウント作成
                   </Button>
                 </Link>
-                <Link href="/auth">
+                <Link href="/login">
                   <Button variant="outline" className="w-full">
                     ログイン
                   </Button>
