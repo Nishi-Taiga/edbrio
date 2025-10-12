@@ -1,8 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "npm run build --workspace=edbrio-saas",
-  "devCommand": "npm run dev --workspace=edbrio-saas",
-  "installCommand": "npm install --workspace=edbrio-saas",
-  "framework": "nextjs",
+  "buildCommand": "cd edbrio-saas && npm install && npm run build",
+  "installCommand": "echo 'Skipping root install'",
   "outputDirectory": "edbrio-saas/.next"
 }
