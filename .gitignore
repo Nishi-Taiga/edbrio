@@ -5,8 +5,10 @@
 .env.test.local
 .env.production.local
 
-# Claude Code directory
+# Claude Code directory and temp files
 .claude/
+.tmp.driveupload/
+.tmp.drivedownload/
 
 # Node modules
 node_modules/
