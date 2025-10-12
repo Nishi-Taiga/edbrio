@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build --workspace=edbrio-saas",
+  "devCommand": "npm run dev --workspace=edbrio-saas",
+  "installCommand": "npm install --workspace=edbrio-saas",
+  "framework": "nextjs",
+  "outputDirectory": "edbrio-saas/.next"
+}

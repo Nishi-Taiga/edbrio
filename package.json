@@ -1,0 +1,14 @@
+{
+  "name": "edbrio-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "cd edbrio-saas && npm run dev",
+    "build": "cd edbrio-saas && npm run build",
+    "start": "cd edbrio-saas && npm run start",
+    "install:all": "cd edbrio-saas && npm install"
+  },
+  "workspaces": [
+    "edbrio-saas"
+  ]
+}
