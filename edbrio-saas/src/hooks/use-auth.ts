@@ -45,12 +45,21 @@ export function useAuth() {
         .from('users')
         .select('*')
         .eq('id', userId)
-        .single()
-      
-      if (error) throw error
-      setDbUser(data)
-    } catch (error) {
-      console.error('Error fetching user data:', error)
+        .maybeSingle()
+
+      // When no row exists yet, don't treat as an error; allow app to continue.
+      if (error) {
+        const msg = (error as any)?.message || String(error)
+        if (!msg?.toLowerCase().includes('no rows')) {
+          console.error('Error fetching user data:', msg)
+        }
+        setDbUser(null)
+        return
+      }
+
+      setDbUser(data ?? null)
+    } catch (error: any) {
+      console.error('Error fetching user data:', error?.message || error)
     } finally {
       setLoading(false)
     }
