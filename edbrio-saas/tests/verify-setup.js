@@ -10,7 +10,7 @@ const BASE_URL = 'http://localhost:3001';
 // Test endpoints
 const endpoints = [
   { path: '/', name: 'Home page' },
-  { path: '/auth', name: 'Auth page' },
+  { path: '/login', name: 'Auth page' },
   { path: '/teacher/dashboard', name: 'Teacher dashboard' },
   { path: '/guardian/home', name: 'Guardian home' },
   { path: '/teacher/test-teacher', name: 'Public profile' },
