@@ -34,13 +34,13 @@ SENDGRID_FROM=noreply@yourdomain.com
 ## 🎯 テスト手順
 
 ### 1. 講師アカウント作成
-1. http://localhost:3000/auth でサインアップ
+1. http://localhost:3000/login でサインアップ
 2. Role: `teacher` を選択
 3. プロフィール設定完了
 4. シフト登録 → チケット作成
 
 ### 2. 保護者アカウント作成
-1. 新しいブラウザ（シークレットモード）で http://localhost:3000/auth
+1. 新しいブラウザ（シークレットモード）で http://localhost:3000/login
 2. Role: `guardian` を選択  
 3. チケット購入 → 授業予約
 
@@ -104,3 +104,4 @@ src/
 ---
 
 **開発完了！** 🎉 すべての機能が実装されています。
+
