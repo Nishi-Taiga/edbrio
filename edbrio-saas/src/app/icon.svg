@@ -1,0 +1,35 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="purplePinkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C3AED" />
+      <stop offset="100%" stop-color="#DB2777" />
+    </linearGradient>
+    <filter id="iconShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.25" />
+    </filter>
+  </defs>
+
+  <!-- Gradient background circle -->
+  <circle cx="60" cy="60" r="52" fill="url(#purplePinkGradient)" />
+
+  <!-- Inner soft circle -->
+  <circle cx="60" cy="60" r="45" fill="#FFFFFF" opacity="0.15" />
+
+  <g filter="url(#iconShadow)">
+    <!-- Book mark (top shape) -->
+    <path d="M38 42 L60 32 L82 42 L60 52 Z" fill="#FFFFFF" />
+
+    <!-- Tassel -->
+    <circle cx="80" cy="41" r="2" fill="#FFFFFF" />
+    <line x1="80" y1="43" x2="80" y2="49" stroke="#FFFFFF" stroke-width="2" />
+
+    <!-- Book - left page -->
+    <path d="M33 56 L33 80 C33 81.5, 34 82.5, 35.5 82.5 L57 82.5 L57 56 Z" fill="#FFFFFF" />
+
+    <!-- Book - right page -->
+    <path d="M63 56 L63 82.5 L84.5 82.5 C86 82.5, 87 81.5, 87 80 L87 56 Z" fill="#FFFFFF" opacity="0.85" />
+
+    <!-- Book spine -->
+    <rect x="57" y="56" width="6" height="26.5" fill="#FFFFFF" opacity="0.7" />
+  </g>
+</svg>
