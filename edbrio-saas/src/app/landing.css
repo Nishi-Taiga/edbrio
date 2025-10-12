@@ -25,7 +25,7 @@
     --muted: #a7adbb;
     --border: #1e2027;
     --brand: #6f3ff5;
-    --brand-ink: #0b0b0d;
+    --brand-ink: #ffffff;
     --card: #0f1014;
     --shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
   }
@@ -550,3 +550,4 @@ footer {
     font-size: 12px;
   }
 }
+
