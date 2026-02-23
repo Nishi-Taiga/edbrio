@@ -52,7 +52,7 @@ export default function GuardianTickets() {
         // Public tickets
         const { data: ts, error: tErr } = await supabase
           .from('tickets')
-          .select('id,teacher_id,name,minutes,bundle_qty,price_cents,valid_days,is_active,stripe_price_id,teachers(id,handle)')
+          .select('id,teacher_id,name,minutes,bundle_qty,price_cents,valid_days,is_active,stripe_price_id')
           .eq('is_active', true)
           .order('price_cents', { ascending: true })
         if (tErr) throw tErr
@@ -71,7 +71,7 @@ export default function GuardianTickets() {
           if (studentIds.length > 0) {
             const { data: tb, error: bErr } = await supabase
               .from('ticket_balances')
-              .select('id,ticket_id,remaining_minutes,purchased_at,expires_at,tickets(id,name,minutes,bundle_qty)')
+              .select('id,ticket_id,remaining_minutes,purchased_at,expires_at')
               .in('student_id', studentIds)
               .order('expires_at', { ascending: true })
             if (bErr) throw bErr
@@ -153,7 +153,7 @@ export default function GuardianTickets() {
                         <span>{ticket.name}</span>
                         <span className="text-blue-600">{formatPrice(ticket.price_cents)}</span>
                       </CardTitle>
-                      <CardDescription>講師: {ticket.teachers?.handle ?? ticket.teacher_id}</CardDescription>
+                      <CardDescription>講師: {ticket.teacher_id}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="text-sm text-gray-600 mb-3">
@@ -181,7 +181,7 @@ export default function GuardianTickets() {
             {balances.length === 0 ? (
               <div className="text-gray-500">チケットはありません。</div>
             ) : (
-              <Table>
+                      <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>チケット名</TableHead>
@@ -191,9 +191,9 @@ export default function GuardianTickets() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {balances.map((b) => (
-                    <TableRow key={b.id}>
-                      <TableCell>{b.tickets?.name ?? b.ticket_id}</TableCell>
+                      {balances.map((b) => (
+                        <TableRow key={b.id}>
+                      <TableCell>{b.ticket_id}</TableCell>
                       <TableCell>{b.remaining_minutes}分</TableCell>
                       <TableCell>{b.purchased_at ?? '-'}</TableCell>
                       <TableCell>{b.expires_at ?? '-'}</TableCell>

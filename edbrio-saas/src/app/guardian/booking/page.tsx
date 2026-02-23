@@ -36,7 +36,7 @@ type TicketBalanceRow = {
 }
 
 export default function BookingPage() {
-  const [selectedTeacher, setSelectedTeacher] = useState<string>('')
+  const [selectedTeacher, setSelectedTeacher] = useState<string>('all')
   const [currentWeek, setCurrentWeek] = useState(new Date())
   const [selectedSlot, setSelectedSlot] = useState<AvailabilityRow | null>(null)
   const [selectedTicket, setSelectedTicket] = useState<string>('')
@@ -55,8 +55,16 @@ export default function BookingPage() {
       try {
         setLoading(true)
         setError(null)
+        if (process.env.NEXT_PUBLIC_DISABLE_DATA_FETCH === 'true') {
+          if (mounted) {
+            setTeachers([])
+            setAvail([])
+            setTickets([])
+            setLoading(false)
+          }
+          return
+        }
 
-        // Teachers (public profile selectable by all)
         const { data: ts, error: tErr } = await supabase
           .from('teachers')
           .select('id,handle,subjects,grades')
@@ -64,7 +72,6 @@ export default function BookingPage() {
         if (tErr) throw tErr
         if (mounted) setTeachers(ts || [])
 
-        // Availability (public view when is_bookable = true)
         const start = new Date()
         const end = addDays(start, 7)
         const { data: av, error: aErr } = await supabase
@@ -77,7 +84,6 @@ export default function BookingPage() {
         if (aErr) throw aErr
         if (mounted) setAvail(av || [])
 
-        // Ticket balances for guardian's students (best-effort; may be empty if未ログイン)
         const { data: session } = await supabase.auth.getSession()
         const uid = session.session?.user?.id
         if (uid) {
@@ -90,7 +96,7 @@ export default function BookingPage() {
           if (studentIds.length > 0) {
             const { data: tb, error: tbErr } = await supabase
               .from('ticket_balances')
-              .select('id,student_id,ticket_id,remaining_minutes,expires_at,tickets(id,name)')
+              .select('id,student_id,ticket_id,remaining_minutes,expires_at')
               .in('student_id', studentIds)
               .order('expires_at', { ascending: true })
             if (tbErr) throw tbErr
@@ -112,14 +118,13 @@ export default function BookingPage() {
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 })
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
 
-  const filtered = avail.filter((s) => !selectedTeacher || s.teacher_id === selectedTeacher)
+  const filtered = avail.filter((s) => selectedTeacher === 'all' || s.teacher_id === selectedTeacher)
   const getSlotsForDate = (date: Date) => filtered.filter((s) => isSameDay(new Date(s.slot_start), date))
 
   const getAvailableTickets = () => tickets
 
   const handleBookSlot = async () => {
     if (!selectedSlot || !selectedTicket) return
-    // NOTE: 実装例: APIルートを叩いて予約作成（ここではログのみ）
     console.log('Booking request:', {
       slotId: selectedSlot.id,
       teacherId: selectedSlot.teacher_id,
@@ -150,7 +155,6 @@ export default function BookingPage() {
           </div>
         )}
 
-        {/* Filters */}
         <Card className="mb-8">
           <CardContent className="p-4">
             <div className="grid md:grid-cols-3 gap-4">
@@ -161,7 +165,7 @@ export default function BookingPage() {
                     <SelectValue placeholder="先生を選択" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">すべての先生</SelectItem>
+                    <SelectItem value="all">すべての先生</SelectItem>
                     {teachers.map((t) => (
                       <SelectItem key={t.id} value={t.id}>{t.handle}</SelectItem>
                     ))}
@@ -175,7 +179,6 @@ export default function BookingPage() {
           </CardContent>
         </Card>
 
-        {/* Week view */}
         <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
           {weekDays.map((date) => (
             <Card key={date.toISOString()}>
@@ -222,7 +225,6 @@ export default function BookingPage() {
           ))}
         </div>
 
-        {/* Dialog */}
         <Dialog open={!!selectedSlot} onOpenChange={() => setSelectedSlot(null)}>
           <DialogContent>
             <DialogHeader>
@@ -251,7 +253,7 @@ export default function BookingPage() {
                     <SelectContent>
                       {getAvailableTickets().map((t) => (
                         <SelectItem key={t.id} value={t.id}>
-                          {t.tickets?.name ?? 'チケット'}（残り{t.remaining_minutes}分{t.expires_at ? `、期限: ${format(new Date(t.expires_at), 'PPP', { locale: ja })}` : ''}）
+                          {t.ticket_id}（残り{t.remaining_minutes}分{t.expires_at ? `、期限: ${format(new Date(t.expires_at), 'PPP', { locale: ja })}` : ''}）
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -271,4 +273,3 @@ export default function BookingPage() {
     </ProtectedRoute>
   )
 }
-

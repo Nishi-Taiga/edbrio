@@ -505,6 +505,23 @@ footer {
   align-items: center;
 }
 
+/* PDF embed layout */
+.pdf-embed {
+  padding: 0;
+}
+
+.pdf-object {
+  width: 100%;
+  height: calc(100vh - 64px);
+  border: none;
+}
+
+.pdf-fallback {
+  padding: 16px;
+  text-align: center;
+  color: var(--muted);
+}
+
 .footer-copy {
   color: var(--muted);
 }
