@@ -6,39 +6,28 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/client'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
+import { useAuth } from '@/hooks/use-auth'
+import { useBookings } from '@/hooks/use-bookings'
+import { Button } from '@/components/ui/button'
+import { Check, X } from 'lucide-react'
 
 type BookingRow = { id: string; start_time: string; end_time: string; status: 'pending' | 'confirmed' | 'canceled' | 'done'; student_id: string }
 
 export default function TeacherBookingsPage() {
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [items, setItems] = useState<BookingRow[]>([])
-  const supabase = useMemo(() => createClient(), [])
+  const { user } = useAuth()
+  const { bookings: items, loading, error, updateBookingStatus } = useBookings(user?.id, 'teacher')
+  const [isUpdating, setIsUpdating] = useState<string | null>(null)
 
-  useEffect(() => {
-    let mounted = true
-    async function load() {
-      try {
-        setError(null); setLoading(true)
-        const { data: session } = await supabase.auth.getSession()
-        const uid = session.session?.user?.id
-        if (!uid) { setItems([]); return }
-        const { data, error } = await supabase
-          .from('bookings')
-          .select('id,start_time,end_time,status,student_id')
-          .eq('teacher_id', uid)
-          .order('start_time', { ascending: false })
-          .limit(200)
-        if (error) throw error
-        if (mounted) setItems(data || [])
-      } catch (e: unknown) {
-        setError(e instanceof Error ? e.message : String(e))
-      } finally {
-        if (mounted) setLoading(false)
-      }
+  const handleStatusUpdate = async (id: string, status: 'confirmed' | 'canceled') => {
+    setIsUpdating(id)
+    try {
+      await updateBookingStatus(id, status)
+    } catch (err) {
+      console.error('Failed to update status:', err)
+    } finally {
+      setIsUpdating(null)
     }
-    load(); return () => { mounted = false }
-  }, [supabase])
+  }
 
   return (
     <ProtectedRoute allowedRoles={["teacher"]}>
@@ -55,9 +44,37 @@ export default function TeacherBookingsPage() {
               <Card key={b.id}>
                 <CardHeader><CardTitle className="text-sm">生徒ID: {b.student_id}</CardTitle></CardHeader>
                 <CardContent>
-                  <div className="text-sm text-gray-700">
-                    {format(new Date(b.start_time), 'PPP p', { locale: ja })} - {format(new Date(b.end_time), 'p', { locale: ja })}
-                    <span className="ml-2 inline-block rounded px-2 py-0.5 text-xs border">{b.status}</span>
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-gray-700">
+                      {format(new Date(b.start_time), 'PPP p', { locale: ja })} - {format(new Date(b.end_time), 'p', { locale: ja })}
+                      <span className={`ml-2 inline-block rounded px-2 py-0.5 text-xs border ${b.status === 'confirmed' ? 'bg-green-50 text-green-700 border-green-200' :
+                          b.status === 'pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                            'bg-gray-50 text-gray-700 border-gray-200'
+                        }`}>
+                        {b.status}
+                      </span>
+                    </div>
+                    {b.status === 'pending' && (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 text-red-600 hover:text-red-700"
+                          onClick={() => handleStatusUpdate(b.id, 'canceled')}
+                          disabled={isUpdating === b.id}
+                        >
+                          <X className="w-4 h-4 mr-1" /> 拒否
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="h-8"
+                          onClick={() => handleStatusUpdate(b.id, 'confirmed')}
+                          disabled={isUpdating === b.id}
+                        >
+                          <Check className="w-4 h-4 mr-1" /> 承認
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

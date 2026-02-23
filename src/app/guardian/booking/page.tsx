@@ -10,6 +10,9 @@ import { Clock, MapPin, Check } from 'lucide-react'
 import { format, addDays, isSameDay, startOfWeek } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/hooks/use-auth'
+import { useBookings } from '@/hooks/use-bookings'
+import { useRouter } from 'next/navigation'
 
 type AvailabilityRow = {
   id: string
@@ -46,6 +49,10 @@ export default function BookingPage() {
   const [tickets, setTickets] = useState<TicketBalanceRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter()
+  const { user } = useAuth()
+  const { createBooking } = useBookings(user?.id, 'guardian')
 
   const supabase = useMemo(() => createClient(), [])
 
@@ -124,21 +131,34 @@ export default function BookingPage() {
   const getAvailableTickets = () => tickets
 
   const handleBookSlot = async () => {
-    if (!selectedSlot || !selectedTicket) return
-    console.log('Booking request:', {
-      slotId: selectedSlot.id,
-      teacherId: selectedSlot.teacher_id,
-      ticketBalanceId: selectedTicket,
-      start: selectedSlot.slot_start,
-      end: selectedSlot.slot_end,
-    })
-    setShowConfirmation(true)
+    if (!selectedSlot || !selectedTicket || !user) return
+
+    setIsSubmitting(true)
+    try {
+      await createBooking({
+        teacher_id: selectedSlot.teacher_id,
+        student_id: tickets.find(t => t.id === selectedTicket)?.student_id || '', // In a real app we'd have a better student selector
+        start_time: selectedSlot.slot_start,
+        end_time: selectedSlot.slot_end,
+        status: 'pending',
+        ticket_balance_id: selectedTicket,
+      }, selectedSlot.id)
+
+      setShowConfirmation(true)
+    } catch (err: unknown) {
+      console.error('Booking failed:', err)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const resetBooking = () => {
     setSelectedSlot(null)
     setSelectedTicket('')
     setShowConfirmation(false)
+    if (showConfirmation) {
+      router.push('/guardian/dashboard')
+    }
   }
 
   return (
@@ -261,10 +281,18 @@ export default function BookingPage() {
                 </div>
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={resetBooking}>キャンセル</Button>
-                  <Button onClick={handleBookSlot} disabled={!selectedTicket}>
-                    <Check className="w-4 h-4 mr-1" /> 予約確定
+                  <Button onClick={handleBookSlot} disabled={!selectedTicket || isSubmitting}>
+                    {isSubmitting ? '予約中...' : <><Check className="w-4 h-4 mr-1" /> 予約確定</>}
                   </Button>
                 </div>
+              </div>
+            )}
+            {showConfirmation && (
+              <div className="mt-4 p-4 bg-green-50 text-green-700 rounded-md flex flex-col items-center">
+                <Check className="w-8 h-8 mb-2" />
+                <p className="font-bold">予約が完了しました！</p>
+                <p className="text-sm">先生の承認をお待ちください。</p>
+                <Button className="mt-4" onClick={resetBooking}>ダッシュボードへ</Button>
               </div>
             )}
           </DialogContent>
