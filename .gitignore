@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# system and editor
+.claude/
+.gemini/
+.tmp.drivedownload/
+.tmp.driveupload/
+edbrio-dev.txt
+test-results/
