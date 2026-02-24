@@ -1,29 +1,41 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
-type AuthMode = 'login' | 'signup'
-
-interface AuthFormProps {
-  mode: AuthMode
-  onModeChange: (mode: AuthMode) => void
-}
-
-export function AuthForm({ mode, onModeChange }: AuthFormProps) {
+export function AuthForm({ mode, onModeChange }: {
+  mode: 'login' | 'signup',
+  onModeChange: (mode: 'login' | 'signup') => void
+}) {
+  const router = useRouter()
+  const { user } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const [role, setRole] = useState<'teacher' | 'guardian'>('teacher')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
-  
+
   const supabase = createClient()
+
+  // Redirect if already logged in or after successful login
+  useEffect(() => {
+    if (user) {
+      const role = user.user_metadata?.role || 'teacher'
+      if (role === 'teacher') {
+        router.push('/teacher/dashboard')
+      } else {
+        router.push('/guardian/dashboard')
+      }
+    }
+  }, [user, router])
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -49,7 +61,7 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
           }
         })
         if (error) throw error
-        
+
         if (data.user && !data.user.email_confirmed_at) {
           setMessage('確認メールを送信しました。メールを確認してアカウントを有効化してください。')
         }
@@ -66,7 +78,7 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
       <CardHeader>
         <CardTitle>{mode === 'login' ? 'ログイン' : 'アカウント作成'}</CardTitle>
         <CardDescription>
-          {mode === 'login' 
+          {mode === 'login'
             ? 'アカウントにログインしてください'
             : '新しいアカウントを作成してください'
           }
@@ -101,7 +113,7 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
               </div>
             </>
           )}
-          
+
           <div className="space-y-2">
             <Label htmlFor="email">メールアドレス</Label>
             <Input
@@ -113,7 +125,7 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
               required
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="password">パスワード</Label>
             <Input
@@ -125,25 +137,25 @@ export function AuthForm({ mode, onModeChange }: AuthFormProps) {
               required
             />
           </div>
-          
+
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? '処理中...' : (mode === 'login' ? 'ログイン' : 'アカウント作成')}
           </Button>
         </form>
-        
+
         {message && (
           <div className="mt-4 p-3 text-sm bg-blue-50 border border-blue-200 rounded">
             {message}
           </div>
         )}
-        
+
         <div className="mt-4 text-center">
           <button
             type="button"
             onClick={() => onModeChange(mode === 'login' ? 'signup' : 'login')}
             className="text-sm text-blue-600 hover:underline"
           >
-            {mode === 'login' 
+            {mode === 'login'
               ? 'アカウントをお持ちでない方はこちら'
               : '既にアカウントをお持ちの方はこちら'
             }
