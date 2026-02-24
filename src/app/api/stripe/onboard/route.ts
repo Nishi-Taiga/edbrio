@@ -2,11 +2,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2025-01-27.acacia' as any,
-})
+export const dynamic = 'force-dynamic'
+
+function getStripe() {
+    if (!process.env.STRIPE_SECRET_KEY) {
+        throw new Error('STRIPE_SECRET_KEY is not set')
+    }
+    return new Stripe(process.env.STRIPE_SECRET_KEY, {
+        apiVersion: '2025-01-27.acacia' as any,
+    })
+}
 
 export async function POST(req: NextRequest) {
+    const stripe = getStripe()
     try {
         const supabase = await createClient()
         const { data: { session } } = await supabase.auth.getSession()
