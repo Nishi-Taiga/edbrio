@@ -288,3 +288,36 @@ CREATE POLICY "reports_visibility" ON public.reports
 -- Audit logs: Only readable by system (service role)
 CREATE POLICY "audit_logs_system_only" ON public.audit_logs
   FOR SELECT USING (auth.role() = 'service_role');
+
+-- Trigger to sync auth.users with public.users
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+DECLARE
+  v_name TEXT;
+  v_role user_role;
+BEGIN
+  v_name := COALESCE(new.raw_user_meta_data->>'name', '');
+  v_role := (COALESCE(new.raw_user_meta_data->>'role', 'teacher'))::user_role;
+
+  -- Insert into public.users
+  INSERT INTO public.users (id, email, name, role)
+  VALUES (new.id, new.email, v_name, v_role);
+
+  -- Role-specific record creation
+  IF v_role = 'teacher' THEN
+    INSERT INTO public.teachers (id, handle)
+    VALUES (new.id, 'user-' || lower(substring(replace(new.id::text, '-', ''), 1, 10)));
+  ELSIF v_role = 'guardian' THEN
+    INSERT INTO public.guardians (id)
+    VALUES (new.id);
+  END IF;
+
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Re-create trigger
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
