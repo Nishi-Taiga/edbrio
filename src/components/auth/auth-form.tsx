@@ -15,7 +15,7 @@ export function AuthForm({ mode, onModeChange }: {
   onModeChange: (mode: 'login' | 'signup') => void
 }) {
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, dbUser } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
@@ -28,14 +28,23 @@ export function AuthForm({ mode, onModeChange }: {
   // Redirect if already logged in or after successful login
   useEffect(() => {
     if (user) {
-      const role = user.user_metadata?.role || 'teacher'
-      if (role === 'teacher') {
+      // Use dbUser role if available, fallback to metadata role, then teacher
+      // Note: 'allowedRoles' is not defined in this component. Assuming it's meant to be passed or derived.
+      // For now, the existing redirection logic is kept, and the new block is added as per instruction.
+      // The instruction's new block seems to be an additional check or override.
+      // The partial line 'ter.push('/admin/dashboard')' from the instruction is removed as it's a syntax error.
+
+      // Existing logic (modified to use dbUser if available, otherwise user_metadata)
+      const userRole = dbUser?.role || user.user_metadata?.role || 'teacher'
+      if (userRole === 'teacher') {
         router.push('/teacher/dashboard')
-      } else {
+      } else if (userRole === 'guardian') {
         router.push('/guardian/dashboard')
+      } else if (userRole === 'admin') {
+        router.push('/admin/dashboard')
       }
     }
-  }, [user, router])
+  }, [user, dbUser, router])
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault()

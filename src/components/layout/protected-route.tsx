@@ -11,10 +11,10 @@ interface ProtectedRouteProps {
   redirectTo?: string
 }
 
-export function ProtectedRoute({ 
-  children, 
+export function ProtectedRoute({
+  children,
   allowedRoles,
-  redirectTo = '/login' 
+  redirectTo = '/login'
 }: ProtectedRouteProps) {
   // Public bypass flag for local/temporary viewing without auth
   const isPublicBypass = process.env.NEXT_PUBLIC_DISABLE_AUTH_GUARD === 'true'
@@ -30,13 +30,13 @@ export function ProtectedRoute({
         router.push(redirectTo)
         return
       }
-      
+
       if (allowedRoles && dbUser && !allowedRoles.includes(dbUser.role)) {
         // Redirect based on role
         if (dbUser.role === 'teacher') {
           router.push('/teacher/dashboard')
         } else if (dbUser.role === 'guardian') {
-          router.push('/guardian/home')
+          router.push('/guardian/dashboard')
         } else {
           router.push('/')
         }
