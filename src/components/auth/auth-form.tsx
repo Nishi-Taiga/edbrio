@@ -153,7 +153,7 @@ export function AuthForm({ mode, onModeChange }: {
         </form>
 
         {message && (
-          <div className="mt-4 p-3 text-sm bg-blue-50 border border-blue-200 rounded">
+          <div className="mt-4 p-3 text-sm bg-brand-50 dark:bg-brand-900/30 border border-brand-200 dark:border-brand-700/30 rounded text-brand-700 dark:text-brand-300">
             {message}
           </div>
         )}
@@ -162,7 +162,7 @@ export function AuthForm({ mode, onModeChange }: {
           <button
             type="button"
             onClick={() => onModeChange(mode === 'login' ? 'signup' : 'login')}
-            className="text-sm text-blue-600 hover:underline"
+            className="text-sm text-brand-600 dark:text-brand-400 hover:underline cursor-pointer"
           >
             {mode === 'login'
               ? 'アカウントをお持ちでない方はこちら'

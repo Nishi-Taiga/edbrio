@@ -165,12 +165,12 @@ export default function BookingPage() {
     <ProtectedRoute allowedRoles={['guardian']}>
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">予約</h1>
-          <p className="text-gray-600">先生の空き時間から予約してください</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">予約</h1>
+          <p className="text-gray-600 dark:text-slate-400">先生の空き時間から予約してください</p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700">
+          <div className="mb-4 p-3 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded text-red-700 dark:text-red-400">
             データ取得でエラーが発生しました: {error}
           </div>
         )}
@@ -210,13 +210,13 @@ export default function BookingPage() {
               </CardHeader>
               <CardContent>
                 {loading ? (
-                  <div className="text-gray-500">読み込み中...</div>
+                  <div className="text-gray-500 dark:text-slate-400">読み込み中...</div>
                 ) : (
                   <div className="space-y-2">
                     {getSlotsForDate(date).map((slot) => (
                       <div
                         key={slot.id}
-                        className="p-2 border rounded hover:bg-gray-50 cursor-pointer"
+                        className="p-2 border dark:border-brand-800/20 rounded hover:bg-gray-50 dark:hover:bg-brand-900/20 cursor-pointer"
                         onClick={() => setSelectedSlot(slot)}
                       >
                         <div className="flex items-center justify-between">
@@ -229,7 +229,7 @@ export default function BookingPage() {
                             {format(new Date(slot.slot_end), 'HH:mm', { locale: ja })}
                           </div>
                         </div>
-                        <div className="text-xs text-gray-600 mt-1">
+                        <div className="text-xs text-gray-600 dark:text-slate-400 mt-1">
                           <span className="inline-flex items-center"><MapPin className="w-3 h-3 mr-1" />オンライン</span>
                           <span className="mx-2">•</span>
                           <span className="inline-flex items-center"><Clock className="w-3 h-3 mr-1" />
@@ -251,7 +251,7 @@ export default function BookingPage() {
               <DialogTitle>予約内容の確認</DialogTitle>
               <DialogDescription>
                 {selectedSlot && (
-                  <div className="mt-2 text-sm text-gray-700">
+                  <div className="mt-2 text-sm text-gray-700 dark:text-slate-300">
                     <div>講師ID: {selectedSlot.teacher_id}</div>
                     <div className="mt-1">
                       日時: {format(new Date(selectedSlot.slot_start), 'M月d日(E) HH:mm', { locale: ja })}
@@ -288,7 +288,7 @@ export default function BookingPage() {
               </div>
             )}
             {showConfirmation && (
-              <div className="mt-4 p-4 bg-green-50 text-green-700 rounded-md flex flex-col items-center">
+              <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-md flex flex-col items-center">
                 <Check className="w-8 h-8 mb-2" />
                 <p className="font-bold">予約が完了しました！</p>
                 <p className="text-sm">先生の承認をお待ちください。</p>

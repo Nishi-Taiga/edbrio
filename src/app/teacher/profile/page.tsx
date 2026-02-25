@@ -102,12 +102,12 @@ export default function TeacherProfilePage() {
           </CardHeader>
           <CardContent>
             {error && (
-              <div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700">{error}</div>
+              <div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700 dark:bg-red-900/20 dark:border-red-800/30 dark:text-red-400">{error}</div>
             )}
             {loading ? (
-              <div className="text-gray-500">読み込み中...</div>
+              <div className="text-gray-500 dark:text-slate-400">読み込み中...</div>
             ) : !teacher ? (
-              <div className="text-gray-500">プロフィールが見つかりません。</div>
+              <div className="text-gray-500 dark:text-slate-400">プロフィールが見つかりません。</div>
             ) : isEditing ? (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -130,16 +130,16 @@ export default function TeacherProfilePage() {
                 </div>
               </form>
             ) : (
-              <div className="text-sm text-gray-700 space-y-4">
+              <div className="text-sm text-gray-700 dark:text-slate-300 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div><span className="font-medium text-gray-500 block text-xs uppercase">ハンドル</span> {teacher.handle}</div>
-                  <div><span className="font-medium text-gray-500 block text-xs uppercase">プラン</span> {teacher.plan}</div>
-                  <div><span className="font-medium text-gray-500 block text-xs uppercase">科目</span> {(teacher.subjects || []).join(' / ') || '-'}</div>
-                  <div><span className="font-medium text-gray-500 block text-xs uppercase">学年</span> {(teacher.grades || []).join(' / ') || '-'}</div>
+                  <div><span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">ハンドル</span> {teacher.handle}</div>
+                  <div><span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">プラン</span> {teacher.plan}</div>
+                  <div><span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">科目</span> {(teacher.subjects || []).join(' / ') || '-'}</div>
+                  <div><span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">学年</span> {(teacher.grades || []).join(' / ') || '-'}</div>
                   <div>
-                    <span className="font-medium text-gray-500 block text-xs uppercase">Stripe 連携</span>
+                    <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">Stripe 連携</span>
                     {teacher.stripe_account_id ? (
-                      <span className="text-green-600 font-medium">連携済み ({teacher.stripe_account_id})</span>
+                      <span className="text-green-600 dark:text-green-400 font-medium">連携済み ({teacher.stripe_account_id})</span>
                     ) : (
                       <Button
                         variant="secondary"
@@ -161,8 +161,8 @@ export default function TeacherProfilePage() {
                   </div>
                 </div>
                 <div>
-                  <span className="font-medium text-gray-500 block text-xs uppercase mb-1">公開プロフィール (データ)</span>
-                  <pre className="p-2 bg-gray-50 border rounded overflow-x-auto">{JSON.stringify(teacher.public_profile || {}, null, 2)}</pre>
+                  <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase mb-1">公開プロフィール (データ)</span>
+                  <pre className="p-2 bg-gray-50 dark:bg-surface border dark:border-brand-800/20 rounded overflow-x-auto">{JSON.stringify(teacher.public_profile || {}, null, 2)}</pre>
                 </div>
                 <div className="flex justify-end pt-2">
                   <Button variant="outline" onClick={() => setIsEditing(true)}>

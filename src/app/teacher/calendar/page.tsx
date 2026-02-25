@@ -62,17 +62,17 @@ export default function TeacherCalendarPage() {
             <CardDescription>登録済みのシフト</CardDescription>
           </CardHeader>
           <CardContent>
-            {error && <div className="mb-3 text-sm text-red-700 bg-red-50 border border-red-200 p-2 rounded">{error}</div>}
+            {error && <div className="mb-3 text-sm text-red-700 bg-red-50 border border-red-200 p-2 rounded dark:bg-red-900/20 dark:border-red-800/30 dark:text-red-400">{error}</div>}
             {loading ? (
-              <div className="text-gray-500">読み込み中...</div>
+              <div className="text-gray-500 dark:text-slate-400">読み込み中...</div>
             ) : shifts.length === 0 ? (
-              <div className="text-gray-500">シフトはありません。</div>
+              <div className="text-gray-500 dark:text-slate-400">シフトはありません。</div>
             ) : (
-              <ul className="text-sm text-gray-700 space-y-1">
+              <ul className="text-sm text-gray-700 dark:text-slate-300 space-y-1">
                 {shifts.map(s => (
-                  <li key={s.id} className="border rounded p-2">
+                  <li key={s.id} className="border dark:border-brand-800/20 rounded p-2">
                     {format(new Date(s.start_time), 'PPP p', { locale: ja })} - {format(new Date(s.end_time), 'p', { locale: ja })}
-                    {s.rrule && <span className="ml-2 text-xs text-gray-500">RRULE: {s.rrule}</span>}
+                    {s.rrule && <span className="ml-2 text-xs text-gray-500 dark:text-slate-400">RRULE: {s.rrule}</span>}
                   </li>
                 ))}
               </ul>
@@ -87,13 +87,13 @@ export default function TeacherCalendarPage() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="text-gray-500">読み込み中...</div>
+              <div className="text-gray-500 dark:text-slate-400">読み込み中...</div>
             ) : avail.length === 0 ? (
-              <div className="text-gray-500">空き枠はありません。</div>
+              <div className="text-gray-500 dark:text-slate-400">空き枠はありません。</div>
             ) : (
-              <ul className="text-sm text-gray-700 space-y-1">
+              <ul className="text-sm text-gray-700 dark:text-slate-300 space-y-1">
                 {avail.map(a => (
-                  <li key={a.id} className="border rounded p-2">
+                  <li key={a.id} className="border dark:border-brand-800/20 rounded p-2">
                     {format(new Date(a.slot_start), 'PPP p', { locale: ja })} - {format(new Date(a.slot_end), 'p', { locale: ja })}
                     <span className="ml-2 text-xs border rounded px-2 py-0.5">{a.is_bookable ? '予約可' : '予約不可'}</span>
                   </li>

@@ -48,8 +48,8 @@ export default function TeacherStudentsPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">生徒カルテ</h1>
-            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">生徒の学習情報を管理</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">生徒カルテ</h1>
+            <p className="text-gray-600 dark:text-slate-400 text-sm mt-1">生徒の学習情報を管理</p>
           </div>
           <Button onClick={() => setShowAdd(true)}>
             <Plus className="w-4 h-4 mr-1" />生徒を追加
@@ -57,12 +57,12 @@ export default function TeacherStudentsPage() {
         </div>
 
         {error && (
-          <div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700">{error}</div>
+          <div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700 dark:bg-red-900/20 dark:border-red-800/30 dark:text-red-400">{error}</div>
         )}
 
         {profiles.length > 0 && (
           <div className="relative mb-6">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500" />
             <Input
               className="pl-10"
               placeholder="生徒名・学年で検索..."
@@ -73,10 +73,10 @@ export default function TeacherStudentsPage() {
         )}
 
         {loading || authLoading ? (
-          <div className="text-gray-500">読み込み中...</div>
+          <div className="text-gray-500 dark:text-slate-400">読み込み中...</div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500 mb-4">
+            <p className="text-gray-500 dark:text-slate-400 mb-4">
               {profiles.length === 0 ? '生徒が登録されていません。' : '検索結果がありません。'}
             </p>
             {profiles.length === 0 && (

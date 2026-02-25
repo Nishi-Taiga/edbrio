@@ -59,7 +59,7 @@ export default function GuardianReportDetailPage() {
   if (loading) {
     return (
       <ProtectedRoute allowedRoles={["guardian"]}>
-        <div className="container mx-auto px-4 py-8"><div className="text-gray-500">読み込み中...</div></div>
+        <div className="container mx-auto px-4 py-8"><div className="text-gray-500 dark:text-slate-400">読み込み中...</div></div>
       </ProtectedRoute>
     )
   }
@@ -68,7 +68,7 @@ export default function GuardianReportDetailPage() {
     return (
       <ProtectedRoute allowedRoles={["guardian"]}>
         <div className="container mx-auto px-4 py-8">
-          <div className="text-red-600">レポートが見つかりません。</div>
+          <div className="text-red-600 dark:text-red-400">レポートが見つかりません。</div>
           <Link href="/guardian/reports"><Button variant="outline" className="mt-4"><ArrowLeft className="w-4 h-4 mr-1" />一覧に戻る</Button></Link>
         </div>
       </ProtectedRoute>
@@ -83,13 +83,13 @@ export default function GuardianReportDetailPage() {
             <Button variant="ghost" size="sm"><ArrowLeft className="w-4 h-4" /></Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">レポート詳細</h1>
-            {profileName && <p className="text-gray-600 dark:text-gray-400 text-sm">{profileName}</p>}
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">レポート詳細</h1>
+            {profileName && <p className="text-gray-600 dark:text-slate-400 text-sm">{profileName}</p>}
           </div>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700">{error}</div>
+          <div className="mb-4 p-3 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded text-red-700 dark:text-red-400">{error}</div>
         )}
 
         <div className="space-y-4">
@@ -100,25 +100,25 @@ export default function GuardianReportDetailPage() {
               <dl className="grid grid-cols-2 gap-3 text-sm">
                 {report.published_at && (
                   <div>
-                    <dt className="text-gray-500">公開日</dt>
+                    <dt className="text-gray-500 dark:text-slate-400">公開日</dt>
                     <dd>{format(new Date(report.published_at), 'PPP', { locale: ja })}</dd>
                   </div>
                 )}
                 {report.subject && (
                   <div>
-                    <dt className="text-gray-500">教科</dt>
+                    <dt className="text-gray-500 dark:text-slate-400">教科</dt>
                     <dd>{report.subject}</dd>
                   </div>
                 )}
                 {report.comprehension_level && (
                   <div>
-                    <dt className="text-gray-500">理解度</dt>
+                    <dt className="text-gray-500 dark:text-slate-400">理解度</dt>
                     <dd><ComprehensionBadge level={report.comprehension_level} /></dd>
                   </div>
                 )}
                 {report.student_mood && (
                   <div>
-                    <dt className="text-gray-500">授業中の様子</dt>
+                    <dt className="text-gray-500 dark:text-slate-400">授業中の様子</dt>
                     <dd><MoodIndicator mood={report.student_mood} /></dd>
                   </div>
                 )}

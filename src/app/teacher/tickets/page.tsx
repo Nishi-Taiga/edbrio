@@ -60,11 +60,11 @@ export default function TeacherTicketsPage() {
             <CardDescription>販売中のチケット一覧</CardDescription>
           </CardHeader>
           <CardContent>
-            {error && (<div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700">{error}</div>)}
+            {error && (<div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700 dark:bg-red-900/20 dark:border-red-800/30 dark:text-red-400">{error}</div>)}
             {loading ? (
-              <div className="text-gray-500">読み込み中...</div>
+              <div className="text-gray-500 dark:text-slate-400">読み込み中...</div>
             ) : items.length === 0 ? (
-              <div className="text-gray-500">チケットがありません。</div>
+              <div className="text-gray-500 dark:text-slate-400">チケットがありません。</div>
             ) : (
               <div className="grid md:grid-cols-2 gap-4">
                 {items.map((t) => (
@@ -74,7 +74,7 @@ export default function TeacherTicketsPage() {
                       <CardDescription>{t.is_active ? '公開中' : '非公開'}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-sm text-gray-700 space-y-1">
+                      <div className="text-sm text-gray-700 dark:text-slate-300 space-y-1">
                         <div>時間: {t.minutes}分 × {t.bundle_qty}回</div>
                         <div>価格: {formatYen(t.price_cents)}</div>
                         <div>有効期限: {t.valid_days}日</div>

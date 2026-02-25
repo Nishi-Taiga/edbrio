@@ -22,7 +22,7 @@ export default function NewReportPage() {
   return (
     <Suspense fallback={
       <ProtectedRoute allowedRoles={["teacher"]}>
-        <div className="container mx-auto px-4 py-8"><div className="text-gray-500">読み込み中...</div></div>
+        <div className="container mx-auto px-4 py-8"><div className="text-gray-500 dark:text-slate-400">読み込み中...</div></div>
       </ProtectedRoute>
     }>
       <NewReportContent />
@@ -128,11 +128,11 @@ function NewReportContent() {
           <Link href="/teacher/reports">
             <Button variant="ghost" size="sm"><ArrowLeft className="w-4 h-4" /></Button>
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">レポート作成</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">レポート作成</h1>
         </div>
 
         {(aiError || saveError) && (
-          <div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700">
+          <div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700 dark:bg-red-900/20 dark:border-red-800/30 dark:text-red-400">
             {aiError || saveError}
           </div>
         )}
@@ -146,7 +146,7 @@ function NewReportContent() {
             <CardContent>
               <Label>生徒</Label>
               {profilesLoading || authLoading ? (
-                <div className="text-gray-500 text-sm">読み込み中...</div>
+                <div className="text-gray-500 dark:text-slate-400 text-sm">読み込み中...</div>
               ) : (
                 <Select value={selectedProfileId} onValueChange={setSelectedProfileId}>
                   <SelectTrigger><SelectValue placeholder="生徒を選択..." /></SelectTrigger>

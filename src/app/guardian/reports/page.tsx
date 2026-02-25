@@ -136,19 +136,19 @@ export default function GuardianReportsPage() {
   return (
     <ProtectedRoute allowedRoles={["guardian"]}>
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-4">レポート</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">レポート</h1>
         {error && (
-          <div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700">{error}</div>
+          <div className="mb-4 p-3 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded text-red-700 dark:text-red-400">{error}</div>
         )}
         {loading ? (
-          <div className="text-gray-500">読み込み中...</div>
+          <div className="text-gray-500 dark:text-slate-400">読み込み中...</div>
         ) : items.length === 0 ? (
-          <div className="text-gray-500">レポートはありません。</div>
+          <div className="text-gray-500 dark:text-slate-400">レポートはありません。</div>
         ) : (
           <div className="space-y-3">
             {items.map((r) => (
               <Link key={r.id} href={`/guardian/reports/${r.id}`}>
-                <Card className="hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors cursor-pointer">
+                <Card className="hover:bg-gray-50 dark:hover:bg-brand-900/20 transition-colors cursor-pointer">
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -159,7 +159,7 @@ export default function GuardianReportsPage() {
                           <Badge variant="outline" className="text-xs">{profileNames[r.profile_id]}</Badge>
                         )}
                         {r.subject && (
-                          <span className="text-xs text-gray-500">{r.subject}</span>
+                          <span className="text-xs text-gray-500 dark:text-slate-400">{r.subject}</span>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
@@ -169,7 +169,7 @@ export default function GuardianReportsPage() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
+                    <div className="text-sm text-gray-700 dark:text-slate-300 line-clamp-2">
                       {r.content_public ?? '（内容なし）'}
                     </div>
                   </CardContent>

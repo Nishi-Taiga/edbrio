@@ -67,27 +67,27 @@ export default function TeacherDashboard() {
     <ProtectedRoute allowedRoles={['teacher']}>
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">ダッシュボード</h1>
-          <p className="text-gray-600">予約とチケット、売上の概要</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">ダッシュボード</h1>
+          <p className="text-gray-600 dark:text-slate-400">予約とチケット、売上の概要</p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700">
+          <div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700 dark:bg-red-900/20 dark:border-red-800/30 dark:text-red-400">
             データ取得でエラーが発生しました: {error}
           </div>
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
-            <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">今月の売上</CardTitle></CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600 dark:text-slate-400">今月の売上</CardTitle></CardHeader>
             <CardContent><div className="text-2xl font-bold">{formatYen(monthRevenue)}</div></CardContent>
           </Card>
           <Card>
-            <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">アクティブ生徒</CardTitle></CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600 dark:text-slate-400">アクティブ生徒</CardTitle></CardHeader>
             <CardContent><div className="text-2xl font-bold">{studentCount}</div></CardContent>
           </Card>
           <Card>
-            <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600">公開中チケット</CardTitle></CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600 dark:text-slate-400">公開中チケット</CardTitle></CardHeader>
             <CardContent><div className="text-2xl font-bold">{activeTicketCount}</div></CardContent>
           </Card>
         </div>
@@ -101,9 +101,9 @@ export default function TeacherDashboard() {
               </CardHeader>
               <CardContent>
                 {loading ? (
-                  <div className="text-gray-500">読み込み中...</div>
+                  <div className="text-gray-500 dark:text-slate-400">読み込み中...</div>
                 ) : upcoming.length === 0 ? (
-                  <div className="text-gray-500">予定はありません。</div>
+                  <div className="text-gray-500 dark:text-slate-400">予定はありません。</div>
                 ) : (
                   <div className="space-y-3">
                     {upcoming.map((b: Booking) => (
@@ -114,7 +114,7 @@ export default function TeacherDashboard() {
                             <span className="mx-1">-</span>
                             {format(new Date(b.end_time), 'p', { locale: ja })}
                           </div>
-                          <div className="text-xs text-gray-600">生徒ID: {b.student_id}</div>
+                          <div className="text-xs text-gray-600 dark:text-slate-400">生徒ID: {b.student_id}</div>
                         </div>
                         <Badge variant={b.status === 'confirmed' ? 'default' : 'secondary'}>{b.status}</Badge>
                       </div>
@@ -137,11 +137,11 @@ export default function TeacherDashboard() {
                     const Icon = a.icon
                     return (
                       <Link key={a.title} href={a.href}>
-                        <div className="flex items-center p-3 rounded-lg border hover:bg-gray-50 transition-colors cursor-pointer">
-                          <Icon className="h-5 w-5 text-blue-600 mr-3" />
+                        <div className="flex items-center p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-brand-900/20 transition-colors cursor-pointer">
+                          <Icon className="h-5 w-5 text-brand-600 dark:text-brand-400 mr-3" />
                           <div>
                             <div className="font-medium text-sm">{a.title}</div>
-                            <div className="text-xs text-gray-600">{a.description}</div>
+                            <div className="text-xs text-gray-600 dark:text-slate-400">{a.description}</div>
                           </div>
                         </div>
                       </Link>

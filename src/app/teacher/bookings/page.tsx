@@ -33,11 +33,11 @@ export default function TeacherBookingsPage() {
     <ProtectedRoute allowedRoles={["teacher"]}>
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-4">予約一覧</h1>
-        {error && (<div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700">{error}</div>)}
+        {error && (<div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700 dark:bg-red-900/20 dark:border-red-800/30 dark:text-red-400">{error}</div>)}
         {loading ? (
-          <div className="text-gray-500">読み込み中...</div>
+          <div className="text-gray-500 dark:text-slate-400">読み込み中...</div>
         ) : items.length === 0 ? (
-          <div className="text-gray-500">予約はありません。</div>
+          <div className="text-gray-500 dark:text-slate-400">予約はありません。</div>
         ) : (
           <div className="space-y-3">
             {items.map((b) => (
@@ -45,11 +45,11 @@ export default function TeacherBookingsPage() {
                 <CardHeader><CardTitle className="text-sm">生徒ID: {b.student_id}</CardTitle></CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-700">
+                    <div className="text-sm text-gray-700 dark:text-slate-300">
                       {format(new Date(b.start_time), 'PPP p', { locale: ja })} - {format(new Date(b.end_time), 'p', { locale: ja })}
-                      <span className={`ml-2 inline-block rounded px-2 py-0.5 text-xs border ${b.status === 'confirmed' ? 'bg-green-50 text-green-700 border-green-200' :
-                          b.status === 'pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
-                            'bg-gray-50 text-gray-700 border-gray-200'
+                      <span className={`ml-2 inline-block rounded px-2 py-0.5 text-xs border ${b.status === 'confirmed' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800/30' :
+                          b.status === 'pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800/30' :
+                            'bg-gray-50 text-gray-700 border-gray-200 dark:bg-surface dark:text-slate-300 dark:border-brand-800/20'
                         }`}>
                         {b.status}
                       </span>

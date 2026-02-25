@@ -117,12 +117,12 @@ export default function TeacherReportsPage() {
             <Button><Plus className="w-4 h-4 mr-1" />新規レポート作成</Button>
           </Link>
         </div>
-        {error && (<div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700">{error}</div>)}
+        {error && (<div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700 dark:bg-red-900/20 dark:border-red-800/30 dark:text-red-400">{error}</div>)}
         {loading ? (
-          <div className="text-gray-500">読み込み中...</div>
+          <div className="text-gray-500 dark:text-slate-400">読み込み中...</div>
         ) : items.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500 mb-4">レポートはありません。</p>
+            <p className="text-gray-500 dark:text-slate-400 mb-4">レポートはありません。</p>
             <Link href="/teacher/reports/new">
               <Button><Plus className="w-4 h-4 mr-1" />最初のレポートを作成</Button>
             </Link>
@@ -131,7 +131,7 @@ export default function TeacherReportsPage() {
           <div className="space-y-3">
             {items.map((r) => (
               <Link key={r.id} href={`/teacher/reports/${r.id}`}>
-                <Card className="hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors cursor-pointer">
+                <Card className="hover:bg-gray-50 dark:hover:bg-brand-900/20 transition-colors cursor-pointer">
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -142,7 +142,7 @@ export default function TeacherReportsPage() {
                           <Badge variant="outline" className="text-xs">{profileNames[r.profile_id]}</Badge>
                         )}
                         {r.subject && (
-                          <span className="text-xs text-gray-500">{r.subject}</span>
+                          <span className="text-xs text-gray-500 dark:text-slate-400">{r.subject}</span>
                         )}
                       </div>
                       <div className="flex items-center gap-2">

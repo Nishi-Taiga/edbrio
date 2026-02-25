@@ -125,12 +125,12 @@ export default function GuardianTickets() {
     <ProtectedRoute allowedRoles={['guardian']}>
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">チケット</h1>
-          <p className="text-gray-600">チケットの購入と残高を管理します</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">チケット</h1>
+          <p className="text-gray-600 dark:text-slate-400">チケットの購入と残高を管理します</p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700">
+          <div className="mb-4 p-3 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded text-red-700 dark:text-red-400">
             データ取得でエラーが発生しました: {error}
           </div>
         )}
@@ -143,7 +143,7 @@ export default function GuardianTickets() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="text-gray-500">読み込み中...</div>
+              <div className="text-gray-500 dark:text-slate-400">読み込み中...</div>
             ) : (
               <div className="grid md:grid-cols-2 gap-4">
                 {tickets.map((ticket) => (
@@ -151,12 +151,12 @@ export default function GuardianTickets() {
                     <CardHeader>
                       <CardTitle className="flex items-center justify-between">
                         <span>{ticket.name}</span>
-                        <span className="text-blue-600">{formatPrice(ticket.price_cents)}</span>
+                        <span className="text-brand-600 dark:text-brand-400">{formatPrice(ticket.price_cents)}</span>
                       </CardTitle>
                       <CardDescription>講師: {ticket.teacher_id}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-sm text-gray-600 mb-3">
+                      <div className="text-sm text-gray-600 dark:text-slate-400 mb-3">
                         <div>時間: {ticket.minutes}分 × {ticket.bundle_qty}回</div>
                         <div>有効期限: {ticket.valid_days}日</div>
                       </div>
@@ -179,7 +179,7 @@ export default function GuardianTickets() {
           </CardHeader>
           <CardContent>
             {balances.length === 0 ? (
-              <div className="text-gray-500">チケットはありません。</div>
+              <div className="text-gray-500 dark:text-slate-400">チケットはありません。</div>
             ) : (
               <Table>
                 <TableHeader>
@@ -212,7 +212,7 @@ export default function GuardianTickets() {
               <DialogTitle>チケットの購入確認</DialogTitle>
               <DialogDescription>
                 {selectedTicket && (
-                  <div className="text-sm text-gray-700">
+                  <div className="text-sm text-gray-700 dark:text-slate-300">
                     <div className="font-medium">{selectedTicket.name}</div>
                     <div className="mt-1">価格: {formatPrice(selectedTicket.price_cents)}</div>
                     <div className="mt-1">時間: {selectedTicket.minutes}分 × {selectedTicket.bundle_qty}回</div>

@@ -9,8 +9,25 @@
   --foreground: #0f0a1a;
   --surface: #faf8ff;
   --surface-raised: #ffffff;
-  --muted: #6b7280;
+  --muted: #f5f0ff;
+  --muted-foreground: #6b7280;
   --border: #e9e5f0;
+
+  /* shadcn/ui semantic tokens */
+  --card: #ffffff;
+  --card-foreground: #0f0a1a;
+  --popover: #ffffff;
+  --popover-foreground: #0f0a1a;
+  --primary: #7c3aed;
+  --primary-foreground: #ffffff;
+  --secondary: #ede5ff;
+  --secondary-foreground: #6d28d9;
+  --accent: #f5f0ff;
+  --accent-foreground: #6d28d9;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --input: #e9e5f0;
+  --ring: #7c3aed;
 }
 
 /* ===== Dark theme ===== */
@@ -19,8 +36,25 @@
   --foreground: #f0ecf7;
   --surface: #110e1a;
   --surface-raised: #1a1625;
-  --muted: #9ca3af;
+  --muted: #1a1625;
+  --muted-foreground: #9ca3af;
   --border: #2a2538;
+
+  /* shadcn/ui semantic tokens */
+  --card: #1a1625;
+  --card-foreground: #f0ecf7;
+  --popover: #1a1625;
+  --popover-foreground: #f0ecf7;
+  --primary: #8b4ff6;
+  --primary-foreground: #ffffff;
+  --secondary: #2e1065;
+  --secondary-foreground: #c4acfd;
+  --accent: #2e1065;
+  --accent-foreground: #c4acfd;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --input: #2a2538;
+  --ring: #8b4ff6;
 }
 
 @theme inline {
@@ -34,7 +68,24 @@
   --color-surface: var(--surface);
   --color-surface-raised: var(--surface-raised);
   --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
   --color-border-semantic: var(--border);
+
+  /* shadcn/ui component tokens */
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 
   /* Brand purple scale (anchored to logo #7C3AED) */
   --color-brand-50:  #f5f0ff;
