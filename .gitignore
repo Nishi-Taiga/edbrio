@@ -45,5 +45,28 @@ next-env.d.ts
 .gemini/
 .tmp.drivedownload/
 .tmp.driveupload/
-edbrio-dev.txt
 test-results/
+
+# secrets / dev notes (never commit)
+edbrio-dev.txt
+
+# build artifacts
+lint-errors.json
+LP.html
+
+# Supabase CLI temp
+supabase/.temp/
+
+# unused Next.js default assets
+public/file.svg
+public/globe.svg
+public/next.svg
+public/vercel.svg
+public/window.svg
+public/landing.pdf
+
+# logo design project (standalone Vite app)
+EdBrio ロゴデザイン/
+
+# unused CSS
+src/app/landing.css
