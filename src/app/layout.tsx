@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ConditionalHeader } from '@/components/layout/conditional-header'
+import { ThemeProvider } from '@/components/theme-provider'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,11 +26,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja" suppressHydrationWarning>
-      <body suppressHydrationWarning
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-gray-50`}
+      <body
+        suppressHydrationWarning
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background text-foreground`}
       >
-        <ConditionalHeader />
-        <main>{children}</main>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <ConditionalHeader />
+          <main>{children}</main>
+        </ThemeProvider>
       </body>
     </html>
   );

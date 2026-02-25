@@ -3,7 +3,9 @@
 import { useEffect } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/use-auth'
-import { GraduationCap, Sparkles, BookOpen, Calendar, CreditCard, ArrowRight, ChevronDown, Check } from 'lucide-react'
+import { Sparkles, BookOpen, Calendar, CreditCard, ArrowRight, ChevronDown, Check } from 'lucide-react'
+import { EdBrioLogo } from '@/components/ui/edbrio-logo'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 export default function HomePage() {
   const { user, dbUser, loading } = useAuth()
@@ -20,8 +22,8 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
       </div>
     )
   }
@@ -42,89 +44,93 @@ export default function HomePage() {
   }
 
   return (
-    <div className="bg-white text-slate-900 font-sans antialiased">
+    <div className="bg-background text-foreground font-sans antialiased">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+      {/* ── Navigation ── */}
+      <nav className="fixed top-0 w-full z-50 bg-white/80 dark:bg-brand-950/80 backdrop-blur-md border-b border-brand-100/50 dark:border-brand-800/30">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="text-2xl font-extrabold tracking-tight text-primary-700 flex items-center gap-2">
-            <div className="bg-primary-600 w-9 h-9 rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary-600/30">
-              <GraduationCap className="w-5 h-5" />
-            </div>
-            EdBrio
+          <div className="flex items-center gap-2.5">
+            <EdBrioLogo size={36} className="shrink-0" />
+            <span className="text-2xl font-extrabold tracking-tight text-brand-700 dark:text-brand-300">EdBrio</span>
           </div>
-          <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-500">
-            <a href="#features" className="hover:text-primary-600 transition">機能</a>
-            <a href="#use-cases" className="hover:text-primary-600 transition">活用シーン</a>
-            <a href="#pricing" className="hover:text-primary-600 transition">料金</a>
-            <a href="#faq" className="hover:text-primary-600 transition">よくある質問</a>
+          <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-500 dark:text-slate-400">
+            <a href="#features" className="hover:text-brand-600 dark:hover:text-brand-400 transition">機能</a>
+            <a href="#use-cases" className="hover:text-brand-600 dark:hover:text-brand-400 transition">活用シーン</a>
+            <a href="#pricing" className="hover:text-brand-600 dark:hover:text-brand-400 transition">料金</a>
+            <a href="#faq" className="hover:text-brand-600 dark:hover:text-brand-400 transition">よくある質問</a>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/login" className="hidden sm:block text-sm font-bold text-slate-500 hover:text-primary-600">ログイン</Link>
-            <Link href="/login" className="bg-primary-600 text-white px-6 py-3 rounded-2xl text-sm font-bold hover:bg-primary-700 transition shadow-lg shadow-primary-600/20">
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <Link href="/login" className="hidden sm:block text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-300 transition">ログイン</Link>
+            <Link href="/login" className="bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400 text-white px-6 py-3 rounded-2xl text-sm font-bold transition shadow-lg shadow-brand-600/20">
               無料で始める
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="pt-40 pb-20 px-6 bg-[radial-gradient(#e2e8f0_0.5px,transparent_0.5px)] [background-size:24px_24px]">
-        <div className="max-w-5xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-primary-50 border border-primary-100 rounded-full px-4 py-1.5 text-xs font-bold text-primary-600 mb-8">
+      {/* ── Hero ── */}
+      <section className="relative pt-40 pb-24 px-6 overflow-hidden bg-gradient-to-b from-brand-50 via-white to-white dark:from-brand-950 dark:via-background dark:to-background">
+        {/* Decorative blobs */}
+        <div className="absolute top-10 left-1/4 w-96 h-96 bg-brand-400/20 dark:bg-brand-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-32 right-1/4 w-72 h-72 bg-accent-400/15 dark:bg-accent-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-40 bg-brand-300/10 dark:bg-brand-700/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative max-w-5xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 bg-brand-50 dark:bg-brand-900/50 border border-brand-100 dark:border-brand-700/50 rounded-full px-4 py-1.5 text-xs font-bold text-brand-600 dark:text-brand-300 mb-8">
             <Sparkles className="w-3.5 h-3.5" />
             AI報告書生成で業務時間を1/3に
           </div>
-          <h1 className="text-5xl md:text-7xl font-black tracking-tight text-slate-900 leading-[1.1] mb-8">
-            授業メモを入力するだけ。<br />
-            <span className="text-primary-600">報告書はAIにおまかせ。</span>
+          <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[1.1] mb-8">
+            <span className="text-slate-900 dark:text-white">授業メモを入力するだけ。</span><br />
+            <span className="bg-gradient-to-r from-brand-600 to-accent-600 bg-clip-text text-transparent">報告書はAIにおまかせ。</span>
           </h1>
-          <p className="text-slate-500 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-12">
+          <p className="text-slate-500 dark:text-slate-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-12">
             EdBrioは、家庭教師・個別指導講師のための管理システム。<br className="hidden md:block" />
             授業後のメモから保護者向け報告書をAIが自動生成します。
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
-            <Link href="/login" className="w-full sm:w-auto bg-primary-600 hover:bg-primary-700 text-white px-10 py-5 rounded-3xl font-bold text-lg transition shadow-xl shadow-primary-600/30 flex items-center justify-center gap-2">
+            <Link href="/login" className="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400 text-white px-10 py-5 rounded-3xl font-bold text-lg transition shadow-xl shadow-brand-600/30 flex items-center justify-center gap-2">
               無料で始める <ArrowRight className="w-5 h-5" />
             </Link>
-            <a href="#features" className="w-full sm:w-auto bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-10 py-5 rounded-3xl font-bold text-lg transition">
+            <a href="#features" className="w-full sm:w-auto bg-white dark:bg-brand-900/50 border border-slate-200 dark:border-brand-700/50 hover:bg-slate-50 dark:hover:bg-brand-800/50 text-slate-700 dark:text-slate-200 px-10 py-5 rounded-3xl font-bold text-lg transition">
               機能を詳しく見る
             </a>
           </div>
 
           {/* AI Report Flow Visual */}
           <div className="relative max-w-4xl mx-auto">
-            <div className="absolute -inset-4 bg-gradient-to-tr from-primary-100 to-blue-50 rounded-[2.5rem] blur-2xl opacity-50 -z-10"></div>
-            <div className="bg-white rounded-3xl p-8 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100">
+            <div className="absolute -inset-4 bg-gradient-to-tr from-brand-400/30 to-accent-400/20 dark:from-brand-600/20 dark:to-accent-600/10 rounded-[2.5rem] blur-2xl -z-10" />
+            <div className="bg-white/80 dark:bg-white/5 backdrop-blur-xl rounded-3xl p-8 shadow-[0_32px_64px_-16px_rgba(124,58,237,0.15)] dark:shadow-[0_32px_64px_-16px_rgba(124,58,237,0.3)] border border-brand-100/50 dark:border-brand-700/30">
               <div className="grid md:grid-cols-[1fr_auto_1fr] gap-6 items-center">
-                {/* Step 1: Memo Input */}
-                <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 text-left">
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">STEP 1 — 授業メモ入力</div>
-                  <div className="space-y-2 text-sm text-slate-600">
-                    <div className="bg-white rounded-lg p-3 border border-slate-100">教科: 数学</div>
-                    <div className="bg-white rounded-lg p-3 border border-slate-100">理解度: ★★★★☆</div>
-                    <div className="bg-white rounded-lg p-3 border border-slate-100">二次方程式の基本は理解。応用問題でつまずきあり。</div>
+                {/* Step 1 */}
+                <div className="bg-slate-50 dark:bg-brand-950/50 rounded-2xl p-6 border border-slate-200 dark:border-brand-800/50 text-left">
+                  <div className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3">STEP 1 — 授業メモ入力</div>
+                  <div className="space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                    <div className="bg-white dark:bg-brand-900/30 rounded-lg p-3 border border-slate-100 dark:border-brand-800/30">教科: 数学</div>
+                    <div className="bg-white dark:bg-brand-900/30 rounded-lg p-3 border border-slate-100 dark:border-brand-800/30">理解度: ★★★★☆</div>
+                    <div className="bg-white dark:bg-brand-900/30 rounded-lg p-3 border border-slate-100 dark:border-brand-800/30">二次方程式の基本は理解。応用問題でつまずきあり。</div>
                   </div>
                 </div>
 
                 {/* Arrow */}
                 <div className="flex flex-col items-center gap-2">
-                  <div className="w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-primary-600/30">
+                  <div className="w-12 h-12 bg-gradient-to-br from-brand-600 to-accent-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-brand-600/30">
                     <Sparkles className="w-5 h-5" />
                   </div>
-                  <span className="text-xs font-bold text-primary-600">AI生成</span>
+                  <span className="text-xs font-bold text-brand-600 dark:text-brand-400">AI生成</span>
                 </div>
 
-                {/* Step 2: Report Output */}
-                <div className="bg-primary-50 rounded-2xl p-6 border border-primary-100 text-left">
-                  <div className="text-xs font-bold text-primary-600 uppercase tracking-widest mb-3">STEP 2 — 報告書完成</div>
-                  <div className="space-y-2 text-sm text-slate-700">
-                    <p className="font-bold">本日の数学の授業報告</p>
-                    <p className="text-slate-600 leading-relaxed">二次方程式の解の公式について学習しました。基本的な計算は正確に行えています。応用問題では...</p>
+                {/* Step 2 */}
+                <div className="bg-brand-50 dark:bg-brand-900/30 rounded-2xl p-6 border border-brand-100 dark:border-brand-700/30 text-left">
+                  <div className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-3">STEP 2 — 報告書完成</div>
+                  <div className="space-y-2 text-sm text-slate-700 dark:text-slate-300">
+                    <p className="font-bold text-slate-900 dark:text-white">本日の数学の授業報告</p>
+                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed">二次方程式の解の公式について学習しました。基本的な計算は正確に行えています。応用問題では...</p>
                     <div className="flex gap-2 mt-2">
-                      <span className="bg-primary-100 text-primary-700 px-2 py-0.5 rounded text-xs font-bold">保護者共有OK</span>
-                      <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-xs font-bold">宿題付き</span>
+                      <span className="bg-brand-100 dark:bg-brand-800/50 text-brand-700 dark:text-brand-300 px-2 py-0.5 rounded text-xs font-bold">保護者共有OK</span>
+                      <span className="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded text-xs font-bold">宿題付き</span>
                     </div>
                   </div>
                 </div>
@@ -134,52 +140,54 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features */}
-      <section id="features" className="py-32 px-6">
+      {/* ── Features ── */}
+      <section id="features" className="py-32 px-6 bg-background">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-24">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-6">指導に必要なすべてが、<span className="text-primary-600">ここに。</span></h2>
-            <p className="text-slate-500 text-lg">LINE、Excel、銀行アプリ、手帳。バラバラだったツールをEdBrioがスマートに統合します。</p>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-6 text-slate-900 dark:text-white">
+              指導に必要なすべてが、<span className="text-brand-600 dark:text-brand-400">ここに。</span>
+            </h2>
+            <p className="text-slate-500 dark:text-slate-400 text-lg">LINE、Excel、銀行アプリ、手帳。バラバラだったツールをEdBrioがスマートに統合します。</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* AI Reports */}
-            <div className="p-10 rounded-3xl bg-gradient-to-br from-primary-50 to-white border-2 border-primary-100 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] hover:translate-y-[-8px] transition duration-300">
-              <div className="w-14 h-14 bg-primary-100 rounded-2xl flex items-center justify-center text-primary-600 mb-8">
+            {/* AI Reports — featured */}
+            <div className="group p-10 rounded-3xl bg-gradient-to-br from-brand-50/80 to-white dark:from-brand-900/30 dark:to-brand-950/50 border border-brand-100 dark:border-brand-700/30 shadow-[0_10px_30px_-10px_rgba(124,58,237,0.1)] dark:shadow-[0_10px_30px_-10px_rgba(124,58,237,0.2)] hover:translate-y-[-8px] hover:shadow-[0_20px_40px_-10px_rgba(124,58,237,0.2)] transition duration-300">
+              <div className="w-14 h-14 bg-brand-100 dark:bg-brand-800/40 rounded-2xl flex items-center justify-center text-brand-600 dark:text-brand-400 mb-8">
                 <Sparkles className="w-7 h-7" />
               </div>
-              <h3 className="text-2xl font-bold mb-4">AI報告書生成</h3>
-              <p className="text-slate-500 leading-relaxed">
+              <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">AI報告書生成</h3>
+              <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
                 授業後のメモを入力するだけで、AIが保護者向けの丁寧な報告書を自動生成。理解度・宿題・次回予定まで含めたプロ仕様のレポートを数秒で作成します。
               </p>
             </div>
             {/* Student Karte */}
-            <div className="p-10 rounded-3xl bg-white border border-slate-100 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] hover:translate-y-[-8px] transition duration-300">
-              <div className="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 mb-8">
+            <div className="group p-10 rounded-3xl bg-white dark:bg-surface-raised border border-slate-100 dark:border-brand-800/20 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] dark:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] hover:translate-y-[-8px] hover:border-brand-200 dark:hover:border-brand-700/50 transition duration-300">
+              <div className="w-14 h-14 bg-amber-50 dark:bg-amber-900/20 rounded-2xl flex items-center justify-center text-amber-600 dark:text-amber-400 mb-8">
                 <BookOpen className="w-7 h-7" />
               </div>
-              <h3 className="text-2xl font-bold mb-4">生徒カルテ</h3>
-              <p className="text-slate-500 leading-relaxed">
+              <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">生徒カルテ</h3>
+              <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
                 学習目標・つまずきポイント・得意分野を一元管理。生徒ごとの指導方針を可視化し、講師間の引継ぎもスムーズに行えます。
               </p>
             </div>
             {/* Scheduling */}
-            <div className="p-10 rounded-3xl bg-white border border-slate-100 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] hover:translate-y-[-8px] transition duration-300">
-              <div className="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 mb-8">
+            <div className="group p-10 rounded-3xl bg-white dark:bg-surface-raised border border-slate-100 dark:border-brand-800/20 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] dark:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] hover:translate-y-[-8px] hover:border-brand-200 dark:hover:border-brand-700/50 transition duration-300">
+              <div className="w-14 h-14 bg-purple-50 dark:bg-purple-900/20 rounded-2xl flex items-center justify-center text-purple-600 dark:text-purple-400 mb-8">
                 <Calendar className="w-7 h-7" />
               </div>
-              <h3 className="text-2xl font-bold mb-4">予定管理</h3>
-              <p className="text-slate-500 leading-relaxed">
+              <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">予定管理</h3>
+              <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
                 カレンダーに予定を入れるだけで、月末の請求金額を自動計算。振替授業の管理もミスなく完結します。
               </p>
             </div>
             {/* Payments */}
-            <div className="p-10 rounded-3xl bg-white border border-slate-100 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] hover:translate-y-[-8px] transition duration-300">
-              <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 mb-8">
+            <div className="group p-10 rounded-3xl bg-white dark:bg-surface-raised border border-slate-100 dark:border-brand-800/20 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] dark:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] hover:translate-y-[-8px] hover:border-brand-200 dark:hover:border-brand-700/50 transition duration-300">
+              <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-8">
                 <CreditCard className="w-7 h-7" />
               </div>
-              <h3 className="text-2xl font-bold mb-4">シームレス決済</h3>
-              <p className="text-slate-500 leading-relaxed">
+              <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">シームレス決済</h3>
+              <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
                 Stripe連携により、請求書の自動送付から入金確認まで自動化。現金や振込確認の手間から解放されます。
               </p>
             </div>
@@ -187,31 +195,33 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Use Cases */}
-      <section id="use-cases" className="py-32 px-6 bg-slate-50">
+      {/* ── Use Cases ── */}
+      <section id="use-cases" className="py-32 px-6 bg-surface">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-20">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-6">こんな方に<span className="text-primary-600">選ばれています</span></h2>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-6 text-slate-900 dark:text-white">
+              こんな方に<span className="text-brand-600 dark:text-brand-400">選ばれています</span>
+            </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white rounded-3xl p-10 border border-slate-100 shadow-sm">
+            <div className="bg-white dark:bg-surface-raised rounded-3xl p-10 border border-slate-100 dark:border-brand-800/20 shadow-sm dark:shadow-md dark:shadow-black/20">
               <div className="text-4xl mb-6">🏠</div>
-              <h3 className="text-xl font-bold mb-3">家庭教師</h3>
-              <p className="text-slate-500 leading-relaxed text-sm">
+              <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-white">家庭教師</h3>
+              <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm">
                 毎回の報告書作成に30分→AI生成で5分に短縮。保護者との信頼関係構築に集中できます。
               </p>
             </div>
-            <div className="bg-white rounded-3xl p-10 border border-slate-100 shadow-sm">
+            <div className="bg-white dark:bg-surface-raised rounded-3xl p-10 border border-slate-100 dark:border-brand-800/20 shadow-sm dark:shadow-md dark:shadow-black/20">
               <div className="text-4xl mb-6">🏫</div>
-              <h3 className="text-xl font-bold mb-3">個別指導塾</h3>
-              <p className="text-slate-500 leading-relaxed text-sm">
+              <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-white">個別指導塾</h3>
+              <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm">
                 複数講師間の情報共有を生徒カルテで一元化。引継ぎメモで代講時もスムーズに対応。
               </p>
             </div>
-            <div className="bg-white rounded-3xl p-10 border border-slate-100 shadow-sm">
+            <div className="bg-white dark:bg-surface-raised rounded-3xl p-10 border border-slate-100 dark:border-brand-800/20 shadow-sm dark:shadow-md dark:shadow-black/20">
               <div className="text-4xl mb-6">💻</div>
-              <h3 className="text-xl font-bold mb-3">オンライン講師</h3>
-              <p className="text-slate-500 leading-relaxed text-sm">
+              <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-white">オンライン講師</h3>
+              <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm">
                 予約管理から報告書共有、決済まで完全オンラインで完結。場所を選ばず指導に集中。
               </p>
             </div>
@@ -219,60 +229,60 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Pricing */}
-      <section id="pricing" className="py-32 px-6">
+      {/* ── Pricing ── */}
+      <section id="pricing" className="py-32 px-6 bg-background">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-6">シンプルで明快な料金</h2>
-            <p className="text-slate-500 text-lg">先生の規模に合わせて。まずはお試しから。</p>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-6 text-slate-900 dark:text-white">シンプルで明快な料金</h2>
+            <p className="text-slate-500 dark:text-slate-400 text-lg">先生の規模に合わせて。まずはお試しから。</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 items-stretch">
             {/* Free Plan */}
-            <div className="bg-white rounded-[2.5rem] p-12 border border-slate-200 flex flex-col">
-              <h3 className="text-lg font-bold text-slate-400 mb-2">Free</h3>
-              <div className="text-5xl font-black mb-6">¥0</div>
-              <p className="text-slate-500 mb-10">まずは無料で使い始める</p>
+            <div className="bg-white dark:bg-surface-raised rounded-[2.5rem] p-12 border border-slate-200 dark:border-brand-800/30 flex flex-col">
+              <h3 className="text-lg font-bold text-slate-400 dark:text-slate-500 mb-2">Free</h3>
+              <div className="text-5xl font-black text-slate-900 dark:text-white mb-6">¥0</div>
+              <p className="text-slate-500 dark:text-slate-400 mb-10">まずは無料で使い始める</p>
               <div className="flex-1">
                 <ul className="space-y-4 mb-12">
-                  <li className="flex items-center gap-3 text-slate-600 font-medium">
-                    <Check className="w-5 h-5 text-emerald-500" /> 生徒数 2名まで
+                  <li className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-medium">
+                    <Check className="w-5 h-5 text-emerald-500 dark:text-emerald-400 shrink-0" /> 生徒数 2名まで
                   </li>
-                  <li className="flex items-center gap-3 text-slate-600 font-medium">
-                    <Check className="w-5 h-5 text-emerald-500" /> 基本的な予定・報告機能
+                  <li className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-medium">
+                    <Check className="w-5 h-5 text-emerald-500 dark:text-emerald-400 shrink-0" /> 基本的な予定・報告機能
                   </li>
                 </ul>
               </div>
-              <Link href="/login" className="w-full py-5 rounded-2xl bg-slate-100 text-slate-900 font-bold text-center hover:bg-slate-200 transition block">
+              <Link href="/login" className="w-full py-5 rounded-2xl bg-slate-100 dark:bg-brand-900/50 text-slate-900 dark:text-slate-200 font-bold text-center hover:bg-slate-200 dark:hover:bg-brand-800/50 transition block">
                 無料で始める
               </Link>
             </div>
 
             {/* Standard Plan */}
-            <div className="bg-white rounded-[2.5rem] p-12 border-2 border-primary-600 shadow-2xl shadow-primary-600/10 flex flex-col relative">
-              <div className="absolute top-8 right-8 bg-primary-600 text-white px-4 py-1.5 rounded-full text-xs font-bold">
+            <div className="bg-white dark:bg-surface-raised rounded-[2.5rem] p-12 border-2 border-brand-600 dark:border-brand-500 shadow-2xl shadow-brand-600/10 dark:shadow-brand-600/20 flex flex-col relative">
+              <div className="absolute top-8 right-8 bg-brand-600 dark:bg-brand-500 text-white px-4 py-1.5 rounded-full text-xs font-bold">
                 1ヶ月無料お試し
               </div>
-              <h3 className="text-lg font-bold text-primary-600 mb-2">Standard</h3>
-              <div className="text-5xl font-black mb-6">¥1,480<span className="text-lg font-medium text-slate-400">/月</span></div>
-              <p className="text-slate-500 mb-10 text-sm">※30日間無料トライアル。期間中の解約なら¥0。</p>
+              <h3 className="text-lg font-bold text-brand-600 dark:text-brand-400 mb-2">Standard</h3>
+              <div className="text-5xl font-black text-slate-900 dark:text-white mb-6">¥1,480<span className="text-lg font-medium text-slate-400 dark:text-slate-500">/月</span></div>
+              <p className="text-slate-500 dark:text-slate-400 mb-10 text-sm">※30日間無料トライアル。期間中の解約なら¥0。</p>
               <div className="flex-1">
                 <ul className="space-y-4 mb-12">
-                  <li className="flex items-center gap-3 text-slate-600 font-bold">
-                    <Check className="w-5 h-5 text-primary-600" /> 生徒数 無制限
+                  <li className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-bold">
+                    <Check className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" /> 生徒数 無制限
                   </li>
-                  <li className="flex items-center gap-3 text-slate-600 font-bold">
-                    <Check className="w-5 h-5 text-primary-600" /> AI報告書 無制限生成
+                  <li className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-bold">
+                    <Check className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" /> AI報告書 無制限生成
                   </li>
-                  <li className="flex items-center gap-3 text-slate-600 font-bold">
-                    <Check className="w-5 h-5 text-primary-600" /> Stripe決済連携（月謝請求）
+                  <li className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-bold">
+                    <Check className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" /> Stripe決済連携（月謝請求）
                   </li>
-                  <li className="flex items-center gap-3 text-slate-600 font-bold">
-                    <Check className="w-5 h-5 text-primary-600" /> 優先カスタマーサポート
+                  <li className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-bold">
+                    <Check className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" /> 優先カスタマーサポート
                   </li>
                 </ul>
               </div>
-              <Link href="/login" className="w-full py-5 rounded-2xl bg-primary-600 text-white font-bold text-center hover:bg-primary-700 transition shadow-lg shadow-primary-600/20 block">
+              <Link href="/login" className="w-full py-5 rounded-2xl bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400 text-white font-bold text-center transition shadow-lg shadow-brand-600/20 block">
                 無料で1ヶ月試してみる
               </Link>
             </div>
@@ -280,44 +290,44 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FAQ */}
-      <section id="faq" className="py-32 px-6 bg-slate-50">
+      {/* ── FAQ ── */}
+      <section id="faq" className="py-32 px-6 bg-surface">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-4xl font-black text-center mb-16 tracking-tight">よくある質問</h2>
+          <h2 className="text-4xl font-black text-center mb-16 tracking-tight text-slate-900 dark:text-white">よくある質問</h2>
           <div className="space-y-4">
-            <details className="group bg-white rounded-2xl border border-slate-100 shadow-sm">
-              <summary className="p-6 cursor-pointer flex items-center justify-between font-bold text-lg list-none">
+            <details className="group bg-white dark:bg-surface-raised rounded-2xl border border-slate-100 dark:border-brand-800/20 shadow-sm dark:shadow-md dark:shadow-black/20">
+              <summary className="p-6 cursor-pointer flex items-center justify-between font-bold text-lg list-none text-slate-900 dark:text-white">
                 AI報告書の精度はどの程度ですか？
-                <ChevronDown className="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform" />
+                <ChevronDown className="w-5 h-5 text-slate-400 dark:text-slate-500 group-open:rotate-180 transition-transform shrink-0" />
               </summary>
-              <div className="px-6 pb-6 text-slate-500 leading-relaxed">
+              <div className="px-6 pb-6 text-slate-500 dark:text-slate-400 leading-relaxed">
                 Claude AIを活用し、授業メモの内容に基づいて自然な日本語の報告書を生成します。生成後に編集も可能なため、先生のスタイルに合わせて調整できます。
               </div>
             </details>
-            <details className="group bg-white rounded-2xl border border-slate-100 shadow-sm">
-              <summary className="p-6 cursor-pointer flex items-center justify-between font-bold text-lg list-none">
+            <details className="group bg-white dark:bg-surface-raised rounded-2xl border border-slate-100 dark:border-brand-800/20 shadow-sm dark:shadow-md dark:shadow-black/20">
+              <summary className="p-6 cursor-pointer flex items-center justify-between font-bold text-lg list-none text-slate-900 dark:text-white">
                 親御さんはアプリをインストールする必要がありますか？
-                <ChevronDown className="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform" />
+                <ChevronDown className="w-5 h-5 text-slate-400 dark:text-slate-500 group-open:rotate-180 transition-transform shrink-0" />
               </summary>
-              <div className="px-6 pb-6 text-slate-500 leading-relaxed">
+              <div className="px-6 pb-6 text-slate-500 dark:text-slate-400 leading-relaxed">
                 いいえ、不要です。保護者はブラウザからログインするだけで、報告書の閲覧や学習進捗の確認ができます。
               </div>
             </details>
-            <details className="group bg-white rounded-2xl border border-slate-100 shadow-sm">
-              <summary className="p-6 cursor-pointer flex items-center justify-between font-bold text-lg list-none">
+            <details className="group bg-white dark:bg-surface-raised rounded-2xl border border-slate-100 dark:border-brand-800/20 shadow-sm dark:shadow-md dark:shadow-black/20">
+              <summary className="p-6 cursor-pointer flex items-center justify-between font-bold text-lg list-none text-slate-900 dark:text-white">
                 無料トライアル期間が終わるとどうなりますか？
-                <ChevronDown className="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform" />
+                <ChevronDown className="w-5 h-5 text-slate-400 dark:text-slate-500 group-open:rotate-180 transition-transform shrink-0" />
               </summary>
-              <div className="px-6 pb-6 text-slate-500 leading-relaxed">
+              <div className="px-6 pb-6 text-slate-500 dark:text-slate-400 leading-relaxed">
                 自動的にStandardプランへ移行されます。期間内にダッシュボードから解約すれば、一切費用はかかりません。
               </div>
             </details>
-            <details className="group bg-white rounded-2xl border border-slate-100 shadow-sm">
-              <summary className="p-6 cursor-pointer flex items-center justify-between font-bold text-lg list-none">
+            <details className="group bg-white dark:bg-surface-raised rounded-2xl border border-slate-100 dark:border-brand-800/20 shadow-sm dark:shadow-md dark:shadow-black/20">
+              <summary className="p-6 cursor-pointer flex items-center justify-between font-bold text-lg list-none text-slate-900 dark:text-white">
                 データのセキュリティは大丈夫ですか？
-                <ChevronDown className="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform" />
+                <ChevronDown className="w-5 h-5 text-slate-400 dark:text-slate-500 group-open:rotate-180 transition-transform shrink-0" />
               </summary>
-              <div className="px-6 pb-6 text-slate-500 leading-relaxed">
+              <div className="px-6 pb-6 text-slate-500 dark:text-slate-400 leading-relaxed">
                 Supabase（PostgreSQL）のRow Level Securityにより、各ユーザーは自分のデータのみアクセス可能です。通信はすべてHTTPS暗号化されています。
               </div>
             </details>
@@ -325,60 +335,60 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-32 px-6">
-        <div className="max-w-3xl mx-auto text-center">
+      {/* ── CTA ── */}
+      <section className="relative py-32 px-6 overflow-hidden bg-background">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-brand-50/50 to-transparent dark:from-transparent dark:via-brand-900/20 dark:to-transparent -z-10 pointer-events-none" />
+        <div className="relative max-w-3xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-6">
-            報告書作成の時間を、<br /><span className="text-primary-600">指導の質向上に。</span>
+            <span className="text-slate-900 dark:text-white">報告書作成の時間を、</span><br />
+            <span className="bg-gradient-to-r from-brand-600 to-accent-600 bg-clip-text text-transparent">指導の質向上に。</span>
           </h2>
-          <p className="text-slate-500 text-lg mb-10">
+          <p className="text-slate-500 dark:text-slate-400 text-lg mb-10">
             無料で始められます。クレジットカード不要。
           </p>
-          <Link href="/login" className="inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-10 py-5 rounded-3xl font-bold text-lg transition shadow-xl shadow-primary-600/30">
+          <Link href="/login" className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400 text-white px-10 py-5 rounded-3xl font-bold text-lg transition shadow-xl shadow-brand-600/30">
             今すぐ無料で始める <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-slate-50 pt-24 pb-12 px-6 border-t border-slate-200">
+      {/* ── Footer ── */}
+      <footer className="bg-surface pt-24 pb-12 px-6 border-t border-slate-200 dark:border-brand-800/30">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-12 mb-20">
           <div className="max-w-xs">
-            <div className="text-2xl font-extrabold tracking-tight text-primary-700 flex items-center gap-2 mb-6">
-              <div className="bg-primary-600 w-8 h-8 rounded-lg flex items-center justify-center text-white">
-                <GraduationCap className="w-4 h-4" />
-              </div>
-              EdBrio
+            <div className="flex items-center gap-2.5 mb-6">
+              <EdBrioLogo size={32} className="shrink-0" />
+              <span className="text-2xl font-extrabold tracking-tight text-brand-700 dark:text-brand-400">EdBrio</span>
             </div>
-            <p className="text-slate-500 text-sm leading-relaxed font-medium">
+            <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
               家庭教師・個別指導講師のための、AI報告書生成＆生徒管理システム。
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-16">
             <div>
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">プロダクト</h4>
-              <ul className="space-y-4 text-sm font-bold text-slate-600">
-                <li><a href="#features" className="hover:text-primary-600 transition">機能</a></li>
-                <li><a href="#pricing" className="hover:text-primary-600 transition">料金</a></li>
+              <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-6">プロダクト</h4>
+              <ul className="space-y-4 text-sm font-bold text-slate-600 dark:text-slate-400">
+                <li><a href="#features" className="hover:text-brand-600 dark:hover:text-brand-400 transition">機能</a></li>
+                <li><a href="#pricing" className="hover:text-brand-600 dark:hover:text-brand-400 transition">料金</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">規約・サポート</h4>
-              <ul className="space-y-4 text-sm font-bold text-slate-600">
-                <li><Link href="/legal" className="hover:text-primary-600 transition">特定商取引法</Link></li>
-                <li><Link href="/legal" className="hover:text-primary-600 transition">プライバシーポリシー</Link></li>
-                <li><Link href="/legal" className="hover:text-primary-600 transition">お問い合わせ</Link></li>
+              <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-6">規約・サポート</h4>
+              <ul className="space-y-4 text-sm font-bold text-slate-600 dark:text-slate-400">
+                <li><Link href="/legal" className="hover:text-brand-600 dark:hover:text-brand-400 transition">特定商取引法</Link></li>
+                <li><Link href="/legal" className="hover:text-brand-600 dark:hover:text-brand-400 transition">プライバシーポリシー</Link></li>
+                <li><Link href="/legal" className="hover:text-brand-600 dark:hover:text-brand-400 transition">お問い合わせ</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">SNS</h4>
-              <ul className="space-y-4 text-sm font-bold text-slate-600">
-                <li><a href="#" className="hover:text-primary-600 transition">Twitter / X</a></li>
+              <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-6">SNS</h4>
+              <ul className="space-y-4 text-sm font-bold text-slate-600 dark:text-slate-400">
+                <li><a href="#" className="hover:text-brand-600 dark:hover:text-brand-400 transition">Twitter / X</a></li>
               </ul>
             </div>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto flex justify-between items-center text-[10px] text-slate-400 font-bold tracking-widest">
+        <div className="max-w-7xl mx-auto flex justify-between items-center text-[10px] text-slate-400 dark:text-slate-500 font-bold tracking-widest">
           <span>&copy; 2025 EDBRIO ALL RIGHTS RESERVED</span>
         </div>
       </footer>
