@@ -5,7 +5,7 @@ import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
-import { Calendar, DollarSign, FileText, Settings } from 'lucide-react'
+import { Calendar, DollarSign, FileText, Settings, Users } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useBookings } from '@/hooks/use-bookings'
 import { useTickets } from '@/hooks/use-tickets'
@@ -56,6 +56,7 @@ export default function TeacherDashboard() {
     new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' }).format((cents || 0) / 100)
 
   const quickActions = [
+    { title: '生徒カルテ', description: '生徒情報と学習進捗', href: '/teacher/students', icon: Users },
     { title: 'カレンダー管理', description: 'シフトと空き時間を設定', href: '/teacher/calendar', icon: Calendar },
     { title: 'チケット管理', description: '販売と有効期限を設定', href: '/teacher/tickets', icon: DollarSign },
     { title: 'レポート作成', description: '授業のレポートを作成', href: '/teacher/reports', icon: FileText },

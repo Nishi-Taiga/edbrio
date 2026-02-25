@@ -28,6 +28,7 @@ export function Sidebar() {
     { href: '/teacher/dashboard', label: 'ダッシュボード' },
     { href: '/teacher/calendar', label: 'カレンダー' },
     { href: '/teacher/tickets', label: 'チケット' },
+    { href: '/teacher/students', label: '生徒カルテ' },
     { href: '/teacher/reports', label: 'レポート' },
     { href: '/teacher/bookings', label: '予約一覧' },
     { href: '/teacher/profile', label: 'プロフィール' },
@@ -40,7 +41,7 @@ export function Sidebar() {
       <div className="h-full flex flex-col">
         <ul className="space-y-1 flex-1">
           {items.map((it) => {
-            const active = pathname === it.href
+            const active = pathname === it.href || (it.href !== '/teacher/dashboard' && it.href !== '/guardian/dashboard' && pathname?.startsWith(it.href))
             return (
               <li key={it.href}>
                 <Link

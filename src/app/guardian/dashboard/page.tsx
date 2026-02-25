@@ -5,14 +5,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
 import { Calendar, Clock, CreditCard, FileText, UserPlus, ShoppingCart } from 'lucide-react'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { useAuth } from '@/hooks/use-auth'
 import { useBookings } from '@/hooks/use-bookings'
 import { useTickets } from '@/hooks/use-tickets'
 import { useReports } from '@/hooks/use-reports'
+import { createClient } from '@/lib/supabase/client'
 import { Booking, TicketBalance, Report } from '@/lib/types/database'
+import { ProgressChart } from '@/components/reports/progress-chart'
 
 
 export default function GuardianHome() {
@@ -46,6 +48,41 @@ export default function GuardianHome() {
 
   const upcoming = useMemo(() => bookings.filter((b: Booking) => new Date(b.start_time) > new Date()).slice(0, 5), [bookings])
   const recentReports = useMemo(() => reports.slice(0, 10), [reports])
+
+  // Learning progress data
+  const supabase = useMemo(() => createClient(), [])
+  const [profileNames, setProfileNames] = useState<Record<string, string>>({})
+
+  const progressData = useMemo(() => {
+    const grouped: Record<string, { levels: { date: string; level: number }[] }> = {}
+    reports.forEach((r: Report) => {
+      if (!r.comprehension_level || !r.published_at || !r.profile_id) return
+      if (!grouped[r.profile_id]) grouped[r.profile_id] = { levels: [] }
+      grouped[r.profile_id].levels.push({ date: r.published_at, level: r.comprehension_level })
+    })
+    Object.values(grouped).forEach(g => {
+      g.levels.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      g.levels = g.levels.slice(-10)
+    })
+    return Object.entries(grouped)
+      .filter(([, g]) => g.levels.length >= 2)
+      .map(([profileId, g]) => ({ profileId, levels: g.levels }))
+  }, [reports])
+
+  useEffect(() => {
+    const ids = progressData.map(p => p.profileId).filter(id => !profileNames[id])
+    if (ids.length === 0) return
+    const uniqueIds = [...new Set(ids)]
+    supabase.from('student_profiles').select('id,name').in('id', uniqueIds).then(({ data }) => {
+      if (data) {
+        setProfileNames(prev => {
+          const next = { ...prev }
+          data.forEach(p => { next[p.id] = p.name })
+          return next
+        })
+      }
+    })
+  }, [progressData, supabase, profileNames])
 
   const loading = authLoading || bookingsLoading || ticketsLoading || reportsLoading
   const error = null // Error handling could be improved by consolidating hook errors
@@ -173,6 +210,22 @@ export default function GuardianHome() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Learning Progress */}
+        {progressData.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-xl font-bold mb-4">学習進捗</h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              {progressData.map((pd) => (
+                <ProgressChart
+                  key={pd.profileId}
+                  studentName={profileNames[pd.profileId] || '生徒'}
+                  data={pd.levels}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
       </div>
     </ProtectedRoute>
