@@ -10,13 +10,14 @@ export const dynamic = 'force-dynamic'
  * Cron job endpoint: sends booking reminders for lessons happening in 24 hours.
  * Designed to be called by Vercel Cron Jobs once per hour.
  *
- * vercel.json config:
+ * Vercel Proプランにアップグレード後、vercel.json に以下を追加:
  * {
  *   "crons": [{
  *     "path": "/api/cron/booking-reminder",
  *     "schedule": "0 * * * *"
  *   }]
  * }
+ * または外部Cronサービス（cron-job.org等）からGETリクエストで呼び出し可能。
  */
 export async function GET(req: NextRequest) {
   try {

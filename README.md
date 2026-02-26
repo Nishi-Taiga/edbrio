@@ -1,107 +1,157 @@
-# EdBrio 家庭教師SaaS
+# EdBrio
 
-講師と生徒をマッチングする家庭教師プラットフォーム。予約管理から決済まで、必要な機能がすべて揃っています。
+家庭教師・個別指導講師のための **AI報告書生成 & 生徒管理プラットフォーム**。
 
-## 🚀 開発サーバー起動中
+授業記録の入力からAIによるレポート自動生成、予約管理、チケット決済まで、個別指導に必要な業務をワンストップで提供します。
 
-**開発サーバーURL:** http://localhost:3000
+## 主な機能
 
-## 📋 次に必要な設定
+### 講師向け
+- **AI報告書生成** — 授業メモから保護者向けレポートを自動生成（Anthropic Claude）
+- **カレンダー・シフト管理** — FullCalendarによるシフト登録、繰り返しスケジュール対応
+- **生徒管理** — プロフィール・弱点分析・学習記録の一元管理
+- **予約管理** — 保護者からの予約を確認・承認
+- **チケット販売** — 授業チケットの作成・価格設定
 
-### 1. データベースセットアップ
+### 保護者向け
+- **授業予約** — 空き枠からワンクリック予約、週間カレンダー表示
+- **チケット購入** — Stripe決済による安全なチケット購入
+- **レポート閲覧** — AI生成レポートの閲覧・ダウンロード
+- **メール通知** — 予約確認・リマインダー・レポート公開通知
 
-[Supabase Studio](https://supabase.com/dashboard) でプロジェクト `hkyorpuygokhkezifxjl` を開き、以下のSQLを実行：
+## 技術スタック
 
-```sql
--- ファイル: supabase/migrations/001_initial_schema.sql の内容をコピーして実行
-```
+| カテゴリ | 技術 |
+|---|---|
+| フレームワーク | Next.js 15 (App Router) + TypeScript |
+| UI | Tailwind CSS v4 + shadcn/ui + Lucide Icons |
+| 認証・DB | Supabase (Auth / PostgreSQL / RLS / SSR) |
+| AI | Anthropic Claude API (`@anthropic-ai/sdk`) |
+| 決済 | Stripe Checkout + Application Fee |
+| メール | Resend SDK |
+| カレンダー | FullCalendar + rrule（繰り返しスケジュール） |
+| エディタ | Tiptap（リッチテキスト編集） |
+| テーマ | next-themes（ダーク/ライトモード） |
+| デプロイ | Vercel |
 
-### 2. 環境変数の更新
-
-`.env.local` を本番用に更新：
-
-```bash
-# Stripe（テスト用から本番用に変更）
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_xxxxx
-STRIPE_SECRET_KEY=sk_live_xxxxx
-STRIPE_WEBHOOK_SECRET=whsec_xxxxx
-
-# SendGrid（メール送信用）
-SENDGRID_API_KEY=SG.実際のAPIキー
-SENDGRID_FROM=noreply@yourdomain.com
-```
-
-## 🎯 テスト手順
-
-### 1. 講師アカウント作成
-1. http://localhost:3000/login でサインアップ
-2. Role: `teacher` を選択
-3. プロフィール設定完了
-4. シフト登録 → チケット作成
-
-### 2. 保護者アカウント作成
-1. 新しいブラウザ（シークレットモード）で http://localhost:3000/login
-2. Role: `guardian` を選択  
-3. チケット購入 → 授業予約
-
-### 3. 公開ページテスト
-- http://localhost:3000/teacher/tanaka-ichiro （モックデータ）
-
-## 🏗️ アーキテクチャ
-
-- **フロントエンド:** Next.js 14 + TypeScript
-- **UI:** Tailwind CSS + shadcn/ui
-- **認証:** Supabase Auth
-- **データベース:** Supabase PostgreSQL + RLS
-- **決済:** Stripe Checkout + Application Fee
-- **メール:** SendGrid
-
-## 📁 主要ファイル構成
+## プロジェクト構成
 
 ```
 src/
 ├── app/
-│   ├── auth/                    # 認証ページ
-│   ├── teacher/                 # 講師向けページ
-│   │   ├── dashboard/          # ダッシュボード
-│   │   ├── profile/            # プロフィール設定
-│   │   ├── calendar/           # シフト登録
-│   │   ├── tickets/            # チケット管理
-│   │   ├── reports/            # レポート作成
-│   │   └── [handle]/           # 公開プロフィール
-│   ├── guardian/               # 保護者向けページ
-│   │   ├── home/               # ホーム
-│   │   ├── booking/            # 予約
-│   │   └── tickets/            # チケット購入
-│   └── api/                    # API Routes
-├── components/                  # UIコンポーネント
-├── hooks/                      # カスタムフック
-└── lib/                        # ユーティリティ
+│   ├── (public)
+│   │   ├── page.tsx              # ランディングページ
+│   │   ├── login/                # 認証ページ
+│   │   └── legal/                # 利用規約・プライバシーポリシー
+│   ├── teacher/                  # 講師向けページ
+│   │   ├── dashboard/            # ダッシュボード
+│   │   ├── calendar/             # シフト・カレンダー管理
+│   │   ├── students/             # 生徒管理
+│   │   ├── reports/              # レポート作成・管理
+│   │   ├── bookings/             # 予約管理
+│   │   ├── tickets/              # チケット管理
+│   │   └── profile/              # プロフィール設定
+│   ├── guardian/                  # 保護者向けページ
+│   │   ├── dashboard/            # ダッシュボード
+│   │   ├── booking/              # 授業予約
+│   │   ├── reports/              # レポート閲覧
+│   │   ├── bookings/             # 予約履歴
+│   │   └── tickets/              # チケット購入
+│   ├── admin/                    # 管理者向けページ
+│   └── api/
+│       ├── ai/generate-report/   # AI報告書生成
+│       ├── email/send/           # メール送信
+│       ├── checkout/session/     # Stripe Checkout
+│       ├── stripe/onboard/       # Stripe Connect
+│       └── cron/booking-reminder/# 予約リマインダー（Cron）
+├── components/
+│   ├── ui/                       # shadcn/ui コンポーネント
+│   └── calendar/                 # カレンダー関連コンポーネント
+├── hooks/                        # カスタムフック（予約・シフト・空き枠）
+└── lib/
+    ├── supabase/                 # Supabaseクライアント（server/client）
+    ├── email.ts                  # メール送信ユーティリティ
+    └── rate-limit.ts             # APIレート制限
 ```
 
-## 🔒 セキュリティ
+## セットアップ
 
-- ✅ Row Level Security (RLS) 実装
-- ✅ ロールベースアクセス制御
-- ✅ Stripe セキュア決済
-- ✅ 認証ガード
+### 前提条件
 
-## 🚢 デプロイ
+- Node.js 18+
+- npm
+- Supabase プロジェクト
+- Stripe アカウント（テストモード可）
+- Anthropic API キー
+- Resend アカウント
 
-### Vercel デプロイ
-1. GitHub連携
-2. 環境変数設定
-3. 自動デプロイ
+### インストール
 
-### Stripe Webhook設定
-- Endpoint: `https://yourdomain.com/api/stripe/webhook`
-- Events: `checkout.session.completed`
+```bash
+git clone https://github.com/Nishi-Taiga/edbrio.git
+cd edbrio
+npm install
+```
 
-## 📞 サポート
+### 環境変数
 
-問題が発生した場合は `SETUP.md` を参照してください。
+`.env.local` を作成し、以下を設定：
 
----
+```bash
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
 
-**開発完了！** 🎉 すべての機能が実装されています。
+# Stripe
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
 
+# Anthropic (AI報告書生成)
+ANTHROPIC_API_KEY=
+
+# Resend (メール送信)
+RESEND_API_KEY=
+RESEND_FROM=info@yourdomain.com
+
+# App
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# Cron (本番のみ)
+CRON_SECRET=
+```
+
+### 開発サーバー起動
+
+```bash
+npm run dev
+```
+
+http://localhost:3000 でアクセスできます。
+
+## データベース
+
+Supabase上のPostgreSQLを使用。主要テーブル：
+
+- `users` — ユーザー（講師・保護者・管理者）
+- `student_profiles` — 生徒プロフィール
+- `shifts` — 講師シフト
+- `availability` — 空き枠（シフトから自動生成）
+- `bookings` — 予約
+- `tickets` — チケット商品
+- `reports` — AIレポート
+
+すべてのテーブルにRow Level Security (RLS) が設定されています。
+
+## セキュリティ
+
+- Row Level Security (RLS) による行レベルアクセス制御
+- ロールベースルーティング（講師/保護者/管理者）
+- APIエンドポイントにレート制限を適用
+- Stripe Checkout によるPCI DSS準拠の決済
+- CronエンドポイントはBearer Token認証で保護
+
+## ライセンス
+
+Private
