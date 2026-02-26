@@ -252,19 +252,7 @@ function SctlContent() {
           <tbody>
             <tr>
               <td className="font-bold whitespace-nowrap">事業者名</td>
-              <td>EdBrio [要更新]</td>
-            </tr>
-            <tr>
-              <td className="font-bold whitespace-nowrap">代表者</td>
-              <td>[要更新]</td>
-            </tr>
-            <tr>
-              <td className="font-bold whitespace-nowrap">所在地</td>
-              <td>[要更新]</td>
-            </tr>
-            <tr>
-              <td className="font-bold whitespace-nowrap">電話番号</td>
-              <td>[要更新]（お問い合わせはメールにてお願いいたします）</td>
+              <td>WINS</td>
             </tr>
             <tr>
               <td className="font-bold whitespace-nowrap">メールアドレス</td>
