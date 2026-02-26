@@ -16,26 +16,27 @@ function getStripe() {
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-
-  if (!session) {
-    return NextResponse.json({ error: '認証が必要です。' }, { status: 401 })
-  }
-
-  const { success: rateLimitOk } = subscriptionLimiter.check(session.user.id)
-  if (!rateLimitOk) {
-    return NextResponse.json({ error: 'リクエストが多すぎます。' }, { status: 429 })
-  }
-
-  const stripe = getStripe()
-  const priceId = process.env.STRIPE_PRO_PRICE_ID
-  if (!priceId) {
-    console.error('STRIPE_PRO_PRICE_ID is not set')
-    return NextResponse.json({ error: 'サーバー設定エラー' }, { status: 500 })
-  }
-
   try {
+    const supabase = await createClient()
+    const { data: { session } } = await supabase.auth.getSession()
+
+    if (!session) {
+      return NextResponse.json({ error: '認証が必要です。' }, { status: 401 })
+    }
+
+    const { success: rateLimitOk } = subscriptionLimiter.check(session.user.id)
+    if (!rateLimitOk) {
+      return NextResponse.json({ error: 'リクエストが多すぎます。' }, { status: 429 })
+    }
+
+    const priceId = process.env.STRIPE_PRO_PRICE_ID
+    if (!priceId) {
+      console.error('STRIPE_PRO_PRICE_ID is not set')
+      return NextResponse.json({ error: 'サーバー設定エラー' }, { status: 500 })
+    }
+
+    const stripe = getStripe()
+
     const { data: teacher, error: tErr } = await supabase
       .from('teachers')
       .select('id, plan, stripe_customer_id, stripe_subscription_id')
