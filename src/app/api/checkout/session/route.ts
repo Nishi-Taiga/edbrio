@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { checkoutLimiter } from '@/lib/rate-limit'
 
 // Mark this route as dynamic to prevent it from being prerendered at build time
 export const dynamic = 'force-dynamic'
@@ -14,6 +15,13 @@ function getStripe() {
 }
 
 export async function POST(req: NextRequest) {
+  // Rate limit by IP since this route doesn't require auth
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+  const { success: rateLimitOk } = checkoutLimiter.check(ip)
+  if (!rateLimitOk) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+
   const stripe = getStripe()
   try {
     const { ticketId, priceId } = await req.json()

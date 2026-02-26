@@ -70,6 +70,15 @@ export function useBookings(userId: string | undefined, role: 'teacher' | 'guard
                 .eq('id', availabilityId)
             if (aErr) throw aErr
 
+            // Fire-and-forget email notification
+            if (data?.id) {
+                fetch('/api/email/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'booking_confirmation', data: { bookingId: data.id } }),
+                }).catch(console.error)
+            }
+
             await fetchBookings()
             return data
         } catch (e: unknown) {

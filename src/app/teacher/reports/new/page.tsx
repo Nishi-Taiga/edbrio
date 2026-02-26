@@ -110,8 +110,21 @@ function NewReportContent() {
         published_at: publish ? new Date().toISOString() : null,
       }
 
-      const { error: err } = await supabase.from('reports').insert(reportData)
+      const { data: insertedReport, error: err } = await supabase
+        .from('reports')
+        .insert(reportData)
+        .select('id')
+        .single()
       if (err) throw err
+
+      // Fire-and-forget email notification on publish
+      if (publish && insertedReport?.id) {
+        fetch('/api/email/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'report_published', data: { reportId: insertedReport.id } }),
+        }).catch(console.error)
+      }
 
       router.push('/teacher/reports')
     } catch (e: unknown) {

@@ -111,3 +111,74 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ===== FullCalendar overrides ===== */
+
+.fc-wrapper {
+  --fc-border-color: var(--border);
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: var(--muted);
+  --fc-today-bg-color: rgba(124, 58, 237, 0.05);
+  --fc-now-indicator-color: #7c3aed;
+  --fc-button-bg-color: #7c3aed;
+  --fc-button-border-color: #6d28d9;
+  --fc-button-hover-bg-color: #6d28d9;
+  --fc-button-hover-border-color: #5b21b6;
+  --fc-button-active-bg-color: #5b21b6;
+  --fc-button-active-border-color: #4c1d95;
+  --fc-event-border-color: transparent;
+}
+
+.dark .fc-wrapper {
+  --fc-border-color: #2a2538;
+  --fc-neutral-bg-color: #1a1625;
+  --fc-today-bg-color: rgba(139, 79, 246, 0.08);
+  --fc-button-bg-color: #8b4ff6;
+  --fc-button-border-color: #7c3aed;
+  --fc-button-hover-bg-color: #7c3aed;
+  --fc-button-hover-border-color: #6d28d9;
+  --fc-button-active-bg-color: #6d28d9;
+  --fc-button-active-border-color: #5b21b6;
+}
+
+.fc-wrapper .fc-toolbar-title {
+  font-size: 1.1rem !important;
+  font-weight: 700;
+}
+
+.fc-wrapper .fc-col-header-cell-cushion,
+.fc-wrapper .fc-daygrid-day-number {
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+.fc-wrapper .fc-timegrid-slot-label-cushion {
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+
+.fc-wrapper .fc-event {
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fc-wrapper .fc-button {
+  border-radius: 8px !important;
+  font-weight: 600;
+  font-size: 0.8rem;
+  padding: 6px 12px;
+}
+
+.fc-wrapper .fc-button-group > .fc-button {
+  border-radius: 0 !important;
+}
+
+.fc-wrapper .fc-button-group > .fc-button:first-child {
+  border-radius: 8px 0 0 8px !important;
+}
+
+.fc-wrapper .fc-button-group > .fc-button:last-child {
+  border-radius: 0 8px 8px 0 !important;
+}

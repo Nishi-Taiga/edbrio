@@ -15,8 +15,33 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "EdBrio - 家庭教師マッチング",
-  description: "講師と生徒をマッチングする家庭教師プラットフォーム",
+  title: {
+    default: 'EdBrio — AI報告書生成 × 生徒管理システム',
+    template: '%s | EdBrio',
+  },
+  description:
+    '家庭教師・個別指導講師のためのAI報告書生成＆生徒管理システム。授業メモを入力するだけで保護者向けレポートをAIが自動作成。予約・決済・カルテまで一元管理。',
+  metadataBase: new URL('https://edbrio.com'),
+  openGraph: {
+    type: 'website',
+    locale: 'ja_JP',
+    siteName: 'EdBrio',
+    title: 'EdBrio — AI報告書生成 × 生徒管理システム',
+    description:
+      '家庭教師・個別指導講師のためのAI報告書生成＆生徒管理。授業メモからレポートをAIが自動作成。',
+    url: 'https://edbrio.com',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'EdBrio — AI報告書生成 × 生徒管理システム',
+    description:
+      '授業メモを入力するだけで保護者向けレポートをAIが自動作成。家庭教師・個別指導講師向け管理システム。',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  icons: { icon: '/icon.svg' },
 };
 
 export default function RootLayout({

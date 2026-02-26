@@ -375,9 +375,9 @@ export default function HomePage() {
             <div>
               <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-6">規約・サポート</h4>
               <ul className="space-y-4 text-sm font-bold text-slate-600 dark:text-slate-400">
-                <li><Link href="/legal" className="hover:text-brand-600 dark:hover:text-brand-400 transition">特定商取引法</Link></li>
-                <li><Link href="/legal" className="hover:text-brand-600 dark:hover:text-brand-400 transition">プライバシーポリシー</Link></li>
-                <li><Link href="/legal" className="hover:text-brand-600 dark:hover:text-brand-400 transition">お問い合わせ</Link></li>
+                <li><Link href="/legal?tab=sctl" className="hover:text-brand-600 dark:hover:text-brand-400 transition">特定商取引法</Link></li>
+                <li><Link href="/legal?tab=privacy" className="hover:text-brand-600 dark:hover:text-brand-400 transition">プライバシーポリシー</Link></li>
+                <li><Link href="/legal?tab=contact" className="hover:text-brand-600 dark:hover:text-brand-400 transition">お問い合わせ</Link></li>
               </ul>
             </div>
             <div>

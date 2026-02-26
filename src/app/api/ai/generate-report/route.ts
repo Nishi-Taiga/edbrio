@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
+import { aiReportLimiter } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,6 +27,11 @@ export async function POST(req: NextRequest) {
 
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { success: rateLimitOk } = aiReportLimiter.check(session.user.id)
+    if (!rateLimitOk) {
+      return NextResponse.json({ error: 'リクエストが多すぎます。しばらくしてからお試しください。' }, { status: 429 })
     }
 
     const { data: user } = await supabase
