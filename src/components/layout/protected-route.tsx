@@ -16,11 +16,6 @@ export function ProtectedRoute({
   allowedRoles,
   redirectTo = '/login'
 }: ProtectedRouteProps) {
-  // Public bypass flag for local/temporary viewing without auth
-  const isPublicBypass = process.env.NEXT_PUBLIC_DISABLE_AUTH_GUARD === 'true'
-  if (isPublicBypass) {
-    return <>{children}</>
-  }
   const { user, dbUser, loading } = useAuth()
   const router = useRouter()
 
@@ -32,7 +27,6 @@ export function ProtectedRoute({
       }
 
       if (allowedRoles && dbUser && !allowedRoles.includes(dbUser.role)) {
-        // Redirect based on role
         if (dbUser.role === 'teacher') {
           router.push('/teacher/dashboard')
         } else if (dbUser.role === 'guardian') {
