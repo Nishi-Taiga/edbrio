@@ -53,8 +53,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ sessionId: session.id })
   } catch (error: unknown) {
     console.error('Stripe session creation error:', error)
+    // Do not expose internal error details to client
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Unknown error' },
+      { error: '決済セッションの作成に失敗しました。' },
       { status: 500 }
     )
   }

@@ -53,10 +53,19 @@ export function AuthForm({ mode, onModeChange }: {
 
     try {
       if (mode === 'login') {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
+        // Server-side login with account lockout protection
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
         })
+        const result = await res.json()
+        if (!res.ok) {
+          setMessage(result.error || 'ログインに失敗しました。')
+          return
+        }
+        // Server validated credentials — now set client session
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
       } else {
         const { data, error } = await supabase.auth.signUp({

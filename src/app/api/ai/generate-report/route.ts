@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     console.error('AI report generation error:', error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
+      { error: 'レポート生成に失敗しました。しばらくしてからお試しください。' },
       { status: 500 }
     )
   }
