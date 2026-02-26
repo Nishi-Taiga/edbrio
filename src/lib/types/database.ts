@@ -24,6 +24,8 @@ export interface Teacher {
   public_profile: Record<string, any>
   plan: TeacherPlan
   stripe_account_id?: string
+  stripe_customer_id?: string
+  stripe_subscription_id?: string
   is_onboarding_complete: boolean
   created_at: string
   updated_at: string

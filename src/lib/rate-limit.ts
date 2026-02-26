@@ -71,3 +71,4 @@ export function createRateLimiter(options: RateLimiterOptions) {
 export const aiReportLimiter = createRateLimiter({ windowMs: 60_000, max: 10 })
 export const emailLimiter = createRateLimiter({ windowMs: 60_000, max: 20 })
 export const checkoutLimiter = createRateLimiter({ windowMs: 60_000, max: 5 })
+export const subscriptionLimiter = createRateLimiter({ windowMs: 60_000, max: 3 })

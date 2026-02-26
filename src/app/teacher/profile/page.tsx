@@ -1,12 +1,16 @@
 "use client"
 
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Check, Edit2, X } from 'lucide-react'
+import { getStripe } from '@/lib/stripe'
+import { toast } from 'sonner'
 
 type TeacherRow = {
   id: string
@@ -16,10 +20,20 @@ type TeacherRow = {
   plan: 'free' | 'pro'
   public_profile: Record<string, unknown>
   stripe_account_id?: string
+  stripe_customer_id?: string
+  stripe_subscription_id?: string
   is_onboarding_complete?: boolean
 }
 
 export default function TeacherProfilePage() {
+  return (
+    <Suspense fallback={<div className="container mx-auto px-4 py-8 text-gray-500 dark:text-slate-400">読み込み中...</div>}>
+      <TeacherProfileContent />
+    </Suspense>
+  )
+}
+
+function TeacherProfileContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [teacher, setTeacher] = useState<TeacherRow | null>(null)
@@ -28,8 +42,20 @@ export default function TeacherProfilePage() {
   const [editedSubjects, setEditedSubjects] = useState('')
   const [editedGrades, setEditedGrades] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubscriptionLoading, setIsSubscriptionLoading] = useState(false)
 
   const supabase = useMemo(() => createClient(), [])
+  const searchParams = useSearchParams()
+
+  // Show toast for subscription redirect results
+  useEffect(() => {
+    const status = searchParams.get('subscription')
+    if (status === 'success') {
+      toast.success('Proプランへのアップグレードが完了しました！')
+    } else if (status === 'canceled') {
+      toast.info('アップグレードがキャンセルされました。')
+    }
+  }, [searchParams])
 
   useEffect(() => {
     let mounted = true
@@ -42,7 +68,7 @@ export default function TeacherProfilePage() {
         if (!uid) { setTeacher(null); return }
         const { data, error } = await supabase
           .from('teachers')
-          .select('id,handle,subjects,grades,plan,public_profile,stripe_account_id,is_onboarding_complete')
+          .select('id,handle,subjects,grades,plan,public_profile,stripe_account_id,stripe_customer_id,stripe_subscription_id,is_onboarding_complete')
           .eq('id', uid)
           .maybeSingle()
         if (error) throw error
@@ -92,6 +118,40 @@ export default function TeacherProfilePage() {
     }
   }
 
+  const handleUpgrade = async () => {
+    setIsSubscriptionLoading(true)
+    try {
+      const res = await fetch('/api/checkout/subscription', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+
+      const stripeClient = await getStripe()
+      if (stripeClient) {
+        await stripeClient.redirectToCheckout({ sessionId: data.sessionId })
+      }
+    } catch (err) {
+      console.error('Upgrade error:', err)
+      setError(err instanceof Error ? err.message : 'アップグレードに失敗しました。')
+    } finally {
+      setIsSubscriptionLoading(false)
+    }
+  }
+
+  const handleManageSubscription = async () => {
+    setIsSubscriptionLoading(true)
+    try {
+      const res = await fetch('/api/stripe/portal', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      window.location.href = data.url
+    } catch (err) {
+      console.error('Portal error:', err)
+      setError(err instanceof Error ? err.message : 'ポータルの作成に失敗しました。')
+    } finally {
+      setIsSubscriptionLoading(false)
+    }
+  }
+
   return (
     <ProtectedRoute allowedRoles={["teacher"]}>
       <div className="container mx-auto px-4 py-8">
@@ -133,7 +193,6 @@ export default function TeacherProfilePage() {
               <div className="text-sm text-gray-700 dark:text-slate-300 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div><span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">ハンドル</span> {teacher.handle}</div>
-                  <div><span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">プラン</span> {teacher.plan}</div>
                   <div><span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">科目</span> {(teacher.subjects || []).join(' / ') || '-'}</div>
                   <div><span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">学年</span> {(teacher.grades || []).join(' / ') || '-'}</div>
                   <div>
@@ -160,6 +219,46 @@ export default function TeacherProfilePage() {
                     )}
                   </div>
                 </div>
+
+                {/* プラン・サブスクリプション */}
+                <div>
+                  <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase mb-2">プラン</span>
+                  {teacher.plan === 'pro' ? (
+                    <div className="flex items-center justify-between p-4 rounded-lg bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800/30">
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-brand-600 text-white">Pro</Badge>
+                        <span className="text-sm font-medium text-brand-700 dark:text-brand-300">
+                          Standardプラン (¥1,480/月)
+                        </span>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleManageSubscription}
+                        disabled={isSubscriptionLoading}
+                      >
+                        {isSubscriptionLoading ? '読み込み中...' : 'サブスクリプション管理'}
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50 dark:bg-surface border border-gray-200 dark:border-brand-800/20">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary">Free</Badge>
+                        <span className="text-sm text-gray-600 dark:text-slate-400">
+                          手数料 7% / Proなら 2%
+                        </span>
+                      </div>
+                      <Button
+                        size="sm"
+                        onClick={handleUpgrade}
+                        disabled={isSubscriptionLoading}
+                      >
+                        {isSubscriptionLoading ? '処理中...' : 'Proにアップグレード'}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
                 <div>
                   <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase mb-1">公開プロフィール (データ)</span>
                   <pre className="p-2 bg-gray-50 dark:bg-surface border dark:border-brand-800/20 rounded overflow-x-auto">{JSON.stringify(teacher.public_profile || {}, null, 2)}</pre>
@@ -177,4 +276,3 @@ export default function TeacherProfilePage() {
     </ProtectedRoute>
   )
 }
-

@@ -35,20 +35,140 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.Checkout.Session
+  try {
+    switch (event.type) {
+      case 'checkout.session.completed': {
+        const session = event.data.object as Stripe.Checkout.Session
+        if (session.mode === 'subscription') {
+          await handleSubscriptionCheckoutCompleted(session)
+        } else {
+          await handleCheckoutCompleted(session)
+        }
+        break
+      }
 
-    try {
-      await handleCheckoutCompleted(session)
-    } catch (err) {
-      console.error('Error handling checkout.session.completed:', err)
-      // Return 200 to prevent Stripe from retrying — log for manual investigation
-      return NextResponse.json({ received: true, error: 'Processing failed' })
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object as Stripe.Subscription
+        await handleSubscriptionUpdated(subscription)
+        break
+      }
+
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object as Stripe.Subscription
+        await handleSubscriptionDeleted(subscription)
+        break
+      }
     }
+  } catch (err) {
+    console.error(`Error handling ${event.type}:`, err)
+    // Return 200 to prevent Stripe from retrying — log for manual investigation
+    return NextResponse.json({ received: true, error: 'Processing failed' })
   }
 
   return NextResponse.json({ received: true })
 }
+
+// ── Subscription handlers ──
+
+async function handleSubscriptionCheckoutCompleted(session: Stripe.Checkout.Session) {
+  const teacherId = session.metadata?.teacherId
+  if (!teacherId) {
+    console.warn('Subscription checkout without teacherId in metadata')
+    return
+  }
+
+  const subscriptionId = session.subscription as string
+  const customerId = session.customer as string
+
+  const supabase = createAdminClient()
+  const { error } = await supabase
+    .from('teachers')
+    .update({
+      plan: 'pro',
+      stripe_customer_id: customerId,
+      stripe_subscription_id: subscriptionId,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', teacherId)
+
+  if (error) {
+    console.error('Failed to activate Pro plan:', error)
+    throw error
+  }
+
+  console.log(`Pro plan activated: teacher=${teacherId}, subscription=${subscriptionId}`)
+}
+
+async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
+  const customerId = subscription.customer as string
+  const supabase = createAdminClient()
+
+  const { data: teacher } = await supabase
+    .from('teachers')
+    .select('id, plan')
+    .eq('stripe_customer_id', customerId)
+    .single()
+
+  if (!teacher) {
+    console.warn('No teacher found for customer:', customerId)
+    return
+  }
+
+  const isActive = ['active', 'trialing'].includes(subscription.status)
+  const newPlan = isActive ? 'pro' : 'free'
+
+  if (teacher.plan !== newPlan) {
+    const { error } = await supabase
+      .from('teachers')
+      .update({
+        plan: newPlan,
+        stripe_subscription_id: isActive ? subscription.id : null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', teacher.id)
+
+    if (error) {
+      console.error('Failed to update plan:', error)
+      throw error
+    }
+
+    console.log(`Plan updated: teacher=${teacher.id}, plan=${newPlan}`)
+  }
+}
+
+async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
+  const customerId = subscription.customer as string
+  const supabase = createAdminClient()
+
+  const { data: teacher } = await supabase
+    .from('teachers')
+    .select('id')
+    .eq('stripe_customer_id', customerId)
+    .single()
+
+  if (!teacher) {
+    console.warn('No teacher found for customer:', customerId)
+    return
+  }
+
+  const { error } = await supabase
+    .from('teachers')
+    .update({
+      plan: 'free',
+      stripe_subscription_id: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', teacher.id)
+
+  if (error) {
+    console.error('Failed to downgrade plan:', error)
+    throw error
+  }
+
+  console.log(`Plan downgraded to free: teacher=${teacher.id}`)
+}
+
+// ── Ticket payment handler (existing) ──
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const ticketId = session.metadata?.ticketId
@@ -59,7 +179,6 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   const supabase = createAdminClient()
 
-  // Look up the ticket to get teacher_id and details
   const { data: ticket, error: ticketErr } = await supabase
     .from('tickets')
     .select('id, teacher_id, minutes, bundle_qty, valid_days, price_cents')
@@ -71,7 +190,6 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     return
   }
 
-  // Find the payer — use customer_email from Stripe session
   const customerEmail = session.customer_email || session.customer_details?.email
   if (!customerEmail) {
     console.error('No customer email in checkout session:', session.id)
@@ -89,7 +207,6 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     return
   }
 
-  // Determine the student_id (guardian → their student, student → themselves)
   let studentId: string | null = null
   if (payer.role === 'guardian') {
     const { data: student } = await supabase
@@ -103,7 +220,6 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     studentId = payer.id
   }
 
-  // Create payment record
   const { data: payment, error: payErr } = await supabase
     .from('payments')
     .insert({
@@ -122,7 +238,6 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     return
   }
 
-  // Create ticket balance if we have a student
   if (studentId) {
     const expiresAt = new Date()
     expiresAt.setDate(expiresAt.getDate() + ticket.valid_days)
