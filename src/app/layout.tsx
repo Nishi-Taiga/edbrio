@@ -4,6 +4,7 @@ import "./globals.css";
 import { ConditionalHeader } from '@/components/layout/conditional-header'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ThemeChooserDialog } from '@/components/ui/theme-chooser-dialog'
+import { SidebarProvider } from '@/components/layout/sidebar-context'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -58,8 +59,10 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <ThemeChooserDialog />
-          <ConditionalHeader />
-          {children}
+          <SidebarProvider>
+            <ConditionalHeader />
+            {children}
+          </SidebarProvider>
         </ThemeProvider>
       </body>
     </html>

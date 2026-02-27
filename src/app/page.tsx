@@ -1,32 +1,10 @@
 'use client'
 
-import { useEffect } from 'react'
 import Link from 'next/link'
-import { useAuth } from '@/hooks/use-auth'
 import { Sparkles, BookOpen, Calendar, CreditCard, ArrowRight, ChevronDown, Check } from 'lucide-react'
 import { EdBrioLogo } from '@/components/ui/edbrio-logo'
-import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 export default function HomePage() {
-  const { user, dbUser, loading } = useAuth()
-
-  useEffect(() => {
-    if (!loading && user && dbUser) {
-      if (dbUser.role === 'teacher') {
-        window.location.href = '/teacher/dashboard'
-      } else if (dbUser.role === 'guardian') {
-        window.location.href = '/guardian/dashboard'
-      }
-    }
-  }, [loading, user, dbUser])
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
-      </div>
-    )
-  }
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -44,7 +22,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="bg-background text-foreground font-sans antialiased" style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}>
+    <div className="light bg-white text-foreground font-sans antialiased" style={{ wordBreak: 'keep-all', overflowWrap: 'break-word', colorScheme: 'light' }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* ── Navigation ── */}
@@ -61,7 +39,6 @@ export default function HomePage() {
             <a href="#faq" className="hover:text-brand-600 dark:hover:text-brand-400 transition">よくある質問</a>
           </div>
           <div className="flex items-center gap-3">
-            <ThemeToggle />
             <Link href="/login" className="hidden sm:block text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-300 transition">ログイン</Link>
             <Link href="/login" className="bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400 text-white px-6 py-3 rounded-2xl text-sm font-bold transition shadow-lg shadow-brand-600/20">
               無料で始める

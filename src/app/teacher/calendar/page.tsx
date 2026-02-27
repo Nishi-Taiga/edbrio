@@ -10,7 +10,7 @@ import type { DatesSetArg, EventInput } from '@fullcalendar/core'
 import jaLocale from '@fullcalendar/core/locales/ja'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Plus, Trash2 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useShifts } from '@/hooks/use-shifts'
@@ -166,11 +166,12 @@ export default function TeacherCalendarPage() {
           </div>
         </div>
 
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600" />
-          </div>
-        ) : (
+        <div className="relative">
+          {loading && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 dark:bg-surface-raised/60 rounded-xl">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600" />
+            </div>
+          )}
           <div className="fc-wrapper bg-white dark:bg-surface-raised rounded-xl border border-slate-200 dark:border-brand-800/20 p-4 shadow-sm">
             <FullCalendar
               plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
@@ -195,7 +196,7 @@ export default function TeacherCalendarPage() {
               eventDisplay="block"
             />
           </div>
-        )}
+        </div>
 
         {/* Shift Form Dialog */}
         <ShiftForm
@@ -210,11 +211,10 @@ export default function TeacherCalendarPage() {
           <DialogContent className="sm:max-w-sm">
             <DialogHeader>
               <DialogTitle>シフトの削除</DialogTitle>
+              <DialogDescription>
+                {deleteConfirm?.title}を削除しますか？関連する空き枠（未予約分）も削除されます。
+              </DialogDescription>
             </DialogHeader>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              {deleteConfirm?.title}を削除しますか？<br />
-              関連する空き枠（未予約分）も削除されます。
-            </p>
             <DialogFooter>
               <Button variant="outline" onClick={() => setDeleteConfirm(null)} disabled={deleting}>キャンセル</Button>
               <Button variant="destructive" onClick={handleDeleteShift} disabled={deleting}>
