@@ -248,6 +248,11 @@ CREATE POLICY "teacher_students_visibility" ON public.teacher_students
     )
   );
 
+-- Shifts
+DROP POLICY IF EXISTS "shifts_teacher_manage" ON public.shifts;
+CREATE POLICY "shifts_teacher_manage" ON public.shifts
+  FOR ALL USING (auth.uid() = teacher_id);
+
 -- Availability
 DROP POLICY IF EXISTS "availability_teacher_manage" ON public.availability;
 CREATE POLICY "availability_teacher_manage" ON public.availability
