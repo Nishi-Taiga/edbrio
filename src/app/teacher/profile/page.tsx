@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Check, Edit2, X } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
 import { getStripe } from '@/lib/stripe'
 import { toast } from 'sonner'
 
@@ -33,14 +34,27 @@ export default function TeacherProfilePage() {
   )
 }
 
+const SUBJECT_OPTIONS = [
+  '国語', '算数', '数学', '英語', '理科', '社会',
+  '物理', '化学', '生物', '地学',
+  '日本史', '世界史', '地理', '政治経済',
+  '古文', '漢文', '小論文', '情報',
+]
+
+const GRADE_OPTIONS = [
+  '小1', '小2', '小3', '小4', '小5', '小6',
+  '中1', '中2', '中3',
+  '高1', '高2', '高3',
+]
+
 function TeacherProfileContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [teacher, setTeacher] = useState<TeacherRow | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [editedHandle, setEditedHandle] = useState('')
-  const [editedSubjects, setEditedSubjects] = useState('')
-  const [editedGrades, setEditedGrades] = useState('')
+  const [editedSubjects, setEditedSubjects] = useState<string[]>([])
+  const [editedGrades, setEditedGrades] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubscriptionLoading, setIsSubscriptionLoading] = useState(false)
 
@@ -75,8 +89,8 @@ function TeacherProfileContent() {
         if (mounted) {
           setTeacher(data)
           setEditedHandle(data?.handle || '')
-          setEditedSubjects((data?.subjects || []).join(', '))
-          setEditedGrades((data?.grades || []).join(', '))
+          setEditedSubjects(data?.subjects || [])
+          setEditedGrades(data?.grades || [])
         }
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : String(e))
@@ -97,8 +111,8 @@ function TeacherProfileContent() {
         .from('teachers')
         .update({
           handle: editedHandle,
-          subjects: editedSubjects.split(',').map(s => s.trim()).filter(Boolean),
-          grades: editedGrades.split(',').map(g => g.trim()).filter(Boolean),
+          subjects: editedSubjects,
+          grades: editedGrades,
           updated_at: new Date().toISOString()
         })
         .eq('id', teacher.id)
@@ -107,8 +121,8 @@ function TeacherProfileContent() {
       setTeacher({
         ...teacher,
         handle: editedHandle,
-        subjects: editedSubjects.split(',').map(s => s.trim()).filter(Boolean),
-        grades: editedGrades.split(',').map(g => g.trim()).filter(Boolean),
+        subjects: editedSubjects,
+        grades: editedGrades,
       })
       setIsEditing(false)
     } catch (err: unknown) {
@@ -175,12 +189,40 @@ function TeacherProfileContent() {
                   <Input value={editedHandle} onChange={(e) => setEditedHandle(e.target.value)} required />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">担当科目（カンマ区切り）</label>
-                  <Input value={editedSubjects} onChange={(e) => setEditedSubjects(e.target.value)} placeholder="算数, 数学, 英語" />
+                  <label className="block text-sm font-medium mb-2">担当科目</label>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+                    {SUBJECT_OPTIONS.map((subject) => (
+                      <label key={subject} className="flex items-center gap-1.5 text-sm cursor-pointer">
+                        <Checkbox
+                          checked={editedSubjects.includes(subject)}
+                          onCheckedChange={(checked) => {
+                            setEditedSubjects(prev =>
+                              checked ? [...prev, subject] : prev.filter(s => s !== subject)
+                            )
+                          }}
+                        />
+                        {subject}
+                      </label>
+                    ))}
+                  </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">対象学年（カンマ区切り）</label>
-                  <Input value={editedGrades} onChange={(e) => setEditedGrades(e.target.value)} placeholder="小1, 小2, 中1" />
+                  <label className="block text-sm font-medium mb-2">対象学年</label>
+                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                    {GRADE_OPTIONS.map((grade) => (
+                      <label key={grade} className="flex items-center gap-1.5 text-sm cursor-pointer">
+                        <Checkbox
+                          checked={editedGrades.includes(grade)}
+                          onCheckedChange={(checked) => {
+                            setEditedGrades(prev =>
+                              checked ? [...prev, grade] : prev.filter(g => g !== grade)
+                            )
+                          }}
+                        />
+                        {grade}
+                      </label>
+                    ))}
+                  </div>
                 </div>
                 <div className="flex gap-2 justify-end pt-2">
                   <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>キャンセル</Button>

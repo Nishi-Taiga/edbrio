@@ -44,7 +44,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="bg-background text-foreground font-sans antialiased">
+    <div className="bg-background text-foreground font-sans antialiased" style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* ── Navigation ── */}
