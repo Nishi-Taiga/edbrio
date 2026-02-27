@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { Sparkles, BookOpen, Calendar, CreditCard, ArrowRight, ChevronDown, Check } from 'lucide-react'
 import { EdBrioLogo } from '@/components/ui/edbrio-logo'
-import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 export default function HomePage() {
 
@@ -40,7 +39,6 @@ export default function HomePage() {
             <a href="#faq" className="hover:text-brand-600 dark:hover:text-brand-400 transition">よくある質問</a>
           </div>
           <div className="flex items-center gap-3">
-            <ThemeToggle />
             <Link href="/login" className="hidden sm:block text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-300 transition">ログイン</Link>
             <Link href="/login" className="bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400 text-white px-6 py-3 rounded-2xl text-sm font-bold transition shadow-lg shadow-brand-600/20">
               無料で始める

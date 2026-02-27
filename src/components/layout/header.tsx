@@ -5,7 +5,6 @@ import { Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/use-auth'
 import { EdBrioLogo } from '@/components/ui/edbrio-logo'
-import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 interface HeaderProps {
   onMenuToggle?: () => void
@@ -33,7 +32,6 @@ export function Header({ onMenuToggle, showMenuButton }: HeaderProps) {
         </div>
 
         <div className="flex items-center space-x-3">
-          <ThemeToggle />
           {user ? (
             <></>
           ) : (
