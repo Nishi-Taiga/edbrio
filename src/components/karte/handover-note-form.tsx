@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -33,6 +33,7 @@ export function HandoverNoteForm({ open, onClose, onSubmit }: HandoverNoteFormPr
       <DialogContent>
         <DialogHeader>
           <DialogTitle>引継ぎメモを追加</DialogTitle>
+          <DialogDescription>引継ぎ内容を入力してください</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>

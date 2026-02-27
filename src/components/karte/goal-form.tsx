@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -43,6 +43,7 @@ export function GoalForm({ open, onClose, onSubmit }: GoalFormProps) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>学習目標を追加</DialogTitle>
+          <DialogDescription>目標の詳細を入力してください</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>

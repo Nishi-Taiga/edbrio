@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -54,6 +54,7 @@ export function PointForm({ open, onClose, type, onSubmitWeakness, onSubmitStren
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{type === 'weakness' ? 'つまずきポイントを追加' : '得意分野を追加'}</DialogTitle>
+          <DialogDescription>教科とトピックを入力してください</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>
