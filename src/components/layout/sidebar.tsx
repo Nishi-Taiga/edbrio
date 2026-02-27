@@ -41,7 +41,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
   const items = isGuardian ? guardianItems : teacherItems
 
   return (
-    <nav className={mobile ? 'h-full p-4' : 'hidden lg:block h-full p-4'}>
+    <nav className="h-full p-4">
       <div className="h-full flex flex-col">
         {mobile && (
           <div className="flex justify-end mb-2">

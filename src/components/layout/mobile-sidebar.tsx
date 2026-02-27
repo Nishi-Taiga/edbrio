@@ -2,45 +2,43 @@
 
 import { useEffect } from 'react'
 import { Sidebar } from './sidebar'
+import { useSidebar } from './sidebar-context'
 
-interface MobileSidebarProps {
-  open: boolean
-  onClose: () => void
-}
+export function MobileSidebar() {
+  const { mobileOpen, closeMobile } = useSidebar()
 
-export function MobileSidebar({ open, onClose }: MobileSidebarProps) {
   // Close on Escape key
   useEffect(() => {
-    if (!open) return
+    if (!mobileOpen) return
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') closeMobile()
     }
     document.addEventListener('keydown', handleKey)
     return () => document.removeEventListener('keydown', handleKey)
-  }, [open, onClose])
+  }, [mobileOpen, closeMobile])
 
   // Prevent body scroll when open
   useEffect(() => {
-    if (open) {
+    if (mobileOpen) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = ''
     }
     return () => { document.body.style.overflow = '' }
-  }, [open])
+  }, [mobileOpen])
 
   return (
-    <div className={`lg:hidden fixed top-16 left-0 right-0 bottom-0 z-40 ${open ? '' : 'pointer-events-none'}`}>
+    <div className={`lg:hidden fixed top-16 left-0 right-0 bottom-0 z-40 ${mobileOpen ? '' : 'pointer-events-none'}`}>
       {/* Backdrop */}
       <div
-        className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ease-in-out ${open ? 'opacity-100' : 'opacity-0'}`}
-        onClick={onClose}
+        className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ease-in-out ${mobileOpen ? 'opacity-100' : 'opacity-0'}`}
+        onClick={closeMobile}
       />
       {/* Sidebar panel */}
       <div
-        className={`absolute top-0 left-0 bottom-0 w-64 bg-background border-r border-border-semantic shadow-lg transition-transform duration-300 ease-in-out ${open ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`absolute top-0 left-0 bottom-0 w-64 bg-background border-r border-border-semantic shadow-lg transition-transform duration-300 ease-in-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        <Sidebar mobile onClose={onClose} />
+        <Sidebar mobile onClose={closeMobile} />
       </div>
     </div>
   )
