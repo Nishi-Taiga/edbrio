@@ -40,6 +40,8 @@ export default function GuardianTickets() {
   const [purchasing, setPurchasing] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [teacherNames, setTeacherNames] = useState<Record<string, string>>({})
+  const [ticketNames, setTicketNames] = useState<Record<string, string>>({})
 
   const supabase = useMemo(() => createClient(), [])
 
@@ -57,6 +59,22 @@ export default function GuardianTickets() {
           .order('price_cents', { ascending: true })
         if (tErr) throw tErr
         if (mounted) setTickets(ts || [])
+
+        // Resolve teacher names
+        const teacherIds = [...new Set((ts || []).map(t => t.teacher_id))]
+        if (teacherIds.length > 0) {
+          const { data: teacherUsers } = await supabase
+            .from('users')
+            .select('id, display_name')
+            .in('id', teacherIds)
+          if (mounted && teacherUsers) {
+            const nameMap: Record<string, string> = {}
+            teacherUsers.forEach((u: { id: string; display_name: string | null }) => {
+              nameMap[u.id] = u.display_name || u.id
+            })
+            setTeacherNames(nameMap)
+          }
+        }
 
         // Balances for guardian's students
         const { data: session } = await supabase.auth.getSession()
@@ -76,6 +94,22 @@ export default function GuardianTickets() {
               .order('expires_at', { ascending: true })
             if (bErr) throw bErr
             if (mounted) setBalances(tb || [])
+
+            // Resolve ticket names for balances
+            const ticketIds = [...new Set((tb || []).map(b => b.ticket_id))]
+            if (ticketIds.length > 0) {
+              const { data: ticketData } = await supabase
+                .from('tickets')
+                .select('id, name')
+                .in('id', ticketIds)
+              if (mounted && ticketData) {
+                const tNameMap: Record<string, string> = {}
+                ticketData.forEach((t: { id: string; name: string }) => {
+                  tNameMap[t.id] = t.name
+                })
+                setTicketNames(tNameMap)
+              }
+            }
           }
         }
       } catch (e: unknown) {
@@ -153,7 +187,7 @@ export default function GuardianTickets() {
                         <span>{ticket.name}</span>
                         <span className="text-brand-600 dark:text-brand-400">{formatPrice(ticket.price_cents)}</span>
                       </CardTitle>
-                      <CardDescription>講師: {ticket.teacher_id}</CardDescription>
+                      <CardDescription>講師: {teacherNames[ticket.teacher_id] || ticket.teacher_id}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="text-sm text-gray-600 dark:text-slate-400 mb-3">
@@ -193,7 +227,7 @@ export default function GuardianTickets() {
                 <TableBody>
                   {balances.map((b) => (
                     <TableRow key={b.id}>
-                      <TableCell>{b.ticket_id}</TableCell>
+                      <TableCell>{ticketNames[b.ticket_id] || b.ticket_id}</TableCell>
                       <TableCell>{b.remaining_minutes}分</TableCell>
                       <TableCell>{b.purchased_at ?? '-'}</TableCell>
                       <TableCell>{b.expires_at ?? '-'}</TableCell>

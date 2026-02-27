@@ -70,6 +70,29 @@ export function useBookings(userId: string | undefined, role: 'teacher' | 'guard
                 .eq('id', availabilityId)
             if (aErr) throw aErr
 
+            // 3. Deduct remaining_minutes from ticket balance
+            if (bookingData.ticket_balance_id) {
+                const startMs = new Date(bookingData.start_time).getTime()
+                const endMs = new Date(bookingData.end_time).getTime()
+                const durationMinutes = Math.round((endMs - startMs) / (1000 * 60))
+
+                const { data: balance, error: balFetchErr } = await supabase
+                    .from('ticket_balances')
+                    .select('remaining_minutes')
+                    .eq('id', bookingData.ticket_balance_id)
+                    .single()
+                if (balFetchErr) throw balFetchErr
+
+                if (balance && durationMinutes > 0) {
+                    const newRemaining = Math.max(0, (balance.remaining_minutes || 0) - durationMinutes)
+                    const { error: balUpdErr } = await supabase
+                        .from('ticket_balances')
+                        .update({ remaining_minutes: newRemaining })
+                        .eq('id', bookingData.ticket_balance_id)
+                    if (balUpdErr) throw balUpdErr
+                }
+            }
+
             // Fire-and-forget email notification
             if (data?.id) {
                 fetch('/api/email/send', {
@@ -97,10 +120,47 @@ export function useBookings(userId: string | undefined, role: 'teacher' | 'guard
                 .eq('id', bookingId)
             if (bErr) throw bErr
 
-            // If canceled, make the corresponding availability bookable again?
-            // This depends on whether we linked it. Currently the DB schema for Booking doesn't have availability_id.
-            // But we can find it by start_time/teacher_id if needed, or we just leave it.
-            // For now, just update status.
+            // If canceled, restore availability and ticket balance
+            if (status === 'canceled') {
+                const { data: booking, error: fetchErr } = await supabase
+                    .from('bookings')
+                    .select('teacher_id, start_time, end_time, ticket_balance_id')
+                    .eq('id', bookingId)
+                    .single()
+                if (fetchErr) throw fetchErr
+
+                if (booking) {
+                    // Restore availability slot
+                    await supabase
+                        .from('availability')
+                        .update({ is_bookable: true })
+                        .eq('teacher_id', booking.teacher_id)
+                        .eq('slot_start', booking.start_time)
+                        .eq('slot_end', booking.end_time)
+
+                    // Restore ticket balance minutes
+                    if (booking.ticket_balance_id) {
+                        const startMs = new Date(booking.start_time).getTime()
+                        const endMs = new Date(booking.end_time).getTime()
+                        const durationMinutes = Math.round((endMs - startMs) / (1000 * 60))
+
+                        if (durationMinutes > 0) {
+                            const { data: balance } = await supabase
+                                .from('ticket_balances')
+                                .select('remaining_minutes')
+                                .eq('id', booking.ticket_balance_id)
+                                .single()
+
+                            if (balance) {
+                                await supabase
+                                    .from('ticket_balances')
+                                    .update({ remaining_minutes: (balance.remaining_minutes || 0) + durationMinutes })
+                                    .eq('id', booking.ticket_balance_id)
+                            }
+                        }
+                    }
+                }
+            }
 
             await fetchBookings()
         } catch (e: unknown) {

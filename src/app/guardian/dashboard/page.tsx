@@ -22,11 +22,32 @@ export default function GuardianHome() {
   const { bookings, loading: bookingsLoading } = useBookings(user?.id, 'guardian')
   const { balances, loading: ticketsLoading } = useTickets(user?.id, 'guardian')
   const { reports, loading: reportsLoading } = useReports(user?.id, 'guardian')
+  const [teacherNames, setTeacherNames] = useState<Record<string, string>>({})
+
+  // Resolve teacher UUIDs to display names
+  const supabaseForNames = useMemo(() => createClient(), [])
+  useEffect(() => {
+    const teacherIds = [...new Set(bookings.map((b: Booking) => b.teacher_id))]
+    if (teacherIds.length === 0) return
+    supabaseForNames
+      .from('users')
+      .select('id, display_name')
+      .in('id', teacherIds)
+      .then(({ data }) => {
+        if (data) {
+          const map: Record<string, string> = {}
+          data.forEach((u: { id: string; display_name: string | null }) => {
+            map[u.id] = u.display_name || u.id
+          })
+          setTeacherNames(map)
+        }
+      })
+  }, [bookings, supabaseForNames])
 
   const stats = useMemo(() => {
     const upcomingList = bookings.filter((b: Booking) => new Date(b.start_time) > new Date())
     const nextVal = upcomingList[0] ? format(new Date(upcomingList[0].start_time), 'PPP p', { locale: ja }) : '-'
-    const nextDesc = upcomingList[0] ? `講師ID: ${upcomingList[0].teacher_id}` : '-'
+    const nextDesc = upcomingList[0] ? `講師: ${teacherNames[upcomingList[0].teacher_id] || upcomingList[0].teacher_id}` : '-'
 
     const totalMin = balances.reduce((a: number, b: TicketBalance) => a + (b.remaining_minutes || 0), 0)
     const nearest = [...balances]
@@ -44,7 +65,7 @@ export default function GuardianHome() {
       { title: '新着レポート', value: newReportsCount, description: '最近の公開レポート', icon: FileText, color: 'text-purple-600 dark:text-purple-400' },
       { title: '担当中の先生', value: `${uniqueTeachers.size}人`, description: '-', icon: UserPlus, color: 'text-orange-600 dark:text-orange-400' },
     ]
-  }, [bookings, balances, reports])
+  }, [bookings, balances, reports, teacherNames])
 
   const upcoming = useMemo(() => bookings.filter((b: Booking) => new Date(b.start_time) > new Date()).slice(0, 5), [bookings])
   const recentReports = useMemo(() => reports.slice(0, 10), [reports])
@@ -163,7 +184,7 @@ export default function GuardianHome() {
                         <span className="mx-1">-</span>
                         {format(new Date(b.end_time), 'p', { locale: ja })}
                       </div>
-                      <div className="text-xs text-gray-600 dark:text-slate-400 mt-1">講師ID: {b.teacher_id}</div>
+                      <div className="text-xs text-gray-600 dark:text-slate-400 mt-1">講師: {teacherNames[b.teacher_id] || b.teacher_id}</div>
                     </div>
                     <div>
                       {b.status === 'confirmed' ? (
