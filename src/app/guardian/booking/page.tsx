@@ -54,54 +54,67 @@ export default function BookingPage() {
 
   const supabase = useMemo(() => createClient(), [])
 
-  // Fetch teachers & tickets (once)
+  // Fetch assigned teachers & tickets (once)
   useEffect(() => {
     let mounted = true
     async function loadBase() {
       try {
-        // Fetch teachers with display names
-        const { data: teacherRows, error: tErr } = await supabase
-          .from('teachers')
-          .select('id, handle')
-          .limit(100)
-        if (tErr) throw tErr
-
-        // Fetch display names from users table
-        const teacherIds = (teacherRows || []).map(t => t.id)
-        let teacherInfos: TeacherInfo[] = []
-        if (teacherIds.length > 0) {
-          const { data: users } = await supabase
-            .from('users')
-            .select('id, display_name')
-            .in('id', teacherIds)
-          const nameMap = new Map((users || []).map(u => [u.id, u.display_name]))
-          teacherInfos = (teacherRows || []).map(t => ({
-            id: t.id,
-            handle: t.handle,
-            display_name: nameMap.get(t.id) || t.handle,
-          }))
-        }
-        if (mounted) setTeachers(teacherInfos)
-
-        // Fetch ticket balances
         const { data: session } = await supabase.auth.getSession()
         const uid = session.session?.user?.id
-        if (uid) {
-          const { data: students, error: sErr } = await supabase
-            .from('students')
-            .select('id')
-            .eq('guardian_id', uid)
-          if (sErr) throw sErr
-          const studentIds = (students || []).map(s => s.id)
-          if (studentIds.length > 0) {
-            const { data: tb, error: tbErr } = await supabase
-              .from('ticket_balances')
-              .select('id,student_id,ticket_id,remaining_minutes,expires_at')
-              .in('student_id', studentIds)
-              .order('expires_at', { ascending: true })
-            if (tbErr) throw tbErr
-            if (mounted) setTickets(tb || [])
+        if (!uid) return
+
+        // Fetch guardian's students
+        const { data: students, error: sErr } = await supabase
+          .from('students')
+          .select('id')
+          .eq('guardian_id', uid)
+        if (sErr) throw sErr
+        const studentIds = (students || []).map(s => s.id)
+
+        if (studentIds.length > 0) {
+          // Fetch assigned teacher IDs via teacher_students
+          const { data: tsRows, error: tsErr } = await supabase
+            .from('teacher_students')
+            .select('teacher_id')
+            .in('student_id', studentIds)
+          if (tsErr) throw tsErr
+          const teacherIds = [...new Set((tsRows || []).map(r => r.teacher_id))]
+
+          if (teacherIds.length > 0) {
+            // Fetch teacher info (only assigned teachers)
+            const { data: teacherRows, error: tErr } = await supabase
+              .from('teachers')
+              .select('id, handle')
+              .in('id', teacherIds)
+            if (tErr) throw tErr
+
+            // Fetch display names from users table
+            const { data: users } = await supabase
+              .from('users')
+              .select('id, display_name')
+              .in('id', teacherIds)
+            const nameMap = new Map((users || []).map(u => [u.id, u.display_name]))
+            const teacherInfos = (teacherRows || []).map(t => ({
+              id: t.id,
+              handle: t.handle,
+              display_name: nameMap.get(t.id) || t.handle,
+            }))
+            if (mounted) {
+              setTeachers(teacherInfos)
+              if (teacherInfos.length === 1) {
+                setSelectedTeacher(teacherInfos[0].id)
+              }
+            }
           }
+
+          // Fetch ticket balances
+          const { data: tb, error: tbErr } = await supabase
+            .from('ticket_balances')
+            .select('id,student_id,ticket_id,remaining_minutes,expires_at')
+            .in('student_id', studentIds)
+            .order('expires_at', { ascending: true })
+          if (tbErr) throw tbErr
+          if (mounted) setTickets(tb || [])
         }
       } catch (e: unknown) {
         if (mounted) setError(e instanceof Error ? e.message : String(e))
@@ -111,17 +124,24 @@ export default function BookingPage() {
     return () => { mounted = false }
   }, [supabase])
 
-  // Fetch availability for the current week
+  // Fetch availability for the current week (only assigned teachers)
   useEffect(() => {
     let mounted = true
     async function loadAvail() {
+      if (teachers.length === 0) {
+        setLoading(false)
+        setAvail([])
+        return
+      }
       try {
         setLoading(true)
         setError(null)
         const weekEnd = addDays(currentWeek, 7)
+        const teacherIds = teachers.map(t => t.id)
         const { data: av, error: aErr } = await supabase
           .from('availability')
           .select('id,teacher_id,slot_start,slot_end,is_bookable')
+          .in('teacher_id', teacherIds)
           .gte('slot_start', currentWeek.toISOString())
           .lt('slot_start', weekEnd.toISOString())
           .eq('is_bookable', true)
@@ -137,7 +157,7 @@ export default function BookingPage() {
     }
     loadAvail()
     return () => { mounted = false }
-  }, [supabase, currentWeek])
+  }, [supabase, currentWeek, teachers])
 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(currentWeek, i))
 
@@ -195,21 +215,31 @@ export default function BookingPage() {
           </div>
         )}
 
+        {!loading && teachers.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <p className="text-slate-500 dark:text-slate-400">担当講師が設定されていません。</p>
+            </CardContent>
+          </Card>
+        ) : (<>
+
         {/* Filters & Week Navigation */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-          <div className="w-full sm:w-64">
-            <Select value={selectedTeacher} onValueChange={setSelectedTeacher}>
-              <SelectTrigger>
-                <SelectValue placeholder="先生を選択" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">すべての先生</SelectItem>
-                {teachers.map(t => (
-                  <SelectItem key={t.id} value={t.id}>{t.display_name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {teachers.length > 1 && (
+            <div className="w-full sm:w-64">
+              <Select value={selectedTeacher} onValueChange={setSelectedTeacher}>
+                <SelectTrigger>
+                  <SelectValue placeholder="先生を選択" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">すべての担当講師</SelectItem>
+                  {teachers.map(t => (
+                    <SelectItem key={t.id} value={t.id}>{t.display_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="flex items-center gap-2">
             <Button
@@ -287,6 +317,8 @@ export default function BookingPage() {
             )
           })}
         </div>
+
+        </>)}
 
         {/* Booking Dialog */}
         <Dialog open={!!selectedSlot && !showConfirmation} onOpenChange={() => setSelectedSlot(null)}>
