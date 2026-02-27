@@ -113,7 +113,7 @@ export const updateSession = async (request: NextRequest) => {
   const { pathname } = request.nextUrl
 
   // Basic auth for admin routes
-  if (pathname.startsWith('/admin')) {
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
     const authResult = checkBasicAuth(request)
     if (authResult) return authResult
   }
