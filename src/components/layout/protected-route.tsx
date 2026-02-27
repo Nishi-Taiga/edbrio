@@ -22,17 +22,17 @@ export function ProtectedRoute({
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        router.push(redirectTo)
+        router.replace(redirectTo)
         return
       }
 
       if (allowedRoles && dbUser && !allowedRoles.includes(dbUser.role)) {
         if (dbUser.role === 'teacher') {
-          router.push('/teacher/dashboard')
+          router.replace('/teacher/dashboard')
         } else if (dbUser.role === 'guardian') {
-          router.push('/guardian/dashboard')
+          router.replace('/guardian/dashboard')
         } else {
-          router.push('/')
+          router.replace('/')
         }
         return
       }

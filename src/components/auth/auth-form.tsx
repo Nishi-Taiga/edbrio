@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
@@ -9,6 +9,15 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+
+function redirectByRole(router: ReturnType<typeof useRouter>, role: string) {
+  const path = role === 'guardian'
+    ? '/guardian/dashboard'
+    : role === 'admin'
+      ? '/admin/dashboard'
+      : '/teacher/dashboard'
+  router.replace(path)
+}
 
 export function AuthForm({ mode, onModeChange }: {
   mode: 'login' | 'signup',
@@ -23,26 +32,20 @@ export function AuthForm({ mode, onModeChange }: {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
 
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
 
-  // Redirect if already logged in or after successful login
+  // Prefetch dashboard routes for faster transitions
+  useEffect(() => {
+    router.prefetch('/teacher/dashboard')
+    router.prefetch('/guardian/dashboard')
+    router.prefetch('/admin/dashboard')
+  }, [router])
+
+  // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      // Use dbUser role if available, fallback to metadata role, then teacher
-      // Note: 'allowedRoles' is not defined in this component. Assuming it's meant to be passed or derived.
-      // For now, the existing redirection logic is kept, and the new block is added as per instruction.
-      // The instruction's new block seems to be an additional check or override.
-      // The partial line 'ter.push('/admin/dashboard')' from the instruction is removed as it's a syntax error.
-
-      // Existing logic (modified to use dbUser if available, otherwise user_metadata)
       const userRole = dbUser?.role || user.user_metadata?.role || 'teacher'
-      if (userRole === 'teacher') {
-        router.push('/teacher/dashboard')
-      } else if (userRole === 'guardian') {
-        router.push('/guardian/dashboard')
-      } else if (userRole === 'admin') {
-        router.push('/admin/dashboard')
-      }
+      redirectByRole(router, userRole)
     }
   }, [user, dbUser, router])
 
@@ -67,6 +70,9 @@ export function AuthForm({ mode, onModeChange }: {
         // Server validated credentials — now set client session
         const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
+        // Redirect immediately using the role from the API response
+        redirectByRole(router, result.role)
+        return
       } else {
         const { data, error } = await supabase.auth.signUp({
           email,
