@@ -45,8 +45,8 @@ export function clearLoginAttempts(identifier: string) {
 
 // ── Basic auth for admin routes ──
 function checkBasicAuth(request: NextRequest): NextResponse | null {
-  const adminUser = process.env.ADMIN_BASIC_AUTH_USER
-  const adminPass = process.env.ADMIN_BASIC_AUTH_PASS
+  const adminUser = process.env.ADMIN_BASIC_AUTH_USER?.trim()
+  const adminPass = process.env.ADMIN_BASIC_AUTH_PASS?.trim()
 
   // If basic auth is not configured, block admin access entirely
   if (!adminUser || !adminPass) {
@@ -63,7 +63,9 @@ function checkBasicAuth(request: NextRequest): NextResponse | null {
 
   const base64Credentials = authHeader.slice(6)
   const decoded = atob(base64Credentials)
-  const [user, pass] = decoded.split(':')
+  const colonIndex = decoded.indexOf(':')
+  const user = decoded.slice(0, colonIndex)
+  const pass = decoded.slice(colonIndex + 1)
 
   if (user !== adminUser || pass !== adminPass) {
     return new NextResponse('Invalid credentials', {
