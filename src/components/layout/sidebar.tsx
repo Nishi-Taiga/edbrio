@@ -35,7 +35,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
     { href: '/teacher/students', label: '生徒カルテ' },
     { href: '/teacher/reports', label: 'レポート' },
     { href: '/teacher/bookings', label: '予約一覧' },
-    { href: '/teacher/profile', label: 'プロフィール' },
+    { href: '/teacher/profile', label: '設定' },
   ]
 
   const items = isGuardian ? guardianItems : teacherItems
