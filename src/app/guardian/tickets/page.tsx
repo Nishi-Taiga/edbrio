@@ -20,7 +20,7 @@ type TicketRow = {
   valid_days: number
   is_active: boolean
   stripe_price_id: string | null
-  teachers?: { id: string; handle: string } | null
+  teachers?: { id: string } | null
 }
 
 type TicketBalanceRow = {

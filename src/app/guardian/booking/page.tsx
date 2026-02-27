@@ -24,7 +24,6 @@ type AvailabilityRow = {
 
 type TeacherInfo = {
   id: string
-  handle: string
   display_name: string
 }
 
@@ -62,7 +61,7 @@ export default function BookingPage() {
         // Fetch teachers with display names
         const { data: teacherRows, error: tErr } = await supabase
           .from('teachers')
-          .select('id, handle')
+          .select('id')
           .limit(100)
         if (tErr) throw tErr
 
@@ -72,13 +71,12 @@ export default function BookingPage() {
         if (teacherIds.length > 0) {
           const { data: users } = await supabase
             .from('users')
-            .select('id, display_name')
+            .select('id, name')
             .in('id', teacherIds)
-          const nameMap = new Map((users || []).map(u => [u.id, u.display_name]))
+          const nameMap = new Map((users || []).map(u => [u.id, u.name]))
           teacherInfos = (teacherRows || []).map(t => ({
             id: t.id,
-            handle: t.handle,
-            display_name: nameMap.get(t.id) || t.handle,
+            display_name: nameMap.get(t.id) || '講師',
           }))
         }
         if (mounted) setTeachers(teacherInfos)
@@ -146,7 +144,7 @@ export default function BookingPage() {
 
   const getTeacherName = (id: string) => {
     const t = teachers.find(t => t.id === id)
-    return t?.display_name || t?.handle || '講師'
+    return t?.display_name || '講師'
   }
 
   const handleBookSlot = async () => {

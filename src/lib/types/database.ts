@@ -18,7 +18,6 @@ export interface User {
 
 export interface Teacher {
   id: string
-  handle: string
   subjects: string[]
   grades: string[]
   public_profile: Record<string, any>

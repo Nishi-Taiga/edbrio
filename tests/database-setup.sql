@@ -19,7 +19,6 @@ CREATE TABLE public.users (
 -- 3. Create teachers table
 CREATE TABLE public.teachers (
     id UUID PRIMARY KEY REFERENCES public.users(id) ON DELETE CASCADE,
-    handle TEXT UNIQUE NOT NULL,
     subjects TEXT[] DEFAULT '{}',
     grades TEXT[] DEFAULT '{}',
     plan teacher_plan DEFAULT 'free',
@@ -189,10 +188,9 @@ BEGIN
   );
 
   IF (NEW.raw_user_meta_data->>'role') = 'teacher' THEN
-    INSERT INTO public.teachers (id, handle, subjects, grades, public_profile)
+    INSERT INTO public.teachers (id, subjects, grades, public_profile)
     VALUES (
       NEW.id,
-      LOWER(REPLACE(split_part(NEW.email, '@', 1), '.', '-')) || '-' || EXTRACT(epoch FROM NOW())::int,
       ARRAY[]::text[],
       ARRAY[]::text[],
       '{}'::jsonb
@@ -220,8 +218,8 @@ INSERT INTO public.users (id, role, email, name) VALUES
 ('00000000-0000-0000-0000-000000000001', 'teacher', 'teacher@test.com', 'テスト講師')
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO public.teachers (id, handle, subjects, grades, public_profile, is_onboarding_complete) VALUES 
-('00000000-0000-0000-0000-000000000001', 'test-teacher', ARRAY['数学', '物理'], ARRAY['高1', '高2', '高3'], 
+INSERT INTO public.teachers (id, subjects, grades, public_profile, is_onboarding_complete) VALUES
+('00000000-0000-0000-0000-000000000001', ARRAY['数学', '物理'], ARRAY['高1', '高2', '高3'],
  jsonb_build_object(
    'introduction', '数学の楽しさを伝える指導を心がけています。',
    'experience', '5年',

@@ -16,7 +16,6 @@ import { useTheme } from 'next-themes'
 
 type TeacherRow = {
   id: string
-  handle: string
   subjects: string[]
   grades: string[]
   plan: 'free' | 'pro'
@@ -53,7 +52,6 @@ function TeacherProfileContent() {
   const [error, setError] = useState<string | null>(null)
   const [teacher, setTeacher] = useState<TeacherRow | null>(null)
   const [isEditing, setIsEditing] = useState(false)
-  const [editedHandle, setEditedHandle] = useState('')
   const [editedSubjects, setEditedSubjects] = useState<string[]>([])
   const [editedGrades, setEditedGrades] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -84,13 +82,12 @@ function TeacherProfileContent() {
         if (!uid) { setTeacher(null); return }
         const { data, error } = await supabase
           .from('teachers')
-          .select('id,handle,subjects,grades,plan,public_profile,stripe_account_id,stripe_customer_id,stripe_subscription_id,is_onboarding_complete')
+          .select('id,subjects,grades,plan,public_profile,stripe_account_id,stripe_customer_id,stripe_subscription_id,is_onboarding_complete')
           .eq('id', uid)
           .maybeSingle()
         if (error) throw error
         if (mounted) {
           setTeacher(data)
-          setEditedHandle(data?.handle || '')
           setEditedSubjects(data?.subjects || [])
           setEditedGrades(data?.grades || [])
         }
@@ -112,7 +109,6 @@ function TeacherProfileContent() {
       const { error } = await supabase
         .from('teachers')
         .update({
-          handle: editedHandle,
           subjects: editedSubjects,
           grades: editedGrades,
           updated_at: new Date().toISOString()
@@ -122,7 +118,6 @@ function TeacherProfileContent() {
 
       setTeacher({
         ...teacher,
-        handle: editedHandle,
         subjects: editedSubjects,
         grades: editedGrades,
       })
@@ -187,10 +182,6 @@ function TeacherProfileContent() {
             ) : isEditing ? (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">ハンドル</label>
-                  <Input value={editedHandle} onChange={(e) => setEditedHandle(e.target.value)} required />
-                </div>
-                <div>
                   <label className="block text-sm font-medium mb-2">担当科目</label>
                   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
                     {SUBJECT_OPTIONS.map((subject) => (
@@ -236,7 +227,6 @@ function TeacherProfileContent() {
             ) : (
               <div className="text-sm text-gray-700 dark:text-slate-300 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div><span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">ハンドル</span> {teacher.handle}</div>
                   <div><span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">科目</span> {(teacher.subjects || []).join(' / ') || '-'}</div>
                   <div><span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">学年</span> {(teacher.grades || []).join(' / ') || '-'}</div>
                   <div>
