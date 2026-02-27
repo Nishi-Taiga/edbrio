@@ -31,7 +31,6 @@ CREATE TABLE IF NOT EXISTS public.users (
 -- Teachers table
 CREATE TABLE IF NOT EXISTS public.teachers (
   id UUID REFERENCES public.users(id) ON DELETE CASCADE PRIMARY KEY,
-  handle TEXT UNIQUE NOT NULL,
   subjects TEXT[] DEFAULT '{}',
   grades TEXT[] DEFAULT '{}',
   public_profile JSONB DEFAULT '{}',
@@ -186,7 +185,6 @@ CREATE TABLE IF NOT EXISTS public.audit_logs (
 );
 
 -- Create indexes for performance (idempotent)
-CREATE INDEX IF NOT EXISTS idx_teachers_handle ON public.teachers(handle);
 CREATE INDEX IF NOT EXISTS idx_availability_teacher_time ON public.availability(teacher_id, slot_start);
 CREATE INDEX IF NOT EXISTS idx_bookings_teacher_time ON public.bookings(teacher_id, start_time);
 CREATE INDEX IF NOT EXISTS idx_ticket_balances_student ON public.ticket_balances(student_id);
@@ -247,6 +245,11 @@ CREATE POLICY "teacher_students_visibility" ON public.teacher_students
       SELECT guardian_id FROM public.students WHERE id = student_id
     )
   );
+
+-- Shifts
+DROP POLICY IF EXISTS "shifts_teacher_manage" ON public.shifts;
+CREATE POLICY "shifts_teacher_manage" ON public.shifts
+  FOR ALL USING (auth.uid() = teacher_id);
 
 -- Availability
 DROP POLICY IF EXISTS "availability_teacher_manage" ON public.availability;
@@ -332,8 +335,8 @@ BEGIN
 
   -- Role-specific record creation
   IF v_role = 'teacher' THEN
-    INSERT INTO public.teachers (id, handle)
-    VALUES (new.id, 'user-' || lower(substring(replace(new.id::text, '-', ''), 1, 10)));
+    INSERT INTO public.teachers (id)
+    VALUES (new.id);
   ELSIF v_role = 'guardian' THEN
     INSERT INTO public.guardians (id)
     VALUES (new.id);

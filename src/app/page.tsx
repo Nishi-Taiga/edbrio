@@ -226,7 +226,19 @@ export default function HomePage() {
                     <Check className="w-5 h-5 text-emerald-500 dark:text-emerald-400 shrink-0" /> 生徒数 2名まで
                   </li>
                   <li className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-medium">
-                    <Check className="w-5 h-5 text-emerald-500 dark:text-emerald-400 shrink-0" /> 基本的な予定・報告機能
+                    <Check className="w-5 h-5 text-emerald-500 dark:text-emerald-400 shrink-0" /> AI報告書 月5件まで
+                  </li>
+                  <li className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-medium">
+                    <Check className="w-5 h-5 text-emerald-500 dark:text-emerald-400 shrink-0" /> 予定・カレンダー管理
+                  </li>
+                  <li className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-medium">
+                    <Check className="w-5 h-5 text-emerald-500 dark:text-emerald-400 shrink-0" /> 生徒カルテ
+                  </li>
+                  <li className="flex items-center gap-3 text-slate-400 dark:text-slate-500 font-medium">
+                    <span className="w-5 h-5 shrink-0 text-center text-xs leading-5">—</span> 決済手数料 7%
+                  </li>
+                  <li className="flex items-center gap-3 text-slate-400 dark:text-slate-500 font-medium">
+                    <span className="w-5 h-5 shrink-0 text-center text-xs leading-5">—</span> Stripe決済連携なし
                   </li>
                 </ul>
               </div>
@@ -252,7 +264,13 @@ export default function HomePage() {
                     <Check className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" /> AI報告書 無制限生成
                   </li>
                   <li className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-bold">
-                    <Check className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" /> Stripe決済連携（月謝請求）
+                    <Check className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" /> 予定・カレンダー管理
+                  </li>
+                  <li className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-bold">
+                    <Check className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" /> 生徒カルテ
+                  </li>
+                  <li className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-bold">
+                    <Check className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" /> Stripe決済連携（手数料 2%）
                   </li>
                   <li className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-bold">
                     <Check className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" /> 優先カスタマーサポート

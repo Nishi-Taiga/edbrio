@@ -8,10 +8,11 @@ import { Badge } from '@/components/ui/badge'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Check, Edit2, X, ExternalLink } from 'lucide-react'
+import { Check, Edit2, X, Sun, Moon, Monitor } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { getStripe } from '@/lib/stripe'
 import { toast } from 'sonner'
+import { useTheme } from 'next-themes'
 
 type PublicProfile = {
   display_name?: string
@@ -22,7 +23,6 @@ type PublicProfile = {
 
 type TeacherRow = {
   id: string
-  handle: string
   subjects: string[]
   grades: string[]
   plan: 'free' | 'pro'
@@ -59,13 +59,13 @@ function TeacherProfileContent() {
   const [error, setError] = useState<string | null>(null)
   const [teacher, setTeacher] = useState<TeacherRow | null>(null)
   const [isEditing, setIsEditing] = useState(false)
-  const [editedHandle, setEditedHandle] = useState('')
   const [editedSubjects, setEditedSubjects] = useState<string[]>([])
   const [editedGrades, setEditedGrades] = useState<string[]>([])
   const [editedProfile, setEditedProfile] = useState<PublicProfile>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubscriptionLoading, setIsSubscriptionLoading] = useState(false)
 
+  const { theme, setTheme } = useTheme()
   const supabase = useMemo(() => createClient(), [])
   const searchParams = useSearchParams()
 
@@ -90,14 +90,13 @@ function TeacherProfileContent() {
         if (!uid) { setTeacher(null); return }
         const { data, error } = await supabase
           .from('teachers')
-          .select('id,handle,subjects,grades,plan,public_profile,stripe_account_id,stripe_customer_id,stripe_subscription_id,is_onboarding_complete')
+          .select('id,subjects,grades,plan,public_profile,stripe_account_id,stripe_customer_id,stripe_subscription_id,is_onboarding_complete')
           .eq('id', uid)
           .maybeSingle()
         if (error) throw error
         if (mounted) {
           const profile = (data?.public_profile || {}) as PublicProfile
           setTeacher(data)
-          setEditedHandle(data?.handle || '')
           setEditedSubjects(data?.subjects || [])
           setEditedGrades(data?.grades || [])
           setEditedProfile(profile)
@@ -120,7 +119,6 @@ function TeacherProfileContent() {
       const { error } = await supabase
         .from('teachers')
         .update({
-          handle: editedHandle,
           subjects: editedSubjects,
           grades: editedGrades,
           public_profile: editedProfile,
@@ -131,7 +129,6 @@ function TeacherProfileContent() {
 
       setTeacher({
         ...teacher,
-        handle: editedHandle,
         subjects: editedSubjects,
         grades: editedGrades,
         public_profile: editedProfile,
@@ -179,8 +176,6 @@ function TeacherProfileContent() {
     }
   }
 
-  const appUrl = typeof window !== 'undefined' ? window.location.origin : ''
-
   return (
     <ProtectedRoute allowedRoles={["teacher"]}>
       <div className="container mx-auto px-4 py-8 space-y-6">
@@ -200,12 +195,6 @@ function TeacherProfileContent() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium mb-1">ハンドル（URL用）</label>
-                  <Input value={editedHandle} onChange={(e) => setEditedHandle(e.target.value)} required />
-                  <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">公開ページ: {appUrl}/teacher/{editedHandle || '...'}</p>
-                </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-1">表示名</label>
                   <Input
@@ -311,10 +300,6 @@ function TeacherProfileContent() {
                       <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">表示名</span>
                       {teacher.public_profile?.display_name || <span className="text-gray-400">未設定</span>}
                     </div>
-                    <div>
-                      <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">ハンドル</span>
-                      {teacher.handle}
-                    </div>
                     <div className="md:col-span-2">
                       <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">自己紹介</span>
                       {teacher.public_profile?.bio ? (
@@ -339,16 +324,6 @@ function TeacherProfileContent() {
                       <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">学年</span>
                       {(teacher.grades || []).join(' / ') || '-'}
                     </div>
-                  </div>
-                  <div className="pt-2">
-                    <a
-                      href={`/teacher/${teacher.handle}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-sm text-brand-600 dark:text-brand-400 hover:underline"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" /> 公開ページを見る
-                    </a>
                   </div>
                 </div>
               </CardContent>
@@ -420,6 +395,105 @@ function TeacherProfileContent() {
                       disabled={isSubscriptionLoading}
                     >
                       {isSubscriptionLoading ? '処理中...' : 'Proにアップグレード'}
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* テーマ設定 */}
+            <Card>
+              <CardHeader>
+                <CardTitle>テーマ</CardTitle>
+                <CardDescription>表示モードを切り替えます</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-3 max-w-sm">
+                  <button
+                    onClick={() => setTheme('light')}
+                    className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition cursor-pointer ${theme === 'light' ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30' : 'border-border-semantic hover:border-brand-300'}`}
+                  >
+                    <Sun className="w-6 h-6 text-amber-500" />
+                    <span className="text-sm font-semibold">ライト</span>
+                  </button>
+                  <button
+                    onClick={() => setTheme('dark')}
+                    className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition cursor-pointer ${theme === 'dark' ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30' : 'border-border-semantic hover:border-brand-300'}`}
+                  >
+                    <Moon className="w-6 h-6 text-brand-500" />
+                    <span className="text-sm font-semibold">ダーク</span>
+                  </button>
+                  <button
+                    onClick={() => setTheme('system')}
+                    className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition cursor-pointer ${theme === 'system' ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30' : 'border-border-semantic hover:border-brand-300'}`}
+                  >
+                    <Monitor className="w-6 h-6 text-slate-500" />
+                    <span className="text-sm font-semibold">自動</span>
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* プラン機能比較 */}
+            <Card>
+              <CardHeader>
+                <CardTitle>プラン比較</CardTitle>
+                <CardDescription>Free と Standard プランの機能差分</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-3 pr-4 font-semibold text-gray-700 dark:text-slate-300">機能</th>
+                        <th className="text-center py-3 px-4 font-semibold text-gray-500 dark:text-slate-400">Free</th>
+                        <th className="text-center py-3 pl-4 font-semibold text-brand-600 dark:text-brand-400">Standard</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-gray-600 dark:text-slate-300">
+                      <tr className="border-b border-dashed">
+                        <td className="py-3 pr-4">生徒数</td>
+                        <td className="text-center py-3 px-4">2名まで</td>
+                        <td className="text-center py-3 pl-4 font-semibold text-brand-700 dark:text-brand-300">無制限</td>
+                      </tr>
+                      <tr className="border-b border-dashed">
+                        <td className="py-3 pr-4">AI報告書生成</td>
+                        <td className="text-center py-3 px-4">月5件まで</td>
+                        <td className="text-center py-3 pl-4 font-semibold text-brand-700 dark:text-brand-300">無制限</td>
+                      </tr>
+                      <tr className="border-b border-dashed">
+                        <td className="py-3 pr-4">予定・カレンダー管理</td>
+                        <td className="text-center py-3 px-4"><Check className="w-4 h-4 mx-auto text-emerald-500" /></td>
+                        <td className="text-center py-3 pl-4"><Check className="w-4 h-4 mx-auto text-brand-600 dark:text-brand-400" /></td>
+                      </tr>
+                      <tr className="border-b border-dashed">
+                        <td className="py-3 pr-4">生徒カルテ</td>
+                        <td className="text-center py-3 px-4"><Check className="w-4 h-4 mx-auto text-emerald-500" /></td>
+                        <td className="text-center py-3 pl-4"><Check className="w-4 h-4 mx-auto text-brand-600 dark:text-brand-400" /></td>
+                      </tr>
+                      <tr className="border-b border-dashed">
+                        <td className="py-3 pr-4">Stripe決済連携</td>
+                        <td className="text-center py-3 px-4"><X className="w-4 h-4 mx-auto text-gray-300 dark:text-gray-600" /></td>
+                        <td className="text-center py-3 pl-4"><Check className="w-4 h-4 mx-auto text-brand-600 dark:text-brand-400" /></td>
+                      </tr>
+                      <tr className="border-b border-dashed">
+                        <td className="py-3 pr-4">決済手数料</td>
+                        <td className="text-center py-3 px-4">7%</td>
+                        <td className="text-center py-3 pl-4 font-semibold text-brand-700 dark:text-brand-300">2%</td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 pr-4">優先サポート</td>
+                        <td className="text-center py-3 px-4"><X className="w-4 h-4 mx-auto text-gray-300 dark:text-gray-600" /></td>
+                        <td className="text-center py-3 pl-4"><Check className="w-4 h-4 mx-auto text-brand-600 dark:text-brand-400" /></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                {teacher.plan !== 'pro' && (
+                  <div className="mt-6 flex justify-center">
+                    <Button onClick={handleUpgrade} disabled={isSubscriptionLoading}>
+                      {isSubscriptionLoading ? '処理中...' : 'Standardプランにアップグレード（30日間無料）'}
                     </Button>
                   </div>
                 )}

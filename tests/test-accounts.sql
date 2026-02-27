@@ -5,10 +5,9 @@
 -- メール: teacher@test.com でサインアップ後、以下を実行
 
 -- 講師プロフィール作成
-INSERT INTO public.teachers (id, handle, subjects, grades, public_profile, is_onboarding_complete)
+INSERT INTO public.teachers (id, subjects, grades, public_profile, is_onboarding_complete)
 VALUES (
   'TEACHER_USER_ID_HERE', -- サインアップ後に実際のUUIDに置換
-  'tanaka-test',
   ARRAY['数学', '物理'],
   ARRAY['高1', '高2', '高3'],
   jsonb_build_object(
