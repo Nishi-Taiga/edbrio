@@ -1,32 +1,11 @@
 'use client'
 
-import { useEffect } from 'react'
 import Link from 'next/link'
-import { useAuth } from '@/hooks/use-auth'
 import { Sparkles, BookOpen, Calendar, CreditCard, ArrowRight, ChevronDown, Check } from 'lucide-react'
 import { EdBrioLogo } from '@/components/ui/edbrio-logo'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 export default function HomePage() {
-  const { user, dbUser, loading } = useAuth()
-
-  useEffect(() => {
-    if (!loading && user && dbUser) {
-      if (dbUser.role === 'teacher') {
-        window.location.href = '/teacher/dashboard'
-      } else if (dbUser.role === 'guardian') {
-        window.location.href = '/guardian/dashboard'
-      }
-    }
-  }, [loading, user, dbUser])
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
-      </div>
-    )
-  }
 
   const jsonLd = {
     '@context': 'https://schema.org',
