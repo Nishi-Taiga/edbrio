@@ -1,17 +1,21 @@
-
 'use client'
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
-import { LogOut, User } from 'lucide-react'
+import { LogOut, User, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 function classNames(...xs: (string | false | null | undefined)[]) {
   return xs.filter(Boolean).join(' ')
 }
 
-export function Sidebar() {
+interface SidebarProps {
+  mobile?: boolean
+  onClose?: () => void
+}
+
+export function Sidebar({ mobile, onClose }: SidebarProps) {
   const pathname = usePathname()
   const isGuardian = pathname?.startsWith('/guardian')
   const { user, dbUser, signOut } = useAuth()
@@ -37,8 +41,15 @@ export function Sidebar() {
   const items = isGuardian ? guardianItems : teacherItems
 
   return (
-    <nav className="hidden lg:block h-full p-4">
+    <nav className={mobile ? 'h-full p-4' : 'hidden lg:block h-full p-4'}>
       <div className="h-full flex flex-col">
+        {mobile && (
+          <div className="flex justify-end mb-2">
+            <Button variant="ghost" size="sm" onClick={onClose}>
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
+        )}
         <ul className="space-y-1 flex-1">
           {items.map((it) => {
             const active = pathname === it.href || (it.href !== '/teacher/dashboard' && it.href !== '/guardian/dashboard' && pathname?.startsWith(it.href))
@@ -46,6 +57,7 @@ export function Sidebar() {
               <li key={it.href}>
                 <Link
                   href={it.href}
+                  onClick={onClose}
                   className={classNames(
                     'block rounded px-3 py-2 text-sm',
                     active
