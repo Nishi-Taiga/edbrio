@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ShoppingCart } from 'lucide-react'
+import { format } from 'date-fns'
+import { ja } from 'date-fns/locale'
 import { getStripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/client'
 
@@ -65,12 +67,12 @@ export default function GuardianTickets() {
         if (teacherIds.length > 0) {
           const { data: teacherUsers } = await supabase
             .from('users')
-            .select('id, display_name')
+            .select('id, name')
             .in('id', teacherIds)
           if (mounted && teacherUsers) {
             const nameMap: Record<string, string> = {}
-            teacherUsers.forEach((u: { id: string; display_name: string | null }) => {
-              nameMap[u.id] = u.display_name || u.id
+            teacherUsers.forEach((u: { id: string; name: string | null }) => {
+              nameMap[u.id] = u.name || u.id
             })
             setTeacherNames(nameMap)
           }
@@ -229,8 +231,8 @@ export default function GuardianTickets() {
                     <TableRow key={b.id}>
                       <TableCell>{ticketNames[b.ticket_id] || b.ticket_id}</TableCell>
                       <TableCell>{b.remaining_minutes}分</TableCell>
-                      <TableCell>{b.purchased_at ?? '-'}</TableCell>
-                      <TableCell>{b.expires_at ?? '-'}</TableCell>
+                      <TableCell>{b.purchased_at ? format(new Date(b.purchased_at), 'PPP', { locale: ja }) : '-'}</TableCell>
+                      <TableCell>{b.expires_at ? format(new Date(b.expires_at), 'PPP', { locale: ja }) : '-'}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

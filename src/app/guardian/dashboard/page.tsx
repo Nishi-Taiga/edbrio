@@ -31,13 +31,13 @@ export default function GuardianHome() {
     if (teacherIds.length === 0) return
     supabaseForNames
       .from('users')
-      .select('id, display_name')
+      .select('id, name')
       .in('id', teacherIds)
       .then(({ data }) => {
         if (data) {
           const map: Record<string, string> = {}
-          data.forEach((u: { id: string; display_name: string | null }) => {
-            map[u.id] = u.display_name || u.id
+          data.forEach((u: { id: string; name: string | null }) => {
+            map[u.id] = u.name || u.id
           })
           setTeacherNames(map)
         }

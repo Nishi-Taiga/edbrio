@@ -13,6 +13,13 @@ import { Check, X } from 'lucide-react'
 
 type BookingRow = { id: string; start_time: string; end_time: string; status: 'pending' | 'confirmed' | 'canceled' | 'done'; student_id: string }
 
+const statusLabels: Record<string, string> = {
+  pending: '確認待ち',
+  confirmed: '確定',
+  canceled: 'キャンセル',
+  done: '完了',
+}
+
 export default function TeacherBookingsPage() {
   const { user } = useAuth()
   const { bookings: items, loading, error, updateBookingStatus } = useBookings(user?.id, 'teacher')
@@ -70,7 +77,7 @@ export default function TeacherBookingsPage() {
                           b.status === 'pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800/30' :
                             'bg-gray-50 text-gray-700 border-gray-200 dark:bg-surface dark:text-slate-300 dark:border-brand-800/20'
                         }`}>
-                        {b.status}
+                        {statusLabels[b.status] || b.status}
                       </span>
                     </div>
                     {b.status === 'pending' && (

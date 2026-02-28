@@ -90,7 +90,7 @@ function NewReportContent() {
           .eq('student_id', selectedProfile.student_id)
           .order('start_time', { ascending: false })
           .limit(1)
-          .single()
+          .maybeSingle()
         bookingId = booking?.id || null
       }
 

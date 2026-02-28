@@ -15,10 +15,18 @@ type BookingRow = {
   teacher_id: string
 }
 
+const statusLabels: Record<string, string> = {
+  pending: '確認待ち',
+  confirmed: '確定',
+  canceled: 'キャンセル',
+  done: '完了',
+}
+
 export default function GuardianBookingsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [items, setItems] = useState<BookingRow[]>([])
+  const [teacherNames, setTeacherNames] = useState<Record<string, string>>({})
 
   const supabase = useMemo(() => createClient(), [])
 
@@ -48,6 +56,20 @@ export default function GuardianBookingsPage() {
             .limit(100)
           if (bErr) throw bErr
           if (mounted) setItems(data || [])
+
+          // Resolve teacher names
+          const teacherIds = [...new Set((data || []).map(b => b.teacher_id))]
+          if (teacherIds.length > 0) {
+            const { data: users } = await supabase
+              .from('users')
+              .select('id, name')
+              .in('id', teacherIds)
+            if (mounted && users) {
+              const map: Record<string, string> = {}
+              users.forEach((u: { id: string; name: string }) => { map[u.id] = u.name })
+              setTeacherNames(map)
+            }
+          }
         } else {
           if (mounted) setItems([])
         }
@@ -76,11 +98,16 @@ export default function GuardianBookingsPage() {
           <div className="space-y-3">
             {items.map((b) => (
               <Card key={b.id}>
-                <CardHeader><CardTitle className="text-sm">講師ID: {b.teacher_id}</CardTitle></CardHeader>
+                <CardHeader><CardTitle className="text-sm">講師: {teacherNames[b.teacher_id] || b.teacher_id}</CardTitle></CardHeader>
                 <CardContent>
                   <div className="text-sm text-gray-700 dark:text-slate-300">
                     {format(new Date(b.start_time), 'PPP p', { locale: ja })} - {format(new Date(b.end_time), 'p', { locale: ja })}
-                    <span className="ml-2 inline-block rounded px-2 py-0.5 text-xs border">{b.status}</span>
+                    <span className={`ml-2 inline-block rounded px-2 py-0.5 text-xs border ${
+                      b.status === 'confirmed' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800/30' :
+                      b.status === 'pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800/30' :
+                      b.status === 'canceled' ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800/30' :
+                      'bg-gray-50 text-gray-700 border-gray-200 dark:bg-surface dark:text-slate-300 dark:border-brand-800/20'
+                    }`}>{statusLabels[b.status] || b.status}</span>
                   </div>
                 </CardContent>
               </Card>
