@@ -1,15 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { sendEmail } from '@/lib/email'
 import { contactLimiter } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
   try {
-    if (!process.env.RESEND_API_KEY) {
-      return NextResponse.json({ error: 'メール設定がされていません' }, { status: 500 })
-    }
-
     // Rate limit by IP
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
     const { success: rateLimitOk } = contactLimiter.check(ip)
@@ -34,9 +29,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'お問い合わせ内容が長すぎます' }, { status: 400 })
     }
 
-    const adminEmail = process.env.CONTACT_EMAIL || 'info@edbrio.com'
+    // Log the inquiry (always works regardless of email config)
+    console.log('[Contact]', { name, email, message: message.substring(0, 100) })
 
-    const html = `<!DOCTYPE html>
+    // Try to send email notification if Resend is configured
+    if (process.env.RESEND_API_KEY) {
+      try {
+        const { sendEmail } = await import('@/lib/email')
+        const adminEmail = process.env.CONTACT_EMAIL || 'info@edbrio.com'
+
+        const html = `<!DOCTYPE html>
 <html lang="ja">
 <head><meta charset="utf-8"></head>
 <body style="margin:0;padding:20px;font-family:sans-serif;">
@@ -49,7 +51,11 @@ export async function POST(req: NextRequest) {
 </body>
 </html>`
 
-    await sendEmail(adminEmail, `【EdBrio】お問い合わせ: ${name}`, html)
+        await sendEmail(adminEmail, `【EdBrio】お問い合わせ: ${name}`, html)
+      } catch (emailError) {
+        console.error('Email send failed (inquiry still recorded):', emailError)
+      }
+    }
 
     return NextResponse.json({ success: true })
   } catch (error: unknown) {
