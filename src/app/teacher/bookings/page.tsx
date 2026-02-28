@@ -17,6 +17,25 @@ export default function TeacherBookingsPage() {
   const { user } = useAuth()
   const { bookings: items, loading, error, updateBookingStatus } = useBookings(user?.id, 'teacher')
   const [isUpdating, setIsUpdating] = useState<string | null>(null)
+  const [studentNames, setStudentNames] = useState<Record<string, string>>({})
+  const supabase = useMemo(() => createClient(), [])
+
+  // Resolve student UUIDs to names
+  useEffect(() => {
+    if (items.length === 0) return
+    const ids = [...new Set(items.map(b => b.student_id))]
+    supabase
+      .from('student_profiles')
+      .select('student_id, name')
+      .in('student_id', ids)
+      .then(({ data }) => {
+        if (data) {
+          const map: Record<string, string> = {}
+          data.forEach(p => { if (p.student_id) map[p.student_id] = p.name })
+          setStudentNames(map)
+        }
+      })
+  }, [items, supabase])
 
   const handleStatusUpdate = async (id: string, status: 'confirmed' | 'canceled') => {
     setIsUpdating(id)
@@ -42,7 +61,7 @@ export default function TeacherBookingsPage() {
           <div className="space-y-3">
             {items.map((b) => (
               <Card key={b.id}>
-                <CardHeader><CardTitle className="text-sm">生徒ID: {b.student_id}</CardTitle></CardHeader>
+                <CardHeader><CardTitle className="text-sm">生徒: {studentNames[b.student_id] || b.student_id}</CardTitle></CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-gray-700 dark:text-slate-300">

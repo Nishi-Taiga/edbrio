@@ -26,6 +26,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
     { href: '/guardian/tickets', label: 'チケット' },
     { href: '/guardian/bookings', label: '予約履歴' },
     { href: '/guardian/reports', label: 'レポート' },
+    { href: '/guardian/contact', label: 'お問い合わせ' },
   ]
 
   const teacherItems = [
@@ -35,7 +36,8 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
     { href: '/teacher/students', label: '生徒カルテ' },
     { href: '/teacher/reports', label: 'レポート' },
     { href: '/teacher/bookings', label: '予約一覧' },
-    { href: '/teacher/profile', label: 'プロフィール' },
+    { href: '/teacher/profile', label: '設定' },
+    { href: '/teacher/contact', label: 'お問い合わせ' },
   ]
 
   const items = isGuardian ? guardianItems : teacherItems

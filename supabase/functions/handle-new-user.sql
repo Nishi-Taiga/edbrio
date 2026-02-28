@@ -16,11 +16,9 @@ BEGIN
   -- ロールに応じて専用テーブルにもデータを挿入
   IF (NEW.raw_user_meta_data->>'role') = 'teacher' THEN
     -- 講師テーブルに基本データを挿入
-    INSERT INTO public.teachers (id, handle, subjects, grades, public_profile)
+    INSERT INTO public.teachers (id, subjects, grades, public_profile)
     VALUES (
       NEW.id,
-      -- メールアドレスから一意のハンドルを生成
-      LOWER(REPLACE(split_part(NEW.email, '@', 1), '.', '-')) || '-' || EXTRACT(epoch FROM NOW())::int,
       ARRAY[]::text[], -- 空の科目配列
       ARRAY[]::text[], -- 空の学年配列
       '{}'::jsonb      -- 空のプロフィール
@@ -51,8 +49,8 @@ CREATE TRIGGER on_auth_user_created
 -- WHERE email = 'teacher@test.com' 
 -- AND id NOT IN (SELECT id FROM public.users);
 
--- INSERT INTO public.teachers (id, handle, subjects, grades, public_profile, is_onboarding_complete)
--- SELECT u.id, 'test-teacher', ARRAY['数学', '物理'], ARRAY['高1', '高2', '高3'], 
+-- INSERT INTO public.teachers (id, subjects, grades, public_profile, is_onboarding_complete)
+-- SELECT u.id, ARRAY['数学', '物理'], ARRAY['高1', '高2', '高3'],
 --        jsonb_build_object(
 --          'introduction', '数学の楽しさを伝える指導を心がけています。',
 --          'experience', '5年',
