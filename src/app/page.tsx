@@ -1,10 +1,36 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
-import { Sparkles, BookOpen, Calendar, CreditCard, ArrowRight, ChevronDown, Check } from 'lucide-react'
+import { Sparkles, BookOpen, Calendar, CreditCard, ArrowRight, ChevronDown, Check, Send } from 'lucide-react'
 import { EdBrioLogo } from '@/components/ui/edbrio-logo'
 
 export default function HomePage() {
+  const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' })
+  const [contactStatus, setContactStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [contactError, setContactError] = useState('')
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setContactStatus('sending')
+    setContactError('')
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(contactForm),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || '送信に失敗しました')
+      }
+      setContactStatus('sent')
+      setContactForm({ name: '', email: '', message: '' })
+    } catch (err: unknown) {
+      setContactError(err instanceof Error ? err.message : '送信に失敗しました')
+      setContactStatus('error')
+    }
+  }
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -31,12 +57,14 @@ export default function HomePage() {
           <div className="flex items-center gap-2.5">
             <EdBrioLogo size={36} className="shrink-0" />
             <span className="text-2xl font-extrabold tracking-tight text-brand-700 dark:text-brand-300">EdBrio</span>
+            <span className="bg-amber-100 text-amber-700 border border-amber-300 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide">ALPHA</span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-500 dark:text-slate-400">
             <a href="#features" className="hover:text-brand-600 dark:hover:text-brand-400 transition">機能</a>
             <a href="#use-cases" className="hover:text-brand-600 dark:hover:text-brand-400 transition">活用シーン</a>
             <a href="#pricing" className="hover:text-brand-600 dark:hover:text-brand-400 transition">料金</a>
             <a href="#faq" className="hover:text-brand-600 dark:hover:text-brand-400 transition">よくある質問</a>
+            <a href="#contact" className="hover:text-brand-600 dark:hover:text-brand-400 transition">お問い合わせ</a>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/login" className="hidden sm:block text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-300 transition">ログイン</Link>
@@ -47,8 +75,15 @@ export default function HomePage() {
         </div>
       </nav>
 
+      {/* ── Alpha Notice ── */}
+      <div className="fixed top-20 w-full z-40 bg-amber-50 border-b border-amber-200 text-center py-2 px-4">
+        <p className="text-xs font-bold text-amber-700">
+          本システムは現在アルファ版としてテスト運用中です。ご利用中に不具合が発生する場合があります。
+        </p>
+      </div>
+
       {/* ── Hero ── */}
-      <section className="relative pt-40 pb-24 px-6 overflow-hidden bg-gradient-to-b from-brand-50 via-white to-white dark:from-brand-950 dark:via-background dark:to-background">
+      <section className="relative pt-48 pb-24 px-6 overflow-hidden bg-gradient-to-b from-brand-50 via-white to-white dark:from-brand-950 dark:via-background dark:to-background">
         {/* Decorative blobs */}
         <div className="absolute top-10 left-1/4 w-96 h-96 bg-brand-400/20 dark:bg-brand-600/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute top-32 right-1/4 w-72 h-72 bg-accent-400/15 dark:bg-accent-600/10 rounded-full blur-3xl pointer-events-none" />
