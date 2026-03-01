@@ -58,9 +58,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error: unknown) {
-    console.error('Contact form error:', error)
+    const msg = error instanceof Error ? error.message : String(error)
+    console.error('Contact form error:', msg)
     return NextResponse.json(
-      { error: '送信に失敗しました。しばらくしてから再度お試しください。' },
+      { error: `送信に失敗しました: ${msg}` },
       { status: 500 }
     )
   }
