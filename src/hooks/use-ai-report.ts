@@ -2,6 +2,8 @@
 
 import { useState, useCallback } from 'react'
 
+const MAX_GENERATIONS_PER_REPORT = 3
+
 interface GenerateReportParams {
   contentRaw: string
   studentName: string
@@ -16,6 +18,10 @@ export function useAiReport() {
   const [generatedContent, setGeneratedContent] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [generationCount, setGenerationCount] = useState(0)
+
+  const remainingGenerations = MAX_GENERATIONS_PER_REPORT - generationCount
+  const canGenerate = generationCount < MAX_GENERATIONS_PER_REPORT
 
   const generateReport = useCallback(async (params: GenerateReportParams) => {
     try {
@@ -36,6 +42,7 @@ export function useAiReport() {
 
       const data = await res.json()
       setGeneratedContent(data.generatedContent)
+      setGenerationCount(prev => prev + 1)
       return data.generatedContent
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e)
@@ -51,5 +58,15 @@ export function useAiReport() {
     setError(null)
   }, [])
 
-  return { generateReport, generatedContent, loading, error, reset }
+  return {
+    generateReport,
+    generatedContent,
+    loading,
+    error,
+    reset,
+    generationCount,
+    remainingGenerations,
+    canGenerate,
+    maxGenerations: MAX_GENERATIONS_PER_REPORT,
+  }
 }

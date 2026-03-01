@@ -22,6 +22,7 @@ import { ReportPreview } from '@/components/reports/report-preview'
 import { ErrorAlert } from '@/components/ui/error-alert'
 import { LoadingButton } from '@/components/ui/loading-button'
 import { useTranslations } from 'next-intl'
+import type { TeacherPlan } from '@/lib/types/database'
 
 export default function NewReportPage() {
   const tc = useTranslations('common')
@@ -48,7 +49,10 @@ function NewReportContent() {
 
   const [selectedProfileId, setSelectedProfileId] = useState(preselectedProfileId || '')
   const { goals, weakPoints } = useStudentKarte(selectedProfileId || undefined)
-  const { generateReport, generatedContent, loading: aiLoading, error: aiError } = useAiReport()
+  const {
+    generateReport, generatedContent, loading: aiLoading, error: aiError,
+    canGenerate, remainingGenerations, maxGenerations,
+  } = useAiReport()
 
   const [formData, setFormData] = useState({
     subject: '',
@@ -62,6 +66,22 @@ function NewReportContent() {
   const [editedPublic, setEditedPublic] = useState('')
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [teacherPlan, setTeacherPlan] = useState<TeacherPlan>('free')
+
+  // Fetch teacher plan
+  useEffect(() => {
+    if (!user?.id) return
+    supabase
+      .from('teachers')
+      .select('plan')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => {
+        if (data?.plan) setTeacherPlan(data.plan as TeacherPlan)
+      })
+  }, [user?.id, supabase])
+
+  const isPro = teacherPlan === 'pro'
 
   // Update edited content when AI generates
   useEffect(() => {
@@ -144,6 +164,15 @@ function NewReportContent() {
     }
   }
 
+  // Step indicator labels differ based on plan
+  const steps = isPro
+    ? [t('steps.selectStudent'), t('steps.inputMemo'), t('steps.aiGenerate'), t('steps.preview'), t('steps.save')]
+    : [t('steps.selectStudent'), t('steps.inputMemo'), t('steps.preview'), t('steps.save')]
+
+  const currentStep = isPro
+    ? (!selectedProfileId ? 0 : !formData.contentRaw.trim() ? 1 : !editedPublic ? 2 : 3)
+    : (!selectedProfileId ? 0 : !formData.contentRaw.trim() ? 1 : !editedPublic ? 2 : 3)
+
   return (
     <ProtectedRoute allowedRoles={["teacher"]}>
       <div className="container mx-auto px-4 py-8 max-w-3xl">
@@ -157,21 +186,15 @@ function NewReportContent() {
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{t('title')}</h1>
 
         {/* Step Indicator */}
-        {(() => {
-          const steps = [t('steps.selectStudent'), t('steps.inputMemo'), t('steps.aiGenerate'), t('steps.preview'), t('steps.save')]
-          const currentStep = !selectedProfileId ? 0 : !formData.contentRaw.trim() ? 1 : !editedPublic ? 2 : 3
-          return (
-            <div className="flex items-center justify-center gap-2 mb-6">
-              {steps.map((label, i) => (
-                <div key={label} className="flex items-center gap-2">
-                  <div className={`w-2.5 h-2.5 rounded-full ${i <= currentStep ? 'bg-brand-600' : 'bg-slate-200 dark:bg-slate-700'}`} />
-                  <span className={`text-xs hidden sm:inline ${i <= currentStep ? 'text-brand-600 font-medium' : 'text-slate-400'}`}>{label}</span>
-                  {i < steps.length - 1 && <div className={`w-6 h-px ${i < currentStep ? 'bg-brand-600' : 'bg-slate-200 dark:bg-slate-700'}`} />}
-                </div>
-              ))}
+        <div className="flex items-center justify-center gap-2 mb-6">
+          {steps.map((label, i) => (
+            <div key={label} className="flex items-center gap-2">
+              <div className={`w-2.5 h-2.5 rounded-full ${i <= currentStep ? 'bg-brand-600' : 'bg-slate-200 dark:bg-slate-700'}`} />
+              <span className={`text-xs hidden sm:inline ${i <= currentStep ? 'text-brand-600 font-medium' : 'text-slate-400'}`}>{label}</span>
+              {i < steps.length - 1 && <div className={`w-6 h-px ${i < currentStep ? 'bg-brand-600' : 'bg-slate-200 dark:bg-slate-700'}`} />}
             </div>
-          )
-        })()}
+          ))}
+        </div>
 
         {(aiError || saveError) && <ErrorAlert message={aiError || saveError || ''} />}
 
@@ -210,15 +233,27 @@ function NewReportContent() {
             </Card>
           )}
 
-          {/* Step 3: AI Generate */}
+          {/* Step 3: AI Generate (Pro) or manual input prompt (Free) */}
           {selectedProfileId && formData.contentRaw.trim() && (
             <div className="flex justify-center">
               <AiGenerateButton
                 onClick={handleGenerate}
                 loading={aiLoading}
                 disabled={!formData.contentRaw.trim() || !selectedProfileId}
+                isPro={isPro}
+                canGenerate={canGenerate}
+                remainingGenerations={remainingGenerations}
+                maxGenerations={maxGenerations}
               />
             </div>
+          )}
+
+          {/* Free plan: manual input area (shown when no AI-generated content) */}
+          {!isPro && selectedProfileId && formData.contentRaw.trim() && !editedPublic && (
+            <ReportPreview
+              content={editedPublic}
+              onChange={setEditedPublic}
+            />
           )}
 
           {/* Step 4: Preview & Edit */}
@@ -227,8 +262,10 @@ function NewReportContent() {
               <ReportPreview
                 content={editedPublic}
                 onChange={setEditedPublic}
-                onRegenerate={handleGenerate}
+                onRegenerate={isPro ? handleGenerate : undefined}
                 regenerating={aiLoading}
+                canRegenerate={canGenerate}
+                remainingGenerations={remainingGenerations}
               />
 
               {/* Step 5: Save */}

@@ -314,7 +314,16 @@
     "publish": "公開",
     "publishSuccess": "レポートを公開しました",
     "draftSuccess": "下書きを保存しました",
-    "saveError": "レポートの保存に失敗しました"
+    "saveError": "レポートの保存に失敗しました",
+    "planRequired": "AI報告書生成はスタンダードプランの機能です",
+    "upgradeLink": "プランをアップグレード",
+    "generationLimitReached": "生成回数の上限に達しました（{current}/{max}回）",
+    "remainingGenerations": "残り{count}回",
+    "manualInputHint": "保護者向けの報告書を直接入力してください",
+    "aiGenerating": "AI生成中...",
+    "aiGenerateButton": "AIで報告書を生成",
+    "generationLimitReachedShort": "生成上限に達しました",
+    "generationsUsed": "{count}/{max}回使用済み"
   },
   "teacherReportDetail": {
     "title": "レポート詳細",

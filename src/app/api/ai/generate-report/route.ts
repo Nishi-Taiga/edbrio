@@ -44,6 +44,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Teachers only' }, { status: 403 })
     }
 
+    // Check subscription plan — AI generation is Standard plan only
+    const { data: teacher } = await supabase
+      .from('teachers')
+      .select('plan')
+      .eq('id', session.user.id)
+      .single()
+
+    if (!teacher || teacher.plan !== 'pro') {
+      return NextResponse.json(
+        { error: 'この機能はスタンダードプランでご利用いただけます。', code: 'PLAN_REQUIRED' },
+        { status: 403 }
+      )
+    }
+
     const body = await req.json()
     const { contentRaw, studentName, subject, goals, weakPoints, comprehensionLevel, studentMood } = body
 

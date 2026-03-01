@@ -314,7 +314,16 @@
     "publish": "Publish",
     "publishSuccess": "Report published successfully",
     "draftSuccess": "Draft saved successfully",
-    "saveError": "Failed to save the report"
+    "saveError": "Failed to save the report",
+    "planRequired": "AI report generation is a Standard plan feature",
+    "upgradeLink": "Upgrade your plan",
+    "generationLimitReached": "Generation limit reached ({current}/{max} used)",
+    "remainingGenerations": "{count} remaining",
+    "manualInputHint": "Enter the parent/guardian report directly",
+    "aiGenerating": "Generating with AI...",
+    "aiGenerateButton": "Generate report with AI",
+    "generationLimitReachedShort": "Generation limit reached",
+    "generationsUsed": "{count}/{max} used"
   },
   "teacherReportDetail": {
     "title": "Report Details",
