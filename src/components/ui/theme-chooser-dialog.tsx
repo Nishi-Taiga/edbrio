@@ -12,8 +12,8 @@ export function ThemeChooserDialog() {
   const [show, setShow] = useState(false)
   const pathname = usePathname()
 
-  // Only show on authenticated dashboard pages
-  const isDashboard = pathname?.startsWith('/teacher') || pathname?.startsWith('/guardian') || pathname?.startsWith('/admin')
+  // Only show on teacher/guardian dashboard pages
+  const isDashboard = pathname?.startsWith('/teacher') || pathname?.startsWith('/guardian')
 
   useEffect(() => {
     if (isDashboard && !localStorage.getItem(THEME_CHOSEN_KEY)) {
