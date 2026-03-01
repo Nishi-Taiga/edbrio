@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from '@/i18n/navigation'
+import { useRouter, Link } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
@@ -191,6 +191,16 @@ export function AuthForm({ mode, onModeChange, inviteToken, lockedRole, prefillE
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            {mode === 'login' && (
+              <div className="text-right">
+                <Link
+                  href="/forgot-password"
+                  className="text-xs text-muted-foreground hover:text-brand-600 dark:hover:text-brand-400 hover:underline"
+                >
+                  {t('forgotPasswordLink')}
+                </Link>
+              </div>
+            )}
           </div>
 
           <Button type="submit" className="w-full" disabled={loading}>

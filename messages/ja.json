@@ -236,7 +236,26 @@
     "loginFailed": "ログインに失敗しました。",
     "confirmationEmailSent": "確認メールを送信しました。メールを確認してアカウントを有効化してください。",
     "noAccountLink": "アカウントをお持ちでない方はこちら",
-    "hasAccountLink": "既にアカウントをお持ちの方はこちら"
+    "hasAccountLink": "既にアカウントをお持ちの方はこちら",
+    "forgotPasswordLink": "パスワードを忘れた方",
+    "forgotPassword": {
+      "title": "パスワードをリセット",
+      "description": "登録済みのメールアドレスを入力してください",
+      "emailSent": "パスワードリセットのメールを送信しました。メールを確認してください。",
+      "submitButton": "リセットメールを送信",
+      "backToLogin": "ログインに戻る"
+    },
+    "resetPassword": {
+      "title": "新しいパスワード",
+      "description": "新しいパスワードを入力してください",
+      "newPasswordLabel": "新しいパスワード",
+      "confirmPasswordLabel": "パスワード確認",
+      "passwordMismatch": "パスワードが一致しません",
+      "passwordTooShort": "パスワードは8文字以上で入力してください",
+      "submitButton": "パスワードを変更",
+      "success": "パスワードを変更しました。ログインページに移動します...",
+      "noSession": "セッションが無効です。もう一度リセットメールを送信してください。"
+    }
   },
   "sidebar": {
     "teacher": {

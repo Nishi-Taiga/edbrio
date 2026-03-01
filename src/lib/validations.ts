@@ -81,6 +81,18 @@ export const checkoutSessionSchema = z.object({
   priceId: z.string().min(1).max(255),
 })
 
+// ── /api/auth/forgot-password ──
+
+export const forgotPasswordSchema = z.object({
+  email: emailSchema,
+})
+
+// ── /api/auth/reset-password ──
+
+export const resetPasswordSchema = z.object({
+  password: z.string().min(8).max(72),
+})
+
 // ── /api/admin/users (query params) ──
 
 export const adminUsersQuerySchema = z.object({
