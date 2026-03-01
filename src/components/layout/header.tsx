@@ -18,7 +18,7 @@ export function Header({ showMenuButton }: HeaderProps) {
   const { toggleDesktop, toggleMobile } = useSidebar()
   const t = useTranslations('common')
 
-  const homeHref = dbUser?.role === 'teacher' ? '/teacher/dashboard' : dbUser?.role === 'guardian' ? '/guardian/dashboard' : '/'
+  const homeHref = dbUser?.role === 'teacher' ? '/teacher/dashboard' : dbUser?.role === 'guardian' ? '/guardian/dashboard' : (dbUser?.role as string) === 'admin' ? '/admin/dashboard' : '/'
 
   const handleMenuClick = () => {
     if (window.innerWidth < 1024) {
