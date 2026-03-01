@@ -316,15 +316,16 @@
     "breadcrumbNew": "New Report",
     "title": "Create Report",
     "steps": {
-      "selectStudent": "Select Student",
+      "selectBooking": "Select Lesson",
       "inputMemo": "Enter Notes",
       "aiGenerate": "AI Generate",
       "preview": "Preview",
       "save": "Save"
     },
-    "step1Title": "1. Select a Student",
-    "studentLabel": "Student",
-    "studentPlaceholder": "Select a student...",
+    "step1Title": "1. Select a Lesson",
+    "bookingLabel": "Lessons without reports",
+    "bookingPlaceholder": "Select a lesson...",
+    "noUnreportedBookings": "No lessons without reports",
     "step2Title": "2. Enter Lesson Notes",
     "saveDraft": "Save as Draft",
     "publish": "Publish",
@@ -665,11 +666,7 @@
     "nextPlanLabel": "Next Lesson Plan",
     "nextPlanPlaceholder": "e.g. Attempt applied quadratic equation problems",
     "maxLengthLabel": "Max Characters",
-    "maxLengthPlaceholder": "500",
-    "teachingStyleLabel": "Teaching Style",
-    "stylePrivateTutor": "Private Tutor",
-    "styleTutoringCenter": "Tutoring Center",
-    "styleOnline": "Online Tutoring"
+    "maxLengthPlaceholder": "500"
   },
   "karte": {
     "card": {

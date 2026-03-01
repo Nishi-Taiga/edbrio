@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useState, useEffect, useMemo } from 'react'
+import { Suspense, useState, useEffect, useMemo, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useRouter } from '@/i18n/navigation'
 import { Link } from '@/i18n/navigation'
@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label'
 import { Save, Send } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
-import { useStudentProfiles } from '@/hooks/use-student-profiles'
 import { useStudentKarte } from '@/hooks/use-student-karte'
 import { useAiReport } from '@/hooks/use-ai-report'
 import { createClient } from '@/lib/supabase/client'
@@ -23,6 +22,16 @@ import { ErrorAlert } from '@/components/ui/error-alert'
 import { LoadingButton } from '@/components/ui/loading-button'
 import { useTranslations } from 'next-intl'
 import type { TeacherPlan } from '@/lib/types/database'
+
+interface UnreportedBooking {
+  id: string
+  start_time: string
+  end_time: string
+  student_id: string
+  status: string
+  profileId: string
+  studentName: string
+}
 
 export default function NewReportPage() {
   const tc = useTranslations('common')
@@ -42,12 +51,16 @@ function NewReportContent() {
   const tc = useTranslations('common')
   const router = useRouter()
   const searchParams = useSearchParams()
-  const preselectedProfileId = searchParams.get('profileId')
+  const preselectedBookingId = searchParams.get('bookingId')
   const { user, loading: authLoading } = useAuth()
-  const { profiles, loading: profilesLoading } = useStudentProfiles(user?.id)
   const supabase = useMemo(() => createClient(), [])
 
-  const [selectedProfileId, setSelectedProfileId] = useState(preselectedProfileId || '')
+  const [unreportedBookings, setUnreportedBookings] = useState<UnreportedBooking[]>([])
+  const [bookingsLoading, setBookingsLoading] = useState(true)
+  const [selectedBookingId, setSelectedBookingId] = useState(preselectedBookingId || '')
+
+  const selectedBooking = unreportedBookings.find(b => b.id === selectedBookingId)
+  const selectedProfileId = selectedBooking?.profileId || ''
   const { goals, weakPoints } = useStudentKarte(selectedProfileId || undefined)
   const {
     generateReport, generatedContent, loading: aiLoading, error: aiError,
@@ -62,13 +75,76 @@ function NewReportContent() {
     homework: '',
     nextPlan: '',
     maxLength: 500,
-    teachingStyle: 'private_tutor',
   })
 
   const [editedPublic, setEditedPublic] = useState('')
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [teacherPlan, setTeacherPlan] = useState<TeacherPlan>('free')
+
+  // Fetch unreported bookings
+  const fetchUnreportedBookings = useCallback(async () => {
+    if (!user?.id) return
+    setBookingsLoading(true)
+    try {
+      // Get all confirmed/done bookings for this teacher
+      const { data: bookings } = await supabase
+        .from('bookings')
+        .select('id, start_time, end_time, student_id, status')
+        .eq('teacher_id', user.id)
+        .in('status', ['confirmed', 'done'])
+        .order('start_time', { ascending: false })
+
+      if (!bookings || bookings.length === 0) {
+        setUnreportedBookings([])
+        return
+      }
+
+      // Get booking_ids that already have reports
+      const { data: reports } = await supabase
+        .from('reports')
+        .select('booking_id')
+        .eq('teacher_id', user.id)
+        .not('booking_id', 'is', null)
+
+      const reportedBookingIds = new Set((reports || []).map(r => r.booking_id))
+
+      // Get student profiles for this teacher (to map student_id → profile)
+      const { data: profiles } = await supabase
+        .from('student_profiles')
+        .select('id, student_id, name')
+        .eq('teacher_id', user.id)
+
+      const profileMap = new Map<string, { id: string; name: string }>()
+      for (const p of profiles || []) {
+        if (p.student_id) profileMap.set(p.student_id, { id: p.id, name: p.name })
+      }
+
+      // Filter: unreported bookings that have a matching student profile
+      const unreported = bookings
+        .filter(b => !reportedBookingIds.has(b.id))
+        .map(b => {
+          const profile = profileMap.get(b.student_id)
+          if (!profile) return null
+          return {
+            id: b.id,
+            start_time: b.start_time,
+            end_time: b.end_time,
+            student_id: b.student_id,
+            status: b.status,
+            profileId: profile.id,
+            studentName: profile.name,
+          } satisfies UnreportedBooking
+        })
+        .filter((b): b is UnreportedBooking => b !== null)
+
+      setUnreportedBookings(unreported)
+    } finally {
+      setBookingsLoading(false)
+    }
+  }, [user?.id, supabase])
+
+  useEffect(() => { fetchUnreportedBookings() }, [fetchUnreportedBookings])
 
   // Fetch teacher plan
   useEffect(() => {
@@ -90,48 +166,31 @@ function NewReportContent() {
     if (generatedContent) setEditedPublic(generatedContent)
   }, [generatedContent])
 
-  const selectedProfile = profiles.find(p => p.id === selectedProfileId)
-
   const handleGenerate = async () => {
-    if (!formData.contentRaw.trim() || !selectedProfile) return
+    if (!formData.contentRaw.trim() || !selectedBooking) return
     await generateReport({
       contentRaw: formData.contentRaw,
-      studentName: selectedProfile.name,
+      studentName: selectedBooking.studentName,
       subject: formData.subject || undefined,
       goals: goals.filter(g => g.status === 'active').map(g => g.title),
       weakPoints: weakPoints.filter(w => w.status === 'active').map(w => `${w.subject}: ${w.topic}`),
       comprehensionLevel: formData.comprehensionLevel,
       studentMood: formData.studentMood,
       maxLength: formData.maxLength,
-      teachingStyle: formData.teachingStyle,
     })
   }
 
   const handleSave = async (publish: boolean) => {
-    if (!selectedProfileId) return
+    if (!selectedBooking) return
     setSaving(true)
     setSaveError(null)
     try {
-      // Try to find a recent booking for this student (optional)
-      let bookingId: string | null = null
-      if (selectedProfile?.student_id) {
-        const { data: booking } = await supabase
-          .from('bookings')
-          .select('id')
-          .eq('teacher_id', user!.id)
-          .eq('student_id', selectedProfile.student_id)
-          .order('start_time', { ascending: false })
-          .limit(1)
-          .maybeSingle()
-        bookingId = booking?.id || null
-      }
-
       const reportData: Record<string, any> = {
-        booking_id: bookingId,
+        booking_id: selectedBooking.id,
         content_raw: formData.contentRaw,
         content_public: editedPublic || null,
         ai_summary: generatedContent || null,
-        profile_id: selectedProfileId,
+        profile_id: selectedBooking.profileId,
         teacher_id: user!.id,
         subject: formData.subject || null,
         homework: formData.homework || null,
@@ -168,14 +227,22 @@ function NewReportContent() {
     }
   }
 
+  const formatBookingLabel = (b: UnreportedBooking) => {
+    const date = new Date(b.start_time)
+    const dateStr = date.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric', weekday: 'short' })
+    const startStr = date.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
+    const endStr = new Date(b.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
+    return `${dateStr} ${startStr}〜${endStr}  ${b.studentName}`
+  }
+
   // Step indicator labels differ based on plan
   const steps = isPro
-    ? [t('steps.selectStudent'), t('steps.inputMemo'), t('steps.aiGenerate'), t('steps.preview'), t('steps.save')]
-    : [t('steps.selectStudent'), t('steps.inputMemo'), t('steps.preview'), t('steps.save')]
+    ? [t('steps.selectBooking'), t('steps.inputMemo'), t('steps.aiGenerate'), t('steps.preview'), t('steps.save')]
+    : [t('steps.selectBooking'), t('steps.inputMemo'), t('steps.preview'), t('steps.save')]
 
   const currentStep = isPro
-    ? (!selectedProfileId ? 0 : !formData.contentRaw.trim() ? 1 : !editedPublic ? 2 : 3)
-    : (!selectedProfileId ? 0 : !formData.contentRaw.trim() ? 1 : !editedPublic ? 2 : 3)
+    ? (!selectedBookingId ? 0 : !formData.contentRaw.trim() ? 1 : !editedPublic ? 2 : 3)
+    : (!selectedBookingId ? 0 : !formData.contentRaw.trim() ? 1 : !editedPublic ? 2 : 3)
 
   return (
     <ProtectedRoute allowedRoles={["teacher"]}>
@@ -203,21 +270,23 @@ function NewReportContent() {
         {(aiError || saveError) && <ErrorAlert message={aiError || saveError || ''} />}
 
         <div className="space-y-6">
-          {/* Step 1: Select student */}
+          {/* Step 1: Select booking */}
           <Card>
             <CardHeader>
               <CardTitle className="text-base">{t('step1Title')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <Label>{t('studentLabel')}</Label>
-              {profilesLoading || authLoading ? (
+              <Label>{t('bookingLabel')}</Label>
+              {bookingsLoading || authLoading ? (
                 <div className="text-gray-500 dark:text-slate-400 text-sm">{tc('loading')}</div>
+              ) : unreportedBookings.length === 0 ? (
+                <p className="text-sm text-muted-foreground">{t('noUnreportedBookings')}</p>
               ) : (
-                <Select value={selectedProfileId} onValueChange={setSelectedProfileId}>
-                  <SelectTrigger><SelectValue placeholder={t('studentPlaceholder')} /></SelectTrigger>
+                <Select value={selectedBookingId} onValueChange={setSelectedBookingId}>
+                  <SelectTrigger><SelectValue placeholder={t('bookingPlaceholder')} /></SelectTrigger>
                   <SelectContent>
-                    {profiles.map(p => (
-                      <SelectItem key={p.id} value={p.id}>{p.name}{p.grade ? ` (${p.grade})` : ''}</SelectItem>
+                    {unreportedBookings.map(b => (
+                      <SelectItem key={b.id} value={b.id}>{formatBookingLabel(b)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -226,7 +295,7 @@ function NewReportContent() {
           </Card>
 
           {/* Step 2: Input form */}
-          {selectedProfileId && (
+          {selectedBookingId && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">{t('step2Title')}</CardTitle>
@@ -238,12 +307,12 @@ function NewReportContent() {
           )}
 
           {/* Step 3: AI Generate (Pro) or manual input prompt (Free) */}
-          {selectedProfileId && formData.contentRaw.trim() && (
+          {selectedBookingId && formData.contentRaw.trim() && (
             <div className="flex justify-center">
               <AiGenerateButton
                 onClick={handleGenerate}
                 loading={aiLoading}
-                disabled={!formData.contentRaw.trim() || !selectedProfileId}
+                disabled={!formData.contentRaw.trim() || !selectedBookingId}
                 isPro={isPro}
                 canGenerate={canGenerate}
                 remainingGenerations={remainingGenerations}
@@ -253,7 +322,7 @@ function NewReportContent() {
           )}
 
           {/* Free plan: manual input area (shown when no AI-generated content) */}
-          {!isPro && selectedProfileId && formData.contentRaw.trim() && !editedPublic && (
+          {!isPro && selectedBookingId && formData.contentRaw.trim() && !editedPublic && (
             <ReportPreview
               content={editedPublic}
               onChange={setEditedPublic}

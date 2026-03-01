@@ -13,7 +13,6 @@ interface GenerateReportParams {
   comprehensionLevel?: number
   studentMood?: string
   maxLength?: number
-  teachingStyle?: string
 }
 
 export function useAiReport() {

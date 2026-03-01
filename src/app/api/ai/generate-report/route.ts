@@ -5,15 +5,8 @@ import { aiReportLimiter } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
-function buildSystemPrompt(maxLength: number, teachingStyle: string): string {
-  const styleMap: Record<string, string> = {
-    private_tutor: '家庭教師として生徒の自宅で行った個別指導',
-    tutoring_center: '個別指導塾での授業',
-    online: 'オンラインでの個別指導授業',
-  }
-  const styleDesc = styleMap[teachingStyle] || styleMap.private_tutor
-
-  return `あなたは${styleDesc}の報告書を作成するアシスタントです。
+function buildSystemPrompt(maxLength: number): string {
+  return `あなたは個別指導の授業報告書を作成するアシスタントです。
 講師が記入した授業メモを元に、保護者が読みやすい丁寧な授業報告書を生成してください。
 
 ルール:
@@ -69,7 +62,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { contentRaw, studentName, subject, goals, weakPoints, comprehensionLevel, studentMood, maxLength, teachingStyle } = body
+    const { contentRaw, studentName, subject, goals, weakPoints, comprehensionLevel, studentMood, maxLength } = body
 
     if (!contentRaw || !studentName) {
       return NextResponse.json({ error: 'contentRaw and studentName are required' }, { status: 400 })
@@ -97,7 +90,7 @@ export async function POST(req: NextRequest) {
     const message = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 1024,
-      system: buildSystemPrompt(maxLength || 500, teachingStyle || 'private_tutor'),
+      system: buildSystemPrompt(maxLength || 500),
       messages: [{ role: 'user', content: userPrompt }],
     })
 

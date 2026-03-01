@@ -316,15 +316,16 @@
     "breadcrumbNew": "新規作成",
     "title": "レポート作成",
     "steps": {
-      "selectStudent": "生徒選択",
+      "selectBooking": "授業選択",
       "inputMemo": "メモ入力",
       "aiGenerate": "AI生成",
       "preview": "プレビュー",
       "save": "保存"
     },
-    "step1Title": "1. 生徒を選択",
-    "studentLabel": "生徒",
-    "studentPlaceholder": "生徒を選択...",
+    "step1Title": "1. 授業を選択",
+    "bookingLabel": "報告書未作成の授業",
+    "bookingPlaceholder": "授業を選択...",
+    "noUnreportedBookings": "報告書未作成の授業はありません",
     "step2Title": "2. 授業メモを入力",
     "saveDraft": "下書き保存",
     "publish": "公開",
@@ -665,11 +666,7 @@
     "nextPlanLabel": "次回の予定",
     "nextPlanPlaceholder": "例: 二次方程式の応用問題に挑戦",
     "maxLengthLabel": "最大文字数",
-    "maxLengthPlaceholder": "500",
-    "teachingStyleLabel": "指導形態",
-    "stylePrivateTutor": "家庭教師",
-    "styleTutoringCenter": "個別指導塾",
-    "styleOnline": "オンライン指導"
+    "maxLengthPlaceholder": "500"
   },
   "karte": {
     "card": {
