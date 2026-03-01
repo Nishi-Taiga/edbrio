@@ -548,6 +548,10 @@ export default function HomePage() {
             <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
               家庭教師・個別指導講師のための、AI報告書生成＆生徒管理システム。
             </p>
+            <a href="https://x.com/EdBrio_info" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 mt-4 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
+              @EdBrio_info
+            </a>
           </div>
           <div className="grid grid-cols-3 gap-6 sm:gap-16 w-full md:w-auto">
             <div>
@@ -568,7 +572,7 @@ export default function HomePage() {
             <div>
               <h4 className="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 sm:mb-6">SNS</h4>
               <ul className="space-y-2 sm:space-y-4 text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400">
-                <li><a href="#" className="hover:text-brand-600 dark:hover:text-brand-400 transition">Twitter / X</a></li>
+                <li><a href="https://x.com/EdBrio_info" target="_blank" rel="noopener noreferrer" className="hover:text-brand-600 dark:hover:text-brand-400 transition">Twitter / X</a></li>
               </ul>
             </div>
           </div>
