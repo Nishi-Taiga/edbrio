@@ -63,7 +63,7 @@ function NewReportContent() {
   const selectedProfileId = selectedBooking?.profileId || ''
   const { goals, skills } = useStudentCurriculum(selectedProfileId || undefined)
   const {
-    generateReport, generatedContent, loading: aiLoading, error: aiError,
+    generateReport, generatedContent, tokensUsed, loading: aiLoading, error: aiError,
     canGenerate, remainingGenerations, maxGenerations,
   } = useAiReport()
 
@@ -190,6 +190,7 @@ function NewReportContent() {
         content_raw: formData.contentRaw,
         content_public: editedPublic || null,
         ai_summary: generatedContent || null,
+        tokens_used: tokensUsed || null,
         profile_id: selectedBooking.profileId,
         teacher_id: user!.id,
         subject: formData.subject || null,

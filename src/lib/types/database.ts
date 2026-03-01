@@ -73,6 +73,7 @@ export interface Invite {
   role: UserRole
   email?: string
   student_profile_id?: string
+  method?: 'email' | 'qr'
   expires_at: string
   used: boolean
   accepted_at?: string
@@ -166,6 +167,7 @@ export interface Report {
   next_plan?: string
   student_mood?: StudentMood
   comprehension_level?: number
+  tokens_used?: number
   created_at: string
   updated_at: string
 }

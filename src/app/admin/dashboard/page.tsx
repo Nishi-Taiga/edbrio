@@ -41,15 +41,34 @@ interface RevenueTrendPoint {
   amount: number
 }
 
+interface TokenTrendPoint {
+  date: string
+  tokens: number
+}
+
 interface TrendsData {
   period: string
   signups: TrendPoint[]
+  signupsByRole: {
+    teacher: TrendPoint[]
+    guardian: TrendPoint[]
+    student: TrendPoint[]
+  }
   revenue: RevenueTrendPoint[]
   bookings: TrendPoint[]
   aiReports: TrendPoint[]
+  aiTokens: TokenTrendPoint[]
 }
 
 type TrendPeriod = '7d' | '30d'
+type SignupTab = 'all' | 'teacher' | 'guardian' | 'student'
+type AiTab = 'count' | 'cost'
+
+/* ---------- Constants ---------- */
+
+// Claude Haiku 4.5 approximate cost: ~$1/MTok input, ~$5/MTok output
+// Weighted average ~$2/MTok combined ≈ ¥0.30 per 1K tokens (at ¥150/USD)
+const YEN_PER_1K_TOKENS = 0.3
 
 /* ---------- Formatters ---------- */
 
@@ -58,12 +77,31 @@ const yenFormatter = new Intl.NumberFormat('ja-JP', {
   currency: 'JPY',
 })
 
+/* ---------- Tab button ---------- */
+
+function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`px-2.5 py-1 text-xs rounded-md transition ${
+        active
+          ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900'
+          : 'bg-gray-100 text-gray-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700'
+      }`}
+    >
+      {children}
+    </button>
+  )
+}
+
 /* ---------- Component ---------- */
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<StatsData | null>(null)
   const [trends, setTrends] = useState<TrendsData | null>(null)
   const [trendPeriod, setTrendPeriod] = useState<TrendPeriod>('7d')
+  const [signupTab, setSignupTab] = useState<SignupTab>('all')
+  const [aiTab, setAiTab] = useState<AiTab>('count')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -98,6 +136,35 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     load()
   }, [load])
+
+  /* ---------- Derived data ---------- */
+
+  const signupChartData = trends
+    ? signupTab === 'all'
+      ? trends.signups
+      : trends.signupsByRole[signupTab]
+    : []
+
+  const signupColors: Record<SignupTab, string> = {
+    all: '#6366f1',
+    teacher: '#3b82f6',
+    guardian: '#10b981',
+    student: '#f59e0b',
+  }
+
+  const signupLabels: Record<SignupTab, string> = {
+    all: '全体',
+    teacher: '講師',
+    guardian: '保護者',
+    student: '生徒',
+  }
+
+  const aiCostData = trends
+    ? trends.aiTokens.map((d) => ({
+        date: d.date,
+        cost: Math.round(d.tokens / 1000 * YEN_PER_1K_TOKENS * 100) / 100,
+      }))
+    : []
 
   /* ---------- Render ---------- */
 
@@ -223,16 +290,25 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-            {/* Signups */}
+            {/* Signups with role tabs */}
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  新規ユーザー
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
+                    新規ユーザー
+                  </CardTitle>
+                  <div className="flex gap-1">
+                    {(['all', 'teacher', 'guardian', 'student'] as const).map((tab) => (
+                      <TabButton key={tab} active={signupTab === tab} onClick={() => setSignupTab(tab)}>
+                        {signupLabels[tab]}
+                      </TabButton>
+                    ))}
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={200}>
-                  <AreaChart data={trends.signups}>
+                  <AreaChart data={signupChartData}>
                     <XAxis
                       dataKey="date"
                       tick={{ fontSize: 11 }}
@@ -241,13 +317,13 @@ export default function AdminDashboardPage() {
                     <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
                     <Tooltip
                       labelFormatter={(label) => String(label)}
-                      formatter={(value) => [value, '新規ユーザー']}
+                      formatter={(value) => [value, signupLabels[signupTab]]}
                     />
                     <Area
                       type="monotone"
                       dataKey="count"
-                      stroke="#6366f1"
-                      fill="#6366f1"
+                      stroke={signupColors[signupTab]}
+                      fill={signupColors[signupTab]}
                       fillOpacity={0.1}
                     />
                   </AreaChart>
@@ -327,35 +403,72 @@ export default function AdminDashboardPage() {
               </CardContent>
             </Card>
 
-            {/* AI Reports */}
+            {/* AI Reports with count/cost tabs */}
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  AI生成数
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
+                    AI レポート
+                  </CardTitle>
+                  <div className="flex gap-1">
+                    <TabButton active={aiTab === 'count'} onClick={() => setAiTab('count')}>
+                      生成数
+                    </TabButton>
+                    <TabButton active={aiTab === 'cost'} onClick={() => setAiTab('cost')}>
+                      API料金
+                    </TabButton>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={200}>
-                  <AreaChart data={trends.aiReports}>
-                    <XAxis
-                      dataKey="date"
-                      tick={{ fontSize: 11 }}
-                      tickFormatter={(v) => String(v).slice(5)}
-                    />
-                    <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-                    <Tooltip
-                      labelFormatter={(label) => String(label)}
-                      formatter={(value) => [value, 'AI生成数']}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="count"
-                      stroke="#8b5cf6"
-                      fill="#8b5cf6"
-                      fillOpacity={0.1}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+                {aiTab === 'count' ? (
+                  <ResponsiveContainer width="100%" height={200}>
+                    <AreaChart data={trends.aiReports}>
+                      <XAxis
+                        dataKey="date"
+                        tick={{ fontSize: 11 }}
+                        tickFormatter={(v) => String(v).slice(5)}
+                      />
+                      <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                      <Tooltip
+                        labelFormatter={(label) => String(label)}
+                        formatter={(value) => [value, 'AI生成数']}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="count"
+                        stroke="#8b5cf6"
+                        fill="#8b5cf6"
+                        fillOpacity={0.1}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <ResponsiveContainer width="100%" height={200}>
+                    <AreaChart data={aiCostData}>
+                      <XAxis
+                        dataKey="date"
+                        tick={{ fontSize: 11 }}
+                        tickFormatter={(v) => String(v).slice(5)}
+                      />
+                      <YAxis tick={{ fontSize: 11 }} />
+                      <Tooltip
+                        labelFormatter={(label) => String(label)}
+                        formatter={(value) => [
+                          `${yenFormatter.format(Number(value))}`,
+                          'API料金',
+                        ]}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="cost"
+                        stroke="#ec4899"
+                        fill="#ec4899"
+                        fillOpacity={0.1}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                )}
               </CardContent>
             </Card>
           </div>

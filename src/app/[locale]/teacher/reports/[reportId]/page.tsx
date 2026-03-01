@@ -26,7 +26,7 @@ export default function ReportDetailPage() {
   const reportId = params.reportId as string
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
-  const { generateReport, generatedContent, loading: aiLoading, error: aiError } = useAiReport()
+  const { generateReport, generatedContent, tokensUsed, loading: aiLoading, error: aiError } = useAiReport()
   const supabase = useMemo(() => createClient(), [])
 
   const [report, setReport] = useState<Report | null>(null)
@@ -114,6 +114,10 @@ export default function ReportDetailPage() {
         student_mood: formData.studentMood || null,
         comprehension_level: formData.comprehensionLevel || null,
         updated_at: new Date().toISOString(),
+      }
+      if (generatedContent) {
+        updates.ai_summary = generatedContent
+        if (tokensUsed) updates.tokens_used = tokensUsed
       }
       if (publish) {
         updates.visibility = 'public'

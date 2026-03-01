@@ -67,6 +67,28 @@ function groupByDateAmount(
   return dateRange.map((date) => ({ date, amount: amountMap.get(date) ?? 0 }))
 }
 
+/**
+ * Groups records by date, summing tokens_used.
+ */
+function groupByDateTokens(
+  records: { created_at: string; tokens_used: number | null }[],
+  dateRange: string[]
+): { date: string; tokens: number }[] {
+  const tokenMap = new Map<string, number>()
+  for (const date of dateRange) {
+    tokenMap.set(date, 0)
+  }
+
+  for (const record of records) {
+    const date = record.created_at.slice(0, 10)
+    if (tokenMap.has(date)) {
+      tokenMap.set(date, (tokenMap.get(date) ?? 0) + (record.tokens_used ?? 0))
+    }
+  }
+
+  return dateRange.map((date) => ({ date, tokens: tokenMap.get(date) ?? 0 }))
+}
+
 export async function GET(req: NextRequest) {
   try {
     // Rate limit by IP
@@ -102,10 +124,10 @@ export async function GET(req: NextRequest) {
 
     // Run all queries in parallel
     const [signupsRes, revenueRes, bookingsRes, aiReportsRes] = await Promise.all([
-      // signups
+      // signups (include role for per-role breakdown)
       supabase
         .from('users')
-        .select('created_at')
+        .select('created_at, role')
         .gte('created_at', startISO),
 
       // revenue (completed payments)
@@ -121,25 +143,39 @@ export async function GET(req: NextRequest) {
         .select('created_at')
         .gte('created_at', startISO),
 
-      // AI reports
+      // AI reports (include tokens_used for cost calculation)
       supabase
         .from('reports')
-        .select('created_at')
+        .select('created_at, tokens_used')
         .not('ai_summary', 'is', null)
         .gte('created_at', startISO),
     ])
 
-    const signups = groupByDateCount(signupsRes.data ?? [], dateRange)
+    const allSignups = signupsRes.data ?? []
+
+    // Total signups (all roles)
+    const signups = groupByDateCount(allSignups, dateRange)
+
+    // Signups by role
+    const signupsByRole = {
+      teacher: groupByDateCount(allSignups.filter(u => u.role === 'teacher'), dateRange),
+      guardian: groupByDateCount(allSignups.filter(u => u.role === 'guardian'), dateRange),
+      student: groupByDateCount(allSignups.filter(u => u.role === 'student'), dateRange),
+    }
+
     const revenue = groupByDateAmount(revenueRes.data ?? [], dateRange)
     const bookings = groupByDateCount(bookingsRes.data ?? [], dateRange)
     const aiReports = groupByDateCount(aiReportsRes.data ?? [], dateRange)
+    const aiTokens = groupByDateTokens(aiReportsRes.data ?? [], dateRange)
 
     return NextResponse.json({
       period,
       signups,
+      signupsByRole,
       revenue,
       bookings,
       aiReports,
+      aiTokens,
     })
   } catch (error: unknown) {
     console.error('Admin trends error:', error)

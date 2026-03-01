@@ -17,6 +17,7 @@ interface GenerateReportParams {
 
 export function useAiReport() {
   const [generatedContent, setGeneratedContent] = useState<string | null>(null)
+  const [tokensUsed, setTokensUsed] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [generationCount, setGenerationCount] = useState(0)
@@ -29,6 +30,7 @@ export function useAiReport() {
       setLoading(true)
       setError(null)
       setGeneratedContent(null)
+      setTokensUsed(null)
 
       const res = await fetch('/api/ai/generate-report', {
         method: 'POST',
@@ -43,8 +45,9 @@ export function useAiReport() {
 
       const data = await res.json()
       setGeneratedContent(data.generatedContent)
+      setTokensUsed(data.tokensUsed ?? null)
       setGenerationCount(prev => prev + 1)
-      return data.generatedContent
+      return { generatedContent: data.generatedContent, tokensUsed: data.tokensUsed as number | undefined }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e)
       setError(msg)
@@ -62,6 +65,7 @@ export function useAiReport() {
   return {
     generateReport,
     generatedContent,
+    tokensUsed,
     loading,
     error,
     reset,
