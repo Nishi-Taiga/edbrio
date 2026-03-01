@@ -661,6 +661,7 @@
       "loading": "Chargement...",
       "notFound": "Élève introuvable",
       "createReport": "Créer un rapport",
+      "inviteParent": "Inviter un parent",
       "tabProfile": "Profil",
       "tabCurriculum": "Curriculum",
       "tabGoals": "Objectifs",
@@ -796,5 +797,26 @@
     "tabContact": "Contact",
     "lastUpdated": "Dernière mise à jour : 26 février 2026",
     "japaneseOnlyNotice": "Ce document juridique est disponible uniquement en japonais."
+  },
+  "invite": {
+    "inviteParent": "Inviter un parent",
+    "inviteParentDescription": "Envoyer un e-mail d'invitation au parent de {studentName}",
+    "emailLabel": "Adresse e-mail du parent",
+    "emailPlaceholder": "example@email.com",
+    "sendInvite": "Envoyer l'invitation",
+    "inviteSent": "Invitation envoyée avec succès",
+    "inviteError": "Échec de l'envoi de l'invitation",
+    "inviteAlreadySent": "Une invitation a déjà été envoyée à ce parent",
+    "invitePending": "Invitation envoyée",
+    "inviteAccepted": "Parent associé",
+    "acceptTitle": "Invitation à EdBrio",
+    "acceptDescription": "Vous avez été invité(e) par {teacherName} en tant que parent de {studentName}",
+    "acceptButton": "Accepter l'invitation",
+    "acceptSuccess": "Invitation acceptée ! Redirection vers le tableau de bord...",
+    "acceptError": "Échec de l'acceptation de l'invitation",
+    "invalidToken": "Ce lien d'invitation est invalide. Veuillez demander une nouvelle invitation à l'enseignant.",
+    "expiredToken": "Ce lien d'invitation a expiré. Veuillez demander une nouvelle invitation à l'enseignant.",
+    "usedToken": "Ce lien d'invitation a déjà été utilisé.",
+    "wrongRole": "Vous êtes connecté(e) en tant qu'enseignant. Veuillez vous connecter avec un compte parent."
   }
 }

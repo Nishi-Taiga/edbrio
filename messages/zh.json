@@ -661,6 +661,7 @@
       "loading": "加载中...",
       "notFound": "未找到学生",
       "createReport": "创建报告",
+      "inviteParent": "邀请家长",
       "tabProfile": "基本信息",
       "tabCurriculum": "课程",
       "tabGoals": "目标",
@@ -796,5 +797,26 @@
     "tabContact": "联系我们",
     "lastUpdated": "最后更新日期：2026年2月26日",
     "japaneseOnlyNotice": "本法律文件仅提供日文版本。"
+  },
+  "invite": {
+    "inviteParent": "邀请家长",
+    "inviteParentDescription": "向{studentName}的家长发送邀请邮件",
+    "emailLabel": "家长邮箱地址",
+    "emailPlaceholder": "example@email.com",
+    "sendInvite": "发送邀请",
+    "inviteSent": "邀请发送成功",
+    "inviteError": "邀请发送失败",
+    "inviteAlreadySent": "已向该家长发送过邀请",
+    "invitePending": "邀请已发送",
+    "inviteAccepted": "家长已关联",
+    "acceptTitle": "EdBrio邀请",
+    "acceptDescription": "您被{teacherName}邀请成为{studentName}的家长",
+    "acceptButton": "接受邀请",
+    "acceptSuccess": "邀请已接受！正在跳转到仪表盘...",
+    "acceptError": "接受邀请失败",
+    "invalidToken": "此邀请链接无效。请联系老师获取新的邀请。",
+    "expiredToken": "此邀请链接已过期。请联系老师获取新的邀请。",
+    "usedToken": "此邀请链接已被使用。",
+    "wrongRole": "您当前以讲师身份登录。请使用家长账号登录。"
   }
 }

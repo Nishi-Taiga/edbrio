@@ -65,8 +65,11 @@ export interface Invite {
   teacher_id: string
   token: string
   role: UserRole
+  email?: string
+  student_profile_id?: string
   expires_at: string
   used: boolean
+  accepted_at?: string
   created_at: string
 }
 
@@ -177,6 +180,7 @@ export interface StudentProfile {
   id: string
   teacher_id: string
   student_id?: string
+  guardian_id?: string
   name: string
   grade?: string
   school?: string

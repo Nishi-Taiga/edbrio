@@ -122,6 +122,34 @@ ${subjectName ? `<p style="margin:0 0 16px;font-size:14px;color:#6b7280;">教科
   }
 }
 
+export function buildGuardianInviteEmail(params: {
+  teacherName: string
+  studentName: string
+  inviteUrl: string
+}): { subject: string; html: string } {
+  const { teacherName, studentName, inviteUrl } = params
+
+  const body = `
+<p style="margin:0 0 16px;font-size:15px;color:#374151;">
+  ${teacherName}先生から、${studentName}さんの保護者としてEdBrioへの招待が届きました。
+</p>
+<p style="margin:0 0 16px;font-size:14px;color:#6b7280;">
+  EdBrioは、講師と保護者をつなぐ学習管理プラットフォームです。<br>
+  アカウントを作成すると、${studentName}さんの授業レポートや学習進捗をご確認いただけます。
+</p>
+<p style="margin:24px 0 0;text-align:center;">
+  <a href="${inviteUrl}" style="display:inline-block;background:#7c3aed;color:#ffffff;padding:12px 32px;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px;">招待を受ける</a>
+</p>
+<p style="margin:16px 0 0;font-size:12px;color:#9ca3af;text-align:center;">
+  この招待リンクは7日間有効です。
+</p>`
+
+  return {
+    subject: `【EdBrio】${teacherName}先生から${studentName}さんの保護者としての招待`,
+    html: wrapInLayout(body),
+  }
+}
+
 export function buildBookingReminderEmail(params: {
   teacherName: string
   studentName: string

@@ -661,6 +661,7 @@
       "loading": "Laddar...",
       "notFound": "Eleven hittades inte",
       "createReport": "Skapa rapport",
+      "inviteParent": "Bjud in vardnadshavare",
       "tabProfile": "Profil",
       "tabCurriculum": "Curriculum",
       "tabGoals": "Mal",
@@ -796,5 +797,26 @@
     "tabContact": "Kontakt",
     "lastUpdated": "Senast uppdaterad: 26 februari 2026",
     "japaneseOnlyNotice": "Detta juridiska dokument finns endast på japanska."
+  },
+  "invite": {
+    "inviteParent": "Bjud in vardnadshavare",
+    "inviteParentDescription": "Skicka ett inbjudningsmejl till vardnadshavaren for {studentName}",
+    "emailLabel": "Vardnadshavarens e-postadress",
+    "emailPlaceholder": "example@email.com",
+    "sendInvite": "Skicka inbjudan",
+    "inviteSent": "Inbjudan har skickats",
+    "inviteError": "Det gick inte att skicka inbjudan",
+    "inviteAlreadySent": "En inbjudan har redan skickats till denna vardnadshavare",
+    "invitePending": "Inbjudan skickad",
+    "inviteAccepted": "Vardnadshavare kopplad",
+    "acceptTitle": "Inbjudan till EdBrio",
+    "acceptDescription": "Du har bjudits in av {teacherName} som vardnadshavare for {studentName}",
+    "acceptButton": "Acceptera inbjudan",
+    "acceptSuccess": "Inbjudan accepterad! Omdirigerar till instrumentpanelen...",
+    "acceptError": "Det gick inte att acceptera inbjudan",
+    "invalidToken": "Denna inbjudningslank ar ogiltig. Be lararen om en ny inbjudan.",
+    "expiredToken": "Denna inbjudningslank har gatt ut. Be lararen om en ny inbjudan.",
+    "usedToken": "Denna inbjudningslank har redan anvants.",
+    "wrongRole": "Du ar inloggad som larare. Logga in med ett vardnadshavarkonto."
   }
 }

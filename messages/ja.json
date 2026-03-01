@@ -679,6 +679,7 @@
       "loading": "読み込み中...",
       "notFound": "生徒が見つかりません",
       "createReport": "レポート作成",
+      "inviteParent": "保護者を招待",
       "tabProfile": "基本情報",
       "tabCurriculum": "カリキュラム",
       "tabGoals": "学習目標",
@@ -828,5 +829,26 @@
     "includeBug": "不具合の場合: ご利用のブラウザ、発生日時、エラーメッセージ等",
     "legalLink": "法的情報",
     "backToHome": "ホームに戻る"
+  },
+  "invite": {
+    "inviteParent": "保護者を招待",
+    "inviteParentDescription": "{studentName}さんの保護者にEdBrioへの招待メールを送信します",
+    "emailLabel": "保護者のメールアドレス",
+    "emailPlaceholder": "example@email.com",
+    "sendInvite": "招待を送信",
+    "inviteSent": "招待メールを送信しました",
+    "inviteError": "招待の送信に失敗しました",
+    "inviteAlreadySent": "この保護者にはすでに招待を送信済みです",
+    "invitePending": "招待メール送信済み",
+    "inviteAccepted": "保護者がリンク済み",
+    "acceptTitle": "EdBrioへの招待",
+    "acceptDescription": "{teacherName}先生から、{studentName}さんの保護者として招待されました",
+    "acceptButton": "招待を受ける",
+    "acceptSuccess": "招待を受けました。ダッシュボードに移動します...",
+    "acceptError": "招待の受諾に失敗しました",
+    "invalidToken": "この招待リンクは無効です。講師に新しい招待を依頼してください。",
+    "expiredToken": "この招待リンクは期限切れです。講師に新しい招待を依頼してください。",
+    "usedToken": "この招待リンクはすでに使用されています。",
+    "wrongRole": "講師アカウントでログインしています。保護者アカウントでログインし直してください。"
   }
 }

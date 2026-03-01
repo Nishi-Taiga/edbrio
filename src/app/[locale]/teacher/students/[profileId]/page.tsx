@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { FileText } from 'lucide-react'
+import { FileText, Mail } from 'lucide-react'
 import { SkeletonList } from '@/components/ui/skeleton-card'
 import { ErrorAlert } from '@/components/ui/error-alert'
 import { useAuth } from '@/hooks/use-auth'
@@ -24,6 +24,7 @@ import { SkillForm } from '@/components/curriculum/skill-form'
 import { useHandoverNotes } from '@/hooks/use-handover-notes'
 import { HandoverNoteList } from '@/components/curriculum/handover-note-list'
 import { HandoverNoteForm } from '@/components/curriculum/handover-note-form'
+import { InviteParentDialog } from '@/components/curriculum/invite-parent-dialog'
 import { useTranslations } from 'next-intl'
 
 export default function StudentCurriculumPage() {
@@ -45,6 +46,7 @@ export default function StudentCurriculumPage() {
   const [showUnitForm, setShowUnitForm] = useState(false)
   const [showSkillForm, setShowSkillForm] = useState(false)
   const [showHandoverForm, setShowHandoverForm] = useState(false)
+  const [showInviteDialog, setShowInviteDialog] = useState(false)
 
   useEffect(() => {
     if (!profileId) return
@@ -97,11 +99,16 @@ export default function StudentCurriculumPage() {
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{profile.name}</h1>
             {profile.grade && <p className="text-gray-600 dark:text-gray-400 text-sm">{profile.grade}</p>}
           </div>
-          <Link href={`/teacher/reports/new?profileId=${profileId}`}>
-            <Button>
-              <FileText className="w-4 h-4 mr-1" />{tPage('createReport')}
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setShowInviteDialog(true)}>
+              <Mail className="w-4 h-4 mr-1" />{tPage('inviteParent')}
             </Button>
-          </Link>
+            <Link href={`/teacher/reports/new?profileId=${profileId}`}>
+              <Button>
+                <FileText className="w-4 h-4 mr-1" />{tPage('createReport')}
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {anyError && <ErrorAlert message={anyError} />}
@@ -158,6 +165,7 @@ export default function StudentCurriculumPage() {
         <UnitForm open={showUnitForm} onClose={() => setShowUnitForm(false)} onSubmit={addUnit} />
         <SkillForm open={showSkillForm} onClose={() => setShowSkillForm(false)} onSubmit={addSkill} />
         <HandoverNoteForm open={showHandoverForm} onClose={() => setShowHandoverForm(false)} onSubmit={addNote} />
+        <InviteParentDialog open={showInviteDialog} onClose={() => setShowInviteDialog(false)} profileId={profileId} studentName={profile.name} />
         </>)}
       </div>
     </ProtectedRoute>

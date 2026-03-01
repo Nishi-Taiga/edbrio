@@ -661,6 +661,7 @@
       "loading": "Caricamento...",
       "notFound": "Studente non trovato",
       "createReport": "Crea report",
+      "inviteParent": "Invita genitore",
       "tabProfile": "Profilo",
       "tabCurriculum": "Curriculum",
       "tabGoals": "Obiettivi",
@@ -796,5 +797,26 @@
     "tabContact": "Contatti",
     "lastUpdated": "Ultimo aggiornamento: 26 febbraio 2026",
     "japaneseOnlyNotice": "Questo documento legale è disponibile solo in giapponese."
+  },
+  "invite": {
+    "inviteParent": "Invita genitore",
+    "inviteParentDescription": "Invia un'e-mail di invito al genitore di {studentName}",
+    "emailLabel": "Indirizzo e-mail del genitore",
+    "emailPlaceholder": "example@email.com",
+    "sendInvite": "Invia invito",
+    "inviteSent": "Invito inviato con successo",
+    "inviteError": "Invio dell'invito non riuscito",
+    "inviteAlreadySent": "Un invito è già stato inviato a questo genitore",
+    "invitePending": "Invito inviato",
+    "inviteAccepted": "Genitore collegato",
+    "acceptTitle": "Invito a EdBrio",
+    "acceptDescription": "Sei stato invitato da {teacherName} come genitore di {studentName}",
+    "acceptButton": "Accetta invito",
+    "acceptSuccess": "Invito accettato! Reindirizzamento alla dashboard...",
+    "acceptError": "Accettazione dell'invito non riuscita",
+    "invalidToken": "Questo link di invito non è valido. Chiedi all'insegnante un nuovo invito.",
+    "expiredToken": "Questo link di invito è scaduto. Chiedi all'insegnante un nuovo invito.",
+    "usedToken": "Questo link di invito è già stato utilizzato.",
+    "wrongRole": "Hai effettuato l'accesso come insegnante. Accedi con un account genitore."
   }
 }

@@ -661,6 +661,7 @@
       "loading": "Cargando...",
       "notFound": "Alumno no encontrado",
       "createReport": "Crear informe",
+      "inviteParent": "Invitar a tutor legal",
       "tabProfile": "Perfil",
       "tabCurriculum": "Currículo",
       "tabGoals": "Objetivos",
@@ -796,5 +797,26 @@
     "tabContact": "Contacto",
     "lastUpdated": "Última actualización: 26 de febrero de 2026",
     "japaneseOnlyNotice": "Este documento legal solo está disponible en japonés."
+  },
+  "invite": {
+    "inviteParent": "Invitar a tutor legal",
+    "inviteParentDescription": "Enviar un correo de invitación al tutor legal de {studentName}",
+    "emailLabel": "Correo electrónico del tutor legal",
+    "emailPlaceholder": "example@email.com",
+    "sendInvite": "Enviar invitación",
+    "inviteSent": "Invitación enviada correctamente",
+    "inviteError": "Error al enviar la invitación",
+    "inviteAlreadySent": "Ya se ha enviado una invitación a este tutor legal",
+    "invitePending": "Invitación enviada",
+    "inviteAccepted": "Tutor legal vinculado",
+    "acceptTitle": "Invitación a EdBrio",
+    "acceptDescription": "Ha sido invitado por {teacherName} como tutor legal de {studentName}",
+    "acceptButton": "Aceptar invitación",
+    "acceptSuccess": "¡Invitación aceptada! Redirigiendo al panel de control...",
+    "acceptError": "Error al aceptar la invitación",
+    "invalidToken": "Este enlace de invitación no es válido. Solicite una nueva invitación al profesor.",
+    "expiredToken": "Este enlace de invitación ha expirado. Solicite una nueva invitación al profesor.",
+    "usedToken": "Este enlace de invitación ya ha sido utilizado.",
+    "wrongRole": "Ha iniciado sesión como profesor. Inicie sesión con una cuenta de tutor legal."
   }
 }

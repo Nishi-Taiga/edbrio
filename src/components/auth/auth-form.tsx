@@ -8,7 +8,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 function redirectByRole(router: ReturnType<typeof useRouter>, role: string) {
@@ -20,22 +20,38 @@ function redirectByRole(router: ReturnType<typeof useRouter>, role: string) {
   router.replace(path)
 }
 
-export function AuthForm({ mode, onModeChange }: {
-  mode: 'login' | 'signup',
+interface AuthFormProps {
+  mode: 'login' | 'signup'
   onModeChange: (mode: 'login' | 'signup') => void
-}) {
+  inviteToken?: string
+  lockedRole?: 'guardian'
+  prefillEmail?: string
+  onSignupComplete?: () => void
+}
+
+export function AuthForm({ mode, onModeChange, inviteToken, lockedRole, prefillEmail, onSignupComplete }: AuthFormProps) {
   const router = useRouter()
   const { user, dbUser } = useAuth()
   const t = useTranslations('auth')
   const tCommon = useTranslations('common')
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(prefillEmail || '')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
-  const [role, setRole] = useState<'teacher' | 'guardian'>('teacher')
+  const [role, setRole] = useState<'teacher' | 'guardian'>(lockedRole || 'teacher')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
 
   const supabase = useMemo(() => createClient(), [])
+
+  // Sync prefillEmail changes
+  useEffect(() => {
+    if (prefillEmail) setEmail(prefillEmail)
+  }, [prefillEmail])
+
+  // Sync lockedRole changes
+  useEffect(() => {
+    if (lockedRole) setRole(lockedRole)
+  }, [lockedRole])
 
   // Prefetch dashboard routes for faster transitions
   useEffect(() => {
@@ -44,13 +60,13 @@ export function AuthForm({ mode, onModeChange }: {
     router.prefetch('/admin/dashboard')
   }, [router])
 
-  // Redirect if already logged in
+  // Redirect if already logged in (only when not in invite flow)
   useEffect(() => {
-    if (user) {
+    if (user && !inviteToken) {
       const userRole = dbUser?.role || user.user_metadata?.role || 'teacher'
       redirectByRole(router, userRole)
     }
-  }, [user, dbUser, router])
+  }, [user, dbUser, router, inviteToken])
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -73,6 +89,13 @@ export function AuthForm({ mode, onModeChange }: {
         // Server validated credentials — now set client session
         const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
+
+        // If in invite flow, call onSignupComplete instead of redirecting
+        if (inviteToken && onSignupComplete) {
+          onSignupComplete()
+          return
+        }
+
         // Redirect immediately using the role from the API response
         redirectByRole(router, result.role)
         return
@@ -91,6 +114,9 @@ export function AuthForm({ mode, onModeChange }: {
 
         if (data.user && !data.user.email_confirmed_at) {
           setMessage(t('confirmationEmailSent'))
+        } else if (data.user && onSignupComplete) {
+          // Email confirmation disabled or auto-confirmed — proceed with invite
+          onSignupComplete()
         }
       }
     } catch (error: any) {
@@ -126,18 +152,20 @@ export function AuthForm({ mode, onModeChange }: {
                   required
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="role">{t('roleLabel')}</Label>
-                <Select value={role} onValueChange={(value: 'teacher' | 'guardian') => setRole(value)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="teacher">{t('roleTeacher')}</SelectItem>
-                    <SelectItem value="guardian">{t('roleGuardian')}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              {!lockedRole && (
+                <div className="space-y-2">
+                  <Label htmlFor="role">{t('roleLabel')}</Label>
+                  <Select value={role} onValueChange={(value: 'teacher' | 'guardian') => setRole(value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="teacher">{t('roleTeacher')}</SelectItem>
+                      <SelectItem value="guardian">{t('roleGuardian')}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </>
           )}
 
