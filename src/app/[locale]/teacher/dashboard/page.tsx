@@ -114,10 +114,10 @@ export default function TeacherDashboard() {
                   </p>
                 </div>
               </div>
-              <Link href="/teacher/profile">
+              <Link href="/teacher/setup">
                 <Button variant="outline" size="sm" className="border-amber-300 hover:bg-amber-100 dark:border-amber-700 dark:hover:bg-amber-900/30 whitespace-nowrap">
                   <Settings className="w-4 h-4 mr-1.5" />
-                  {t('goToProfile')}
+                  {t('goToSetup')}
                 </Button>
               </Link>
             </CardContent>

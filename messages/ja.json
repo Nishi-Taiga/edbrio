@@ -284,7 +284,23 @@
     "initialSetupIncomplete": "初期設定が完了していません",
     "initialSetupDescription": "科目・学年・表示名を設定して、プロフィールを完成させましょう。",
     "initialSetupDescriptionDynamic": "{items}を設定して、プロフィールを完成させましょう。",
-    "goToProfile": "プロフィール設定へ"
+    "goToProfile": "プロフィール設定へ",
+    "goToSetup": "初期設定を始める"
+  },
+  "teacherSetup": {
+    "title": "初期設定",
+    "step1Title": "プロフィール情報",
+    "step1Description": "表示名と自己紹介を入力してください",
+    "step2Title": "指導情報",
+    "step2Description": "担当科目と対象学年を選択してください",
+    "step3Title": "指導エリア",
+    "step3Description": "指導エリアを設定できます（後から変更可能）",
+    "next": "次へ",
+    "back": "戻る",
+    "skip": "スキップ",
+    "complete": "完了",
+    "setupComplete": "初期設定が完了しました",
+    "stepOf": "ステップ {current} / {total}"
   },
   "teacherStudents": {
     "title": "生徒カリキュラム",
