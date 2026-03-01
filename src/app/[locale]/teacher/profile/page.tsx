@@ -310,6 +310,13 @@ function TeacherProfileContent() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="flex gap-2 justify-end">
+                  <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>{tc('cancel')}</Button>
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? tc('saving') : <><Check className="w-4 h-4 mr-1" /> {tc('save')}</>}
+                  </Button>
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium mb-1">{t('displayNameLabel')}</label>
                   <Input
@@ -386,12 +393,6 @@ function TeacherProfileContent() {
                   />
                 </div>
 
-                <div className="flex gap-2 justify-end pt-2">
-                  <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>{tc('cancel')}</Button>
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? tc('saving') : <><Check className="w-4 h-4 mr-1" /> {tc('save')}</>}
-                  </Button>
-                </div>
               </form>
             </CardContent>
           </Card>
@@ -521,22 +522,21 @@ function TeacherProfileContent() {
                     </div>
                     <div className="md:col-span-2">
                       <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase mb-1">{t('areaLabel')}</span>
-                      {(teacher.public_profile?.service_areas?.length || teacher.public_profile?.available_online) ? (
-                        <div className="flex flex-wrap gap-1.5">
-                          {teacher.public_profile?.available_online && (
-                            <Badge variant="outline">{t('availableOnline')}</Badge>
-                          )}
-                          {migrateServiceAreas(teacher.public_profile?.service_areas || []).map((a: AreaSelection, i: number) => (
-                            <Badge key={`${a.prefecture}-${a.municipality}-${i}`} variant="secondary">
-                              {a.municipality} <span className="text-xs text-muted-foreground ml-0.5">({a.prefecture})</span>
-                            </Badge>
-                          ))}
-                        </div>
-                      ) : teacher.public_profile?.area ? (
-                        <span>{teacher.public_profile.area}</span>
-                      ) : (
-                        <span className="text-gray-400">{tc('notSet')}</span>
-                      )}
+                      <div className="flex flex-wrap gap-1.5">
+                        {teacher.public_profile?.available_online ? (
+                          <Badge variant="outline" className="border-green-300 text-green-700 dark:border-green-700 dark:text-green-400">{t('onlineAvailable')}</Badge>
+                        ) : (
+                          <Badge variant="outline" className="border-gray-300 text-gray-500 dark:border-gray-600 dark:text-gray-400">{t('onlineUnavailable')}</Badge>
+                        )}
+                        {migrateServiceAreas(teacher.public_profile?.service_areas || []).map((a: AreaSelection, i: number) => (
+                          <Badge key={`${a.prefecture}-${a.municipality}-${i}`} variant="secondary">
+                            {a.municipality} <span className="text-xs text-muted-foreground ml-0.5">({a.prefecture})</span>
+                          </Badge>
+                        ))}
+                        {!teacher.public_profile?.service_areas?.length && teacher.public_profile?.area && (
+                          <span className="text-sm">{teacher.public_profile.area}</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

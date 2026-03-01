@@ -283,6 +283,7 @@
     "studentId": "학생 ID: {id}",
     "initialSetupIncomplete": "초기 설정이 완료되지 않았습니다",
     "initialSetupDescription": "과목, 학년, 표시 이름을 설정하여 프로필을 완성하세요.",
+    "initialSetupDescriptionDynamic": "{items}을(를) 설정하여 프로필을 완성하세요.",
     "goToProfile": "프로필 설정으로"
   },
   "teacherStudents": {
@@ -428,6 +429,8 @@
     "selectPrefecture": "도도부현 선택",
     "selectMunicipality": "시구정촌 선택",
     "availableOnline": "온라인 가능",
+    "onlineAvailable": "온라인 수업 가능",
+    "onlineUnavailable": "온라인 불가",
     "noAreasSelected": "지역이 선택되지 않았습니다",
     "areaLoadError": "지역 데이터 불러오기 실패",
     "experienceLabel": "지도 경력",

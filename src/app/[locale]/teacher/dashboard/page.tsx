@@ -18,10 +18,12 @@ import { SkeletonStatsGrid, SkeletonList } from '@/components/ui/skeleton-card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorAlert } from '@/components/ui/error-alert'
 import { useTranslations } from 'next-intl'
+import { getMissingSetupItems } from '@/lib/teacher-setup'
 
 
 export default function TeacherDashboard() {
   const t = useTranslations('teacherDashboard')
+  const tp = useTranslations('teacherProfile')
   const tc = useTranslations('common')
   const { user, dbUser, loading: authLoading } = useAuth()
   const { bookings, loading: bookingsLoading } = useBookings(user?.id, 'teacher')
@@ -29,6 +31,7 @@ export default function TeacherDashboard() {
   const [monthRevenue, setMonthRevenue] = useState(0)
   const [revenueLoading, setRevenueLoading] = useState(false)
   const [setupComplete, setSetupComplete] = useState<boolean | null>(null)
+  const [missingItems, setMissingItems] = useState<string[]>([])
 
   const supabase = useMemo(() => createClient(), [])
 
@@ -55,10 +58,20 @@ export default function TeacherDashboard() {
     async function checkSetup() {
       const { data } = await supabase
         .from('teachers')
-        .select('is_onboarding_complete')
+        .select('subjects,grades,public_profile,is_onboarding_complete')
         .eq('id', user!.id)
         .maybeSingle()
-      setSetupComplete(data?.is_onboarding_complete ?? false)
+      if (data) {
+        const missing = getMissingSetupItems(
+          data.subjects || [],
+          data.grades || [],
+          data.public_profile || {}
+        )
+        setSetupComplete(missing.length === 0)
+        setMissingItems(missing)
+      } else {
+        setSetupComplete(false)
+      }
     }
     checkSetup()
   }, [user, dbUser, supabase])
@@ -96,7 +109,9 @@ export default function TeacherDashboard() {
                 <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
                 <div>
                   <p className="font-medium text-amber-800 dark:text-amber-300">{t('initialSetupIncomplete')}</p>
-                  <p className="text-sm text-amber-600 dark:text-amber-400 mt-0.5">{t('initialSetupDescription')}</p>
+                  <p className="text-sm text-amber-600 dark:text-amber-400 mt-0.5">
+                    {t('initialSetupDescriptionDynamic', { items: missingItems.map(k => tp(k)).join('・') })}
+                  </p>
                 </div>
               </div>
               <Link href="/teacher/profile">

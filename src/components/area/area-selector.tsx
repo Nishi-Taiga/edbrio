@@ -1,12 +1,12 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import { X, Loader2 } from 'lucide-react'
+import { X, Loader2, ChevronDown, ChevronRight } from 'lucide-react'
 import { useAreaSearch } from '@/hooks/use-area-search'
 import { useTranslations } from 'next-intl'
 import type { AreaSelection } from '@/lib/types/database'
@@ -48,6 +48,11 @@ export function AreaSelector({
   } = useAreaSearch()
 
   const groups = useMemo(() => groupMunicipalities(municipalities), [municipalities])
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
+
+  const toggleCollapse = (label: string) => {
+    setCollapsed(prev => ({ ...prev, [label]: !prev[label] }))
+  }
 
   const isSelected = (municipality: string) =>
     selectedAreas.some(a => a.municipality === municipality && a.prefecture === selectedPrefecture)
@@ -65,13 +70,11 @@ export function AreaSelector({
   const toggleGroup = (group: MunicipalityGroup) => {
     const allSelected = group.items.every(m => isSelected(m))
     if (allSelected) {
-      // Remove all in this group
       const toRemove = new Set(group.items)
       onAreasChange(selectedAreas.filter(
         a => !(a.prefecture === selectedPrefecture && toRemove.has(a.municipality))
       ))
     } else {
-      // Add missing items in this group
       const toAdd = group.items
         .filter(m => !isSelected(m))
         .map(m => ({ prefecture: selectedPrefecture, municipality: m }))
@@ -111,10 +114,11 @@ export function AreaSelector({
 
       {/* Grouped municipality checkboxes */}
       {selectedPrefecture && groups.length > 0 && (
-        <div className="border rounded-md max-h-64 overflow-y-auto">
+        <div className="border rounded-md max-h-72 overflow-y-auto">
           {groups.map((group) => {
             const allSelected = group.items.every(m => isSelected(m))
             const someSelected = !allSelected && group.items.some(m => isSelected(m))
+            const isCollapsed = collapsed[group.label] ?? false
             return (
               <div key={group.label}>
                 <div className="sticky top-0 bg-muted/80 backdrop-blur-sm px-3 py-1.5 border-b flex items-center gap-2">
@@ -123,24 +127,31 @@ export function AreaSelector({
                     onCheckedChange={() => toggleGroup(group)}
                     id={`group-${group.label}`}
                   />
-                  <label
-                    htmlFor={`group-${group.label}`}
-                    className="text-xs font-semibold cursor-pointer select-none"
+                  <button
+                    type="button"
+                    onClick={() => toggleCollapse(group.label)}
+                    className="flex items-center gap-1 flex-1 cursor-pointer select-none"
                   >
-                    {group.label} ({group.items.length})
-                  </label>
+                    {isCollapsed
+                      ? <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+                      : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+                    }
+                    <span className="text-xs font-semibold">{group.label} ({group.items.length})</span>
+                  </button>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-2 gap-y-1 px-3 py-2">
-                  {group.items.map(m => (
-                    <label key={m} className="flex items-center gap-1.5 text-sm cursor-pointer">
-                      <Checkbox
-                        checked={isSelected(m)}
-                        onCheckedChange={() => toggleMunicipality(m)}
-                      />
-                      <span className="truncate">{m}</span>
-                    </label>
-                  ))}
-                </div>
+                {!isCollapsed && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-2 gap-y-1 px-3 py-2">
+                    {group.items.map(m => (
+                      <label key={m} className="flex items-center gap-1.5 text-sm cursor-pointer">
+                        <Checkbox
+                          checked={isSelected(m)}
+                          onCheckedChange={() => toggleMunicipality(m)}
+                        />
+                        <span className="truncate">{m}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
               </div>
             )
           })}

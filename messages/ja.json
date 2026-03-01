@@ -283,6 +283,7 @@
     "studentId": "生徒ID: {id}",
     "initialSetupIncomplete": "初期設定が完了していません",
     "initialSetupDescription": "科目・学年・表示名を設定して、プロフィールを完成させましょう。",
+    "initialSetupDescriptionDynamic": "{items}を設定して、プロフィールを完成させましょう。",
     "goToProfile": "プロフィール設定へ"
   },
   "teacherStudents": {
@@ -438,6 +439,8 @@
     "selectPrefecture": "都道府県を選択",
     "selectMunicipality": "市区町村を選択して追加",
     "availableOnline": "オンライン対応",
+    "onlineAvailable": "オンライン対応可能",
+    "onlineUnavailable": "オンライン不可",
     "noAreasSelected": "エリアが選択されていません",
     "areaLoadError": "エリアデータの取得に失敗しました",
     "experienceLabel": "指導歴",

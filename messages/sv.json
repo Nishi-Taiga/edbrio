@@ -283,6 +283,7 @@
     "studentId": "Elev-ID: {id}",
     "initialSetupIncomplete": "Den inledande konfigurationen är inte klar",
     "initialSetupDescription": "Ange dina ämnen, årskurser och visningsnamn för att slutföra din profil.",
+    "initialSetupDescriptionDynamic": "Ange {items} för att slutföra din profil.",
     "goToProfile": "Gå till profilinställningar"
   },
   "teacherStudents": {
@@ -428,6 +429,8 @@
     "selectPrefecture": "Välj prefektur",
     "selectMunicipality": "Välj kommun",
     "availableOnline": "Tillgänglig online",
+    "onlineAvailable": "Tillgänglig online",
+    "onlineUnavailable": "Inte tillgänglig online",
     "noAreasSelected": "Inga områden valda",
     "areaLoadError": "Kunde inte ladda områdesdata",
     "experienceLabel": "Undervisningserfarenhet",

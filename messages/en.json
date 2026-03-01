@@ -283,6 +283,7 @@
     "studentId": "Student ID: {id}",
     "initialSetupIncomplete": "Initial setup is not complete",
     "initialSetupDescription": "Set your subjects, grade levels, and display name to complete your profile.",
+    "initialSetupDescriptionDynamic": "Please set {items} to complete your profile.",
     "goToProfile": "Go to profile settings"
   },
   "teacherStudents": {
@@ -438,6 +439,8 @@
     "selectPrefecture": "Select Prefecture",
     "selectMunicipality": "Select municipality to add",
     "availableOnline": "Available Online",
+    "onlineAvailable": "Available Online",
+    "onlineUnavailable": "Online Unavailable",
     "noAreasSelected": "No areas selected",
     "areaLoadError": "Failed to load area data",
     "experienceLabel": "Teaching Experience",

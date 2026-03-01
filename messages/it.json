@@ -283,6 +283,7 @@
     "studentId": "ID studente: {id}",
     "initialSetupIncomplete": "La configurazione iniziale non è completa",
     "initialSetupDescription": "Imposta le materie, i livelli e il nome visualizzato per completare il tuo profilo.",
+    "initialSetupDescriptionDynamic": "Imposta {items} per completare il tuo profilo.",
     "goToProfile": "Vai alle impostazioni del profilo"
   },
   "teacherStudents": {
@@ -428,6 +429,8 @@
     "selectPrefecture": "Seleziona prefettura",
     "selectMunicipality": "Seleziona comune",
     "availableOnline": "Disponibile online",
+    "onlineAvailable": "Disponibile online",
+    "onlineUnavailable": "Non disponibile online",
     "noAreasSelected": "Nessuna area selezionata",
     "areaLoadError": "Errore nel caricamento dei dati dell'area",
     "experienceLabel": "Esperienza di insegnamento",
