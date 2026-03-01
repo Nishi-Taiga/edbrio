@@ -45,13 +45,13 @@
     }
   },
   "metadata": {
-    "defaultTitle": "EdBrio — Seulement 5% de frais. La plateforme de gestion pour tuteurs",
+    "defaultTitle": "EdBrio — Système de gestion tout-en-un pour tuteurs privés",
     "titleTemplate": "%s | EdBrio",
-    "description": "Les agences de soutien scolaire prélèvent jusqu'à 60% de commissions d'intermédiaire. EdBrio ne facture que 5%. Gardez plus de vos revenus grâce au système de gestion tout-en-un pour tuteurs privés.",
-    "ogDescription": "Les agences prélèvent jusqu'à 60%. EdBrio ne facture que 5%. Le système de gestion tout-en-un pour tuteurs.",
-    "twitterDescription": "Les agences de soutien scolaire prélèvent jusqu'à 60%. EdBrio ne facture que 5%. Gardez plus de vos revenus.",
-    "oneLiner": "Seulement 5% de frais. Gardez plus de vos revenus. Le système de gestion tout-en-un pour tuteurs privés.",
-    "jsonLdDescription": "Plateforme de gestion pour tuteurs avec seulement 5% de frais",
+    "description": "Système de gestion tout-en-un pour tuteurs privés et instructeurs. Réservations, paiements, rapports IA et fiches élèves en un seul endroit. Essayez gratuitement.",
+    "ogDescription": "Gestion tout-en-un des réservations, paiements, rapports IA et fiches élèves pour tuteurs privés.",
+    "twitterDescription": "Système de gestion pour tuteurs privés. Réservations, paiements, rapports IA et fiches en un seul endroit.",
+    "oneLiner": "Système de gestion tout-en-un pour tuteurs privés. Réservations, paiements, rapports IA et fiches en un seul endroit.",
+    "jsonLdDescription": "Système de gestion tout-en-un pour tuteurs privés et instructeurs",
     "jsonLdOfferDescription": "Création de compte gratuite"
   },
   "landing": {
@@ -66,10 +66,10 @@
     },
     "alphaNotice": "Ce système est actuellement en phase alpha. Des dysfonctionnements peuvent survenir lors de l'utilisation.",
     "hero": {
-      "badge": "Les agences prélèvent jusqu'à 60%. EdBrio ne facture que 5%.",
-      "title1": "Gardez plus de vos revenus.",
-      "title2": "Seulement 5% de frais.",
-      "description": "Les agences de soutien scolaire prélèvent jusqu'à 60% de commissions d'intermédiaire. Avec EdBrio, vous conservez 95% de vos revenus tout en gérant réservations, paiements, rapports IA et dossiers élèves au même endroit.",
+      "badge": "Réservations, paiements, rapports et fiches en un seul endroit",
+      "title1": "Concentrez-vous sur l'enseignement.",
+      "title2": "On s'occupe du reste.",
+      "description": "EdBrio est le système de gestion tout-en-un pour tuteurs privés et instructeurs. Réservations, paiements, rapports IA et fiches élèves — tout sur une seule plateforme.",
       "ctaStart": "Commencer gratuitement",
       "ctaFeatures": "Découvrir les fonctionnalités"
     },
@@ -86,11 +86,9 @@
       "step2HomeworkIncluded": "Devoirs inclus"
     },
     "features": {
-      "sectionTitle1": "Des frais réduits avec tout",
-      "sectionTitle2": "au même endroit.",
-      "sectionDescription": "Les agences prélèvent jusqu'à 60% de frais. EdBrio ne facture que 5%, et vous offre réservations, paiements, rapports et dossiers élèves sur une seule plateforme.",
-      "lowFeeTitle": "Des frais parmi les plus bas du marché",
-      "lowFeeDescription": "Les agences traditionnelles de soutien scolaire prélèvent 50–60% en commissions d'intermédiaire. Les services de mise en relation en ligne facturent 25–45%. Le plan Standard d'EdBrio ne coûte que 5% au total (traitement des paiements inclus). La grande majorité de vos revenus vous revient directement.",
+      "sectionTitle1": "Tout ce dont vous avez besoin pour enseigner,",
+      "sectionTitle2": "ici.",
+      "sectionDescription": "LINE, Excel, applis bancaires, agendas. EdBrio intègre intelligemment tous ces outils dispersés.",
       "aiReportTitle": "Génération de rapports par IA",
       "aiReportDescription": "Saisissez simplement vos notes après le cours, et l'IA génère automatiquement un rapport soigné pour les parents. Rapports professionnels incluant le niveau de compréhension, les devoirs et le programme du prochain cours, créés en quelques secondes.",
       "studentKarteTitle": "Dossier élève",
@@ -104,11 +102,11 @@
       "sectionTitle1": "Choisi par",
       "sectionTitle2": "les professionnels de l'éducation",
       "tutorTitle": "Tuteur privé",
-      "tutorDescription": "Marre que les agences prélèvent 50–60% de vos revenus ? Avec EdBrio, vous conservez 95% tout en gérant vous-même réservations, paiements et rapports.",
+      "tutorDescription": "Gérez réservations, paiements et rapports dans un seul système. Concentrez-vous sur la relation de confiance avec les parents.",
       "jukuTitle": "Centre de tutorat",
-      "jukuDescription": "Centralisez le partage d'informations entre plusieurs instructeurs grâce aux dossiers élèves. L'intégration de paiement à faible coût améliore l'efficacité opérationnelle.",
+      "jukuDescription": "Centralisez le partage d'informations entre plusieurs instructeurs avec les fiches élèves. Les notes de passation assurent une continuité lors des remplacements.",
       "onlineTitle": "Instructeur en ligne",
-      "onlineDescription": "Libérez-vous des services de mise en relation qui facturent 25–45%. EdBrio ne prélève que 5% et gère tout en ligne, des réservations aux paiements."
+      "onlineDescription": "Gérez tout en ligne, des réservations au partage de rapports et aux paiements. Enseignez depuis n'importe où."
     },
     "pricing": {
       "sectionTitle": "Des tarifs simples et transparents",
@@ -160,12 +158,28 @@
       "chartStandardLabel": "Forfait Standard",
       "chartRevenue": "CA mensuel",
       "chartCost": "Coût mensuel",
-      "chartBreakeven": "Seuil de rentabilité"
+      "chartBreakeven": "Seuil de rentabilité",
+      "industryComparisonTitle": "Comparaison avec les frais du secteur",
+      "industryComparisonDescription": "Dans les services de tutorat traditionnels, une grande partie des frais de scolarité est prélevée en commissions d'intermédiaires. Avec EdBrio, les frais ne sont que de 5 % — la majeure partie revient directement au professeur.",
+      "industryTakeHomeLabel": "Revenu net du professeur",
+      "industryAgencyLabel": "Agences de tutorat",
+      "industryAgencyRate": "40–50 %",
+      "industryAgencyNote": "Commissions d'intermédiaires de 50–60 %",
+      "industryMatchingLabel": "Plateformes de mise en relation",
+      "industryMatchingRate": "55–75 %",
+      "industryMatchingNote": "Frais de plateforme de 25–45 %",
+      "industryEdbrioLabel": "EdBrio (Standard)",
+      "industryEdbrioRate": "95,0 %",
+      "industryEdbrioNote": "Seulement 5 % de frais (EdBrio 1,4 % + Stripe 3,6 %)",
+      "industryExampleTitle": "Exemple : frais de scolarité de ¥50 000/mois",
+      "industryExampleAgency": "Via agence → Le professeur reçoit : ~¥20 000–¥25 000",
+      "industryExampleMatching": "Via plateforme → Le professeur reçoit : ~¥27 500–¥37 500",
+      "industryExampleEdbrio": "Via EdBrio → Le professeur reçoit : ¥47 500"
     },
     "faq": {
       "title": "Questions fréquentes",
-      "q1": "Pourquoi les frais d'EdBrio sont-ils si bas par rapport au marché ?",
-      "a1": "Les agences traditionnelles de soutien scolaire investissent massivement dans la prospection, la publicité et le personnel — des coûts répercutés sous forme de commissions de 50–60%. EdBrio fonctionne comme une plateforme en ligne avec des frais de fonctionnement minimaux, ce qui nous permet de proposer seulement 5% de frais totaux (plan Standard, traitement des paiements inclus).",
+      "q1": "Quelle est la précision des rapports générés par l'IA ?",
+      "a1": "Grâce à Claude AI, les rapports sont générés en langage naturel à partir du contenu de vos notes de cours. Vous pouvez également modifier les rapports après génération pour les adapter à votre style.",
       "q2": "Les parents doivent-ils installer une application ?",
       "a2": "Non, ce n'est pas nécessaire. Les parents se connectent simplement via leur navigateur pour consulter les rapports et suivre la progression de l'apprentissage. Compatible smartphones, tablettes et ordinateurs.",
       "q3": "Que se passe-t-il à la fin de la période d'essai gratuite ?",
@@ -192,7 +206,7 @@
       "messagePlaceholder": "N'hésitez pas à nous écrire"
     },
     "footer": {
-      "description": "Seulement 5% de frais. La plateforme de gestion tout-en-un pour tuteurs privés et instructeurs.",
+      "description": "Système de gestion tout-en-un pour tuteurs privés et instructeurs.",
       "productHeading": "Produit",
       "features": "Fonctionnalités",
       "pricing": "Tarifs",

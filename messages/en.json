@@ -45,13 +45,13 @@
     }
   },
   "metadata": {
-    "defaultTitle": "EdBrio — Only 5% Fees. The Tutor Management Platform",
+    "defaultTitle": "EdBrio — All-in-One Management System for Private Tutors",
     "titleTemplate": "%s | EdBrio",
-    "description": "Tutoring agencies take up to 60% in middleman fees. EdBrio charges just 5%. Keep more of your tuition with the all-in-one management system for private tutors. Bookings, payments, AI reports, and student portfolios in one place.",
-    "ogDescription": "Agencies take up to 60% of tuition. EdBrio charges just 5%. The all-in-one management system for private tutors and tutoring instructors.",
-    "twitterDescription": "Tutoring agencies take up to 60%. EdBrio charges just 5%. Keep more of your tuition with the all-in-one tutor management platform.",
-    "oneLiner": "Just 5% fees. Keep more of your tuition. The all-in-one management system for private tutors.",
-    "jsonLdDescription": "Tutor management platform with only 5% fees",
+    "description": "The all-in-one management system for private tutors and tutoring instructors. Manage bookings, payments, AI reports, and student portfolios in one place. Try it free.",
+    "ogDescription": "All-in-one bookings, payments, AI reports, and student portfolio management for private tutors.",
+    "twitterDescription": "Management system for private tutors. Bookings, payments, AI reports, and portfolios in one place.",
+    "oneLiner": "The all-in-one management system for private tutors. Bookings, payments, AI reports, and portfolios in one place.",
+    "jsonLdDescription": "All-in-one management system for private tutors and tutoring instructors",
     "jsonLdOfferDescription": "Free account creation available"
   },
   "landing": {
@@ -66,10 +66,10 @@
     },
     "alphaNotice": "This system is currently in alpha testing. You may encounter issues during use.",
     "hero": {
-      "badge": "Agencies take up to 60%. EdBrio charges just 5%.",
-      "title1": "Keep more of your tuition.",
-      "title2": "Only 5% platform fees.",
-      "description": "Tutoring agencies take up to 60% in middleman fees. With EdBrio, you keep 95% of your tuition while managing bookings, payments, AI reports, and student portfolios all in one place.",
+      "badge": "Bookings, payments, reports, and portfolios in one place",
+      "title1": "Focus on teaching.",
+      "title2": "We'll handle the rest.",
+      "description": "EdBrio is the all-in-one management system for private tutors and tutoring instructors. Bookings, payments, AI reports, and student portfolios — all on one platform.",
       "ctaStart": "Get Started Free",
       "ctaFeatures": "See Features"
     },
@@ -86,11 +86,9 @@
       "step2HomeworkIncluded": "Homework included"
     },
     "features": {
-      "sectionTitle1": "Low fees with everything",
-      "sectionTitle2": "in one place.",
-      "sectionDescription": "Agencies take up to 60% in fees. EdBrio charges just 5%, and gives you bookings, payments, reports, and portfolios all in one platform.",
-      "lowFeeTitle": "Industry-Low Fees",
-      "lowFeeDescription": "Traditional tutoring agencies take 50–60% as middleman fees. Online matching services charge 25–45%. EdBrio's Standard plan charges just 5% total (including payment processing). The vast majority of tuition goes straight to you.",
+      "sectionTitle1": "Everything you need for teaching,",
+      "sectionTitle2": "right here.",
+      "sectionDescription": "LINE, Excel, banking apps, planners. EdBrio smartly integrates all those scattered tools.",
       "aiReportTitle": "AI Report Generation",
       "aiReportDescription": "Simply enter your post-lesson notes and AI automatically generates polished reports for parents/guardians. Professional reports including comprehension levels, homework, and next lesson plans are created in seconds.",
       "studentKarteTitle": "Student Portfolio",
@@ -104,11 +102,11 @@
       "sectionTitle1": "Trusted by",
       "sectionTitle2": "educators like you",
       "tutorTitle": "Private Tutors",
-      "tutorDescription": "Tired of agencies taking 50–60% of your tuition? With EdBrio, you keep 95% while managing bookings, payments, and reports yourself.",
+      "tutorDescription": "Manage bookings, payments, and reports all in one system. Focus on building trust with parents.",
       "jukuTitle": "Tutoring Centers",
-      "jukuDescription": "Centralize information sharing among multiple instructors with student portfolios. Low-cost payment integration improves operational efficiency.",
+      "jukuDescription": "Centralize information sharing among multiple instructors with student portfolios. Handoff notes ensure smooth coverage during substitute lessons.",
       "onlineTitle": "Online Instructors",
-      "onlineDescription": "Break free from matching services that charge 25–45%. EdBrio charges just 5% and handles everything online from bookings to payments."
+      "onlineDescription": "Complete everything online from booking management to report sharing and payments. Focus on teaching from anywhere."
     },
     "pricing": {
       "sectionTitle": "Simple, Transparent Pricing",
@@ -160,12 +158,28 @@
       "chartStandardLabel": "Standard Plan",
       "chartRevenue": "Monthly Revenue",
       "chartCost": "Monthly Cost",
-      "chartBreakeven": "Breakeven"
+      "chartBreakeven": "Breakeven",
+      "industryComparisonTitle": "Compare with Industry Fees",
+      "industryComparisonDescription": "In traditional tutoring services, a large portion of tuition is taken as middleman fees. With EdBrio, fees are just 5% — so most of the tuition goes directly to the teacher.",
+      "industryTakeHomeLabel": "Teacher Take-Home Rate",
+      "industryAgencyLabel": "Tutoring Agencies",
+      "industryAgencyRate": "40–50%",
+      "industryAgencyNote": "Middleman fees of 50–60%",
+      "industryMatchingLabel": "Online Matching Services",
+      "industryMatchingRate": "55–75%",
+      "industryMatchingNote": "Platform fees of 25–45%",
+      "industryEdbrioLabel": "EdBrio (Standard)",
+      "industryEdbrioRate": "95.0%",
+      "industryEdbrioNote": "Only 5% fees (EdBrio 1.4% + Stripe 3.6%)",
+      "industryExampleTitle": "Example: ¥50,000/month tuition",
+      "industryExampleAgency": "Via agency → Teacher receives: ~¥20,000–¥25,000",
+      "industryExampleMatching": "Via matching → Teacher receives: ~¥27,500–¥37,500",
+      "industryExampleEdbrio": "Via EdBrio → Teacher receives: ¥47,500"
     },
     "faq": {
       "title": "Frequently Asked Questions",
-      "q1": "Why are EdBrio's fees so much lower than the industry?",
-      "a1": "Traditional tutoring agencies spend heavily on sales, advertising, and staffing — costs that are passed on as 50–60% middleman fees. EdBrio operates as an online platform with minimal overhead, allowing us to offer just 5% total fees (Standard plan, including payment processing).",
+      "q1": "How accurate are the AI-generated reports?",
+      "a1": "Using Claude AI, reports are generated in natural language based on the content of your lesson notes. You can also edit the reports after generation, so you can adjust them to match your style.",
       "q2": "Do parents need to install an app?",
       "a2": "No, they don't. Parents/guardians can simply log in from their browser to view reports and check learning progress. It works on smartphones, tablets, and PCs.",
       "q3": "What happens when the free trial period ends?",
@@ -192,7 +206,7 @@
       "messagePlaceholder": "Feel free to write your message here"
     },
     "footer": {
-      "description": "Only 5% fees. The all-in-one management platform for private tutors and tutoring instructors.",
+      "description": "The all-in-one management system for private tutors and tutoring instructors.",
       "productHeading": "Product",
       "features": "Features",
       "pricing": "Pricing",

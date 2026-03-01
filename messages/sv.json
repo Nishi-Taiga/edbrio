@@ -45,13 +45,13 @@
     }
   },
   "metadata": {
-    "defaultTitle": "EdBrio — Bara 5% i avgift. Plattformen for privatlarare",
+    "defaultTitle": "EdBrio — Allt-i-ett-hanteringssystem för privatlärare",
     "titleTemplate": "%s | EdBrio",
-    "description": "Formedlingsforetag tar upp till 60% i mellanhands-avgifter. EdBrio tar bara 5%. Behall mer av din undervisningsersattning med allt-i-ett-systemet for privatlarare.",
-    "ogDescription": "Formedlingsforetag tar upp till 60%. EdBrio tar bara 5%. Allt-i-ett-hanteringssystem for privatlarare.",
-    "twitterDescription": "Formedlingsforetag tar upp till 60%. EdBrio tar bara 5%. Behall mer av din undervisningsersattning.",
-    "oneLiner": "Bara 5% i avgift. Behall mer av din undervisningsersattning. Allt-i-ett-hanteringssystem for privatlarare.",
-    "jsonLdDescription": "Plattform for privatlarare med bara 5% i avgift",
+    "description": "Allt-i-ett-hanteringssystem för privatlärare och handledare. Bokningar, betalningar, AI-rapporter och elevkort på ett ställe. Prova gratis.",
+    "ogDescription": "Allt-i-ett-hantering av bokningar, betalningar, AI-rapporter och elevkort för privatlärare.",
+    "twitterDescription": "Hanteringssystem för privatlärare. Bokningar, betalningar, AI-rapporter och elevkort på ett ställe.",
+    "oneLiner": "Allt-i-ett-hanteringssystem för privatlärare. Bokningar, betalningar, AI-rapporter och elevkort på ett ställe.",
+    "jsonLdDescription": "Allt-i-ett-hanteringssystem för privatlärare och handledare",
     "jsonLdOfferDescription": "Skapa konto gratis"
   },
   "landing": {
@@ -66,10 +66,10 @@
     },
     "alphaNotice": "Systemet ar for narvarande i alfaversion och under testdrift. Det kan forekomma fel under anvandningen.",
     "hero": {
-      "badge": "Formedlingsforetag tar upp till 60%. EdBrio tar bara 5%.",
-      "title1": "Behall mer av din undervisningsersattning.",
-      "title2": "Bara 5% i plattformsavgift.",
-      "description": "Formedlingsforetag tar upp till 60% i mellanhands-avgifter. Med EdBrio behallar du 95% av din ersattning och hanterar bokningar, betalningar, AI-rapporter och elevportfoljer pa ett och samma stalle.",
+      "badge": "Bokningar, betalningar, rapporter och elevkort på ett ställe",
+      "title1": "Fokusera på undervisningen.",
+      "title2": "Vi tar hand om resten.",
+      "description": "EdBrio är allt-i-ett-hanteringssystemet för privatlärare och handledare. Bokningar, betalningar, AI-rapporter och elevkort — allt på en plattform.",
       "ctaStart": "Kom igang gratis",
       "ctaFeatures": "Utforska funktionerna"
     },
@@ -86,11 +86,9 @@
       "step2HomeworkIncluded": "Laxor inkluderade"
     },
     "features": {
-      "sectionTitle1": "Laga avgifter med allt",
-      "sectionTitle2": "pa ett stalle.",
-      "sectionDescription": "Formedlingsforetag tar upp till 60% i avgifter. EdBrio tar bara 5% och ger dig bokningar, betalningar, rapporter och portfoljer i en och samma plattform.",
-      "lowFeeTitle": "Branschens lagsta avgifter",
-      "lowFeeDescription": "Traditionella formedlingsforetag tar 50–60% i mellanhands-avgifter. Matchningstjanster online tar 25–45%. EdBrios Standard-plan tar bara 5% totalt (inklusive betalningshantering). Storsta delen av undervisningsersattningen gar direkt till dig.",
+      "sectionTitle1": "Allt du behöver för undervisning,",
+      "sectionTitle2": "här.",
+      "sectionDescription": "LINE, Excel, bankappar, planerare. EdBrio integrerar smidigt alla dessa spridda verktyg.",
       "aiReportTitle": "AI-rapportgenerering",
       "aiReportDescription": "Skriv in anteckningar efter lektionen och lat AI automatiskt skapa professionella rapporter for vardnadshavare. Rapporter med forstaelseniva, laxor och nasta lektion skapas pa nagra sekunder.",
       "studentKarteTitle": "Elevjournaler",
@@ -104,11 +102,11 @@
       "sectionTitle1": "Vald av",
       "sectionTitle2": "dessa anvandare",
       "tutorTitle": "Privatlärare",
-      "tutorDescription": "Trott pa att formedlingsforetag tar 50–60% av din ersattning? Med EdBrio behallar du 95% och hanterar sjalv bokningar, betalningar och rapporter.",
+      "tutorDescription": "Hantera bokningar, betalningar och rapporter i ett enda system. Fokusera på att bygga förtroende med föräldrar.",
       "jukuTitle": "Individuell handledning",
-      "jukuDescription": "Centralisera informationsdelning mellan flera larare med elevportfoljer. Lagkostnadsintegration for betalningar forbattrar den operativa effektiviteten.",
+      "jukuDescription": "Centralisera informationsdelning mellan flera handledare med elevkort. Överlämningsanteckningar säkerställer smidig övergång vid vikariat.",
       "onlineTitle": "Onlinelarare",
-      "onlineDescription": "Bryt dig fri fran matchningstjanster som tar 25–45%. EdBrio tar bara 5% och hanterar allt online fran bokningar till betalningar."
+      "onlineDescription": "Hantera allt online från bokningshantering till rapportdelning och betalningar. Undervisa var som helst."
     },
     "pricing": {
       "sectionTitle": "Enkel och tydlig prissattning",
@@ -160,12 +158,28 @@
       "chartStandardLabel": "Standard-planen",
       "chartRevenue": "Manadsintakt",
       "chartCost": "Manadskostnad",
-      "chartBreakeven": "Brakpunkt"
+      "chartBreakeven": "Brakpunkt",
+      "industryComparisonTitle": "Jämförelse med branschens avgifter",
+      "industryComparisonDescription": "I traditionella lärartjänster går en stor del av undervisningsavgiften till förmedlingsavgifter. Med EdBrio är avgiften bara 5 % — det mesta går direkt till läraren.",
+      "industryTakeHomeLabel": "Lärarens nettointäkt",
+      "industryAgencyLabel": "Lärarförmedlingar",
+      "industryAgencyRate": "40–50 %",
+      "industryAgencyNote": "Förmedlingsavgift 50–60 %",
+      "industryMatchingLabel": "Matchningsplattformar",
+      "industryMatchingRate": "55–75 %",
+      "industryMatchingNote": "Plattformsavgift 25–45 %",
+      "industryEdbrioLabel": "EdBrio (Standard)",
+      "industryEdbrioRate": "95,0 %",
+      "industryEdbrioNote": "Bara 5 % avgift (EdBrio 1,4 % + Stripe 3,6 %)",
+      "industryExampleTitle": "Exempel: ¥50 000/månad i undervisningsavgift",
+      "industryExampleAgency": "Via förmedling → Läraren får: ~¥20 000–¥25 000",
+      "industryExampleMatching": "Via matchning → Läraren får: ~¥27 500–¥37 500",
+      "industryExampleEdbrio": "Via EdBrio → Läraren får: ¥47 500"
     },
     "faq": {
       "title": "Vanliga fragor",
-      "q1": "Varfor ar EdBrios avgifter sa mycket lagre an branschens?",
-      "a1": "Traditionella formedlingsforetag laggar stora summor pa forsaljning, marknadsforning och personal — kostnader som valts over pa larare som 50–60% mellanhands-avgifter. EdBrio drivs som en onlineplattform med minimala overheadkostnader, vilket gor det mojligt att erbjuda bara 5% i total avgift (Standard-planen, inklusive betalningshantering).",
+      "q1": "Hur exakta är de AI-genererade rapporterna?",
+      "a1": "Med Claude AI genereras rapporter på naturligt språk baserat på innehållet i dina lektionsanteckningar. Du kan även redigera rapporterna efter generering för att anpassa dem efter din stil.",
       "q2": "Behover vardnadshavare installera en app?",
       "a2": "Nej, det behovs inte. Vardnadshavare loggar helt enkelt in via webblasaren for att lasa rapporter och folja larandeutvecklingen. Det fungerar pa smartphones, surfplattor och datorer.",
       "q3": "Vad hander nar den kostnadsfria provperioden tar slut?",
@@ -192,7 +206,7 @@
       "messagePlaceholder": "Skriv ditt meddelande har"
     },
     "footer": {
-      "description": "Bara 5% i avgift. Allt-i-ett-plattformen for privatlarare och handledare.",
+      "description": "Allt-i-ett-hanteringssystem för privatlärare och handledare.",
       "productHeading": "Produkt",
       "features": "Funktioner",
       "pricing": "Priser",

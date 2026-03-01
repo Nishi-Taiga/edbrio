@@ -45,13 +45,13 @@
     }
   },
   "metadata": {
-    "defaultTitle": "EdBrio — 仅收5%手续费。家教管理平台",
+    "defaultTitle": "EdBrio — 家教一站式管理系统",
     "titleTemplate": "%s | EdBrio",
-    "description": "家教中介机构抽取高达60%的中间费用。EdBrio仅收5%。保留更多课时费，面向家庭教师的一站式管理系统。",
-    "ogDescription": "中介机构抽取高达60%。EdBrio仅收5%。面向家教的一站式管理系统。",
-    "twitterDescription": "家教中介机构抽取高达60%。EdBrio仅收5%。保留更多课时费。",
-    "oneLiner": "仅收5%手续费。保留更多课时费。面向家庭教师的一站式管理系统。",
-    "jsonLdDescription": "仅收5%手续费的家教管理平台",
+    "description": "面向家教和辅导老师的一站式管理系统。预约、收款、AI报告、学生档案集中管理。免费试用。",
+    "ogDescription": "面向家教的预约、收款、AI报告、学生档案一站式管理系统。",
+    "twitterDescription": "家教管理系统。预约、收款、AI报告、学生档案集中管理。",
+    "oneLiner": "面向家教和辅导老师的一站式管理系统。预约、收款、AI报告、学生档案集中管理。",
+    "jsonLdDescription": "面向家教和辅导老师的一站式管理系统",
     "jsonLdOfferDescription": "可免费创建账号"
   },
   "landing": {
@@ -66,10 +66,10 @@
     },
     "alphaNotice": "本系统目前处于Alpha测试阶段。使用过程中可能会出现问题。",
     "hero": {
-      "badge": "中介机构抽取高达60%。EdBrio仅收5%。",
-      "title1": "保留更多课时费。",
-      "title2": "平台手续费仅5%。",
-      "description": "家教中介机构抽取高达60%的中间费用。使用EdBrio，您可以保留95%的课时费，同时在一个平台上管理预约、支付、AI报告和学生档案。",
+      "badge": "预约、收款、报告、档案集中管理",
+      "title1": "专注于教学。",
+      "title2": "其余交给我们。",
+      "description": "EdBrio是面向家教和辅导老师的一站式管理系统。预约、收款、AI报告、学生档案——全部在一个平台上完成。",
       "ctaStart": "免费开始",
       "ctaFeatures": "查看详细功能"
     },
@@ -86,11 +86,9 @@
       "step2HomeworkIncluded": "含作业"
     },
     "features": {
-      "sectionTitle1": "低手续费，一切功能",
-      "sectionTitle2": "一站到位。",
-      "sectionDescription": "中介机构抽取高达60%的手续费。EdBrio仅收5%，为您提供预约、支付、报告和档案管理的一站式平台。",
-      "lowFeeTitle": "行业最低手续费",
-      "lowFeeDescription": "传统家教中介机构抽取50~60%的中间费用。在线匹配平台收取25~45%。EdBrio的Standard计划总共仅收5%（含支付处理费）。绝大部分课时费直接归您所有。",
+      "sectionTitle1": "教学所需的一切，",
+      "sectionTitle2": "尽在此处。",
+      "sectionDescription": "LINE、Excel、银行App、手帐。EdBrio将分散的工具智能整合。",
       "aiReportTitle": "AI报告生成",
       "aiReportDescription": "只需输入课后笔记，AI即可自动生成面向家长的专业报告。包含理解程度、作业、下次课程安排等内容的专业报告，几秒钟即可完成。",
       "studentKarteTitle": "学生档案",
@@ -104,11 +102,11 @@
       "sectionTitle1": "深受以下用户的",
       "sectionTitle2": "青睐",
       "tutorTitle": "家教",
-      "tutorDescription": "厌倦了中介机构抽走50~60%的课时费？使用EdBrio，您可以保留95%，自主管理预约、支付和报告。",
+      "tutorDescription": "预约、收款、报告在一个系统中完成。专注于与家长建立信任关系。",
       "jukuTitle": "辅导机构",
-      "jukuDescription": "通过学生档案集中管理多位讲师间的信息共享。低成本支付集成提升运营效率。",
+      "jukuDescription": "通过学生档案实现多位老师之间的信息共享。交接备注确保代课时顺畅衔接。",
       "onlineTitle": "在线讲师",
-      "onlineDescription": "摆脱收取25~45%的匹配平台。EdBrio仅收5%，从预约到支付全程在线处理。"
+      "onlineDescription": "从预约管理到报告共享、收款，全程在线完成。不受地点限制，专注教学。"
     },
     "pricing": {
       "sectionTitle": "简单明了的定价",
@@ -160,12 +158,28 @@
       "chartStandardLabel": "Standard 计划",
       "chartRevenue": "月销售额",
       "chartCost": "月成本",
-      "chartBreakeven": "盈亏平衡点"
+      "chartBreakeven": "盈亏平衡点",
+      "industryComparisonTitle": "与行业费率对比",
+      "industryComparisonDescription": "在传统家教服务中，学费的大部分被中介费用扣除。使用EdBrio，费率仅为5%——学费的绝大部分直接到达老师手中。",
+      "industryTakeHomeLabel": "老师实际收入率",
+      "industryAgencyLabel": "家教中介机构",
+      "industryAgencyRate": "40–50%",
+      "industryAgencyNote": "中介费用50–60%",
+      "industryMatchingLabel": "在线匹配平台",
+      "industryMatchingRate": "55–75%",
+      "industryMatchingNote": "平台费用25–45%",
+      "industryEdbrioLabel": "EdBrio（Standard）",
+      "industryEdbrioRate": "95.0%",
+      "industryEdbrioNote": "费率仅5%（EdBrio 1.4% + Stripe 3.6%）",
+      "industryExampleTitle": "示例：月学费¥50,000的情况",
+      "industryExampleAgency": "通过中介 → 老师实收：约¥20,000–¥25,000",
+      "industryExampleMatching": "通过匹配平台 → 老师实收：约¥27,500–¥37,500",
+      "industryExampleEdbrio": "通过EdBrio → 老师实收：¥47,500"
     },
     "faq": {
       "title": "常见问题",
-      "q1": "为什么EdBrio的手续费远低于行业水平？",
-      "a1": "传统家教中介机构在销售、广告和人员方面投入大量成本，这些成本以50~60%中间费用的形式转嫁给教师。EdBrio作为在线平台，运营成本极低，因此我们能够提供仅5%的总手续费（Standard计划，含支付处理费）。",
+      "q1": "AI生成的报告精度如何？",
+      "a1": "利用Claude AI，根据课堂笔记内容以自然语言生成报告。生成后也可编辑修改，以适应您的风格。",
       "q2": "家长需要安装应用吗？",
       "a2": "不需要。家长只需通过浏览器登录，即可查看报告和学习进度。智能手机、平板、电脑均可使用。",
       "q3": "免费试用期结束后会怎样？",
@@ -192,7 +206,7 @@
       "messagePlaceholder": "请随意填写"
     },
     "footer": {
-      "description": "仅收5%手续费。面向家庭教师和辅导机构讲师的一站式管理平台。",
+      "description": "面向家教和辅导老师的一站式管理系统。",
       "productHeading": "产品",
       "features": "功能",
       "pricing": "定价",

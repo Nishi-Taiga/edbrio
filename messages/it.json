@@ -45,13 +45,13 @@
     }
   },
   "metadata": {
-    "defaultTitle": "EdBrio — Solo 5% di commissione. La piattaforma di gestione per tutor",
+    "defaultTitle": "EdBrio — Sistema di gestione tutto-in-uno per tutor privati",
     "titleTemplate": "%s | EdBrio",
-    "description": "Le agenzie di ripetizioni trattengono fino al 60% come commissioni di intermediazione. EdBrio addebita solo il 5%. Tieni di più di quello che guadagni con il sistema di gestione all-in-one per insegnanti privati.",
-    "ogDescription": "Le agenzie trattengono fino al 60%. EdBrio addebita solo il 5%. Il sistema di gestione all-in-one per tutor.",
-    "twitterDescription": "Le agenzie di ripetizioni trattengono fino al 60%. EdBrio addebita solo il 5%. Tieni di più di quello che guadagni.",
-    "oneLiner": "Solo 5% di commissione. Tieni di più di quello che guadagni. Il sistema di gestione all-in-one per insegnanti privati.",
-    "jsonLdDescription": "Piattaforma di gestione per tutor con solo il 5% di commissione",
+    "description": "Sistema di gestione tutto-in-uno per tutor privati e istruttori. Prenotazioni, pagamenti, report IA e schede studenti in un unico posto. Provalo gratis.",
+    "ogDescription": "Gestione tutto-in-uno di prenotazioni, pagamenti, report IA e schede studenti per tutor privati.",
+    "twitterDescription": "Sistema di gestione per tutor privati. Prenotazioni, pagamenti, report IA e schede in un unico posto.",
+    "oneLiner": "Sistema di gestione tutto-in-uno per tutor privati. Prenotazioni, pagamenti, report IA e schede in un unico posto.",
+    "jsonLdDescription": "Sistema di gestione tutto-in-uno per tutor privati e istruttori",
     "jsonLdOfferDescription": "Creazione account gratuita"
   },
   "landing": {
@@ -66,10 +66,10 @@
     },
     "alphaNotice": "Il sistema è attualmente in fase alpha di test. Potrebbero verificarsi malfunzionamenti durante l'utilizzo.",
     "hero": {
-      "badge": "Le agenzie trattengono fino al 60%. EdBrio addebita solo il 5%.",
-      "title1": "Tieni di più di quello che guadagni.",
-      "title2": "Solo 5% di commissione.",
-      "description": "Le agenzie di ripetizioni trattengono fino al 60% come commissioni di intermediazione. Con EdBrio, tieni il 95% dei tuoi guadagni gestendo prenotazioni, pagamenti, report IA e schede studente in un unico posto.",
+      "badge": "Prenotazioni, pagamenti, report e schede in un unico posto",
+      "title1": "Concentrati sull'insegnamento.",
+      "title2": "Al resto pensiamo noi.",
+      "description": "EdBrio è il sistema di gestione tutto-in-uno per tutor privati e istruttori. Prenotazioni, pagamenti, report IA e schede studenti — tutto su un'unica piattaforma.",
       "ctaStart": "Inizia gratis",
       "ctaFeatures": "Scopri le funzionalità"
     },
@@ -86,11 +86,9 @@
       "step2HomeworkIncluded": "Compiti inclusi"
     },
     "features": {
-      "sectionTitle1": "Commissioni basse con tutto",
-      "sectionTitle2": "in un unico posto.",
-      "sectionDescription": "Le agenzie trattengono fino al 60% di commissioni. EdBrio addebita solo il 5%, offrendoti prenotazioni, pagamenti, report e schede studente in un'unica piattaforma.",
-      "lowFeeTitle": "Commissioni tra le più basse del settore",
-      "lowFeeDescription": "Le agenzie tradizionali di ripetizioni trattengono il 50–60% come commissioni di intermediazione. I servizi di ricerca online addebitano il 25–45%. Il piano Standard di EdBrio costa solo il 5% in totale (inclusa l'elaborazione dei pagamenti). La stragrande maggioranza dei tuoi guadagni va direttamente a te.",
+      "sectionTitle1": "Tutto ciò che serve per insegnare,",
+      "sectionTitle2": "qui.",
+      "sectionDescription": "LINE, Excel, app bancarie, agende. EdBrio integra in modo intelligente tutti quegli strumenti sparsi.",
       "aiReportTitle": "Generazione report con IA",
       "aiReportDescription": "Basta inserire gli appunti post-lezione e l'IA genera automaticamente report professionali per i genitori. Report completi di livello di comprensione, compiti e programma della prossima lezione, pronti in pochi secondi.",
       "studentKarteTitle": "Scheda studente",
@@ -104,11 +102,11 @@
       "sectionTitle1": "Scelto da",
       "sectionTitle2": "chi insegna",
       "tutorTitle": "Tutor privati",
-      "tutorDescription": "Stanco di agenzie che trattengono il 50–60% dei tuoi guadagni? Con EdBrio, tieni il 95% gestendo prenotazioni, pagamenti e report in autonomia.",
+      "tutorDescription": "Gestisci prenotazioni, pagamenti e report in un unico sistema. Concentrati sulla fiducia con i genitori.",
       "jukuTitle": "Scuole di ripetizioni",
-      "jukuDescription": "Centralizza la condivisione delle informazioni tra più insegnanti con le schede studente. L'integrazione dei pagamenti a basso costo migliora l'efficienza operativa.",
+      "jukuDescription": "Centralizza la condivisione di informazioni tra più istruttori con le schede studenti. Le note di passaggio garantiscono continuità nelle sostituzioni.",
       "onlineTitle": "Insegnanti online",
-      "onlineDescription": "Liberati dai servizi di ricerca che addebitano il 25–45%. EdBrio addebita solo il 5% e gestisce tutto online, dalle prenotazioni ai pagamenti."
+      "onlineDescription": "Gestisci tutto online dalla gestione delle prenotazioni alla condivisione dei report e ai pagamenti. Insegna da qualsiasi luogo."
     },
     "pricing": {
       "sectionTitle": "Prezzi semplici e trasparenti",
@@ -160,12 +158,28 @@
       "chartStandardLabel": "Piano Standard",
       "chartRevenue": "Fatturato mensile",
       "chartCost": "Costo mensile",
-      "chartBreakeven": "Punto di pareggio"
+      "chartBreakeven": "Punto di pareggio",
+      "industryComparisonTitle": "Confronto con le tariffe del settore",
+      "industryComparisonDescription": "Nei servizi di tutoraggio tradizionali, gran parte della retta viene trattenuta come commissione di intermediazione. Con EdBrio, le commissioni sono solo del 5% — la maggior parte arriva direttamente all'insegnante.",
+      "industryTakeHomeLabel": "Guadagno netto dell'insegnante",
+      "industryAgencyLabel": "Agenzie di tutoraggio",
+      "industryAgencyRate": "40–50%",
+      "industryAgencyNote": "Commissioni di intermediazione del 50–60%",
+      "industryMatchingLabel": "Piattaforme di matching",
+      "industryMatchingRate": "55–75%",
+      "industryMatchingNote": "Commissioni del 25–45%",
+      "industryEdbrioLabel": "EdBrio (Standard)",
+      "industryEdbrioRate": "95,0%",
+      "industryEdbrioNote": "Solo 5% di commissione (EdBrio 1,4% + Stripe 3,6%)",
+      "industryExampleTitle": "Esempio: retta di ¥50.000/mese",
+      "industryExampleAgency": "Tramite agenzia → L'insegnante riceve: ~¥20.000–¥25.000",
+      "industryExampleMatching": "Tramite matching → L'insegnante riceve: ~¥27.500–¥37.500",
+      "industryExampleEdbrio": "Tramite EdBrio → L'insegnante riceve: ¥47.500"
     },
     "faq": {
       "title": "Domande frequenti",
-      "q1": "Perché le commissioni di EdBrio sono così basse rispetto al settore?",
-      "a1": "Le agenzie tradizionali di ripetizioni investono molto in attività commerciali, pubblicità e personale — costi che vengono trasferiti come commissioni di intermediazione del 50–60%. EdBrio opera come piattaforma online con costi operativi minimi, il che ci permette di offrire solo il 5% di commissione totale (piano Standard, inclusa l'elaborazione dei pagamenti).",
+      "q1": "Quanto sono precisi i report generati dall'IA?",
+      "a1": "Utilizzando Claude AI, i report vengono generati in linguaggio naturale basandosi sul contenuto delle note della lezione. È possibile modificare i report dopo la generazione per adattarli al proprio stile.",
       "q2": "I genitori devono installare un'app?",
       "a2": "No, non è necessario. I genitori possono semplicemente accedere dal browser per consultare i report e monitorare i progressi di apprendimento. Funziona su smartphone, tablet e PC.",
       "q3": "Cosa succede al termine del periodo di prova gratuita?",
@@ -192,7 +206,7 @@
       "messagePlaceholder": "Scrivete pure liberamente"
     },
     "footer": {
-      "description": "Solo 5% di commissione. La piattaforma di gestione all-in-one per insegnanti privati e tutor.",
+      "description": "Sistema di gestione tutto-in-uno per tutor privati e istruttori.",
       "productHeading": "Prodotto",
       "features": "Funzionalità",
       "pricing": "Prezzi",
