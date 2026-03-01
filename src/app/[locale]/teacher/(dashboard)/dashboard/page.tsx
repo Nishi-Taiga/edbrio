@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Link } from '@/i18n/navigation'
-import { AlertTriangle, Calendar, Check, Clock, DollarSign, FileText, Settings, Users, X } from 'lucide-react'
+import { AlertTriangle, Calendar, Check, DollarSign, FileText, Settings, Users, X } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useBookings } from '@/hooks/use-bookings'
 import { useTickets } from '@/hooks/use-tickets'
@@ -174,13 +174,6 @@ export default function TeacherDashboard() {
   }
 
   const hasActionItems = pendingBookings.length > 0 || draftReports.length > 0
-
-  const quickActions = [
-    { title: t('reportCreate'), description: t('reportCreateDesc'), href: '/teacher/reports/new', icon: FileText },
-    { title: t('calendarManagement'), description: t('calendarManagementDesc'), href: '/teacher/calendar', icon: Calendar },
-    { title: t('studentKarte'), description: t('studentKarteDesc'), href: '/teacher/curriculum', icon: Users },
-    { title: t('bookingManagement'), description: t('bookingManagementDesc'), href: '/teacher/bookings', icon: Clock },
-  ]
 
   return (
     <ProtectedRoute allowedRoles={['teacher']}>
@@ -479,31 +472,6 @@ export default function TeacherDashboard() {
               </CardContent>
             </Card>
 
-            {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('quickActions')}</CardTitle>
-                <CardDescription>{t('quickActionsDescription')}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {quickActions.map((a) => {
-                    const Icon = a.icon
-                    return (
-                      <Link key={a.title} href={a.href}>
-                        <div className="flex items-center p-3 rounded-lg border hover:bg-gray-50 dark:hover:bg-brand-900/20 transition-colors cursor-pointer">
-                          <Icon className="h-5 w-5 text-brand-600 dark:text-brand-400 mr-3" />
-                          <div>
-                            <div className="font-medium text-sm">{a.title}</div>
-                            <div className="text-xs text-gray-600 dark:text-slate-400">{a.description}</div>
-                          </div>
-                        </div>
-                      </Link>
-                    )
-                  })}
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>
