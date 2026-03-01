@@ -56,7 +56,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="light bg-white text-foreground font-sans antialiased" style={{ wordBreak: 'keep-all', overflowWrap: 'break-word', colorScheme: 'light' }}>
+    <div className="light bg-white text-foreground font-sans antialiased overflow-x-hidden" style={{ wordBreak: 'keep-all', overflowWrap: 'break-word', colorScheme: 'light' }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* ── Navigation ── */}
