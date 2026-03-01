@@ -258,7 +258,10 @@
     "reportCreateDesc": "Skapa lektionsrapporter",
     "profileSettings": "Profilinställningar",
     "profileSettingsDesc": "Installningar for offentlig profil",
-    "studentId": "Elev-ID: {id}"
+    "studentId": "Elev-ID: {id}",
+    "initialSetupIncomplete": "Den inledande konfigurationen är inte klar",
+    "initialSetupDescription": "Ange dina ämnen, årskurser och visningsnamn för att slutföra din profil.",
+    "goToProfile": "Gå till profilinställningar"
   },
   "teacherStudents": {
     "title": "Elevjournaler",

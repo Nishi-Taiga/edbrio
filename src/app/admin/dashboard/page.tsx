@@ -28,7 +28,7 @@ interface StatsData {
   monthBookings: number
   failedPayments24h: number
   expiringTickets7d: number
-  incompleteOnboarding: number
+  incompleteInitialSetup: number
 }
 
 interface TrendPoint {
@@ -398,20 +398,20 @@ export default function AdminDashboardPage() {
               </CardContent>
             </Card>
 
-            {/* Incomplete onboarding */}
+            {/* Incomplete initial setup */}
             <Card>
               <CardContent className="flex items-center justify-between p-4">
                 <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
-                  未完了オンボーディング
+                  未完了初期設定
                 </span>
                 <span
                   className={`text-sm font-bold ${
-                    stats.incompleteOnboarding > 0
+                    stats.incompleteInitialSetup > 0
                       ? 'text-blue-600 dark:text-blue-400'
                       : 'text-gray-500 dark:text-slate-400'
                   }`}
                 >
-                  {stats.incompleteOnboarding}件
+                  {stats.incompleteInitialSetup}件
                 </span>
               </CardContent>
             </Card>

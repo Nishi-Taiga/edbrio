@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
     const guardianIds = userList.filter((u) => u.role === 'guardian').map((u) => u.id)
     const studentIds = userList.filter((u) => u.role === 'student').map((u) => u.id)
 
-    // Teacher data: plan, subjects, is_onboarding_complete, student count
+    // Teacher data: plan, subjects, initial setup status, student count
     let teacherMap: Record<string, { plan: string; subjects: string[]; is_onboarding_complete: boolean; student_count: number }> = {}
     if (teacherIds.length > 0) {
       const [teachersRes, tsRes] = await Promise.all([

@@ -14,6 +14,7 @@ import { getStripe } from '@/lib/stripe'
 import { toast } from 'sonner'
 import { useTheme } from 'next-themes'
 import { useTranslations } from 'next-intl'
+import { isInitialSetupComplete } from '@/lib/teacher-setup'
 
 type PublicProfile = {
   display_name?: string
@@ -120,12 +121,15 @@ function TeacherProfileContent() {
     if (!teacher) return
     setIsSubmitting(true)
     try {
+      const setupComplete = isInitialSetupComplete(editedSubjects, editedGrades, editedProfile)
+
       const { error } = await supabase
         .from('teachers')
         .update({
           subjects: editedSubjects,
           grades: editedGrades,
           public_profile: editedProfile,
+          is_onboarding_complete: setupComplete,
           updated_at: new Date().toISOString()
         })
         .eq('id', teacher.id)
@@ -136,6 +140,7 @@ function TeacherProfileContent() {
         subjects: editedSubjects,
         grades: editedGrades,
         public_profile: editedProfile,
+        is_onboarding_complete: setupComplete,
       })
       setIsEditing(false)
       toast.success(t('saveSuccess'))

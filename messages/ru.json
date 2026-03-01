@@ -258,7 +258,10 @@
     "reportCreateDesc": "Составить отчёт об уроке",
     "profileSettings": "Настройки профиля",
     "profileSettingsDesc": "Настройка публичной информации",
-    "studentId": "ID ученика: {id}"
+    "studentId": "ID ученика: {id}",
+    "initialSetupIncomplete": "Начальная настройка не завершена",
+    "initialSetupDescription": "Укажите предметы, классы и отображаемое имя, чтобы завершить настройку профиля.",
+    "goToProfile": "Перейти к настройкам профиля"
   },
   "teacherStudents": {
     "title": "Карточки учеников",

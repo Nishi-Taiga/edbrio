@@ -109,7 +109,7 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
 }
 
 // ── Main middleware ──
-export const updateSession = async (request: NextRequest) => {
+export const updateSession = async (request: NextRequest, existingResponse?: NextResponse) => {
   const { pathname } = request.nextUrl
 
   // Basic auth for admin routes
@@ -118,7 +118,8 @@ export const updateSession = async (request: NextRequest) => {
     if (authResult) return authResult
   }
 
-  let response = NextResponse.next({
+  // Use existing response (e.g. from next-intl middleware) or create new one
+  let response = existingResponse ?? NextResponse.next({
     request: {
       headers: request.headers,
     },
@@ -139,9 +140,12 @@ export const updateSession = async (request: NextRequest) => {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          response = NextResponse.next({
-            request,
-          })
+          // Preserve existing response if provided, otherwise create new
+          if (!existingResponse) {
+            response = NextResponse.next({
+              request,
+            })
+          }
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           )

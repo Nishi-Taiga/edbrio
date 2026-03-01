@@ -258,7 +258,10 @@
     "reportCreateDesc": "授業のレポートを作成",
     "profileSettings": "プロフィール設定",
     "profileSettingsDesc": "公開情報の設定",
-    "studentId": "生徒ID: {id}"
+    "studentId": "生徒ID: {id}",
+    "initialSetupIncomplete": "初期設定が完了していません",
+    "initialSetupDescription": "科目・学年・表示名を設定して、プロフィールを完成させましょう。",
+    "goToProfile": "プロフィール設定へ"
   },
   "teacherStudents": {
     "title": "生徒カルテ",

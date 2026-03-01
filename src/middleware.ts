@@ -1,5 +1,5 @@
 import createMiddleware from 'next-intl/middleware';
-import { type NextRequest, NextResponse } from 'next/server';
+import { type NextRequest } from 'next/server';
 import { routing } from '@/i18n/routing';
 import { updateSession } from '@/lib/supabase/middleware';
 
@@ -13,16 +13,12 @@ export async function middleware(request: NextRequest) {
     return await updateSession(request);
   }
 
-  // Run next-intl middleware (handles locale detection & redirect)
+  // Run next-intl middleware (handles locale detection, rewriting & redirect)
   const intlResponse = intlMiddleware(request);
 
-  // If intl middleware returns a redirect, return it immediately
-  if (intlResponse.headers.get('location')) {
-    return intlResponse;
-  }
-
-  // Run Supabase session update + security headers on the locale-resolved request
-  return await updateSession(request);
+  // Pass the intl response to updateSession so the rewrite/redirect is preserved
+  // while still applying Supabase session refresh + security headers
+  return await updateSession(request, intlResponse);
 }
 
 export const config = {

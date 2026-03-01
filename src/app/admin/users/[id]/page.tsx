@@ -469,7 +469,7 @@ function TeacherTabs({ user }: { user: UserDetail }) {
                 </dd>
               </div>
               <div>
-                <dt className="text-muted-foreground">オンボーディング完了</dt>
+                <dt className="text-muted-foreground">初期設定</dt>
                 <dd>
                   {teacher?.is_onboarding_complete ? (
                     <Badge className="bg-green-600 text-white hover:bg-green-700">完了</Badge>

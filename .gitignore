@@ -72,3 +72,6 @@ EdBrio ロゴデザイン/
 
 # unused CSS
 src/app/landing.css
+
+# SQL files
+*.sql

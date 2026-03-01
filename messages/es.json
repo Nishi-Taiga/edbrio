@@ -258,7 +258,10 @@
     "reportCreateDesc": "Crea un informe de clase",
     "profileSettings": "Configuración del perfil",
     "profileSettingsDesc": "Configura tu información pública",
-    "studentId": "ID del alumno: {id}"
+    "studentId": "ID del alumno: {id}",
+    "initialSetupIncomplete": "La configuración inicial no está completa",
+    "initialSetupDescription": "Configure sus materias, niveles y nombre de visualización para completar su perfil.",
+    "goToProfile": "Ir a configuración de perfil"
   },
   "teacherStudents": {
     "title": "Fichas de alumnos",

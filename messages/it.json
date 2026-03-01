@@ -258,7 +258,10 @@
     "reportCreateDesc": "Crea un report della lezione",
     "profileSettings": "Impostazioni profilo",
     "profileSettingsDesc": "Configura le informazioni pubbliche",
-    "studentId": "ID studente: {id}"
+    "studentId": "ID studente: {id}",
+    "initialSetupIncomplete": "La configurazione iniziale non è completa",
+    "initialSetupDescription": "Imposta le materie, i livelli e il nome visualizzato per completare il tuo profilo.",
+    "goToProfile": "Vai alle impostazioni del profilo"
   },
   "teacherStudents": {
     "title": "Schede studente",

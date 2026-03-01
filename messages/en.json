@@ -258,7 +258,10 @@
     "reportCreateDesc": "Create a lesson report",
     "profileSettings": "Profile Settings",
     "profileSettingsDesc": "Edit your public profile",
-    "studentId": "Student ID: {id}"
+    "studentId": "Student ID: {id}",
+    "initialSetupIncomplete": "Initial setup is not complete",
+    "initialSetupDescription": "Set your subjects, grade levels, and display name to complete your profile.",
+    "goToProfile": "Go to profile settings"
   },
   "teacherStudents": {
     "title": "Student Portfolio",

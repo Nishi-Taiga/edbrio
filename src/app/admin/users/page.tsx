@@ -202,7 +202,7 @@ export default function AdminUsersPage() {
                           <TableHead>プラン</TableHead>
                           <TableHead>科目</TableHead>
                           <TableHead>生徒数</TableHead>
-                          <TableHead>オンボーディング</TableHead>
+                          <TableHead>初期設定</TableHead>
                           <TableHead>登録日</TableHead>
                           <TableHead>ステータス</TableHead>
                         </TableRow>

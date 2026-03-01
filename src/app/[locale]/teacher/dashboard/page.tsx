@@ -5,7 +5,7 @@ import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Link } from '@/i18n/navigation'
-import { Calendar, DollarSign, FileText, Settings, Users } from 'lucide-react'
+import { AlertTriangle, Calendar, DollarSign, FileText, Settings, Users } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useBookings } from '@/hooks/use-bookings'
 import { useTickets } from '@/hooks/use-tickets'
@@ -27,6 +27,7 @@ export default function TeacherDashboard() {
   const { tickets: activeTickets, loading: ticketsLoading } = useTickets(user?.id, 'teacher')
   const [monthRevenue, setMonthRevenue] = useState(0)
   const [revenueLoading, setRevenueLoading] = useState(false)
+  const [setupComplete, setSetupComplete] = useState<boolean | null>(null)
 
   const supabase = useMemo(() => createClient(), [])
 
@@ -49,6 +50,16 @@ export default function TeacherDashboard() {
       setRevenueLoading(false)
     }
     fetchRevenue()
+
+    async function checkSetup() {
+      const { data } = await supabase
+        .from('teachers')
+        .select('is_onboarding_complete')
+        .eq('id', user!.id)
+        .maybeSingle()
+      setSetupComplete(data?.is_onboarding_complete ?? false)
+    }
+    checkSetup()
   }, [user, dbUser, supabase])
 
   const upcoming = useMemo(() => bookings.filter((b: Booking) => b.status === 'confirmed').slice(0, 5), [bookings])
@@ -76,6 +87,26 @@ export default function TeacherDashboard() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('title')}</h1>
           <p className="text-gray-600 dark:text-slate-400">{t('description')}</p>
         </div>
+
+        {setupComplete === false && (
+          <Card className="mb-6 border-amber-200 bg-amber-50 dark:border-amber-800/30 dark:bg-amber-900/10">
+            <CardContent className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+                <div>
+                  <p className="font-medium text-amber-800 dark:text-amber-300">{t('initialSetupIncomplete')}</p>
+                  <p className="text-sm text-amber-600 dark:text-amber-400 mt-0.5">{t('initialSetupDescription')}</p>
+                </div>
+              </div>
+              <Link href="/teacher/profile">
+                <Button variant="outline" size="sm" className="border-amber-300 hover:bg-amber-100 dark:border-amber-700 dark:hover:bg-amber-900/30 whitespace-nowrap">
+                  <Settings className="w-4 h-4 mr-1.5" />
+                  {t('goToProfile')}
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        )}
 
         {error && <ErrorAlert message={tc('dataFetchError', { error })} />}
 

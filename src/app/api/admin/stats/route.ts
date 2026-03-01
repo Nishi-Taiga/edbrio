@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
       monthBookingsRes,
       failedPaymentsRes,
       expiringTicketsRes,
-      incompleteOnboardingRes,
+      incompleteInitialSetupRes,
     ] = await Promise.all([
       // totalUsers
       supabase.from('users').select('*', { count: 'exact', head: true }),
@@ -88,7 +88,7 @@ export async function GET(req: NextRequest) {
         .lte('expires_at', sevenDaysFromNow)
         .gt('remaining_minutes', 0),
 
-      // incompleteOnboarding
+      // incompleteInitialSetup
       supabase
         .from('teachers')
         .select('*', { count: 'exact', head: true })
@@ -139,7 +139,7 @@ export async function GET(req: NextRequest) {
       monthBookings: monthBookingsRes.count ?? 0,
       failedPayments24h: failedPaymentsRes.count ?? 0,
       expiringTickets7d: expiringTicketsRes.count ?? 0,
-      incompleteOnboarding: incompleteOnboardingRes.count ?? 0,
+      incompleteInitialSetup: incompleteInitialSetupRes.count ?? 0,
     })
   } catch (error: unknown) {
     console.error('Admin stats error:', error)

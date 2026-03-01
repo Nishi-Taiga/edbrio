@@ -258,7 +258,10 @@
     "reportCreateDesc": "수업 리포트 작성",
     "profileSettings": "프로필 설정",
     "profileSettingsDesc": "공개 정보 설정",
-    "studentId": "학생 ID: {id}"
+    "studentId": "학생 ID: {id}",
+    "initialSetupIncomplete": "초기 설정이 완료되지 않았습니다",
+    "initialSetupDescription": "과목, 학년, 표시 이름을 설정하여 프로필을 완성하세요.",
+    "goToProfile": "프로필 설정으로"
   },
   "teacherStudents": {
     "title": "학생 프로필",

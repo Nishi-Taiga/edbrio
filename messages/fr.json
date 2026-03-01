@@ -258,7 +258,10 @@
     "reportCreateDesc": "Rédiger un rapport de cours",
     "profileSettings": "Paramètres du profil",
     "profileSettingsDesc": "Configurer les informations publiques",
-    "studentId": "ID élève : {id}"
+    "studentId": "ID élève : {id}",
+    "initialSetupIncomplete": "La configuration initiale n'est pas terminée",
+    "initialSetupDescription": "Définissez vos matières, niveaux et nom d'affichage pour compléter votre profil.",
+    "goToProfile": "Aller aux paramètres du profil"
   },
   "teacherStudents": {
     "title": "Dossier élève",
