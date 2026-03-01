@@ -12,6 +12,9 @@
 
 # testing
 /coverage
+test-results/
+playwright.config.ts
+playwright-report/
 
 # next.js
 /.next/
@@ -45,11 +48,11 @@ next-env.d.ts
 .gemini/
 .tmp.drivedownload/
 .tmp.driveupload/
-test-results/
 
 # secrets / dev notes (never commit)
 edbrio-dev.txt
 tests/testacounts.txt
+tests/e2e-full.spec.ts
 MILESTONES.md
 TODO.md
 

@@ -153,7 +153,12 @@
       "sameAmount": "相同",
       "savings": "节省",
       "feeNote": "※手续费包含Stripe支付手续费（3.6%）。Standard总成本包含月费¥1,480。",
-      "freePlanLimitation": "此外，Free计划有学生数2名、AI报告每月5份的限制。如有3名及以上学生，则需要Standard计划。"
+      "freePlanLimitation": "此外，Free计划有学生数2名、AI报告每月5份的限制。如有3名及以上学生，则需要Standard计划。",
+      "chartFreeLabel": "Free 计划",
+      "chartStandardLabel": "Standard 计划",
+      "chartRevenue": "月销售额",
+      "chartCost": "月成本",
+      "chartBreakeven": "盈亏平衡点"
     },
     "faq": {
       "title": "常见问题",

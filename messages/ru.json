@@ -153,7 +153,12 @@
       "sameAmount": "Одинаково",
       "savings": "Экономия",
       "feeNote": "※ Комиссия включает комиссию Stripe (3.6%). Итого Standard включает ежемесячную плату ¥1,480.",
-      "freePlanLimitation": "Кроме того, тариф Free ограничен 2 учениками и 5 AI-отчётами в месяц. При 3 и более учениках необходим тариф Standard."
+      "freePlanLimitation": "Кроме того, тариф Free ограничен 2 учениками и 5 AI-отчётами в месяц. При 3 и более учениках необходим тариф Standard.",
+      "chartFreeLabel": "Тариф Free",
+      "chartStandardLabel": "Тариф Standard",
+      "chartRevenue": "Месячная выручка",
+      "chartCost": "Месячные расходы",
+      "chartBreakeven": "Точка безубыточности"
     },
     "faq": {
       "title": "Частые вопросы",

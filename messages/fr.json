@@ -153,7 +153,12 @@
       "sameAmount": "Montant identique",
       "savings": "Économie",
       "feeNote": "※ Les frais incluent les frais de paiement Stripe (3,6 %). Le coût total Standard inclut l'abonnement mensuel de ¥1,480.",
-      "freePlanLimitation": "De plus, le forfait Free est limité à 2 élèves et 5 rapports IA par mois. Si vous avez 3 élèves ou plus, le forfait Standard est nécessaire."
+      "freePlanLimitation": "De plus, le forfait Free est limité à 2 élèves et 5 rapports IA par mois. Si vous avez 3 élèves ou plus, le forfait Standard est nécessaire.",
+      "chartFreeLabel": "Forfait Free",
+      "chartStandardLabel": "Forfait Standard",
+      "chartRevenue": "CA mensuel",
+      "chartCost": "Coût mensuel",
+      "chartBreakeven": "Seuil de rentabilité"
     },
     "faq": {
       "title": "Questions fréquentes",

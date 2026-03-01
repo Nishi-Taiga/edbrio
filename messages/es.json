@@ -153,7 +153,12 @@
       "sameAmount": "Mismo importe",
       "savings": "Ahorro",
       "feeNote": "※Las comisiones incluyen la comisión de Stripe (3,6%). El coste total de Standard incluye la cuota mensual de ¥1.480.",
-      "freePlanLimitation": "Además, el plan Free tiene un límite de 2 alumnos y 5 informes IA al mes. Si tienes 3 o más alumnos, necesitarás el plan Standard."
+      "freePlanLimitation": "Además, el plan Free tiene un límite de 2 alumnos y 5 informes IA al mes. Si tienes 3 o más alumnos, necesitarás el plan Standard.",
+      "chartFreeLabel": "Plan Free",
+      "chartStandardLabel": "Plan Standard",
+      "chartRevenue": "Ingresos mensuales",
+      "chartCost": "Coste mensual",
+      "chartBreakeven": "Punto de equilibrio"
     },
     "faq": {
       "title": "Preguntas frecuentes",

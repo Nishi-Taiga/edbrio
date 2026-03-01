@@ -153,7 +153,12 @@
       "sameAmount": "동일",
       "savings": "절약",
       "feeNote": "※수수료에는 Stripe 결제 수수료(3.6%)가 포함됩니다. Standard 총비용에는 월액 ¥1,480이 포함됩니다.",
-      "freePlanLimitation": "또한, Free 플랜에서는 학생 수 2명·AI 보고서 월 5건 제한이 있습니다. 학생이 3명 이상인 경우 Standard 플랜이 필요합니다."
+      "freePlanLimitation": "또한, Free 플랜에서는 학생 수 2명·AI 보고서 월 5건 제한이 있습니다. 학생이 3명 이상인 경우 Standard 플랜이 필요합니다.",
+      "chartFreeLabel": "Free 플랜",
+      "chartStandardLabel": "Standard 플랜",
+      "chartRevenue": "월 매출",
+      "chartCost": "월 비용",
+      "chartBreakeven": "손익분기점"
     },
     "faq": {
       "title": "자주 묻는 질문",

@@ -153,7 +153,12 @@
       "sameAmount": "Same",
       "savings": "Savings",
       "feeNote": "* Fees include Stripe payment processing fee (3.6%). Standard total cost includes the monthly ¥1,480 subscription.",
-      "freePlanLimitation": "Additionally, the Free plan is limited to 2 students and 5 AI reports per month. The Standard plan is required for 3 or more students."
+      "freePlanLimitation": "Additionally, the Free plan is limited to 2 students and 5 AI reports per month. The Standard plan is required for 3 or more students.",
+      "chartFreeLabel": "Free Plan",
+      "chartStandardLabel": "Standard Plan",
+      "chartRevenue": "Monthly Revenue",
+      "chartCost": "Monthly Cost",
+      "chartBreakeven": "Breakeven"
     },
     "faq": {
       "title": "Frequently Asked Questions",

@@ -153,7 +153,12 @@
       "sameAmount": "Stesso importo",
       "savings": "Risparmio",
       "feeNote": "※ Le commissioni includono la commissione di pagamento Stripe (3,6%). Il costo totale Standard include la quota mensile di ¥1,480.",
-      "freePlanLimitation": "Inoltre, il piano Free ha un limite di 2 studenti e 5 report IA al mese. Se avete 3 o più studenti, è necessario il piano Standard."
+      "freePlanLimitation": "Inoltre, il piano Free ha un limite di 2 studenti e 5 report IA al mese. Se avete 3 o più studenti, è necessario il piano Standard.",
+      "chartFreeLabel": "Piano Free",
+      "chartStandardLabel": "Piano Standard",
+      "chartRevenue": "Fatturato mensile",
+      "chartCost": "Costo mensile",
+      "chartBreakeven": "Punto di pareggio"
     },
     "faq": {
       "title": "Domande frequenti",

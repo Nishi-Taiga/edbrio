@@ -153,7 +153,12 @@
       "sameAmount": "同額",
       "savings": "お得",
       "feeNote": "※手数料にはStripe決済手数料（3.6%）を含みます。Standard総コストには月額¥1,480を含みます。",
-      "freePlanLimitation": "また、Freeプランでは生徒数2名・AI報告書月5件の制限があります。生徒が3名以上の場合はStandardプランが必要です。"
+      "freePlanLimitation": "また、Freeプランでは生徒数2名・AI報告書月5件の制限があります。生徒が3名以上の場合はStandardプランが必要です。",
+      "chartFreeLabel": "Free プラン",
+      "chartStandardLabel": "Standard プラン",
+      "chartRevenue": "月間売上",
+      "chartCost": "月間コスト",
+      "chartBreakeven": "損益分岐点"
     },
     "faq": {
       "title": "よくある質問",
