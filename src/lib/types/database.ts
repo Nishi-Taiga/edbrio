@@ -1,3 +1,9 @@
+export interface StationSelection {
+  name: string
+  line: string
+  prefecture: string
+}
+
 export type UserRole = 'teacher' | 'guardian' | 'student'
 export type TeacherPlan = 'free' | 'pro'
 export type BookingStatus = 'pending' | 'confirmed' | 'canceled' | 'done'

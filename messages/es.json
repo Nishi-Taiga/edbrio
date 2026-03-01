@@ -45,13 +45,13 @@
     }
   },
   "metadata": {
-    "defaultTitle": "EdBrio — Generación de informes con IA × Sistema de gestión de alumnos",
+    "defaultTitle": "EdBrio — Solo 5% de comisión. La plataforma de gestión para tutores",
     "titleTemplate": "%s | EdBrio",
-    "description": "Sistema de generación de informes con IA y gestión de alumnos para profesores particulares y tutores. Simplemente introduce tus notas de clase y la IA creará automáticamente informes para los tutores legales. Gestión integral de reservas, pagos y fichas de alumnos.",
-    "ogDescription": "Generación de informes con IA y gestión de alumnos para profesores particulares y tutores. La IA crea informes automáticamente a partir de tus notas de clase.",
-    "twitterDescription": "Simplemente introduce tus notas de clase y la IA creará automáticamente informes para los tutores legales. Sistema de gestión para profesores particulares y tutores.",
-    "oneLiner": "La IA convierte tus notas de clase en informes para padres. El sistema de gestión todo-en-uno para tutores privados.",
-    "jsonLdDescription": "Sistema de generación de informes con IA y gestión de alumnos para profesores particulares",
+    "description": "Las agencias de clases particulares cobran hasta un 60% en comisiones de intermediación. EdBrio cobra solo el 5%. Quédate con más de lo que ganas con el sistema de gestión todo-en-uno para profesores particulares.",
+    "ogDescription": "Las agencias cobran hasta un 60%. EdBrio cobra solo el 5%. El sistema de gestión todo-en-uno para tutores.",
+    "twitterDescription": "Las agencias de clases particulares cobran hasta un 60%. EdBrio cobra solo el 5%. Quédate con más de lo que ganas.",
+    "oneLiner": "Solo 5% de comisión. Quédate con más de lo que ganas. El sistema de gestión todo-en-uno para profesores particulares.",
+    "jsonLdDescription": "Plataforma de gestión para tutores con solo un 5% de comisión",
     "jsonLdOfferDescription": "Creación de cuenta gratuita"
   },
   "landing": {
@@ -66,10 +66,10 @@
     },
     "alphaNotice": "Este sistema se encuentra actualmente en fase alfa de pruebas. Es posible que se produzcan errores durante su uso.",
     "hero": {
-      "badge": "Reduce tu tiempo de trabajo a 1/3 con informes generados por IA",
-      "title1": "Solo introduce tus notas de clase.",
-      "title2": "La IA se encarga del informe.",
-      "description": "EdBrio es un sistema de gestión para profesores particulares y tutores. La IA genera automáticamente informes para los tutores legales a partir de tus notas de clase.",
+      "badge": "Las agencias cobran hasta un 60%. EdBrio cobra solo el 5%.",
+      "title1": "Quédate con más de lo que ganas.",
+      "title2": "Solo 5% de comisión.",
+      "description": "Las agencias de clases particulares cobran hasta un 60% en comisiones de intermediación. Con EdBrio, te quedas con el 95% de tus ingresos mientras gestionas reservas, pagos, informes con IA y fichas de alumnos en un solo lugar.",
       "ctaStart": "Empezar gratis",
       "ctaFeatures": "Ver funcionalidades en detalle"
     },
@@ -86,9 +86,11 @@
       "step2HomeworkIncluded": "Con deberes incluidos"
     },
     "features": {
-      "sectionTitle1": "Todo lo que necesitas",
-      "sectionTitle2": "para enseñar, aquí.",
-      "sectionDescription": "Mensajería, hojas de cálculo, apps bancarias, agendas... EdBrio integra de forma inteligente todas esas herramientas dispersas.",
+      "sectionTitle1": "Comisiones bajas con todo",
+      "sectionTitle2": "en un solo lugar.",
+      "sectionDescription": "Las agencias cobran hasta un 60% en comisiones. EdBrio cobra solo el 5%, y te ofrece reservas, pagos, informes y fichas de alumnos en una sola plataforma.",
+      "lowFeeTitle": "Comisiones ultrabajas",
+      "lowFeeDescription": "Las agencias tradicionales de clases particulares cobran entre un 50–60% como comisión de intermediación. Los servicios de búsqueda online cobran entre un 25–45%. El plan Standard de EdBrio cobra solo un 5% en total (incluido el procesamiento de pagos). La gran mayoría de tus ingresos van directamente a ti.",
       "aiReportTitle": "Generación de informes con IA",
       "aiReportDescription": "Solo introduce tus notas después de clase y la IA generará automáticamente informes profesionales para los tutores legales. Crea informes completos con nivel de comprensión, deberes y próxima clase en cuestión de segundos.",
       "studentKarteTitle": "Ficha del alumno",
@@ -102,11 +104,11 @@
       "sectionTitle1": "Elegido por",
       "sectionTitle2": "profesionales como tú",
       "tutorTitle": "Profesores particulares",
-      "tutorDescription": "De 30 minutos por informe a solo 5 minutos con generación IA. Concéntrate en construir una relación de confianza con los tutores legales.",
+      "tutorDescription": "¿Cansado de que las agencias se queden con el 50–60% de tus ingresos? Con EdBrio, te quedas con el 95% mientras gestionas reservas, pagos e informes tú mismo.",
       "jukuTitle": "Academias de refuerzo",
-      "jukuDescription": "Centraliza la información entre múltiples profesores con la ficha del alumno. Las notas de traspaso facilitan las sustituciones.",
+      "jukuDescription": "Centraliza el intercambio de información entre varios profesores con las fichas de alumnos. La integración de pagos de bajo coste mejora la eficiencia operativa.",
       "onlineTitle": "Profesores en línea",
-      "onlineDescription": "Desde la gestión de reservas hasta compartir informes y procesar pagos, todo completamente en línea. Enseña desde cualquier lugar."
+      "onlineDescription": "Libérate de los servicios de búsqueda que cobran entre un 25–45%. EdBrio cobra solo el 5% y lo gestiona todo online, desde reservas hasta pagos."
     },
     "pricing": {
       "sectionTitle": "Precios claros y sencillos",
@@ -162,8 +164,8 @@
     },
     "faq": {
       "title": "Preguntas frecuentes",
-      "q1": "¿Qué precisión tienen los informes generados por IA?",
-      "a1": "Utilizamos Claude AI para generar informes naturales y profesionales basados en el contenido de tus notas de clase. Puedes editarlos después de la generación para adaptarlos a tu estilo.",
+      "q1": "¿Por qué las comisiones de EdBrio son tan bajas en comparación con la industria?",
+      "a1": "Las agencias tradicionales de clases particulares gastan mucho en ventas, publicidad y personal, costes que se trasladan como comisiones de intermediación del 50–60%. EdBrio opera como una plataforma online con gastos generales mínimos, lo que nos permite ofrecer solo un 5% de comisión total (plan Standard, incluido el procesamiento de pagos).",
       "q2": "¿Los tutores legales necesitan instalar alguna aplicación?",
       "a2": "No, no es necesario. Los tutores legales solo necesitan iniciar sesión desde su navegador para consultar los informes y seguir el progreso del aprendizaje. Funciona en smartphones, tablets y PCs.",
       "q3": "¿Qué ocurre cuando termina el periodo de prueba gratuita?",
@@ -190,7 +192,7 @@
       "messagePlaceholder": "Escribe tu consulta aquí"
     },
     "footer": {
-      "description": "Sistema de generación de informes con IA y gestión de alumnos para profesores particulares y tutores.",
+      "description": "Solo 5% de comisión. La plataforma de gestión todo-en-uno para profesores particulares y tutores.",
       "productHeading": "Producto",
       "features": "Funcionalidades",
       "pricing": "Precios",

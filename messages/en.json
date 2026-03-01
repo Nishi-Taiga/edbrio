@@ -45,13 +45,13 @@
     }
   },
   "metadata": {
-    "defaultTitle": "EdBrio — AI Report Generation x Student Management System",
+    "defaultTitle": "EdBrio — Only 5% Fees. The Tutor Management Platform",
     "titleTemplate": "%s | EdBrio",
-    "description": "AI report generation and student management system for private tutors and tutoring center instructors. Simply enter lesson notes and AI automatically creates reports for parents/guardians. Manage bookings, payments, and student portfolios all in one place.",
-    "ogDescription": "AI report generation and student management for private tutors and tutoring center instructors. AI automatically creates reports from lesson notes.",
-    "twitterDescription": "Simply enter lesson notes and AI automatically creates reports for parents/guardians. A management system for private tutors and tutoring center instructors.",
-    "oneLiner": "AI turns your lesson notes into parent-ready reports. The all-in-one management system for private tutors.",
-    "jsonLdDescription": "AI report generation and student management system for private tutors",
+    "description": "Tutoring agencies take up to 60% in middleman fees. EdBrio charges just 5%. Keep more of your tuition with the all-in-one management system for private tutors. Bookings, payments, AI reports, and student portfolios in one place.",
+    "ogDescription": "Agencies take up to 60% of tuition. EdBrio charges just 5%. The all-in-one management system for private tutors and tutoring instructors.",
+    "twitterDescription": "Tutoring agencies take up to 60%. EdBrio charges just 5%. Keep more of your tuition with the all-in-one tutor management platform.",
+    "oneLiner": "Just 5% fees. Keep more of your tuition. The all-in-one management system for private tutors.",
+    "jsonLdDescription": "Tutor management platform with only 5% fees",
     "jsonLdOfferDescription": "Free account creation available"
   },
   "landing": {
@@ -66,10 +66,10 @@
     },
     "alphaNotice": "This system is currently in alpha testing. You may encounter issues during use.",
     "hero": {
-      "badge": "Cut admin time by 2/3 with AI report generation",
-      "title1": "Just enter your lesson notes.",
-      "title2": "Let AI handle the reports.",
-      "description": "EdBrio is a management system for private tutors and tutoring center instructors. AI automatically generates parent/guardian reports from your post-lesson notes.",
+      "badge": "Agencies take up to 60%. EdBrio charges just 5%.",
+      "title1": "Keep more of your tuition.",
+      "title2": "Only 5% platform fees.",
+      "description": "Tutoring agencies take up to 60% in middleman fees. With EdBrio, you keep 95% of your tuition while managing bookings, payments, AI reports, and student portfolios all in one place.",
       "ctaStart": "Get Started Free",
       "ctaFeatures": "See Features"
     },
@@ -86,9 +86,11 @@
       "step2HomeworkIncluded": "Homework included"
     },
     "features": {
-      "sectionTitle1": "Everything you need for teaching,",
-      "sectionTitle2": "right here.",
-      "sectionDescription": "LINE, Excel, banking apps, planners. EdBrio smartly integrates all those scattered tools.",
+      "sectionTitle1": "Low fees with everything",
+      "sectionTitle2": "in one place.",
+      "sectionDescription": "Agencies take up to 60% in fees. EdBrio charges just 5%, and gives you bookings, payments, reports, and portfolios all in one platform.",
+      "lowFeeTitle": "Industry-Low Fees",
+      "lowFeeDescription": "Traditional tutoring agencies take 50–60% as middleman fees. Online matching services charge 25–45%. EdBrio's Standard plan charges just 5% total (including payment processing). The vast majority of tuition goes straight to you.",
       "aiReportTitle": "AI Report Generation",
       "aiReportDescription": "Simply enter your post-lesson notes and AI automatically generates polished reports for parents/guardians. Professional reports including comprehension levels, homework, and next lesson plans are created in seconds.",
       "studentKarteTitle": "Student Portfolio",
@@ -102,11 +104,11 @@
       "sectionTitle1": "Trusted by",
       "sectionTitle2": "educators like you",
       "tutorTitle": "Private Tutors",
-      "tutorDescription": "Cut report writing from 30 minutes to 5 minutes with AI generation. Focus on building trust with parents/guardians.",
+      "tutorDescription": "Tired of agencies taking 50–60% of your tuition? With EdBrio, you keep 95% while managing bookings, payments, and reports yourself.",
       "jukuTitle": "Tutoring Centers",
-      "jukuDescription": "Centralize information sharing among multiple instructors with student portfolios. Handoff notes ensure smooth coverage during substitute lessons.",
+      "jukuDescription": "Centralize information sharing among multiple instructors with student portfolios. Low-cost payment integration improves operational efficiency.",
       "onlineTitle": "Online Instructors",
-      "onlineDescription": "Complete everything online from booking management to report sharing and payments. Focus on teaching from anywhere."
+      "onlineDescription": "Break free from matching services that charge 25–45%. EdBrio charges just 5% and handles everything online from bookings to payments."
     },
     "pricing": {
       "sectionTitle": "Simple, Transparent Pricing",
@@ -162,8 +164,8 @@
     },
     "faq": {
       "title": "Frequently Asked Questions",
-      "q1": "How accurate are the AI-generated reports?",
-      "a1": "Using Claude AI, reports are generated in natural language based on the content of your lesson notes. You can also edit the reports after generation, so you can adjust them to match your style.",
+      "q1": "Why are EdBrio's fees so much lower than the industry?",
+      "a1": "Traditional tutoring agencies spend heavily on sales, advertising, and staffing — costs that are passed on as 50–60% middleman fees. EdBrio operates as an online platform with minimal overhead, allowing us to offer just 5% total fees (Standard plan, including payment processing).",
       "q2": "Do parents need to install an app?",
       "a2": "No, they don't. Parents/guardians can simply log in from their browser to view reports and check learning progress. It works on smartphones, tablets, and PCs.",
       "q3": "What happens when the free trial period ends?",
@@ -190,7 +192,7 @@
       "messagePlaceholder": "Feel free to write your message here"
     },
     "footer": {
-      "description": "AI report generation and student management system for private tutors and tutoring center instructors.",
+      "description": "Only 5% fees. The all-in-one management platform for private tutors and tutoring instructors.",
       "productHeading": "Product",
       "features": "Features",
       "pricing": "Pricing",
@@ -417,6 +419,12 @@
     "bioPlaceholder": "e.g. University of Tokyo graduate. Over 10 years of experience teaching middle and high school math.",
     "areaLabel": "Teaching Area",
     "areaPlaceholder": "e.g. Tokyo, Shibuya / Available Online",
+    "selectPrefecture": "Select Prefecture",
+    "selectLine": "Select Line",
+    "selectStation": "Select station to add",
+    "availableOnline": "Available Online",
+    "noStationsSelected": "No stations selected",
+    "stationLoadError": "Failed to load station data",
     "experienceLabel": "Teaching Experience",
     "experiencePlaceholder": "e.g. 5 years",
     "subjectsLabel": "Subjects",

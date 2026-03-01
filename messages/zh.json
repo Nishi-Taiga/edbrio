@@ -45,13 +45,13 @@
     }
   },
   "metadata": {
-    "defaultTitle": "EdBrio — AI报告生成 × 学生管理系统",
+    "defaultTitle": "EdBrio — 仅收5%手续费。家教管理平台",
     "titleTemplate": "%s | EdBrio",
-    "description": "专为家教和辅导机构讲师打造的AI报告生成与学生管理系统。只需输入课堂笔记，AI即可自动生成面向家长的报告。预约、支付、学生档案一站式管理。",
-    "ogDescription": "专为家教和辅导机构讲师打造的AI报告生成与学生管理。AI根据课堂笔记自动生成报告。",
-    "twitterDescription": "只需输入课堂笔记，AI即可自动生成面向家长的报告。专为家教和辅导机构讲师打造的管理系统。",
-    "oneLiner": "AI根据课堂笔记自动生成家长报告。面向家庭教师和个别指导讲师的一站式管理系统。",
-    "jsonLdDescription": "专为家教打造的AI报告生成与学生管理系统",
+    "description": "家教中介机构抽取高达60%的中间费用。EdBrio仅收5%。保留更多课时费，面向家庭教师的一站式管理系统。",
+    "ogDescription": "中介机构抽取高达60%。EdBrio仅收5%。面向家教的一站式管理系统。",
+    "twitterDescription": "家教中介机构抽取高达60%。EdBrio仅收5%。保留更多课时费。",
+    "oneLiner": "仅收5%手续费。保留更多课时费。面向家庭教师的一站式管理系统。",
+    "jsonLdDescription": "仅收5%手续费的家教管理平台",
     "jsonLdOfferDescription": "可免费创建账号"
   },
   "landing": {
@@ -66,10 +66,10 @@
     },
     "alphaNotice": "本系统目前处于Alpha测试阶段。使用过程中可能会出现问题。",
     "hero": {
-      "badge": "AI报告生成让工作时间缩短至1/3",
-      "title1": "只需输入课堂笔记。",
-      "title2": "报告交给AI来完成。",
-      "description": "EdBrio是专为家教和辅导机构讲师打造的管理系统。AI可根据课后笔记自动生成面向家长的报告。",
+      "badge": "中介机构抽取高达60%。EdBrio仅收5%。",
+      "title1": "保留更多课时费。",
+      "title2": "平台手续费仅5%。",
+      "description": "家教中介机构抽取高达60%的中间费用。使用EdBrio，您可以保留95%的课时费，同时在一个平台上管理预约、支付、AI报告和学生档案。",
       "ctaStart": "免费开始",
       "ctaFeatures": "查看详细功能"
     },
@@ -86,9 +86,11 @@
       "step2HomeworkIncluded": "含作业"
     },
     "features": {
-      "sectionTitle1": "教学所需的一切，",
-      "sectionTitle2": "尽在此处。",
-      "sectionDescription": "LINE、Excel、银行App、记事本。EdBrio将这些分散的工具智能整合在一起。",
+      "sectionTitle1": "低手续费，一切功能",
+      "sectionTitle2": "一站到位。",
+      "sectionDescription": "中介机构抽取高达60%的手续费。EdBrio仅收5%，为您提供预约、支付、报告和档案管理的一站式平台。",
+      "lowFeeTitle": "行业最低手续费",
+      "lowFeeDescription": "传统家教中介机构抽取50~60%的中间费用。在线匹配平台收取25~45%。EdBrio的Standard计划总共仅收5%（含支付处理费）。绝大部分课时费直接归您所有。",
       "aiReportTitle": "AI报告生成",
       "aiReportDescription": "只需输入课后笔记，AI即可自动生成面向家长的专业报告。包含理解程度、作业、下次课程安排等内容的专业报告，几秒钟即可完成。",
       "studentKarteTitle": "学生档案",
@@ -102,11 +104,11 @@
       "sectionTitle1": "深受以下用户的",
       "sectionTitle2": "青睐",
       "tutorTitle": "家教",
-      "tutorDescription": "每次报告撰写从30分钟缩短至AI生成仅需5分钟。让您专注于建立与家长的信任关系。",
+      "tutorDescription": "厌倦了中介机构抽走50~60%的课时费？使用EdBrio，您可以保留95%，自主管理预约、支付和报告。",
       "jukuTitle": "辅导机构",
-      "jukuDescription": "通过学生档案统一管理多位讲师间的信息共享。交接备注让代课时也能顺畅应对。",
+      "jukuDescription": "通过学生档案集中管理多位讲师间的信息共享。低成本支付集成提升运营效率。",
       "onlineTitle": "在线讲师",
-      "onlineDescription": "从预约管理到报告分享、支付，全部在线完成。不受地点限制，专注于教学。"
+      "onlineDescription": "摆脱收取25~45%的匹配平台。EdBrio仅收5%，从预约到支付全程在线处理。"
     },
     "pricing": {
       "sectionTitle": "简单明了的定价",
@@ -162,8 +164,8 @@
     },
     "faq": {
       "title": "常见问题",
-      "q1": "AI报告的准确度如何？",
-      "a1": "借助Claude AI，根据课堂笔记内容生成自然流畅的报告。生成后还可以编辑，您可以根据自己的风格进行调整。",
+      "q1": "为什么EdBrio的手续费远低于行业水平？",
+      "a1": "传统家教中介机构在销售、广告和人员方面投入大量成本，这些成本以50~60%中间费用的形式转嫁给教师。EdBrio作为在线平台，运营成本极低，因此我们能够提供仅5%的总手续费（Standard计划，含支付处理费）。",
       "q2": "家长需要安装应用吗？",
       "a2": "不需要。家长只需通过浏览器登录，即可查看报告和学习进度。智能手机、平板、电脑均可使用。",
       "q3": "免费试用期结束后会怎样？",
@@ -190,7 +192,7 @@
       "messagePlaceholder": "请随意填写"
     },
     "footer": {
-      "description": "专为家教和辅导机构讲师打造的AI报告生成与学生管理系统。",
+      "description": "仅收5%手续费。面向家庭教师和辅导机构讲师的一站式管理平台。",
       "productHeading": "产品",
       "features": "功能",
       "pricing": "定价",

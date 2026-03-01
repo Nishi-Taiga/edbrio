@@ -15,11 +15,15 @@ import { toast } from 'sonner'
 import { useTheme } from 'next-themes'
 import { useTranslations } from 'next-intl'
 import { isInitialSetupComplete } from '@/lib/teacher-setup'
+import { StationSelector } from '@/components/area/station-selector'
+import type { StationSelection } from '@/lib/types/database'
 
 type PublicProfile = {
   display_name?: string
   bio?: string
   area?: string
+  service_areas?: StationSelection[]
+  available_online?: boolean
   experience_years?: string
 }
 
@@ -224,11 +228,12 @@ function TeacherProfileContent() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">{t('areaLabel')}</label>
-                  <Input
-                    value={editedProfile.area || ''}
-                    onChange={(e) => setEditedProfile(p => ({ ...p, area: e.target.value }))}
-                    placeholder={t('areaPlaceholder')}
+                  <label className="block text-sm font-medium mb-2">{t('areaLabel')}</label>
+                  <StationSelector
+                    selectedStations={editedProfile.service_areas || []}
+                    onStationsChange={(stations) => setEditedProfile(p => ({ ...p, service_areas: stations }))}
+                    availableOnline={editedProfile.available_online || false}
+                    onAvailableOnlineChange={(v) => setEditedProfile(p => ({ ...p, available_online: v }))}
                   />
                 </div>
 
@@ -317,9 +322,24 @@ function TeacherProfileContent() {
                         <span className="text-gray-400">{tc('notSet')}</span>
                       )}
                     </div>
-                    <div>
-                      <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">{t('areaLabel')}</span>
-                      {teacher.public_profile?.area || <span className="text-gray-400">{tc('notSet')}</span>}
+                    <div className="md:col-span-2">
+                      <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase mb-1">{t('areaLabel')}</span>
+                      {(teacher.public_profile?.service_areas?.length || teacher.public_profile?.available_online) ? (
+                        <div className="flex flex-wrap gap-1.5">
+                          {teacher.public_profile?.available_online && (
+                            <Badge variant="outline">{t('availableOnline')}</Badge>
+                          )}
+                          {(teacher.public_profile?.service_areas || []).map((s: StationSelection, i: number) => (
+                            <Badge key={`${s.line}-${s.name}-${i}`} variant="secondary">
+                              {s.name} <span className="text-xs text-muted-foreground ml-0.5">({s.line})</span>
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : teacher.public_profile?.area ? (
+                        <span>{teacher.public_profile.area}</span>
+                      ) : (
+                        <span className="text-gray-400">{tc('notSet')}</span>
+                      )}
                     </div>
                     <div>
                       <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">{t('experienceLabel')}</span>

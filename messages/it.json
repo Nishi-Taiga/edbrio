@@ -45,13 +45,13 @@
     }
   },
   "metadata": {
-    "defaultTitle": "EdBrio — Generazione report con IA × Sistema di gestione studenti",
+    "defaultTitle": "EdBrio — Solo 5% di commissione. La piattaforma di gestione per tutor",
     "titleTemplate": "%s | EdBrio",
-    "description": "Sistema di generazione report con IA e gestione studenti per tutor e insegnanti privati. Basta inserire gli appunti della lezione e l'IA crea automaticamente i report per i genitori. Gestione centralizzata di prenotazioni, pagamenti e schede studente.",
-    "ogDescription": "Generazione report con IA e gestione studenti per tutor e insegnanti privati. L'IA crea automaticamente i report dagli appunti della lezione.",
-    "twitterDescription": "Basta inserire gli appunti della lezione e l'IA crea automaticamente i report per i genitori. Sistema di gestione per tutor e insegnanti privati.",
-    "oneLiner": "L'IA trasforma i tuoi appunti di lezione in report per i genitori. Il sistema di gestione all-in-one per tutor privati.",
-    "jsonLdDescription": "Sistema di generazione report con IA e gestione studenti per tutor",
+    "description": "Le agenzie di ripetizioni trattengono fino al 60% come commissioni di intermediazione. EdBrio addebita solo il 5%. Tieni di più di quello che guadagni con il sistema di gestione all-in-one per insegnanti privati.",
+    "ogDescription": "Le agenzie trattengono fino al 60%. EdBrio addebita solo il 5%. Il sistema di gestione all-in-one per tutor.",
+    "twitterDescription": "Le agenzie di ripetizioni trattengono fino al 60%. EdBrio addebita solo il 5%. Tieni di più di quello che guadagni.",
+    "oneLiner": "Solo 5% di commissione. Tieni di più di quello che guadagni. Il sistema di gestione all-in-one per insegnanti privati.",
+    "jsonLdDescription": "Piattaforma di gestione per tutor con solo il 5% di commissione",
     "jsonLdOfferDescription": "Creazione account gratuita"
   },
   "landing": {
@@ -66,10 +66,10 @@
     },
     "alphaNotice": "Il sistema è attualmente in fase alpha di test. Potrebbero verificarsi malfunzionamenti durante l'utilizzo.",
     "hero": {
-      "badge": "Riduci i tempi di lavoro a 1/3 con i report generati dall'IA",
-      "title1": "Basta inserire gli appunti della lezione.",
-      "title2": "Al report ci pensa l'IA.",
-      "description": "EdBrio è un sistema di gestione per tutor e insegnanti privati. L'IA genera automaticamente i report per i genitori a partire dagli appunti post-lezione.",
+      "badge": "Le agenzie trattengono fino al 60%. EdBrio addebita solo il 5%.",
+      "title1": "Tieni di più di quello che guadagni.",
+      "title2": "Solo 5% di commissione.",
+      "description": "Le agenzie di ripetizioni trattengono fino al 60% come commissioni di intermediazione. Con EdBrio, tieni il 95% dei tuoi guadagni gestendo prenotazioni, pagamenti, report IA e schede studente in un unico posto.",
       "ctaStart": "Inizia gratis",
       "ctaFeatures": "Scopri le funzionalità"
     },
@@ -86,9 +86,11 @@
       "step2HomeworkIncluded": "Compiti inclusi"
     },
     "features": {
-      "sectionTitle1": "Tutto ciò che serve per l'insegnamento,",
+      "sectionTitle1": "Commissioni basse con tutto",
       "sectionTitle2": "in un unico posto.",
-      "sectionDescription": "Chat, fogli di calcolo, app bancarie, agende. EdBrio integra in modo intelligente tutti gli strumenti che prima erano separati.",
+      "sectionDescription": "Le agenzie trattengono fino al 60% di commissioni. EdBrio addebita solo il 5%, offrendoti prenotazioni, pagamenti, report e schede studente in un'unica piattaforma.",
+      "lowFeeTitle": "Commissioni tra le più basse del settore",
+      "lowFeeDescription": "Le agenzie tradizionali di ripetizioni trattengono il 50–60% come commissioni di intermediazione. I servizi di ricerca online addebitano il 25–45%. Il piano Standard di EdBrio costa solo il 5% in totale (inclusa l'elaborazione dei pagamenti). La stragrande maggioranza dei tuoi guadagni va direttamente a te.",
       "aiReportTitle": "Generazione report con IA",
       "aiReportDescription": "Basta inserire gli appunti post-lezione e l'IA genera automaticamente report professionali per i genitori. Report completi di livello di comprensione, compiti e programma della prossima lezione, pronti in pochi secondi.",
       "studentKarteTitle": "Scheda studente",
@@ -102,11 +104,11 @@
       "sectionTitle1": "Scelto da",
       "sectionTitle2": "chi insegna",
       "tutorTitle": "Tutor privati",
-      "tutorDescription": "La redazione dei report passa da 30 minuti a 5 minuti grazie all'IA. Potete concentrarvi sulla costruzione del rapporto di fiducia con i genitori.",
+      "tutorDescription": "Stanco di agenzie che trattengono il 50–60% dei tuoi guadagni? Con EdBrio, tieni il 95% gestendo prenotazioni, pagamenti e report in autonomia.",
       "jukuTitle": "Scuole di ripetizioni",
-      "jukuDescription": "Condivisione delle informazioni tra più insegnanti centralizzata con le schede studente. Note di passaggio di consegne per sostituzioni senza problemi.",
+      "jukuDescription": "Centralizza la condivisione delle informazioni tra più insegnanti con le schede studente. L'integrazione dei pagamenti a basso costo migliora l'efficienza operativa.",
       "onlineTitle": "Insegnanti online",
-      "onlineDescription": "Dalla gestione delle prenotazioni alla condivisione dei report e ai pagamenti, tutto completamente online. Insegnate ovunque senza vincoli di luogo."
+      "onlineDescription": "Liberati dai servizi di ricerca che addebitano il 25–45%. EdBrio addebita solo il 5% e gestisce tutto online, dalle prenotazioni ai pagamenti."
     },
     "pricing": {
       "sectionTitle": "Prezzi semplici e trasparenti",
@@ -162,8 +164,8 @@
     },
     "faq": {
       "title": "Domande frequenti",
-      "q1": "Quanto sono accurati i report generati dall'IA?",
-      "a1": "Utilizziamo Claude AI per generare report in linguaggio naturale basati sul contenuto degli appunti della lezione. È possibile modificare il report dopo la generazione, per adattarlo al proprio stile.",
+      "q1": "Perché le commissioni di EdBrio sono così basse rispetto al settore?",
+      "a1": "Le agenzie tradizionali di ripetizioni investono molto in attività commerciali, pubblicità e personale — costi che vengono trasferiti come commissioni di intermediazione del 50–60%. EdBrio opera come piattaforma online con costi operativi minimi, il che ci permette di offrire solo il 5% di commissione totale (piano Standard, inclusa l'elaborazione dei pagamenti).",
       "q2": "I genitori devono installare un'app?",
       "a2": "No, non è necessario. I genitori possono semplicemente accedere dal browser per consultare i report e monitorare i progressi di apprendimento. Funziona su smartphone, tablet e PC.",
       "q3": "Cosa succede al termine del periodo di prova gratuita?",
@@ -190,7 +192,7 @@
       "messagePlaceholder": "Scrivete pure liberamente"
     },
     "footer": {
-      "description": "Sistema di generazione report con IA e gestione studenti per tutor e insegnanti privati.",
+      "description": "Solo 5% di commissione. La piattaforma di gestione all-in-one per insegnanti privati e tutor.",
       "productHeading": "Prodotto",
       "features": "Funzionalità",
       "pricing": "Prezzi",

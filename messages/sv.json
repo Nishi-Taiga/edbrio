@@ -45,13 +45,13 @@
     }
   },
   "metadata": {
-    "defaultTitle": "EdBrio — AI-rapportgenerering & elevhanteringssystem",
+    "defaultTitle": "EdBrio — Bara 5% i avgift. Plattformen for privatlarare",
     "titleTemplate": "%s | EdBrio",
-    "description": "AI-rapportgenerering och elevhanteringssystem for privatlärare och individuella handledare. Skriv in lektionsanteckningar och lat AI automatiskt skapa rapporter for vardnadshavare. Hantera bokningar, betalningar och elevjournaler pa ett stalle.",
-    "ogDescription": "AI-rapportgenerering och elevhantering for privatlärare och individuella handledare. AI skapar rapporter automatiskt fran lektionsanteckningar.",
-    "twitterDescription": "Skriv in lektionsanteckningar och lat AI automatiskt skapa rapporter for vardnadshavare. Hanteringssystem for privatlärare och individuella handledare.",
-    "oneLiner": "AI omvandlar dina lektionsanteckningar till föräldrafärdiga rapporter. Allt-i-ett-hanteringssystem för privatlärare.",
-    "jsonLdDescription": "AI-rapportgenerering och elevhanteringssystem for privatlärare",
+    "description": "Formedlingsforetag tar upp till 60% i mellanhands-avgifter. EdBrio tar bara 5%. Behall mer av din undervisningsersattning med allt-i-ett-systemet for privatlarare.",
+    "ogDescription": "Formedlingsforetag tar upp till 60%. EdBrio tar bara 5%. Allt-i-ett-hanteringssystem for privatlarare.",
+    "twitterDescription": "Formedlingsforetag tar upp till 60%. EdBrio tar bara 5%. Behall mer av din undervisningsersattning.",
+    "oneLiner": "Bara 5% i avgift. Behall mer av din undervisningsersattning. Allt-i-ett-hanteringssystem for privatlarare.",
+    "jsonLdDescription": "Plattform for privatlarare med bara 5% i avgift",
     "jsonLdOfferDescription": "Skapa konto gratis"
   },
   "landing": {
@@ -66,10 +66,10 @@
     },
     "alphaNotice": "Systemet ar for narvarande i alfaversion och under testdrift. Det kan forekomma fel under anvandningen.",
     "hero": {
-      "badge": "Minska arbetstiden till 1/3 med AI-rapportgenerering",
-      "title1": "Skriv bara in lektionsanteckningar.",
-      "title2": "Lat AI skota rapporten.",
-      "description": "EdBrio ar ett hanteringssystem for privatlärare och individuella handledare. AI genererar automatiskt rapporter for vardnadshavare fran dina lektionsanteckningar.",
+      "badge": "Formedlingsforetag tar upp till 60%. EdBrio tar bara 5%.",
+      "title1": "Behall mer av din undervisningsersattning.",
+      "title2": "Bara 5% i plattformsavgift.",
+      "description": "Formedlingsforetag tar upp till 60% i mellanhands-avgifter. Med EdBrio behallar du 95% av din ersattning och hanterar bokningar, betalningar, AI-rapporter och elevportfoljer pa ett och samma stalle.",
       "ctaStart": "Kom igang gratis",
       "ctaFeatures": "Utforska funktionerna"
     },
@@ -86,9 +86,11 @@
       "step2HomeworkIncluded": "Laxor inkluderade"
     },
     "features": {
-      "sectionTitle1": "Allt du behover for undervisningen,",
-      "sectionTitle2": "samlat har.",
-      "sectionDescription": "Meddelanden, kalkylblad, betalappar, anteckningsbocker. EdBrio samlar smidigt alla dina utspridda verktyg.",
+      "sectionTitle1": "Laga avgifter med allt",
+      "sectionTitle2": "pa ett stalle.",
+      "sectionDescription": "Formedlingsforetag tar upp till 60% i avgifter. EdBrio tar bara 5% och ger dig bokningar, betalningar, rapporter och portfoljer i en och samma plattform.",
+      "lowFeeTitle": "Branschens lagsta avgifter",
+      "lowFeeDescription": "Traditionella formedlingsforetag tar 50–60% i mellanhands-avgifter. Matchningstjanster online tar 25–45%. EdBrios Standard-plan tar bara 5% totalt (inklusive betalningshantering). Storsta delen av undervisningsersattningen gar direkt till dig.",
       "aiReportTitle": "AI-rapportgenerering",
       "aiReportDescription": "Skriv in anteckningar efter lektionen och lat AI automatiskt skapa professionella rapporter for vardnadshavare. Rapporter med forstaelseniva, laxor och nasta lektion skapas pa nagra sekunder.",
       "studentKarteTitle": "Elevjournaler",
@@ -102,11 +104,11 @@
       "sectionTitle1": "Vald av",
       "sectionTitle2": "dessa anvandare",
       "tutorTitle": "Privatlärare",
-      "tutorDescription": "Minska rapportskrivningen fran 30 minuter till 5 minuter med AI-generering. Fokusera pa att bygga fortroende med vardnadshavare.",
+      "tutorDescription": "Trott pa att formedlingsforetag tar 50–60% av din ersattning? Med EdBrio behallar du 95% och hanterar sjalv bokningar, betalningar och rapporter.",
       "jukuTitle": "Individuell handledning",
-      "jukuDescription": "Centralisera informationsdelning mellan flera larare med elevjournaler. Overlamningsanteckningar gor det smidigt aven vid vikarier.",
+      "jukuDescription": "Centralisera informationsdelning mellan flera larare med elevportfoljer. Lagkostnadsintegration for betalningar forbattrar den operativa effektiviteten.",
       "onlineTitle": "Onlinelarare",
-      "onlineDescription": "Fran bokningshantering till rapportdelning och betalning — allt sker helt online. Undervisa var du vill."
+      "onlineDescription": "Bryt dig fri fran matchningstjanster som tar 25–45%. EdBrio tar bara 5% och hanterar allt online fran bokningar till betalningar."
     },
     "pricing": {
       "sectionTitle": "Enkel och tydlig prissattning",
@@ -162,8 +164,8 @@
     },
     "faq": {
       "title": "Vanliga fragor",
-      "q1": "Hur bra ar AI-rapporternas kvalitet?",
-      "a1": "Med hjalp av Claude AI genereras naturliga rapporter baserade pa lektionsanteckningarnas innehall. Rapporten kan redigeras efter generering, sa du kan anpassa den efter din stil.",
+      "q1": "Varfor ar EdBrios avgifter sa mycket lagre an branschens?",
+      "a1": "Traditionella formedlingsforetag laggar stora summor pa forsaljning, marknadsforning och personal — kostnader som valts over pa larare som 50–60% mellanhands-avgifter. EdBrio drivs som en onlineplattform med minimala overheadkostnader, vilket gor det mojligt att erbjuda bara 5% i total avgift (Standard-planen, inklusive betalningshantering).",
       "q2": "Behover vardnadshavare installera en app?",
       "a2": "Nej, det behovs inte. Vardnadshavare loggar helt enkelt in via webblasaren for att lasa rapporter och folja larandeutvecklingen. Det fungerar pa smartphones, surfplattor och datorer.",
       "q3": "Vad hander nar den kostnadsfria provperioden tar slut?",
@@ -190,7 +192,7 @@
       "messagePlaceholder": "Skriv ditt meddelande har"
     },
     "footer": {
-      "description": "AI-rapportgenerering och elevhanteringssystem for privatlärare och individuella handledare.",
+      "description": "Bara 5% i avgift. Allt-i-ett-plattformen for privatlarare och handledare.",
       "productHeading": "Produkt",
       "features": "Funktioner",
       "pricing": "Priser",

@@ -531,6 +531,70 @@ export default function HomePage() {
                   {t('feeExplanation.freePlanLimitation')}
                 </p>
               </div>
+
+              {/* Industry Comparison */}
+              <div className="border-t border-slate-100 dark:border-brand-800/20 pt-6">
+                <h4 className="text-base font-bold text-slate-900 dark:text-white mb-3">{t('feeExplanation.industryComparisonTitle')}</h4>
+                <p className="text-sm text-slate-600 dark:text-slate-300 mb-5">
+                  {t('feeExplanation.industryComparisonDescription')}
+                </p>
+
+                {/* Comparison bars */}
+                <div className="space-y-4 mb-6">
+                  {/* Agency */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('feeExplanation.industryAgencyLabel')}</span>
+                      <span className="text-sm font-black text-slate-900 dark:text-white">{t('feeExplanation.industryAgencyRate')}</span>
+                    </div>
+                    <div className="w-full bg-slate-100 dark:bg-brand-950/30 rounded-full h-3">
+                      <div className="bg-red-400 dark:bg-red-500 h-3 rounded-full" style={{ width: '55%' }} />
+                    </div>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{t('feeExplanation.industryAgencyNote')}</p>
+                  </div>
+                  {/* Matching */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('feeExplanation.industryMatchingLabel')}</span>
+                      <span className="text-sm font-black text-slate-900 dark:text-white">{t('feeExplanation.industryMatchingRate')}</span>
+                    </div>
+                    <div className="w-full bg-slate-100 dark:bg-brand-950/30 rounded-full h-3">
+                      <div className="bg-amber-400 dark:bg-amber-500 h-3 rounded-full" style={{ width: '35%' }} />
+                    </div>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{t('feeExplanation.industryMatchingNote')}</p>
+                  </div>
+                  {/* EdBrio */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-sm font-semibold text-brand-600 dark:text-brand-400">{t('feeExplanation.industryEdbrioLabel')}</span>
+                      <span className="text-sm font-black text-brand-600 dark:text-brand-400">{t('feeExplanation.industryEdbrioRate')}</span>
+                    </div>
+                    <div className="w-full bg-slate-100 dark:bg-brand-950/30 rounded-full h-3">
+                      <div className="bg-brand-500 dark:bg-brand-400 h-3 rounded-full" style={{ width: '5%' }} />
+                    </div>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{t('feeExplanation.industryEdbrioNote')}</p>
+                  </div>
+                </div>
+
+                {/* Concrete example */}
+                <div className="bg-slate-50 dark:bg-brand-950/30 rounded-xl p-4 sm:p-5">
+                  <h5 className="text-sm font-bold text-slate-900 dark:text-white mb-3">{t('feeExplanation.industryExampleTitle')}</h5>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-start gap-2">
+                      <span className="w-2 h-2 rounded-full bg-red-400 dark:bg-red-500 mt-1.5 shrink-0" />
+                      <span className="text-slate-600 dark:text-slate-300">{t('feeExplanation.industryExampleAgency')}</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="w-2 h-2 rounded-full bg-amber-400 dark:bg-amber-500 mt-1.5 shrink-0" />
+                      <span className="text-slate-600 dark:text-slate-300">{t('feeExplanation.industryExampleMatching')}</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="w-2 h-2 rounded-full bg-brand-500 dark:bg-brand-400 mt-1.5 shrink-0" />
+                      <span className="font-bold text-brand-600 dark:text-brand-400">{t('feeExplanation.industryExampleEdbrio')}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
