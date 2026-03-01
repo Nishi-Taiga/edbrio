@@ -49,6 +49,7 @@ test-results/
 
 # secrets / dev notes (never commit)
 edbrio-dev.txt
+tests/testacounts.txt
 MILESTONES.md
 TODO.md
 
