@@ -1,16 +1,18 @@
 'use client'
 
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { GraduationCap, BookOpen } from 'lucide-react'
 import { StudentProfile } from '@/lib/types/database'
+import { useTranslations } from 'next-intl'
 
 interface StudentCardProps {
   profile: StudentProfile
 }
 
 export function StudentCard({ profile }: StudentCardProps) {
+  const t = useTranslations('karte')
   return (
     <Link href={`/teacher/students/${profile.id}`}>
       <Card className="hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors cursor-pointer h-full">
@@ -18,7 +20,7 @@ export function StudentCard({ profile }: StudentCardProps) {
           <div className="flex items-center justify-between">
             <CardTitle className="text-base">{profile.name}</CardTitle>
             <Badge variant={profile.status === 'active' ? 'default' : 'secondary'}>
-              {profile.status === 'active' ? '在籍中' : '休止中'}
+              {profile.status === 'active' ? t('card.statusActive') : t('card.statusInactive')}
             </Badge>
           </div>
         </CardHeader>

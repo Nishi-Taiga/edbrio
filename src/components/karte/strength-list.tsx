@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Plus, Trash2, Star } from 'lucide-react'
 import { StudentStrength } from '@/lib/types/database'
+import { useTranslations } from 'next-intl'
 
 interface StrengthListProps {
   strengths: StudentStrength[]
@@ -12,19 +13,20 @@ interface StrengthListProps {
 }
 
 export function StrengthList({ strengths, onAdd, onDelete }: StrengthListProps) {
+  const t = useTranslations('karte')
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>得意分野</CardTitle>
+          <CardTitle>{t('strengths.title')}</CardTitle>
           <Button size="sm" onClick={onAdd}>
-            <Plus className="w-4 h-4 mr-1" />追加
+            <Plus className="w-4 h-4 mr-1" />{t('strengths.add')}
           </Button>
         </div>
       </CardHeader>
       <CardContent>
         {strengths.length === 0 ? (
-          <p className="text-gray-500 text-sm">得意分野は登録されていません。</p>
+          <p className="text-gray-500 text-sm">{t('strengths.empty')}</p>
         ) : (
           <div className="space-y-2">
             {strengths.map(s => (

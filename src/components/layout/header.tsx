@@ -1,11 +1,13 @@
 'use client'
 
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks/use-auth'
 import { EdBrioLogo } from '@/components/ui/edbrio-logo'
 import { useSidebar } from './sidebar-context'
+import { LanguageSwitcher } from '@/components/ui/language-switcher'
 
 interface HeaderProps {
   showMenuButton?: boolean
@@ -14,6 +16,7 @@ interface HeaderProps {
 export function Header({ showMenuButton }: HeaderProps) {
   const { user, dbUser } = useAuth()
   const { toggleDesktop, toggleMobile } = useSidebar()
+  const t = useTranslations('common')
 
   const homeHref = dbUser?.role === 'teacher' ? '/teacher/dashboard' : dbUser?.role === 'guardian' ? '/guardian/dashboard' : '/'
 
@@ -41,15 +44,16 @@ export function Header({ showMenuButton }: HeaderProps) {
         </div>
 
         <div className="flex items-center space-x-3">
+          <LanguageSwitcher />
           {user ? (
             <></>
           ) : (
             <div className="flex space-x-2">
               <Link href="/login">
-                <Button variant="outline" size="sm">ログイン</Button>
+                <Button variant="outline" size="sm">{t('login')}</Button>
               </Link>
               <Link href="/login">
-                <Button size="sm">無料登録</Button>
+                <Button size="sm">{t('freeRegister')}</Button>
               </Link>
             </div>
           )}

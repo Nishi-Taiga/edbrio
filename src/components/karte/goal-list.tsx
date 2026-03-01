@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Plus, Trash2, CheckCircle, PauseCircle } from 'lucide-react'
 import { StudentGoal } from '@/lib/types/database'
+import { useTranslations } from 'next-intl'
 
 interface GoalListProps {
   goals: StudentGoal[]
@@ -13,23 +14,30 @@ interface GoalListProps {
   onDelete: (id: string) => Promise<void>
 }
 
-const statusLabel: Record<string, string> = { active: '進行中', achieved: '達成', paused: '休止' }
 const statusVariant: Record<string, 'default' | 'secondary' | 'outline'> = { active: 'default', achieved: 'secondary', paused: 'outline' }
 
 export function GoalList({ goals, onAdd, onUpdate, onDelete }: GoalListProps) {
+  const t = useTranslations('karte')
+
+  const statusLabel: Record<string, string> = {
+    active: t('goals.statusActive'),
+    achieved: t('goals.statusAchieved'),
+    paused: t('goals.statusPaused'),
+  }
+
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>学習目標</CardTitle>
+          <CardTitle>{t('goals.title')}</CardTitle>
           <Button size="sm" onClick={onAdd}>
-            <Plus className="w-4 h-4 mr-1" />追加
+            <Plus className="w-4 h-4 mr-1" />{t('goals.add')}
           </Button>
         </div>
       </CardHeader>
       <CardContent>
         {goals.length === 0 ? (
-          <p className="text-gray-500 text-sm">学習目標が登録されていません。</p>
+          <p className="text-gray-500 text-sm">{t('goals.empty')}</p>
         ) : (
           <div className="space-y-3">
             {goals.map(g => (
@@ -47,7 +55,7 @@ export function GoalList({ goals, onAdd, onUpdate, onDelete }: GoalListProps) {
                 {/* Progress bar */}
                 <div className="mb-2">
                   <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-                    <span>進捗</span>
+                    <span>{t('goals.progress')}</span>
                     <span>{g.progress}%</span>
                   </div>
                   <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
@@ -61,16 +69,16 @@ export function GoalList({ goals, onAdd, onUpdate, onDelete }: GoalListProps) {
                   {g.status === 'active' && (
                     <>
                       <Button variant="ghost" size="sm" onClick={() => onUpdate(g.id, { status: 'achieved', progress: 100 })}>
-                        <CheckCircle className="w-4 h-4 mr-1" />達成
+                        <CheckCircle className="w-4 h-4 mr-1" />{t('goals.achieveButton')}
                       </Button>
                       <Button variant="ghost" size="sm" onClick={() => onUpdate(g.id, { status: 'paused' })}>
-                        <PauseCircle className="w-4 h-4 mr-1" />休止
+                        <PauseCircle className="w-4 h-4 mr-1" />{t('goals.pauseButton')}
                       </Button>
                     </>
                   )}
                   {g.status !== 'active' && (
                     <Button variant="ghost" size="sm" onClick={() => onUpdate(g.id, { status: 'active' })}>
-                      再開
+                      {t('goals.resumeButton')}
                     </Button>
                   )}
                   <Button variant="ghost" size="sm" className="text-red-600" onClick={() => onDelete(g.id)}>

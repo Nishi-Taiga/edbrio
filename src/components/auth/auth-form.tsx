@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/navigation'
+import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -25,6 +26,8 @@ export function AuthForm({ mode, onModeChange }: {
 }) {
   const router = useRouter()
   const { user, dbUser } = useAuth()
+  const t = useTranslations('auth')
+  const tCommon = useTranslations('common')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
@@ -64,7 +67,7 @@ export function AuthForm({ mode, onModeChange }: {
         })
         const result = await res.json()
         if (!res.ok) {
-          setMessage(result.error || 'ログインに失敗しました。')
+          setMessage(result.error || t('loginFailed'))
           return
         }
         // Server validated credentials — now set client session
@@ -87,7 +90,7 @@ export function AuthForm({ mode, onModeChange }: {
         if (error) throw error
 
         if (data.user && !data.user.email_confirmed_at) {
-          setMessage('確認メールを送信しました。メールを確認してアカウントを有効化してください。')
+          setMessage(t('confirmationEmailSent'))
         }
       }
     } catch (error: any) {
@@ -100,11 +103,11 @@ export function AuthForm({ mode, onModeChange }: {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>{mode === 'login' ? 'ログイン' : 'アカウント作成'}</CardTitle>
+        <CardTitle>{mode === 'login' ? t('loginTitle') : t('signupTitle')}</CardTitle>
         <CardDescription>
           {mode === 'login'
-            ? 'アカウントにログインしてください'
-            : '新しいアカウントを作成してください'
+            ? t('loginDescription')
+            : t('signupDescription')
           }
         </CardDescription>
       </CardHeader>
@@ -113,25 +116,25 @@ export function AuthForm({ mode, onModeChange }: {
           {mode === 'signup' && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="name">名前</Label>
+                <Label htmlFor="name">{t('nameLabel')}</Label>
                 <Input
                   id="name"
                   type="text"
-                  placeholder="山田太郎"
+                  placeholder={t('namePlaceholder')}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="role">役割</Label>
+                <Label htmlFor="role">{t('roleLabel')}</Label>
                 <Select value={role} onValueChange={(value: 'teacher' | 'guardian') => setRole(value)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="teacher">講師</SelectItem>
-                    <SelectItem value="guardian">保護者</SelectItem>
+                    <SelectItem value="teacher">{t('roleTeacher')}</SelectItem>
+                    <SelectItem value="guardian">{t('roleGuardian')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -139,7 +142,7 @@ export function AuthForm({ mode, onModeChange }: {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="email">メールアドレス</Label>
+            <Label htmlFor="email">{t('emailLabel')}</Label>
             <Input
               id="email"
               type="email"
@@ -151,7 +154,7 @@ export function AuthForm({ mode, onModeChange }: {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">パスワード</Label>
+            <Label htmlFor="password">{t('passwordLabel')}</Label>
             <Input
               id="password"
               type="password"
@@ -163,7 +166,7 @@ export function AuthForm({ mode, onModeChange }: {
           </div>
 
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? '処理中...' : (mode === 'login' ? 'ログイン' : 'アカウント作成')}
+            {loading ? tCommon('processing') : (mode === 'login' ? t('loginButton') : t('signupButton'))}
           </Button>
         </form>
 
@@ -180,8 +183,8 @@ export function AuthForm({ mode, onModeChange }: {
             className="text-sm text-brand-600 dark:text-brand-400 hover:underline cursor-pointer"
           >
             {mode === 'login'
-              ? 'アカウントをお持ちでない方はこちら'
-              : '既にアカウントをお持ちの方はこちら'
+              ? t('noAccountLink')
+              : t('hasAccountLink')
             }
           </button>
         </div>

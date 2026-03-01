@@ -1,7 +1,8 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { Link } from '@/i18n/navigation'
+import { usePathname } from '@/i18n/navigation'
+import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks/use-auth'
 import { LogOut, User, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -19,25 +20,26 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
   const pathname = usePathname()
   const isGuardian = pathname?.startsWith('/guardian')
   const { user, dbUser, signOut } = useAuth()
+  const t = useTranslations('sidebar')
 
   const guardianItems = [
-    { href: '/guardian/dashboard', label: 'ホーム' },
-    { href: '/guardian/booking', label: '予約' },
-    { href: '/guardian/tickets', label: 'チケット' },
-    { href: '/guardian/bookings', label: '予約履歴' },
-    { href: '/guardian/reports', label: 'レポート' },
-    { href: '/guardian/contact', label: 'お問い合わせ' },
+    { href: '/guardian/dashboard', label: t('guardian.home') },
+    { href: '/guardian/booking', label: t('guardian.booking') },
+    { href: '/guardian/tickets', label: t('guardian.tickets') },
+    { href: '/guardian/bookings', label: t('guardian.bookings') },
+    { href: '/guardian/reports', label: t('guardian.reports') },
+    { href: '/guardian/contact', label: t('guardian.contact') },
   ]
 
   const teacherItems = [
-    { href: '/teacher/dashboard', label: 'ダッシュボード' },
-    { href: '/teacher/calendar', label: 'カレンダー' },
-    { href: '/teacher/tickets', label: 'チケット' },
-    { href: '/teacher/students', label: '生徒カルテ' },
-    { href: '/teacher/reports', label: 'レポート' },
-    { href: '/teacher/bookings', label: '予約一覧' },
-    { href: '/teacher/profile', label: '設定' },
-    { href: '/teacher/contact', label: 'お問い合わせ' },
+    { href: '/teacher/dashboard', label: t('teacher.dashboard') },
+    { href: '/teacher/calendar', label: t('teacher.calendar') },
+    { href: '/teacher/tickets', label: t('teacher.tickets') },
+    { href: '/teacher/students', label: t('teacher.students') },
+    { href: '/teacher/reports', label: t('teacher.reports') },
+    { href: '/teacher/bookings', label: t('teacher.bookings') },
+    { href: '/teacher/profile', label: t('teacher.profile') },
+    { href: '/teacher/contact', label: t('teacher.contact') },
   ]
 
   const items = isGuardian ? guardianItems : teacherItems

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,6 +15,7 @@ interface ContactFormProps {
 }
 
 export function ContactForm({ defaultName, defaultEmail }: ContactFormProps) {
+  const t = useTranslations('contactForm')
   const [form, setForm] = useState({ name: defaultName || '', email: defaultEmail || '', message: '' })
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [error, setError] = useState('')
@@ -30,12 +32,12 @@ export function ContactForm({ defaultName, defaultEmail }: ContactFormProps) {
       })
       if (!res.ok) {
         const data = await res.json()
-        throw new Error(data.error || '送信に失敗しました')
+        throw new Error(data.error || t('sendFailed'))
       }
       setStatus('sent')
       setForm(prev => ({ ...prev, message: '' }))
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : '送信に失敗しました')
+      setError(err instanceof Error ? err.message : t('sendFailed'))
       setStatus('error')
     }
   }
@@ -47,9 +49,9 @@ export function ContactForm({ defaultName, defaultEmail }: ContactFormProps) {
           <div className="w-16 h-16 bg-emerald-50 dark:bg-emerald-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <Check className="w-8 h-8 text-emerald-500" />
           </div>
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">送信完了</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">お問い合わせありがとうございます。担当者より折り返しご連絡いたします。</p>
-          <Button variant="outline" onClick={() => setStatus('idle')}>新しいお問い合わせ</Button>
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{t('sendComplete')}</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">{t('sendCompleteMessage')}</p>
+          <Button variant="outline" onClick={() => setStatus('idle')}>{t('newInquiry')}</Button>
         </CardContent>
       </Card>
     )
@@ -58,7 +60,7 @@ export function ContactForm({ defaultName, defaultEmail }: ContactFormProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>お問い合わせ</CardTitle>
+        <CardTitle>{t('title')}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -68,18 +70,18 @@ export function ContactForm({ defaultName, defaultEmail }: ContactFormProps) {
             </div>
           )}
           <div className="space-y-2">
-            <Label htmlFor="contact-name">お名前</Label>
+            <Label htmlFor="contact-name">{t('nameLabel')}</Label>
             <Input
               id="contact-name"
               required
               maxLength={100}
               value={form.name}
               onChange={(e) => setForm(prev => ({ ...prev, name: e.target.value }))}
-              placeholder="山田 太郎"
+              placeholder={t('namePlaceholder')}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="contact-email">メールアドレス</Label>
+            <Label htmlFor="contact-email">{t('emailLabel')}</Label>
             <Input
               id="contact-email"
               type="email"
@@ -87,11 +89,11 @@ export function ContactForm({ defaultName, defaultEmail }: ContactFormProps) {
               maxLength={254}
               value={form.email}
               onChange={(e) => setForm(prev => ({ ...prev, email: e.target.value }))}
-              placeholder="example@email.com"
+              placeholder={t('emailPlaceholder')}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="contact-message">お問い合わせ内容</Label>
+            <Label htmlFor="contact-message">{t('messageLabel')}</Label>
             <Textarea
               id="contact-message"
               required
@@ -99,11 +101,11 @@ export function ContactForm({ defaultName, defaultEmail }: ContactFormProps) {
               rows={5}
               value={form.message}
               onChange={(e) => setForm(prev => ({ ...prev, message: e.target.value }))}
-              placeholder="ご質問・ご要望・不具合のご報告など、お気軽にご記入ください"
+              placeholder={t('messagePlaceholder')}
             />
           </div>
           <Button type="submit" disabled={status === 'sending'} className="w-full">
-            {status === 'sending' ? '送信中...' : <><Send className="w-4 h-4 mr-1" /> 送信する</>}
+            {status === 'sending' ? t('sending') : <><Send className="w-4 h-4 mr-1" /> {t('sendButton')}</>}
           </Button>
         </form>
       </CardContent>

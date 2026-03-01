@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
+import { useTranslations } from 'next-intl'
 
 interface DataPoint {
   date: string
@@ -22,16 +23,17 @@ const levelColors: Record<number, string> = {
   5: 'bg-green-400',
 }
 
-const levelLabels: Record<number, string> = {
-  1: '要復習',
-  2: 'やや不安',
-  3: '普通',
-  4: '良好',
-  5: '完璧',
-}
-
 export function ProgressChart({ studentName, data }: ProgressChartProps) {
+  const t = useTranslations('reports')
   if (data.length === 0) return null
+
+  const levelLabels: Record<number, string> = {
+    1: t('progress.level1'),
+    2: t('progress.level2'),
+    3: t('progress.level3'),
+    4: t('progress.level4'),
+    5: t('progress.level5'),
+  }
 
   const avg = data.reduce((sum, d) => sum + d.level, 0) / data.length
   const latest = data[data.length - 1]
@@ -42,7 +44,7 @@ export function ProgressChart({ studentName, data }: ProgressChartProps) {
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm">{studentName}</CardTitle>
           <span className="text-xs text-gray-500">
-            直近 {latest.level}/5 ({levelLabels[latest.level] || ''}) · 平均 {avg.toFixed(1)}
+            {t('progress.latest', { level: latest.level, label: levelLabels[latest.level] || '', avg: avg.toFixed(1) })}
           </span>
         </div>
       </CardHeader>

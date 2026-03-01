@@ -1,23 +1,18 @@
-import Link from 'next/link'
+import Link from 'next/link';
 
-export default function NotFound() {
+export default function RootNotFound() {
   return (
-    <div className="min-h-[60vh] flex items-center justify-center px-4">
-      <div className="text-center max-w-md">
-        <p className="text-7xl font-black text-brand-600 dark:text-brand-400 mb-4">404</p>
-        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-          ページが見つかりません
-        </h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mb-8">
-          お探しのページは存在しないか、移動した可能性があります。
-        </p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-brand-50 to-white dark:from-gray-950 dark:to-gray-900">
+      <div className="text-center space-y-4 p-8">
+        <h1 className="text-6xl font-extrabold text-brand-600">404</h1>
+        <p className="text-gray-600 dark:text-gray-400">Page not found</p>
         <Link
           href="/"
-          className="inline-block bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400 text-white px-8 py-3 rounded-xl font-bold text-sm transition"
+          className="inline-block px-6 py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-semibold"
         >
-          ホームに戻る
+          Home
         </Link>
       </div>
     </div>
-  )
+  );
 }

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Plus, Trash2 } from 'lucide-react'
 import { StudentWeakPoint } from '@/lib/types/database'
+import { useTranslations } from 'next-intl'
 
 interface WeakPointListProps {
   weakPoints: StudentWeakPoint[]
@@ -18,23 +19,34 @@ const severityStyle: Record<string, string> = {
   medium: 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300',
   low: 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300',
 }
-const severityLabel: Record<string, string> = { high: '重要', medium: '注意', low: '軽微' }
-const statusLabel: Record<string, string> = { active: '対応中', improving: '改善中', resolved: '解決済み' }
 
 export function WeakPointList({ weakPoints, onAdd, onUpdate, onDelete }: WeakPointListProps) {
+  const t = useTranslations('karte')
+
+  const severityLabel: Record<string, string> = {
+    high: t('weakPoints.severityHigh'),
+    medium: t('weakPoints.severityMedium'),
+    low: t('weakPoints.severityLow'),
+  }
+  const statusLabel: Record<string, string> = {
+    active: t('weakPoints.statusActive'),
+    improving: t('weakPoints.statusImproving'),
+    resolved: t('weakPoints.statusResolved'),
+  }
+
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>つまずきポイント</CardTitle>
+          <CardTitle>{t('weakPoints.title')}</CardTitle>
           <Button size="sm" onClick={onAdd}>
-            <Plus className="w-4 h-4 mr-1" />追加
+            <Plus className="w-4 h-4 mr-1" />{t('weakPoints.add')}
           </Button>
         </div>
       </CardHeader>
       <CardContent>
         {weakPoints.length === 0 ? (
-          <p className="text-gray-500 text-sm">つまずきポイントは登録されていません。</p>
+          <p className="text-gray-500 text-sm">{t('weakPoints.empty')}</p>
         ) : (
           <div className="space-y-2">
             {weakPoints.map(wp => (
@@ -51,13 +63,13 @@ export function WeakPointList({ weakPoints, onAdd, onUpdate, onDelete }: WeakPoi
                 </div>
                 <div className="flex items-center gap-1 justify-end mt-2">
                   {wp.status === 'active' && (
-                    <Button variant="ghost" size="sm" onClick={() => onUpdate(wp.id, { status: 'improving' })}>改善中へ</Button>
+                    <Button variant="ghost" size="sm" onClick={() => onUpdate(wp.id, { status: 'improving' })}>{t('weakPoints.toImproving')}</Button>
                   )}
                   {wp.status === 'improving' && (
-                    <Button variant="ghost" size="sm" onClick={() => onUpdate(wp.id, { status: 'resolved', resolved_at: new Date().toISOString().split('T')[0] })}>解決済みへ</Button>
+                    <Button variant="ghost" size="sm" onClick={() => onUpdate(wp.id, { status: 'resolved', resolved_at: new Date().toISOString().split('T')[0] })}>{t('weakPoints.toResolved')}</Button>
                   )}
                   {wp.status === 'resolved' && (
-                    <Button variant="ghost" size="sm" onClick={() => onUpdate(wp.id, { status: 'active', resolved_at: undefined })}>再発</Button>
+                    <Button variant="ghost" size="sm" onClick={() => onUpdate(wp.id, { status: 'active', resolved_at: undefined })}>{t('weakPoints.reoccurred')}</Button>
                   )}
                   <Button variant="ghost" size="sm" className="text-red-600" onClick={() => onDelete(wp.id)}>
                     <Trash2 className="w-4 h-4" />
