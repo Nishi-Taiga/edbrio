@@ -61,28 +61,28 @@ export default function HomePage() {
 
       {/* ── Navigation ── */}
       <nav className="fixed top-0 w-full z-50 bg-white/80 dark:bg-brand-950/80 backdrop-blur-md border-b border-brand-100/50 dark:border-brand-800/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <EdBrioLogo size={32} className="shrink-0" />
             <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-brand-700 dark:text-brand-300">EdBrio</span>
-            <span className="bg-amber-100 text-amber-700 border border-amber-300 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide">ALPHA</span>
+            <span className="hidden sm:inline bg-amber-100 text-amber-700 border border-amber-300 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide">ALPHA</span>
           </div>
-          <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-500 dark:text-slate-400">
+          <div className="hidden lg:flex items-center gap-6 text-sm font-semibold text-slate-500 dark:text-slate-400 shrink-0">
             <a href="#features" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('nav.features')}</a>
             <a href="#use-cases" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('nav.useCases')}</a>
             <a href="#pricing" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('nav.pricing')}</a>
             <a href="#faq" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('nav.faq')}</a>
             <a href="#contact" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('nav.contact')}</a>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <LanguageSwitcher className="hidden sm:inline-flex" />
-            <Link href="/login" className="hidden sm:block text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-300 transition">{t('nav.login')}</Link>
-            <Link href="/login" className="bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold transition shadow-lg shadow-brand-600/20">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <LanguageSwitcher className="hidden md:inline-flex" />
+            <Link href="/login" className="hidden md:block text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-300 transition whitespace-nowrap">{t('nav.login')}</Link>
+            <Link href="/login" className="bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400 text-white px-3 sm:px-5 py-2 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold transition shadow-lg shadow-brand-600/20 whitespace-nowrap">
               {t('nav.getStartedFree')}
             </Link>
             <button
               type="button"
-              className="md:hidden p-2 text-slate-500 hover:text-brand-600 transition"
+              className="lg:hidden p-2 text-slate-500 hover:text-brand-600 transition"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={tCommon('menu')}
             >
@@ -92,14 +92,17 @@ export default function HomePage() {
         </div>
         {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-white/95 dark:bg-brand-950/95 backdrop-blur-md border-t border-brand-100/50 dark:border-brand-800/30 px-4 pb-4">
+          <div className="lg:hidden bg-white/95 dark:bg-brand-950/95 backdrop-blur-md border-t border-brand-100/50 dark:border-brand-800/30 px-4 pb-4">
             <div className="flex flex-col gap-1 pt-2 text-sm font-semibold text-slate-600 dark:text-slate-400">
               <a href="#features" className="py-2.5 hover:text-brand-600 transition" onClick={() => setMobileMenuOpen(false)}>{t('nav.features')}</a>
               <a href="#use-cases" className="py-2.5 hover:text-brand-600 transition" onClick={() => setMobileMenuOpen(false)}>{t('nav.useCases')}</a>
               <a href="#pricing" className="py-2.5 hover:text-brand-600 transition" onClick={() => setMobileMenuOpen(false)}>{t('nav.pricing')}</a>
               <a href="#faq" className="py-2.5 hover:text-brand-600 transition" onClick={() => setMobileMenuOpen(false)}>{t('nav.faq')}</a>
               <a href="#contact" className="py-2.5 hover:text-brand-600 transition" onClick={() => setMobileMenuOpen(false)}>{t('nav.contact')}</a>
-              <Link href="/login" className="py-2.5 text-brand-600 font-bold sm:hidden" onClick={() => setMobileMenuOpen(false)}>{t('nav.login')}</Link>
+              <div className="flex items-center gap-3 pt-2 md:hidden">
+                <LanguageSwitcher />
+                <Link href="/login" className="text-brand-600 font-bold" onClick={() => setMobileMenuOpen(false)}>{t('nav.login')}</Link>
+              </div>
             </div>
           </div>
         )}
