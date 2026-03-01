@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { Moon, Sun, Monitor } from 'lucide-react'
 
@@ -9,12 +10,16 @@ const THEME_CHOSEN_KEY = 'edbrio-theme-chosen'
 export function ThemeChooserDialog() {
   const { setTheme } = useTheme()
   const [show, setShow] = useState(false)
+  const pathname = usePathname()
+
+  // Only show on authenticated dashboard pages
+  const isDashboard = pathname?.startsWith('/teacher') || pathname?.startsWith('/guardian') || pathname?.startsWith('/admin')
 
   useEffect(() => {
-    if (!localStorage.getItem(THEME_CHOSEN_KEY)) {
+    if (isDashboard && !localStorage.getItem(THEME_CHOSEN_KEY)) {
       setShow(true)
     }
-  }, [])
+  }, [isDashboard])
 
   if (!show) return null
 
