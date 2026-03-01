@@ -649,7 +649,13 @@
     "homeworkLabel": "Homework",
     "homeworkPlaceholder": "e.g. Textbook pp. 42-45 practice problems",
     "nextPlanLabel": "Next Lesson Plan",
-    "nextPlanPlaceholder": "e.g. Attempt applied quadratic equation problems"
+    "nextPlanPlaceholder": "e.g. Attempt applied quadratic equation problems",
+    "maxLengthLabel": "Max Characters",
+    "maxLengthPlaceholder": "500",
+    "teachingStyleLabel": "Teaching Style",
+    "stylePrivateTutor": "Private Tutor",
+    "styleTutoringCenter": "Tutoring Center",
+    "styleOnline": "Online Tutoring"
   },
   "karte": {
     "card": {

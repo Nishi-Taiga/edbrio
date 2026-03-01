@@ -662,7 +662,13 @@
     "homeworkLabel": "宿題",
     "homeworkPlaceholder": "例: テキストP.42-45の演習問題",
     "nextPlanLabel": "次回の予定",
-    "nextPlanPlaceholder": "例: 二次方程式の応用問題に挑戦"
+    "nextPlanPlaceholder": "例: 二次方程式の応用問題に挑戦",
+    "maxLengthLabel": "最大文字数",
+    "maxLengthPlaceholder": "500",
+    "teachingStyleLabel": "指導形態",
+    "stylePrivateTutor": "家庭教師",
+    "styleTutoringCenter": "個別指導塾",
+    "styleOnline": "オンライン指導"
   },
   "karte": {
     "card": {

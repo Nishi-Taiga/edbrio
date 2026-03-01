@@ -5,16 +5,26 @@ import { aiReportLimiter } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
-const SYSTEM_PROMPT = `あなたは個別指導塾・家庭教師の授業報告書を作成するアシスタントです。
+function buildSystemPrompt(maxLength: number, teachingStyle: string): string {
+  const styleMap: Record<string, string> = {
+    private_tutor: '家庭教師として生徒の自宅で行った個別指導',
+    tutoring_center: '個別指導塾での授業',
+    online: 'オンラインでの個別指導授業',
+  }
+  const styleDesc = styleMap[teachingStyle] || styleMap.private_tutor
+
+  return `あなたは${styleDesc}の報告書を作成するアシスタントです。
 講師が記入した授業メモを元に、保護者が読みやすい丁寧な授業報告書を生成してください。
 
 ルール:
 - 丁寧語（です・ます調）で記述
-- 300〜500文字程度
-- 構成: 本日の学習内容 → お子様の理解度・取り組みの様子 → 課題・宿題 → 次回の予定
+- ${maxLength}文字以内で記述
+- 構成: 本日の学習内容 → お子様の理解度・取り組みの様子
 - 具体的なポジティブフィードバックを含める
 - 改善が必要な点は建設的に表現する
-- 保護者に安心感を与えるトーンで書く`
+- 保護者に安心感を与えるトーンで書く
+- 宿題・次回の予定は含めない（講師が別途記入する）`
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -59,7 +69,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { contentRaw, studentName, subject, goals, weakPoints, comprehensionLevel, studentMood } = body
+    const { contentRaw, studentName, subject, goals, weakPoints, comprehensionLevel, studentMood, maxLength, teachingStyle } = body
 
     if (!contentRaw || !studentName) {
       return NextResponse.json({ error: 'contentRaw and studentName are required' }, { status: 400 })
@@ -87,7 +97,7 @@ export async function POST(req: NextRequest) {
     const message = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 1024,
-      system: SYSTEM_PROMPT,
+      system: buildSystemPrompt(maxLength || 500, teachingStyle || 'private_tutor'),
       messages: [{ role: 'user', content: userPrompt }],
     })
 

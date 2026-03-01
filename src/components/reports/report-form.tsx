@@ -12,6 +12,8 @@ interface ReportFormData {
   studentMood: string
   homework: string
   nextPlan: string
+  maxLength: number
+  teachingStyle: string
 }
 
 interface ReportFormProps {
@@ -79,6 +81,33 @@ export function ReportForm({ data, onChange }: ReportFormProps) {
       <div>
         <Label htmlFor="rf-next">{t('nextPlanLabel')}</Label>
         <Input id="rf-next" value={data.nextPlan} onChange={e => update('nextPlan', e.target.value)} placeholder={t('nextPlanPlaceholder')} />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="rf-maxlength">{t('maxLengthLabel')}</Label>
+          <Input
+            id="rf-maxlength"
+            type="number"
+            min={100}
+            max={2000}
+            step={100}
+            value={data.maxLength}
+            onChange={e => update('maxLength', Number(e.target.value))}
+            placeholder={t('maxLengthPlaceholder')}
+          />
+        </div>
+        <div>
+          <Label>{t('teachingStyleLabel')}</Label>
+          <Select value={data.teachingStyle} onValueChange={v => update('teachingStyle', v)}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="private_tutor">{t('stylePrivateTutor')}</SelectItem>
+              <SelectItem value="tutoring_center">{t('styleTutoringCenter')}</SelectItem>
+              <SelectItem value="online">{t('styleOnline')}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
     </div>
   )

@@ -61,6 +61,8 @@ function NewReportContent() {
     studentMood: 'neutral',
     homework: '',
     nextPlan: '',
+    maxLength: 500,
+    teachingStyle: 'private_tutor',
   })
 
   const [editedPublic, setEditedPublic] = useState('')
@@ -100,6 +102,8 @@ function NewReportContent() {
       weakPoints: weakPoints.filter(w => w.status === 'active').map(w => `${w.subject}: ${w.topic}`),
       comprehensionLevel: formData.comprehensionLevel,
       studentMood: formData.studentMood,
+      maxLength: formData.maxLength,
+      teachingStyle: formData.teachingStyle,
     })
   }
 
