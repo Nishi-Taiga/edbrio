@@ -325,7 +325,7 @@ export default function HomePage() {
                     <Check className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" /> 生徒カルテ
                   </li>
                   <li className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-bold text-sm sm:text-base">
-                    <Check className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" /> Stripe決済連携（手数料 6%）
+                    <Check className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" /> Stripe決済連携（手数料 1.4%）
                   </li>
                   <li className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-bold text-sm sm:text-base">
                     <Check className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" /> 優先カスタマーサポート
@@ -356,8 +356,8 @@ export default function HomePage() {
                   </div>
                   <div className="bg-brand-50 dark:bg-brand-950/50 rounded-xl p-4 sm:p-5 border border-brand-200 dark:border-brand-800/40">
                     <div className="text-sm font-semibold text-brand-600 dark:text-brand-400 mb-1">Standard プラン</div>
-                    <div className="text-2xl font-black text-slate-900 dark:text-white">9.6%<span className="text-sm font-medium text-slate-400 dark:text-slate-500 ml-1">合計</span></div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">EdBrio 6% + Stripe 3.6%</div>
+                    <div className="text-2xl font-black text-slate-900 dark:text-white">5.0%<span className="text-sm font-medium text-slate-400 dark:text-slate-500 ml-1">合計</span></div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">EdBrio 1.4% + Stripe 3.6%</div>
                   </div>
                 </div>
               </div>
@@ -366,7 +366,7 @@ export default function HomePage() {
               <div className="border-t border-slate-100 dark:border-brand-800/20 pt-6">
                 <h4 className="text-base font-bold text-slate-900 dark:text-white mb-3">Standardプランがお得になる目安</h4>
                 <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                  手数料の差は <span className="font-semibold">1%</span>。月額 ¥1,480 を手数料差で回収するには、<span className="font-bold text-brand-600 dark:text-brand-400">月間売上が約 ¥148,000 以上</span>が目安です。
+                  手数料の差は <span className="font-semibold">5.6%</span>。月額 ¥1,480 を手数料差で回収するには、<span className="font-bold text-brand-600 dark:text-brand-400">月間売上が約 ¥26,500 以上</span>が目安です。
                 </p>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
@@ -380,28 +380,28 @@ export default function HomePage() {
                     </thead>
                     <tbody className="text-slate-600 dark:text-slate-300">
                       <tr className="border-b border-dashed border-slate-100 dark:border-brand-800/20">
-                        <td className="py-2.5 pr-4">¥50,000</td>
-                        <td className="text-center py-2.5 px-3">¥5,300</td>
-                        <td className="text-center py-2.5 px-3">¥6,280</td>
-                        <td className="text-center py-2.5 pl-3 text-slate-400">Free がお得</td>
-                      </tr>
-                      <tr className="border-b border-dashed border-slate-100 dark:border-brand-800/20">
-                        <td className="py-2.5 pr-4">¥100,000</td>
-                        <td className="text-center py-2.5 px-3">¥10,600</td>
-                        <td className="text-center py-2.5 px-3">¥11,080</td>
+                        <td className="py-2.5 pr-4">¥20,000</td>
+                        <td className="text-center py-2.5 px-3">¥2,120</td>
+                        <td className="text-center py-2.5 px-3">¥2,480</td>
                         <td className="text-center py-2.5 pl-3 text-slate-400">Free がお得</td>
                       </tr>
                       <tr className="border-b border-dashed border-slate-100 dark:border-brand-800/20 bg-brand-50/50 dark:bg-brand-950/20">
-                        <td className="py-2.5 pr-4 font-semibold">¥148,000</td>
-                        <td className="text-center py-2.5 px-3">¥15,688</td>
-                        <td className="text-center py-2.5 px-3">¥15,688</td>
+                        <td className="py-2.5 pr-4 font-semibold">¥26,500</td>
+                        <td className="text-center py-2.5 px-3">¥2,809</td>
+                        <td className="text-center py-2.5 px-3">¥2,805</td>
                         <td className="text-center py-2.5 pl-3 font-semibold text-brand-600 dark:text-brand-400">同額</td>
                       </tr>
+                      <tr className="border-b border-dashed border-slate-100 dark:border-brand-800/20">
+                        <td className="py-2.5 pr-4">¥50,000</td>
+                        <td className="text-center py-2.5 px-3">¥5,300</td>
+                        <td className="text-center py-2.5 px-3">¥3,980</td>
+                        <td className="text-center py-2.5 pl-3 font-semibold text-emerald-600 dark:text-emerald-400">¥1,320 お得</td>
+                      </tr>
                       <tr>
-                        <td className="py-2.5 pr-4">¥200,000</td>
-                        <td className="text-center py-2.5 px-3">¥21,200</td>
-                        <td className="text-center py-2.5 px-3">¥20,680</td>
-                        <td className="text-center py-2.5 pl-3 font-semibold text-emerald-600 dark:text-emerald-400">¥520 お得</td>
+                        <td className="py-2.5 pr-4">¥100,000</td>
+                        <td className="text-center py-2.5 px-3">¥10,600</td>
+                        <td className="text-center py-2.5 px-3">¥6,480</td>
+                        <td className="text-center py-2.5 pl-3 font-semibold text-emerald-600 dark:text-emerald-400">¥4,120 お得</td>
                       </tr>
                     </tbody>
                   </table>

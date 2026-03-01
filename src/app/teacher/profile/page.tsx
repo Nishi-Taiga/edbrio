@@ -479,7 +479,7 @@ function TeacherProfileContent() {
                       <tr className="border-b border-dashed">
                         <td className="py-3 pr-4">決済手数料</td>
                         <td className="text-center py-3 px-4">7%</td>
-                        <td className="text-center py-3 pl-4 font-semibold text-brand-700 dark:text-brand-300">6%</td>
+                        <td className="text-center py-3 pl-4 font-semibold text-brand-700 dark:text-brand-300">1.4%</td>
                       </tr>
                       <tr>
                         <td className="py-3 pr-4">優先サポート</td>
