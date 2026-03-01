@@ -386,7 +386,7 @@ function TeacherProfileContent() {
                     <div className="flex items-center gap-2">
                       <Badge variant="secondary">Free</Badge>
                       <span className="text-sm text-gray-600 dark:text-slate-400">
-                        手数料 7% / Proなら 2%
+                        手数料 7% / Standardなら 1.4%
                       </span>
                     </div>
                     <Button
@@ -394,7 +394,7 @@ function TeacherProfileContent() {
                       onClick={handleUpgrade}
                       disabled={isSubscriptionLoading}
                     >
-                      {isSubscriptionLoading ? '処理中...' : 'Proにアップグレード'}
+                      {isSubscriptionLoading ? '処理中...' : 'Standardにアップグレード'}
                     </Button>
                   </div>
                 )}
