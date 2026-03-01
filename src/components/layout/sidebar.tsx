@@ -61,9 +61,9 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
                   href={it.href}
                   onClick={onClose}
                   className={classNames(
-                    'block rounded px-3 py-2 text-sm',
+                    'block rounded-lg px-3 py-2 text-sm transition-colors',
                     active
-                      ? 'bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-200'
+                      ? 'bg-brand-50 text-brand-700 font-medium border-l-[3px] border-brand-600 dark:bg-brand-900/40 dark:text-brand-200 dark:border-brand-400'
                       : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800/50'
                   )}
                 >

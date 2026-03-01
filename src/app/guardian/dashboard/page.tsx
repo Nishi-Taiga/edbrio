@@ -15,6 +15,9 @@ import { useReports } from '@/hooks/use-reports'
 import { createClient } from '@/lib/supabase/client'
 import { Booking, TicketBalance, Report } from '@/lib/types/database'
 import { ProgressChart } from '@/components/reports/progress-chart'
+import { SkeletonStatsGrid, SkeletonList } from '@/components/ui/skeleton-card'
+import { EmptyState } from '@/components/ui/empty-state'
+import { ErrorAlert } from '@/components/ui/error-alert'
 
 
 export default function GuardianHome() {
@@ -60,10 +63,10 @@ export default function GuardianHome() {
     const uniqueTeachers = new Set(bookings.map((b: Booking) => b.teacher_id))
 
     return [
-      { title: '次の予約', value: nextVal, description: nextDesc, icon: Clock, color: 'text-brand-600 dark:text-brand-400' },
-      { title: '保有チケット', value: balanceValue, description: balanceDesc, icon: CreditCard, color: 'text-green-600 dark:text-green-400' },
-      { title: '新着レポート', value: newReportsCount, description: '最近の公開レポート', icon: FileText, color: 'text-purple-600 dark:text-purple-400' },
-      { title: '担当中の先生', value: `${uniqueTeachers.size}人`, description: '-', icon: UserPlus, color: 'text-orange-600 dark:text-orange-400' },
+      { title: '次の予約', value: nextVal, description: nextDesc, icon: Clock, color: 'text-brand-600 dark:text-brand-400', href: '/guardian/booking' },
+      { title: '保有チケット', value: balanceValue, description: balanceDesc, icon: CreditCard, color: 'text-green-600 dark:text-green-400', href: '/guardian/tickets' },
+      { title: '新着レポート', value: newReportsCount, description: '最近の公開レポート', icon: FileText, color: 'text-purple-600 dark:text-purple-400', href: '/guardian/reports' },
+      { title: '担当中の先生', value: `${uniqueTeachers.size}人`, description: '-', icon: UserPlus, color: 'text-orange-600 dark:text-orange-400', href: '/guardian/bookings' },
     ]
   }, [bookings, balances, reports, teacherNames])
 
@@ -115,32 +118,32 @@ export default function GuardianHome() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">ホーム</h1>
         </div>
 
-        {error && (
-          <div className="mb-4 p-3 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded text-red-700 dark:text-red-400">
-            データ取得でエラーが発生しました: {error}
-          </div>
-        )}
+        {error && <ErrorAlert message={`データ取得でエラーが発生しました: ${error}`} />}
 
         {/* Stats Grid */}
+        {loading ? <SkeletonStatsGrid count={4} /> : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {stats.map((stat) => {
             const Icon = stat.icon
             return (
-              <Card key={stat.title}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600 dark:text-slate-400">
-                    {stat.title}
-                  </CardTitle>
-                  <Icon className={`h-4 w-4 ${stat.color}`} />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-gray-600 dark:text-slate-400 mt-1">{stat.description}</p>
-                </CardContent>
-              </Card>
+              <Link key={stat.title} href={stat.href}>
+                <Card className="cursor-pointer transition-all hover:shadow-md hover:border-brand-200 dark:hover:border-brand-700/30">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-gray-600 dark:text-slate-400">
+                      {stat.title}
+                    </CardTitle>
+                    <Icon className={`h-4 w-4 ${stat.color}`} />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{stat.value}</div>
+                    <p className="text-xs text-gray-600 dark:text-slate-400 mt-1">{stat.description}</p>
+                  </CardContent>
+                </Card>
+              </Link>
             )
           })}
         </div>
+        )}
 
         {/* Quick Actions */}
         <div className="grid md:grid-cols-4 gap-4 mb-8">
@@ -196,7 +199,12 @@ export default function GuardianHome() {
                   </div>
                 ))}
                 {upcoming.length === 0 && (
-                  <div className="text-gray-500 dark:text-slate-400">予定はありません。</div>
+                  <EmptyState
+                    icon={Clock}
+                    title="予定はありません"
+                    description="カレンダーから予約しましょう"
+                    action={{ label: "新規予約", href: "/guardian/booking" }}
+                  />
                 )}
               </div>
             </CardContent>
@@ -224,7 +232,11 @@ export default function GuardianHome() {
                   </div>
                 ))}
                 {recentReports.length === 0 && (
-                  <div className="text-gray-500 dark:text-slate-400">新しいレポートはありません。</div>
+                  <EmptyState
+                    icon={FileText}
+                    title="新しいレポートはありません"
+                    description="授業後に講師がレポートを公開すると表示されます"
+                  />
                 )}
               </div>
             </CardContent>

@@ -6,7 +6,10 @@ import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Plus } from 'lucide-react'
+import { FileText, Plus } from 'lucide-react'
+import { SkeletonList } from '@/components/ui/skeleton-card'
+import { EmptyState } from '@/components/ui/empty-state'
+import { ErrorAlert } from '@/components/ui/error-alert'
 import { createClient } from '@/lib/supabase/client'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
@@ -117,16 +120,16 @@ export default function TeacherReportsPage() {
             <Button><Plus className="w-4 h-4 mr-1" />新規レポート作成</Button>
           </Link>
         </div>
-        {error && (<div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700 dark:bg-red-900/20 dark:border-red-800/30 dark:text-red-400">{error}</div>)}
+        {error && <ErrorAlert message={error} />}
         {loading ? (
-          <div className="text-gray-500 dark:text-slate-400">読み込み中...</div>
+          <SkeletonList count={3} />
         ) : items.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 dark:text-slate-400 mb-4">レポートはありません。</p>
-            <Link href="/teacher/reports/new">
-              <Button><Plus className="w-4 h-4 mr-1" />最初のレポートを作成</Button>
-            </Link>
-          </div>
+          <EmptyState
+            icon={FileText}
+            title="レポートはありません"
+            description="授業のレポートを作成して保護者に共有しましょう"
+            action={{ label: "最初のレポートを作成", href: "/teacher/reports/new" }}
+          />
         ) : (
           <div className="space-y-3">
             {items.map((r) => (

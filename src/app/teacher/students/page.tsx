@@ -6,7 +6,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-import { Plus, Search } from 'lucide-react'
+import { Plus, Search, Users } from 'lucide-react'
+import { SkeletonList } from '@/components/ui/skeleton-card'
+import { EmptyState } from '@/components/ui/empty-state'
+import { ErrorAlert } from '@/components/ui/error-alert'
+import { toast } from 'sonner'
 import { useAuth } from '@/hooks/use-auth'
 import { useStudentProfiles } from '@/hooks/use-student-profiles'
 import { StudentCard } from '@/components/karte/student-card'
@@ -38,6 +42,9 @@ export default function TeacherStudentsPage() {
       } as any)
       setNewName(''); setNewGrade(''); setNewSubjects('')
       setShowAdd(false)
+      toast.success('生徒を追加しました')
+    } catch {
+      toast.error('生徒の追加に失敗しました')
     } finally {
       setSaving(false)
     }
@@ -56,9 +63,7 @@ export default function TeacherStudentsPage() {
           </Button>
         </div>
 
-        {error && (
-          <div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700 dark:bg-red-900/20 dark:border-red-800/30 dark:text-red-400">{error}</div>
-        )}
+        {error && <ErrorAlert message={error} />}
 
         {profiles.length > 0 && (
           <div className="relative mb-6">
@@ -73,18 +78,22 @@ export default function TeacherStudentsPage() {
         )}
 
         {loading || authLoading ? (
-          <div className="text-gray-500 dark:text-slate-400">読み込み中...</div>
+          <SkeletonList count={3} />
         ) : filtered.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 dark:text-slate-400 mb-4">
-              {profiles.length === 0 ? '生徒が登録されていません。' : '検索結果がありません。'}
-            </p>
-            {profiles.length === 0 && (
-              <Button onClick={() => setShowAdd(true)}>
-                <Plus className="w-4 h-4 mr-1" />最初の生徒を追加
-              </Button>
-            )}
-          </div>
+          profiles.length === 0 ? (
+            <EmptyState
+              icon={Users}
+              title="生徒が登録されていません"
+              description="生徒を追加して学習情報の管理を始めましょう"
+              action={{ label: "最初の生徒を追加", onClick: () => setShowAdd(true) }}
+            />
+          ) : (
+            <EmptyState
+              icon={Search}
+              title="検索結果がありません"
+              description="別のキーワードで検索してみてください"
+            />
+          )
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map(p => (

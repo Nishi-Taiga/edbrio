@@ -8,8 +8,12 @@ import { Badge } from '@/components/ui/badge'
 import { createClient } from '@/lib/supabase/client'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
+import { FileText } from 'lucide-react'
 import { ComprehensionBadge } from '@/components/reports/comprehension-badge'
 import { MoodIndicator } from '@/components/reports/mood-indicator'
+import { SkeletonList } from '@/components/ui/skeleton-card'
+import { EmptyState } from '@/components/ui/empty-state'
+import { ErrorAlert } from '@/components/ui/error-alert'
 
 type ReportRow = {
   id: string
@@ -137,13 +141,15 @@ export default function GuardianReportsPage() {
     <ProtectedRoute allowedRoles={["guardian"]}>
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">レポート</h1>
-        {error && (
-          <div className="mb-4 p-3 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded text-red-700 dark:text-red-400">{error}</div>
-        )}
+        {error && <ErrorAlert message={error} />}
         {loading ? (
-          <div className="text-gray-500 dark:text-slate-400">読み込み中...</div>
+          <SkeletonList count={3} />
         ) : items.length === 0 ? (
-          <div className="text-gray-500 dark:text-slate-400">レポートはありません。</div>
+          <EmptyState
+            icon={FileText}
+            title="レポートはありません"
+            description="授業後に講師がレポートを公開すると、ここに表示されます"
+          />
         ) : (
           <div className="space-y-3">
             {items.map((r) => (

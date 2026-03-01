@@ -5,6 +5,7 @@ import { ConditionalHeader } from '@/components/layout/conditional-header'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ThemeChooserDialog } from '@/components/ui/theme-chooser-dialog'
 import { SidebarProvider } from '@/components/layout/sidebar-context'
+import { Toaster } from 'sonner'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -58,6 +59,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background text-foreground`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <Toaster position="top-right" richColors closeButton duration={3000} />
           <ThemeChooserDialog />
           <SidebarProvider>
             <ConditionalHeader />

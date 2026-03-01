@@ -13,6 +13,9 @@ import { createClient } from '@/lib/supabase/client'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { Booking, Ticket, Payment } from '@/lib/types/database'
+import { SkeletonStatsGrid, SkeletonList } from '@/components/ui/skeleton-card'
+import { EmptyState } from '@/components/ui/empty-state'
+import { ErrorAlert } from '@/components/ui/error-alert'
 
 
 export default function TeacherDashboard() {
@@ -71,12 +74,9 @@ export default function TeacherDashboard() {
           <p className="text-gray-600 dark:text-slate-400">予約とチケット、売上の概要</p>
         </div>
 
-        {error && (
-          <div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700 dark:bg-red-900/20 dark:border-red-800/30 dark:text-red-400">
-            データ取得でエラーが発生しました: {error}
-          </div>
-        )}
+        {error && <ErrorAlert message={`データ取得でエラーが発生しました: ${error}`} />}
 
+        {loading ? <SkeletonStatsGrid count={3} /> : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardHeader className="pb-2"><CardTitle className="text-sm text-gray-600 dark:text-slate-400">今月の売上</CardTitle></CardHeader>
@@ -91,6 +91,7 @@ export default function TeacherDashboard() {
             <CardContent><div className="text-2xl font-bold">{activeTicketCount}</div></CardContent>
           </Card>
         </div>
+        )}
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
@@ -101,9 +102,13 @@ export default function TeacherDashboard() {
               </CardHeader>
               <CardContent>
                 {loading ? (
-                  <div className="text-gray-500 dark:text-slate-400">読み込み中...</div>
+                  <SkeletonList count={3} />
                 ) : upcoming.length === 0 ? (
-                  <div className="text-gray-500 dark:text-slate-400">予定はありません。</div>
+                  <EmptyState
+                    icon={Calendar}
+                    title="予定はありません"
+                    description="保護者からの予約が入ると表示されます"
+                  />
                 ) : (
                   <div className="space-y-3">
                     {upcoming.map((b: Booking) => (

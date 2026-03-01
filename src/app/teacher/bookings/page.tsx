@@ -6,10 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/client'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
+import { toast } from 'sonner'
 import { useAuth } from '@/hooks/use-auth'
 import { useBookings } from '@/hooks/use-bookings'
 import { Button } from '@/components/ui/button'
-import { Check, X } from 'lucide-react'
+import { Calendar, Check, X } from 'lucide-react'
+import { SkeletonList } from '@/components/ui/skeleton-card'
+import { EmptyState } from '@/components/ui/empty-state'
+import { ErrorAlert } from '@/components/ui/error-alert'
 
 type BookingRow = { id: string; start_time: string; end_time: string; status: 'pending' | 'confirmed' | 'canceled' | 'done'; student_id: string }
 
@@ -48,8 +52,10 @@ export default function TeacherBookingsPage() {
     setIsUpdating(id)
     try {
       await updateBookingStatus(id, status)
+      toast.success(status === 'confirmed' ? '予約を承認しました' : '予約を拒否しました')
     } catch (err) {
       console.error('Failed to update status:', err)
+      toast.error('更新に失敗しました')
     } finally {
       setIsUpdating(null)
     }
@@ -59,11 +65,15 @@ export default function TeacherBookingsPage() {
     <ProtectedRoute allowedRoles={["teacher"]}>
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-4">予約一覧</h1>
-        {error && (<div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700 dark:bg-red-900/20 dark:border-red-800/30 dark:text-red-400">{error}</div>)}
+        {error && <ErrorAlert message={error} />}
         {loading ? (
-          <div className="text-gray-500 dark:text-slate-400">読み込み中...</div>
+          <SkeletonList count={3} />
         ) : items.length === 0 ? (
-          <div className="text-gray-500 dark:text-slate-400">予約はありません。</div>
+          <EmptyState
+            icon={Calendar}
+            title="予約はありません"
+            description="保護者が予約を入れると、ここに表示されます"
+          />
         ) : (
           <div className="space-y-3">
             {items.map((b) => (

@@ -4,8 +4,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/client'
+import { Calendar } from 'lucide-react'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
+import { SkeletonList } from '@/components/ui/skeleton-card'
+import { EmptyState } from '@/components/ui/empty-state'
+import { ErrorAlert } from '@/components/ui/error-alert'
 
 type BookingRow = {
   id: string
@@ -22,11 +26,19 @@ const statusLabels: Record<string, string> = {
   done: '完了',
 }
 
+const statusFilters = [
+  { key: 'all', label: 'すべて' },
+  { key: 'upcoming', label: '予定' },
+  { key: 'done', label: '完了' },
+  { key: 'canceled', label: 'キャンセル' },
+] as const
+
 export default function GuardianBookingsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [items, setItems] = useState<BookingRow[]>([])
   const [teacherNames, setTeacherNames] = useState<Record<string, string>>({})
+  const [filter, setFilter] = useState<string>('all')
 
   const supabase = useMemo(() => createClient(), [])
 
@@ -87,16 +99,50 @@ export default function GuardianBookingsPage() {
     <ProtectedRoute allowedRoles={["guardian"]}>
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">予約履歴</h1>
-        {error && (
-          <div className="mb-4 p-3 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded text-red-700 dark:text-red-400">{error}</div>
+        {error && <ErrorAlert message={error} />}
+
+        {/* Status filter tabs */}
+        {!loading && items.length > 0 && (
+          <div className="flex gap-1 mb-4 p-1 bg-slate-100 dark:bg-slate-800/50 rounded-lg w-fit">
+            {statusFilters.map((f) => (
+              <button
+                key={f.key}
+                onClick={() => setFilter(f.key)}
+                className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                  filter === f.key
+                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-medium'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
         )}
+
         {loading ? (
-          <div className="text-gray-500 dark:text-slate-400">読み込み中...</div>
+          <SkeletonList count={3} />
         ) : items.length === 0 ? (
-          <div className="text-gray-500 dark:text-slate-400">予約はありません。</div>
-        ) : (
+          <EmptyState
+            icon={Calendar}
+            title="予約はありません"
+            description="カレンダーから空き時間を選んで予約しましょう"
+            action={{ label: "新規予約", href: "/guardian/booking" }}
+          />
+        ) : (() => {
+          const now = new Date()
+          const filtered = items.filter(b => {
+            if (filter === 'all') return true
+            if (filter === 'upcoming') return (b.status === 'confirmed' || b.status === 'pending') && new Date(b.start_time) >= now
+            if (filter === 'done') return b.status === 'done' || (b.status === 'confirmed' && new Date(b.end_time) < now)
+            if (filter === 'canceled') return b.status === 'canceled'
+            return true
+          })
+          return filtered.length === 0 ? (
+            <div className="text-center py-8 text-slate-500 dark:text-slate-400 text-sm">該当する予約はありません</div>
+          ) : (
           <div className="space-y-3">
-            {items.map((b) => (
+            {filtered.map((b) => (
               <Card key={b.id}>
                 <CardHeader><CardTitle className="text-sm">講師: {teacherNames[b.teacher_id] || b.teacher_id}</CardTitle></CardHeader>
                 <CardContent>
@@ -113,7 +159,8 @@ export default function GuardianBookingsPage() {
               </Card>
             ))}
           </div>
-        )}
+          )
+        })()}
       </div>
     </ProtectedRoute>
   )

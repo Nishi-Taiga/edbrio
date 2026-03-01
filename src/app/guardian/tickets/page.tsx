@@ -6,11 +6,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { ShoppingCart } from 'lucide-react'
-import { format } from 'date-fns'
+import { AlertTriangle, ShoppingCart } from 'lucide-react'
+import { format, differenceInDays } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { getStripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/client'
+import { SkeletonProductCard } from '@/components/ui/skeleton-card'
+import { EmptyState } from '@/components/ui/empty-state'
+import { ErrorAlert } from '@/components/ui/error-alert'
 
 type TicketRow = {
   id: string
@@ -165,11 +168,7 @@ export default function GuardianTickets() {
           <p className="text-gray-600 dark:text-slate-400">チケットの購入と残高を管理します</p>
         </div>
 
-        {error && (
-          <div className="mb-4 p-3 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded text-red-700 dark:text-red-400">
-            データ取得でエラーが発生しました: {error}
-          </div>
-        )}
+        {error && <ErrorAlert message={`データ取得でエラーが発生しました: ${error}`} />}
 
         {/* Available Tickets */}
         <Card className="mb-8">
@@ -179,7 +178,9 @@ export default function GuardianTickets() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="text-gray-500 dark:text-slate-400">読み込み中...</div>
+              <div className="grid md:grid-cols-2 gap-4">
+                {Array.from({ length: 2 }).map((_, i) => <SkeletonProductCard key={i} />)}
+              </div>
             ) : (
               <div className="grid md:grid-cols-2 gap-4">
                 {tickets.map((ticket) => (
@@ -215,7 +216,11 @@ export default function GuardianTickets() {
           </CardHeader>
           <CardContent>
             {balances.length === 0 ? (
-              <div className="text-gray-500 dark:text-slate-400">チケットはありません。</div>
+              <EmptyState
+                icon={ShoppingCart}
+                title="チケットはありません"
+                description="上の一覧からチケットを購入しましょう"
+              />
             ) : (
               <Table>
                 <TableHeader>
@@ -227,14 +232,28 @@ export default function GuardianTickets() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {balances.map((b) => (
-                    <TableRow key={b.id}>
+                  {balances.map((b) => {
+                    const daysLeft = b.expires_at ? differenceInDays(new Date(b.expires_at), new Date()) : null
+                    const isExpiringSoon = daysLeft !== null && daysLeft >= 0 && daysLeft <= 7
+                    return (
+                    <TableRow key={b.id} className={isExpiringSoon ? 'bg-amber-50/50 dark:bg-amber-900/10' : ''}>
                       <TableCell>{ticketNames[b.ticket_id] || b.ticket_id}</TableCell>
                       <TableCell>{b.remaining_minutes}分</TableCell>
                       <TableCell>{b.purchased_at ? format(new Date(b.purchased_at), 'PPP', { locale: ja }) : '-'}</TableCell>
-                      <TableCell>{b.expires_at ? format(new Date(b.expires_at), 'PPP', { locale: ja }) : '-'}</TableCell>
+                      <TableCell>
+                        <span className={isExpiringSoon ? 'text-amber-600 dark:text-amber-400 font-medium' : ''}>
+                          {b.expires_at ? format(new Date(b.expires_at), 'PPP', { locale: ja }) : '-'}
+                        </span>
+                        {isExpiringSoon && (
+                          <span className="ml-1.5 inline-flex items-center gap-0.5 text-xs text-amber-600 dark:text-amber-400">
+                            <AlertTriangle className="w-3 h-3" />
+                            残り{daysLeft}日
+                          </span>
+                        )}
+                      </TableCell>
                     </TableRow>
-                  ))}
+                    )
+                  })}
                 </TableBody>
               </Table>
             )}

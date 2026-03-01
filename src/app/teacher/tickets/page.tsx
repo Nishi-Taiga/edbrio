@@ -8,7 +8,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-import { Plus, Edit2, Trash2, Eye, EyeOff } from 'lucide-react'
+import { Plus, Edit2, Trash2, Eye, EyeOff, Ticket } from 'lucide-react'
+import { SkeletonProductCard } from '@/components/ui/skeleton-card'
+import { EmptyState } from '@/components/ui/empty-state'
+import { ErrorAlert } from '@/components/ui/error-alert'
+import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/use-auth'
 
@@ -119,8 +123,10 @@ export default function TeacherTicketsPage() {
       if (err) throw err
       setShowCreate(false)
       await fetchTickets()
+      toast.success('チケットを作成しました')
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e))
+      toast.error('チケットの作成に失敗しました')
     } finally {
       setSaving(false)
     }
@@ -145,8 +151,10 @@ export default function TeacherTicketsPage() {
       if (err) throw err
       setEditTarget(null)
       await fetchTickets()
+      toast.success('チケットを更新しました')
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e))
+      toast.error('チケットの更新に失敗しました')
     } finally {
       setSaving(false)
     }
@@ -161,8 +169,10 @@ export default function TeacherTicketsPage() {
         .eq('id', ticket.id)
       if (err) throw err
       await fetchTickets()
+      toast.success(ticket.is_active ? 'チケットを非公開にしました' : 'チケットを公開しました')
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e))
+      toast.error('更新に失敗しました')
     }
   }
 
@@ -178,8 +188,10 @@ export default function TeacherTicketsPage() {
       if (err) throw err
       setDeleteTarget(null)
       await fetchTickets()
+      toast.success('チケットを削除しました')
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e))
+      toast.error('チケットの削除に失敗しました')
     } finally {
       setSaving(false)
     }
@@ -262,21 +274,19 @@ export default function TeacherTicketsPage() {
           </Button>
         </div>
 
-        {error && (
-          <div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700 dark:bg-red-900/20 dark:border-red-800/30 dark:text-red-400">
-            {error}
-          </div>
-        )}
+        {error && <ErrorAlert message={error} />}
 
         {loading ? (
-          <div className="text-gray-500 dark:text-slate-400">読み込み中...</div>
-        ) : items.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 dark:text-slate-400 mb-4">チケットがありません。</p>
-            <Button onClick={openCreate}>
-              <Plus className="w-4 h-4 mr-1" /> 最初のチケットを作成
-            </Button>
+          <div className="grid md:grid-cols-2 gap-4">
+            {Array.from({ length: 2 }).map((_, i) => <SkeletonProductCard key={i} />)}
           </div>
+        ) : items.length === 0 ? (
+          <EmptyState
+            icon={Ticket}
+            title="チケットがありません"
+            description="保護者に販売するチケットを作成しましょう"
+            action={{ label: "最初のチケットを作成", onClick: openCreate }}
+          />
         ) : (
           <div className="grid md:grid-cols-2 gap-4">
             {items.map((t) => (

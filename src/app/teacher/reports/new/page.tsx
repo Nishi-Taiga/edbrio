@@ -14,9 +14,11 @@ import { useStudentProfiles } from '@/hooks/use-student-profiles'
 import { useStudentKarte } from '@/hooks/use-student-karte'
 import { useAiReport } from '@/hooks/use-ai-report'
 import { createClient } from '@/lib/supabase/client'
+import { toast } from 'sonner'
 import { ReportForm } from '@/components/reports/report-form'
 import { AiGenerateButton } from '@/components/reports/ai-generate-button'
 import { ReportPreview } from '@/components/reports/report-preview'
+import { ErrorAlert } from '@/components/ui/error-alert'
 
 export default function NewReportPage() {
   return (
@@ -126,9 +128,11 @@ function NewReportContent() {
         }).catch(console.error)
       }
 
+      toast.success(publish ? 'レポートを公開しました' : '下書きを保存しました')
       router.push('/teacher/reports')
     } catch (e: unknown) {
       setSaveError(e instanceof Error ? e.message : String(e))
+      toast.error('レポートの保存に失敗しました')
     } finally {
       setSaving(false)
     }
@@ -144,11 +148,7 @@ function NewReportContent() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">レポート作成</h1>
         </div>
 
-        {(aiError || saveError) && (
-          <div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700 dark:bg-red-900/20 dark:border-red-800/30 dark:text-red-400">
-            {aiError || saveError}
-          </div>
-        )}
+        {(aiError || saveError) && <ErrorAlert message={aiError || saveError || ''} />}
 
         <div className="space-y-6">
           {/* Step 1: Select student */}

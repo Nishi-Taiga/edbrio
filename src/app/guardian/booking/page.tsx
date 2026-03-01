@@ -10,6 +10,8 @@ import { Clock, Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import { format, addDays, isSameDay, startOfWeek } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { createClient } from '@/lib/supabase/client'
+import { toast } from 'sonner'
+import { ErrorAlert } from '@/components/ui/error-alert'
 import { useAuth } from '@/hooks/use-auth'
 import { useBookings } from '@/hooks/use-bookings'
 import { useRouter } from 'next/navigation'
@@ -175,6 +177,7 @@ export default function BookingPage() {
       setShowConfirmation(true)
     } catch (err: unknown) {
       console.error('Booking failed:', err)
+      toast.error('予約に失敗しました。もう一度お試しください。')
     } finally {
       setIsSubmitting(false)
     }
@@ -200,11 +203,7 @@ export default function BookingPage() {
           <p className="text-slate-500 dark:text-slate-400">先生の空き時間から予約してください</p>
         </div>
 
-        {error && (
-          <div className="mb-4 p-3 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded text-red-700 dark:text-red-400">
-            {error}
-          </div>
-        )}
+        {error && <ErrorAlert message={error} />}
 
         {!loading && teachers.length === 0 ? (
           <Card>
