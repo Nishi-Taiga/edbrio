@@ -3,7 +3,7 @@
 import { Link } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
 import { EdBrioLogo } from '@/components/ui/edbrio-logo'
-import { Mail, Clock, MessageSquare } from 'lucide-react'
+import { ContactForm } from '@/components/contact-form'
 
 export default function ContactPage() {
   const t = useTranslations('contact')
@@ -27,60 +27,15 @@ export default function ContactPage() {
         </div>
       </nav>
 
-      <div className="max-w-2xl mx-auto px-4 pt-28 sm:pt-32 pb-16">
+      <div className="max-w-xl mx-auto px-4 pt-28 sm:pt-32 pb-16">
         {/* Header */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{t('pageTitle')}</h1>
           <p className="mt-3 text-slate-500 dark:text-slate-400">{t('pageDescription')}</p>
         </div>
 
-        {/* Email card */}
-        <div className="bg-white dark:bg-brand-900/30 rounded-2xl border border-slate-200 dark:border-brand-800/30 shadow-sm p-6 sm:p-8 mb-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-brand-50 dark:bg-brand-800/40 rounded-xl flex items-center justify-center">
-              <Mail className="w-5 h-5 text-brand-600 dark:text-brand-400" />
-            </div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t('emailTitle')}</h2>
-          </div>
-          <a
-            href="mailto:info@edbrio.com"
-            className="inline-block text-brand-600 dark:text-brand-400 font-bold text-lg hover:underline"
-          >
-            info@edbrio.com
-          </a>
-          <div className="flex items-center gap-2 mt-3 text-sm text-slate-500 dark:text-slate-400">
-            <Clock className="w-4 h-4" />
-            <span>{t('responseTime')}</span>
-          </div>
-        </div>
-
-        {/* What to include */}
-        <div className="bg-white dark:bg-brand-900/30 rounded-2xl border border-slate-200 dark:border-brand-800/30 shadow-sm p-6 sm:p-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-amber-50 dark:bg-amber-900/20 rounded-xl flex items-center justify-center">
-              <MessageSquare className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-            </div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t('includeTitle')}</h2>
-          </div>
-          <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-            <li className="flex items-start gap-2">
-              <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600 shrink-0" />
-              {t('includeEmail')}
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600 shrink-0" />
-              {t('includePlan')}
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600 shrink-0" />
-              {t('includeDetail')}
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600 shrink-0" />
-              {t('includeBug')}
-            </li>
-          </ul>
-        </div>
+        {/* Contact form */}
+        <ContactForm />
 
         {/* Footer links */}
         <div className="mt-8 flex items-center justify-between text-sm text-slate-400 dark:text-slate-500">

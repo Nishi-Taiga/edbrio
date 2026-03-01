@@ -32,13 +32,16 @@ export async function POST(req: NextRequest) {
     // Log the inquiry (always works regardless of email config)
     console.log('[Contact]', { name, email, message: message.substring(0, 100) })
 
-    // Try to send email notification if Resend is configured
-    if (process.env.RESEND_API_KEY) {
-      try {
-        const { sendEmail } = await import('@/lib/email')
-        const adminEmail = process.env.CONTACT_EMAIL || 'info@edbrio.com'
+    // Send email notification via Resend
+    if (!process.env.RESEND_API_KEY) {
+      console.error('RESEND_API_KEY is not configured')
+      return NextResponse.json({ error: 'メール送信の設定がされていません。' }, { status: 500 })
+    }
 
-        const html = `<!DOCTYPE html>
+    const { sendEmail } = await import('@/lib/email')
+    const adminEmail = process.env.CONTACT_EMAIL || 'info@edbrio.com'
+
+    const html = `<!DOCTYPE html>
 <html lang="ja">
 <head><meta charset="utf-8"></head>
 <body style="margin:0;padding:20px;font-family:sans-serif;">
@@ -51,11 +54,7 @@ export async function POST(req: NextRequest) {
 </body>
 </html>`
 
-        await sendEmail(adminEmail, `【EdBrio】お問い合わせ: ${name}`, html)
-      } catch (emailError) {
-        console.error('Email send failed (inquiry still recorded):', emailError)
-      }
-    }
+    await sendEmail(adminEmail, `【EdBrio】お問い合わせ: ${name}`, html)
 
     return NextResponse.json({ success: true })
   } catch (error: unknown) {
