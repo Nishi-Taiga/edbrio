@@ -1,9 +1,11 @@
 'use client'
 
+import { useMemo } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
 import { X, Loader2 } from 'lucide-react'
 import { useAreaSearch } from '@/hooks/use-area-search'
 import { useTranslations } from 'next-intl'
@@ -14,6 +16,23 @@ interface AreaSelectorProps {
   onAreasChange: (areas: AreaSelection[]) => void
   availableOnline: boolean
   onAvailableOnlineChange: (v: boolean) => void
+}
+
+type MunicipalityGroup = { label: string; items: string[] }
+
+function groupMunicipalities(municipalities: string[]): MunicipalityGroup[] {
+  const groups: Record<string, string[]> = {}
+  for (const m of municipalities) {
+    let label = 'その他'
+    if (m.endsWith('区')) label = '区'
+    else if (m.endsWith('市')) label = '市'
+    else if (m.endsWith('町')) label = '町'
+    else if (m.endsWith('村')) label = '村'
+    if (!groups[label]) groups[label] = []
+    groups[label].push(m)
+  }
+  const order = ['区', '市', '町', '村', 'その他']
+  return order.filter(k => groups[k]).map(k => ({ label: k, items: groups[k] }))
 }
 
 export function AreaSelector({
@@ -28,16 +47,36 @@ export function AreaSelector({
     selectedPrefecture, setSelectedPrefecture,
   } = useAreaSearch()
 
-  const handleAddMunicipality = (municipality: string) => {
-    const alreadySelected = selectedAreas.some(
-      a => a.municipality === municipality && a.prefecture === selectedPrefecture
-    )
-    if (alreadySelected) return
+  const groups = useMemo(() => groupMunicipalities(municipalities), [municipalities])
 
-    onAreasChange([
-      ...selectedAreas,
-      { prefecture: selectedPrefecture, municipality },
-    ])
+  const isSelected = (municipality: string) =>
+    selectedAreas.some(a => a.municipality === municipality && a.prefecture === selectedPrefecture)
+
+  const toggleMunicipality = (municipality: string) => {
+    if (isSelected(municipality)) {
+      onAreasChange(selectedAreas.filter(
+        a => !(a.municipality === municipality && a.prefecture === selectedPrefecture)
+      ))
+    } else {
+      onAreasChange([...selectedAreas, { prefecture: selectedPrefecture, municipality }])
+    }
+  }
+
+  const toggleGroup = (group: MunicipalityGroup) => {
+    const allSelected = group.items.every(m => isSelected(m))
+    if (allSelected) {
+      // Remove all in this group
+      const toRemove = new Set(group.items)
+      onAreasChange(selectedAreas.filter(
+        a => !(a.prefecture === selectedPrefecture && toRemove.has(a.municipality))
+      ))
+    } else {
+      // Add missing items in this group
+      const toAdd = group.items
+        .filter(m => !isSelected(m))
+        .map(m => ({ prefecture: selectedPrefecture, municipality: m }))
+      onAreasChange([...selectedAreas, ...toAdd])
+    }
   }
 
   const handleRemoveArea = (index: number) => {
@@ -52,42 +91,61 @@ export function AreaSelector({
         <Label htmlFor="available-online" className="cursor-pointer">{t('availableOnline')}</Label>
       </div>
 
-      {/* Two-step selects: Prefecture -> Municipality */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {/* Prefecture */}
-        <Select value={selectedPrefecture} onValueChange={setSelectedPrefecture}>
-          <SelectTrigger>
-            {loading ? (
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Loader2 className="w-3 h-3 animate-spin" />
-              </div>
-            ) : (
-              <SelectValue placeholder={t('selectPrefecture')} />
-            )}
-          </SelectTrigger>
-          <SelectContent>
-            {prefectures.map(p => (
-              <SelectItem key={p} value={p}>{p}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* Prefecture select */}
+      <Select value={selectedPrefecture} onValueChange={setSelectedPrefecture}>
+        <SelectTrigger>
+          {loading ? (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Loader2 className="w-3 h-3 animate-spin" />
+            </div>
+          ) : (
+            <SelectValue placeholder={t('selectPrefecture')} />
+          )}
+        </SelectTrigger>
+        <SelectContent className="max-h-60">
+          {prefectures.map(p => (
+            <SelectItem key={p} value={p}>{p}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-        {/* Municipality (selecting adds directly) */}
-        <Select
-          value=""
-          onValueChange={handleAddMunicipality}
-          disabled={!selectedPrefecture || loading}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder={t('selectMunicipality')} />
-          </SelectTrigger>
-          <SelectContent>
-            {municipalities.map(m => (
-              <SelectItem key={m} value={m}>{m}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Grouped municipality checkboxes */}
+      {selectedPrefecture && groups.length > 0 && (
+        <div className="border rounded-md max-h-64 overflow-y-auto">
+          {groups.map((group) => {
+            const allSelected = group.items.every(m => isSelected(m))
+            const someSelected = !allSelected && group.items.some(m => isSelected(m))
+            return (
+              <div key={group.label}>
+                <div className="sticky top-0 bg-muted/80 backdrop-blur-sm px-3 py-1.5 border-b flex items-center gap-2">
+                  <Checkbox
+                    checked={allSelected ? true : someSelected ? 'indeterminate' : false}
+                    onCheckedChange={() => toggleGroup(group)}
+                    id={`group-${group.label}`}
+                  />
+                  <label
+                    htmlFor={`group-${group.label}`}
+                    className="text-xs font-semibold cursor-pointer select-none"
+                  >
+                    {group.label} ({group.items.length})
+                  </label>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-2 gap-y-1 px-3 py-2">
+                  {group.items.map(m => (
+                    <label key={m} className="flex items-center gap-1.5 text-sm cursor-pointer">
+                      <Checkbox
+                        checked={isSelected(m)}
+                        onCheckedChange={() => toggleMunicipality(m)}
+                      />
+                      <span className="truncate">{m}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
 
       {error && <p className="text-xs text-destructive">{t('areaLoadError')}</p>}
 
