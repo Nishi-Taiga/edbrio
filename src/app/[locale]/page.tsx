@@ -785,7 +785,7 @@ export default function HomePage() {
               <ul className="space-y-2 sm:space-y-4 text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-400">
                 <li><Link href="/legal?tab=sctl" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('footer.sctl')}</Link></li>
                 <li><Link href="/legal?tab=privacy" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('footer.privacy')}</Link></li>
-                <li><a href="#contact" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('footer.contact')}</a></li>
+                <li><Link href="/contact" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('footer.contact')}</Link></li>
               </ul>
             </div>
             <div>

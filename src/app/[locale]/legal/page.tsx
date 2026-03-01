@@ -1,9 +1,17 @@
 import { Link } from '@/i18n/navigation'
 import { getTranslations, getLocale } from 'next-intl/server'
+import { EdBrioLogo } from '@/components/ui/edbrio-logo'
+import { FileText, Shield, Store } from 'lucide-react'
 
-type Tab = 'terms' | 'privacy' | 'sctl' | 'contact'
+type Tab = 'terms' | 'privacy' | 'sctl'
 
-const TAB_KEYS: Tab[] = ['terms', 'privacy', 'sctl', 'contact']
+const TAB_KEYS: Tab[] = ['terms', 'privacy', 'sctl']
+
+const TAB_ICONS: Record<Tab, React.ReactNode> = {
+  terms: <FileText className="w-4 h-4" />,
+  privacy: <Shield className="w-4 h-4" />,
+  sctl: <Store className="w-4 h-4" />,
+}
 
 export async function generateMetadata() {
   const t = await getTranslations('legal')
@@ -20,6 +28,7 @@ export default async function LegalPage({
 }) {
   const params = await searchParams
   const t = await getTranslations('legal')
+  const tLanding = await getTranslations('landing')
   const locale = await getLocale()
   const activeTab = (TAB_KEYS.find(k => k === params.tab) ?? 'terms') as Tab
 
@@ -27,13 +36,32 @@ export default async function LegalPage({
     terms: t('tabTerms'),
     privacy: t('tabPrivacy'),
     sctl: t('tabSctl'),
-    contact: t('tabContact'),
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="max-w-4xl mx-auto px-4 py-16">
-        <h1 className="text-3xl font-bold mb-8 text-slate-900 dark:text-white">{t('pageTitle')}</h1>
+    <div className="min-h-screen bg-slate-50 dark:bg-brand-950 text-foreground">
+      {/* Navigation — same style as LP */}
+      <nav className="fixed top-0 w-full z-50 bg-white/80 dark:bg-brand-950/80 backdrop-blur-md border-b border-brand-100/50 dark:border-brand-800/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-2">
+          <Link href="/" className="flex items-center gap-2 shrink-0">
+            <EdBrioLogo size={32} className="shrink-0" />
+            <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-brand-700 dark:text-brand-300">EdBrio</span>
+          </Link>
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <Link href="/login" className="hidden sm:block text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-300 transition whitespace-nowrap">{tLanding('nav.login')}</Link>
+            <Link href="/login" className="bg-brand-600 hover:bg-brand-700 dark:bg-brand-500 dark:hover:bg-brand-400 text-white px-3 sm:px-5 py-2 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold transition shadow-lg shadow-brand-600/20 whitespace-nowrap">
+              {tLanding('nav.getStartedFree')}
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      <div className="max-w-3xl mx-auto px-4 pt-28 sm:pt-32 pb-16">
+        {/* Page header */}
+        <div className="mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{t('pageTitle')}</h1>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t('lastUpdated')}</p>
+        </div>
 
         {/* Non-Japanese locale notice */}
         {locale !== 'ja' && (
@@ -42,33 +70,41 @@ export default async function LegalPage({
           </div>
         )}
 
-        {/* Tabs */}
-        <div className="flex flex-wrap gap-2 mb-10 border-b border-slate-200 dark:border-brand-800/30 pb-4">
+        {/* Tab navigation */}
+        <div className="flex gap-1 mb-8 bg-white dark:bg-brand-900/40 p-1 rounded-xl border border-slate-200 dark:border-brand-800/30">
           {TAB_KEYS.map(key => (
             <Link
               key={key}
               href={`/legal?tab=${key}`}
-              className={`px-4 py-2 rounded-lg text-sm font-bold transition ${
+              className={`flex items-center gap-1.5 flex-1 justify-center px-3 py-2.5 rounded-lg text-sm font-bold transition ${
                 activeTab === key
-                  ? 'bg-brand-600 text-white dark:bg-brand-500'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-brand-900/30 dark:text-slate-400 dark:hover:bg-brand-800/40'
+                  ? 'bg-brand-600 text-white shadow-sm dark:bg-brand-500'
+                  : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-300 dark:hover:bg-brand-800/30'
               }`}
             >
-              {tabLabels[key]}
+              {TAB_ICONS[key]}
+              <span className="hidden sm:inline">{tabLabels[key]}</span>
             </Link>
           ))}
         </div>
 
-        {/* Content - Legal text stays in Japanese */}
-        <div className="prose prose-slate dark:prose-invert max-w-none prose-headings:text-slate-900 dark:prose-headings:text-white prose-p:text-slate-600 dark:prose-p:text-slate-400 prose-li:text-slate-600 dark:prose-li:text-slate-400 prose-strong:text-slate-800 dark:prose-strong:text-slate-200">
-          {activeTab === 'terms' && <TermsContent />}
-          {activeTab === 'privacy' && <PrivacyContent />}
-          {activeTab === 'sctl' && <SctlContent />}
-          {activeTab === 'contact' && <ContactContent />}
+        {/* Content card */}
+        <div className="bg-white dark:bg-brand-900/30 rounded-2xl border border-slate-200 dark:border-brand-800/30 shadow-sm">
+          <div className="p-6 sm:p-10 prose prose-slate dark:prose-invert max-w-none prose-headings:text-slate-900 dark:prose-headings:text-white prose-p:text-slate-600 dark:prose-p:text-slate-400 prose-li:text-slate-600 dark:prose-li:text-slate-400 prose-strong:text-slate-800 dark:prose-strong:text-slate-200 prose-h2:text-xl prose-h2:border-b prose-h2:border-slate-100 dark:prose-h2:border-brand-800/30 prose-h2:pb-3 prose-h2:mb-6 prose-h3:text-base prose-h3:mt-8 prose-table:text-sm">
+            {activeTab === 'terms' && <TermsContent />}
+            {activeTab === 'privacy' && <PrivacyContent />}
+            {activeTab === 'sctl' && <SctlContent />}
+          </div>
         </div>
 
-        <div className="mt-16 pt-8 border-t border-slate-200 dark:border-brand-800/30 text-sm text-slate-400 dark:text-slate-500">
-          <p>{t('lastUpdated')}</p>
+        {/* Footer links */}
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-400 dark:text-slate-500">
+          <Link href="/contact" className="hover:text-brand-600 dark:hover:text-brand-400 transition font-medium">
+            {t('contactLink')}
+          </Link>
+          <Link href="/" className="hover:text-brand-600 dark:hover:text-brand-400 transition">
+            &larr; {t('backToHome')}
+          </Link>
         </div>
       </div>
     </div>
@@ -288,36 +324,6 @@ function SctlContent() {
           </tbody>
         </table>
       </div>
-    </>
-  )
-}
-
-function ContactContent() {
-  return (
-    <>
-      <h2>お問い合わせ</h2>
-      <p>EdBrioに関するご質問、ご要望、不具合の報告は以下のメールアドレスまでお気軽にお問い合わせください。</p>
-
-      <div className="not-prose bg-slate-50 dark:bg-brand-900/30 rounded-2xl p-8 border border-slate-200 dark:border-brand-800/30 mt-6">
-        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">メールでのお問い合わせ</h3>
-        <a
-          href="mailto:info@edbrio.com"
-          className="text-brand-600 dark:text-brand-400 font-bold text-lg hover:underline"
-        >
-          info@edbrio.com
-        </a>
-        <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
-          通常、2営業日以内にご返信いたします。
-        </p>
-      </div>
-
-      <h3 className="mt-8">お問い合わせの際にご記載いただきたい情報</h3>
-      <ul>
-        <li>ご登録のメールアドレス</li>
-        <li>ご利用のプラン（Free / Standard）</li>
-        <li>お問い合わせ内容の詳細</li>
-        <li>不具合の場合: ご利用のブラウザ、発生日時、エラーメッセージ等</li>
-      </ul>
     </>
   )
 }

@@ -749,8 +749,22 @@
     "tabTerms": "Terms of Service",
     "tabPrivacy": "Privacy Policy",
     "tabSctl": "Commercial Transactions Act",
-    "tabContact": "Contact",
     "lastUpdated": "Last updated: February 26, 2026",
-    "japaneseOnlyNotice": "This legal document is available in Japanese only."
+    "japaneseOnlyNotice": "This legal document is available in Japanese only.",
+    "contactLink": "Contact Us →",
+    "backToHome": "Back to Home"
+  },
+  "contact": {
+    "pageTitle": "Contact Us",
+    "pageDescription": "Have questions, requests, or need to report an issue? We'd love to hear from you.",
+    "emailTitle": "Email Us",
+    "responseTime": "We typically respond within 2 business days",
+    "includeTitle": "What to include in your inquiry",
+    "includeEmail": "Your registered email address",
+    "includePlan": "Your current plan (Free / Standard)",
+    "includeDetail": "Details of your inquiry",
+    "includeBug": "For bugs: browser, date/time, error messages, etc.",
+    "legalLink": "Legal Information",
+    "backToHome": "Back to Home"
   }
 }

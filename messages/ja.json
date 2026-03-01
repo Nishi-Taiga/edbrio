@@ -749,8 +749,22 @@
     "tabTerms": "利用規約",
     "tabPrivacy": "プライバシーポリシー",
     "tabSctl": "特定商取引法",
-    "tabContact": "お問い合わせ",
     "lastUpdated": "最終更新日: 2026年2月26日",
-    "japaneseOnlyNotice": "この法的文書は日本語でのみ提供されています。"
+    "japaneseOnlyNotice": "この法的文書は日本語でのみ提供されています。",
+    "contactLink": "お問い合わせはこちら →",
+    "backToHome": "ホームに戻る"
+  },
+  "contact": {
+    "pageTitle": "お問い合わせ",
+    "pageDescription": "EdBrioに関するご質問、ご要望、不具合の報告はお気軽にお問い合わせください。",
+    "emailTitle": "メールでのお問い合わせ",
+    "responseTime": "通常、2営業日以内にご返信いたします",
+    "includeTitle": "お問い合わせの際にご記載いただきたい情報",
+    "includeEmail": "ご登録のメールアドレス",
+    "includePlan": "ご利用のプラン（Free / Standard）",
+    "includeDetail": "お問い合わせ内容の詳細",
+    "includeBug": "不具合の場合: ご利用のブラウザ、発生日時、エラーメッセージ等",
+    "legalLink": "法的情報",
+    "backToHome": "ホームに戻る"
   }
 }
