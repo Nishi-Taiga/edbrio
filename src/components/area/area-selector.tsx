@@ -3,8 +3,6 @@
 import { useMemo, useState } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { X, Loader2, ChevronDown, ChevronRight } from 'lucide-react'
 import { useAreaSearch } from '@/hooks/use-area-search'
@@ -14,8 +12,6 @@ import type { AreaSelection } from '@/lib/types/database'
 interface AreaSelectorProps {
   selectedAreas: AreaSelection[]
   onAreasChange: (areas: AreaSelection[]) => void
-  availableOnline: boolean
-  onAvailableOnlineChange: (v: boolean) => void
 }
 
 type MunicipalityGroup = { label: string; items: string[] }
@@ -38,8 +34,6 @@ function groupMunicipalities(municipalities: string[]): MunicipalityGroup[] {
 export function AreaSelector({
   selectedAreas,
   onAreasChange,
-  availableOnline,
-  onAvailableOnlineChange,
 }: AreaSelectorProps) {
   const t = useTranslations('teacherProfile')
   const {
@@ -88,12 +82,6 @@ export function AreaSelector({
 
   return (
     <div className="space-y-4">
-      {/* Online toggle */}
-      <div className="flex items-center gap-2">
-        <Switch checked={availableOnline} onCheckedChange={onAvailableOnlineChange} id="available-online" />
-        <Label htmlFor="available-online" className="cursor-pointer">{t('availableOnline')}</Label>
-      </div>
-
       {/* Prefecture select */}
       <Select value={selectedPrefecture} onValueChange={setSelectedPrefecture}>
         <SelectTrigger>

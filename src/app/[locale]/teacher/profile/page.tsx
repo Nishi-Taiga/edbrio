@@ -383,13 +383,20 @@ function TeacherProfileContent() {
                   </div>
                 </div>
 
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    checked={editedProfile.available_online || false}
+                    onCheckedChange={(checked) => setEditedProfile(p => ({ ...p, available_online: !!checked }))}
+                    id="available-online"
+                  />
+                  <label htmlFor="available-online" className="text-sm font-medium cursor-pointer">{t('availableOnline')}</label>
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium mb-2">{t('areaLabel')}</label>
                   <AreaSelector
                     selectedAreas={editedProfile.service_areas || []}
                     onAreasChange={(areas) => setEditedProfile(p => ({ ...p, service_areas: areas }))}
-                    availableOnline={editedProfile.available_online || false}
-                    onAvailableOnlineChange={(v) => setEditedProfile(p => ({ ...p, available_online: v }))}
                   />
                 </div>
 
@@ -494,49 +501,55 @@ function TeacherProfileContent() {
                 </Button>
               </CardHeader>
               <CardContent>
-                <div className="text-sm text-gray-700 dark:text-slate-300 space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="text-gray-700 dark:text-slate-300 space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                      <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">{t('displayNameLabel')}</span>
-                      {teacher.public_profile?.display_name || <span className="text-gray-400">{tc('notSet')}</span>}
+                      <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase mb-1">{t('displayNameLabel')}</span>
+                      <span className="text-base">{teacher.public_profile?.display_name || <span className="text-gray-400 text-sm">{tc('notSet')}</span>}</span>
                     </div>
                     <div className="md:col-span-2">
-                      <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">{t('bioLabel')}</span>
+                      <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase mb-1">{t('bioLabel')}</span>
                       {teacher.public_profile?.bio ? (
-                        <p className="whitespace-pre-wrap">{teacher.public_profile.bio}</p>
+                        <p className="text-base whitespace-pre-wrap leading-relaxed">{teacher.public_profile.bio}</p>
                       ) : (
-                        <span className="text-gray-400">{tc('notSet')}</span>
+                        <span className="text-gray-400 text-sm">{tc('notSet')}</span>
                       )}
                     </div>
                     <div>
-                      <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">{t('experienceLabel')}</span>
-                      {teacher.public_profile?.experience_years || <span className="text-gray-400">{tc('notSet')}</span>}
+                      <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase mb-1">{t('experienceLabel')}</span>
+                      <span className="text-base">{teacher.public_profile?.experience_years || <span className="text-gray-400 text-sm">{tc('notSet')}</span>}</span>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">{t('subjectsLabel')}</span>
-                      {(teacher.subjects || []).join(' / ') || '-'}
+                      <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase mb-1">{t('subjectsLabel')}</span>
+                      <span className="text-sm">{(teacher.subjects || []).join(' / ') || '-'}</span>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">{t('gradesLabel')}</span>
-                      {(teacher.grades || []).join(' / ') || '-'}
+                      <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase mb-1">{t('gradesLabel')}</span>
+                      <span className="text-sm">{(teacher.grades || []).join(' / ') || '-'}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase mb-1">{t('availableOnline')}</span>
+                      {teacher.public_profile?.available_online ? (
+                        <Badge variant="outline" className="border-green-300 text-green-700 dark:border-green-700 dark:text-green-400">{t('onlineAvailable')}</Badge>
+                      ) : (
+                        <Badge variant="outline" className="border-gray-300 text-gray-500 dark:border-gray-600 dark:text-gray-400">{t('onlineUnavailable')}</Badge>
+                      )}
                     </div>
                     <div className="md:col-span-2">
                       <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase mb-1">{t('areaLabel')}</span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {teacher.public_profile?.available_online ? (
-                          <Badge variant="outline" className="border-green-300 text-green-700 dark:border-green-700 dark:text-green-400">{t('onlineAvailable')}</Badge>
-                        ) : (
-                          <Badge variant="outline" className="border-gray-300 text-gray-500 dark:border-gray-600 dark:text-gray-400">{t('onlineUnavailable')}</Badge>
-                        )}
-                        {migrateServiceAreas(teacher.public_profile?.service_areas || []).map((a: AreaSelection, i: number) => (
-                          <Badge key={`${a.prefecture}-${a.municipality}-${i}`} variant="secondary">
-                            {a.municipality} <span className="text-xs text-muted-foreground ml-0.5">({a.prefecture})</span>
-                          </Badge>
-                        ))}
-                        {!teacher.public_profile?.service_areas?.length && teacher.public_profile?.area && (
-                          <span className="text-sm">{teacher.public_profile.area}</span>
-                        )}
-                      </div>
+                      {migrateServiceAreas(teacher.public_profile?.service_areas || []).length > 0 ? (
+                        <div className="flex flex-wrap gap-1.5">
+                          {migrateServiceAreas(teacher.public_profile?.service_areas || []).map((a: AreaSelection, i: number) => (
+                            <Badge key={`${a.prefecture}-${a.municipality}-${i}`} variant="secondary">
+                              {a.municipality} <span className="text-xs text-muted-foreground ml-0.5">({a.prefecture})</span>
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : teacher.public_profile?.area ? (
+                        <span className="text-sm">{teacher.public_profile.area}</span>
+                      ) : (
+                        <span className="text-gray-400 text-sm">{tc('notSet')}</span>
+                      )}
                     </div>
                   </div>
                 </div>
