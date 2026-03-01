@@ -86,6 +86,28 @@ export async function POST(req: NextRequest) {
     })
   } catch (error: unknown) {
     console.error('AI report generation error:', error)
+
+    if (error instanceof Anthropic.APIError) {
+      if (error.status === 400 && error.message.includes('credit balance')) {
+        return NextResponse.json(
+          { error: 'AIサービスの利用枠が不足しています。管理者にお問い合わせください。' },
+          { status: 503 }
+        )
+      }
+      if (error.status === 401) {
+        return NextResponse.json(
+          { error: 'AIサービスの認証に失敗しました。管理者にお問い合わせください。' },
+          { status: 503 }
+        )
+      }
+      if (error.status === 429) {
+        return NextResponse.json(
+          { error: 'AIサービスが混み合っています。しばらくしてからお試しください。' },
+          { status: 429 }
+        )
+      }
+    }
+
     return NextResponse.json(
       { error: 'レポート生成に失敗しました。しばらくしてからお試しください。' },
       { status: 500 }
