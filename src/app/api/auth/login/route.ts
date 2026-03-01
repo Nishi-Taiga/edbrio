@@ -6,6 +6,7 @@ import {
   clearLoginAttempts,
 } from '@/lib/supabase/middleware'
 import { createRateLimiter } from '@/lib/rate-limit'
+import { loginSchema } from '@/lib/validations'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,14 +25,15 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const { email, password } = await req.json()
-
-  if (!email || !password) {
+  const body = await req.json()
+  const result = loginSchema.safeParse(body)
+  if (!result.success) {
     return NextResponse.json(
       { error: 'メールアドレスとパスワードを入力してください。' },
       { status: 400 }
     )
   }
+  const { email, password } = result.data
 
   // Check account lockout (by email)
   const lockKey = email.toLowerCase()

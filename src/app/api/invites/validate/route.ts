@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { inviteValidateSchema } from '@/lib/validations'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(req: NextRequest) {
   try {
-    const token = req.nextUrl.searchParams.get('token')
-    if (!token) {
+    const tokenParam = req.nextUrl.searchParams.get('token')
+    const parsed = inviteValidateSchema.safeParse({ token: tokenParam })
+    if (!parsed.success) {
       return NextResponse.json({ valid: false, reason: 'missing_token' })
     }
+    const { token } = parsed.data
 
     const admin = createAdminClient()
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { adminLimiter } from '@/lib/rate-limit'
+import { adminUserUpdateSchema } from '@/lib/validations'
 
 export const dynamic = 'force-dynamic'
 
@@ -205,33 +206,14 @@ export async function PATCH(
     }
 
     const body = await req.json()
-    const { plan, is_suspended } = body as {
-      plan?: 'free' | 'pro'
-      is_suspended?: boolean
-    }
-
-    // Validate that at least one field is provided
-    if (plan === undefined && is_suspended === undefined) {
+    const parsed = adminUserUpdateSchema.safeParse(body)
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: 'No update fields provided.' },
+        { error: parsed.error.issues[0]?.message || 'Invalid input.' },
         { status: 400 }
       )
     }
-
-    // Validate field values
-    if (plan !== undefined && plan !== 'free' && plan !== 'pro') {
-      return NextResponse.json(
-        { error: 'Invalid plan value. Must be "free" or "pro".' },
-        { status: 400 }
-      )
-    }
-
-    if (is_suspended !== undefined && typeof is_suspended !== 'boolean') {
-      return NextResponse.json(
-        { error: 'Invalid is_suspended value. Must be a boolean.' },
-        { status: 400 }
-      )
-    }
+    const { plan, is_suspended } = parsed.data
 
     const supabase = createAdminClient()
 

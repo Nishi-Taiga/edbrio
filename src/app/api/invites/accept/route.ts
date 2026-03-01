@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { inviteAcceptSchema } from '@/lib/validations'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,10 +14,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { token } = await req.json()
-    if (!token) {
+    const body = await req.json()
+    const parsed = inviteAcceptSchema.safeParse(body)
+    if (!parsed.success) {
       return NextResponse.json({ error: 'token is required' }, { status: 400 })
     }
+    const { token } = parsed.data
 
     const admin = createAdminClient()
 
@@ -57,7 +60,7 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     console.error('Invite accept error:', error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
+      { error: '招待の承認に失敗しました' },
       { status: 500 }
     )
   }

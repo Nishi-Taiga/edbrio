@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { checkoutLimiter } from '@/lib/rate-limit'
+import { checkoutSessionSchema } from '@/lib/validations'
 
 // Mark this route as dynamic to prevent it from being prerendered at build time
 export const dynamic = 'force-dynamic'
@@ -24,7 +25,12 @@ export async function POST(req: NextRequest) {
 
   const stripe = getStripe()
   try {
-    const { ticketId, priceId } = await req.json()
+    const body = await req.json()
+    const parsed = checkoutSessionSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: '入力内容に不備があります' }, { status: 400 })
+    }
+    const { ticketId, priceId } = parsed.data
 
     // In real app, fetch ticket details from Supabase
     const session = await stripe.checkout.sessions.create({

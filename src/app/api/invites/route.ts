@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { sendEmail, buildGuardianInviteEmail } from '@/lib/email'
 import { emailLimiter } from '@/lib/rate-limit'
+import { inviteCreateSchema } from '@/lib/validations'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,15 +20,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
     }
 
-    const { email, method = 'email' } = await req.json()
-
-    if (method !== 'email' && method !== 'qr') {
-      return NextResponse.json({ error: 'Invalid method' }, { status: 400 })
+    const body = await req.json()
+    const parsed = inviteCreateSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: '入力内容に不備があります' }, { status: 400 })
     }
-
-    if (method === 'email' && !email) {
-      return NextResponse.json({ error: 'email is required for email invites' }, { status: 400 })
-    }
+    const { email, method } = parsed.data
 
     // Check for existing active invite (email method only)
     if (method === 'email') {
@@ -82,14 +80,14 @@ export async function POST(req: NextRequest) {
         inviteUrl,
       })
 
-      await sendEmail(email, emailContent.subject, emailContent.html)
+      await sendEmail(email!, emailContent.subject, emailContent.html)
     }
 
     return NextResponse.json({ success: true, token })
   } catch (error: unknown) {
     console.error('Invite create error:', error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
+      { error: '招待の作成に失敗しました' },
       { status: 500 }
     )
   }

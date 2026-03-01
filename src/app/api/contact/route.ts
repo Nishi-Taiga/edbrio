@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { contactLimiter } from '@/lib/rate-limit'
+import { contactSchema } from '@/lib/validations'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,21 +14,11 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { name, email, message } = body
-
-    if (!name || !email || !message) {
-      return NextResponse.json({ error: 'すべての項目を入力してください' }, { status: 400 })
+    const result = contactSchema.safeParse(body)
+    if (!result.success) {
+      return NextResponse.json({ error: '入力内容に不備があります' }, { status: 400 })
     }
-
-    if (typeof name !== 'string' || name.length > 100) {
-      return NextResponse.json({ error: 'お名前が不正です' }, { status: 400 })
-    }
-    if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
-      return NextResponse.json({ error: 'メールアドレスが不正です' }, { status: 400 })
-    }
-    if (typeof message !== 'string' || message.length > 5000) {
-      return NextResponse.json({ error: 'お問い合わせ内容が長すぎます' }, { status: 400 })
-    }
+    const { name, email, message } = result.data
 
     // Log the inquiry (always works regardless of email config)
     console.log('[Contact]', { name, email, message: message.substring(0, 100) })
@@ -54,14 +45,15 @@ export async function POST(req: NextRequest) {
 </body>
 </html>`
 
-    await sendEmail(adminEmail, `【EdBrio】お問い合わせ: ${name}`, html)
+    // Sanitize name in email subject to prevent header injection
+    const safeName = name.replace(/[\r\n]/g, '')
+    await sendEmail(adminEmail, `【EdBrio】お問い合わせ: ${safeName}`, html)
 
     return NextResponse.json({ success: true })
   } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : String(error)
-    console.error('Contact form error:', msg)
+    console.error('Contact form error:', error instanceof Error ? error.message : error)
     return NextResponse.json(
-      { error: `送信に失敗しました: ${msg}` },
+      { error: '送信に失敗しました。しばらくしてからお試しください。' },
       { status: 500 }
     )
   }

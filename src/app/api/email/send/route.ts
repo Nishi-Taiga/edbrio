@@ -4,6 +4,7 @@ import { sendEmail, buildBookingConfirmationEmail, buildReportPublishedEmail } f
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { emailLimiter } from '@/lib/rate-limit'
+import { emailSendSchema } from '@/lib/validations'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,18 +27,15 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { type, data } = body
-
-    if (!type) {
-      return NextResponse.json({ error: 'type is required' }, { status: 400 })
+    const parsed = emailSendSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: '入力内容に不備があります' }, { status: 400 })
     }
+    const { type, data } = parsed.data
 
     switch (type) {
       case 'booking_confirmation': {
-        const { bookingId } = data || {}
-        if (!bookingId) {
-          return NextResponse.json({ error: 'bookingId is required' }, { status: 400 })
-        }
+        const { bookingId } = data
 
         // Fetch booking with related data
         const { data: booking, error: bErr } = await supabase
@@ -107,10 +105,7 @@ export async function POST(req: NextRequest) {
       }
 
       case 'report_published': {
-        const { reportId } = data || {}
-        if (!reportId) {
-          return NextResponse.json({ error: 'reportId is required' }, { status: 400 })
-        }
+        const { reportId } = data
 
         // Fetch report
         const { data: report, error: rErr } = await supabase
@@ -166,7 +161,7 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     console.error('Email send error:', error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
+      { error: 'メール送信に失敗しました' },
       { status: 500 }
     )
   }

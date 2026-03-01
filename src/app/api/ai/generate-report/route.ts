@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
 import { aiReportLimiter } from '@/lib/rate-limit'
+import { generateReportSchema } from '@/lib/validations'
 
 export const dynamic = 'force-dynamic'
 
@@ -62,11 +63,11 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { contentRaw, studentName, subject, goals, weakPoints, comprehensionLevel, studentMood, maxLength } = body
-
-    if (!contentRaw || !studentName) {
-      return NextResponse.json({ error: 'contentRaw and studentName are required' }, { status: 400 })
+    const parsed = generateReportSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: '入力内容に不備があります' }, { status: 400 })
     }
+    const { contentRaw, studentName, subject, goals, weakPoints, comprehensionLevel, studentMood, maxLength } = parsed.data
 
     // Build context for the AI
     let userPrompt = `## 授業メモ\n${contentRaw}\n\n## 生徒名\n${studentName}`

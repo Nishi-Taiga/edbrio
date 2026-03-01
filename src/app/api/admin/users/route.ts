@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { adminLimiter } from '@/lib/rate-limit'
+import { adminUsersQuerySchema } from '@/lib/validations'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,12 +14,18 @@ export async function GET(req: NextRequest) {
     }
 
     const { searchParams } = new URL(req.url)
-    const role = searchParams.get('role') || 'all'
-    const plan = searchParams.get('plan') || 'all'
-    const search = searchParams.get('search') || ''
-    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
-    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20', 10)))
-    const sort = searchParams.get('sort') || 'newest'
+    const parsed = adminUsersQuerySchema.safeParse({
+      role: searchParams.get('role') ?? undefined,
+      plan: searchParams.get('plan') ?? undefined,
+      search: searchParams.get('search') ?? undefined,
+      page: searchParams.get('page') ?? undefined,
+      limit: searchParams.get('limit') ?? undefined,
+      sort: searchParams.get('sort') ?? undefined,
+    })
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid query parameters.' }, { status: 400 })
+    }
+    const { role, plan, search, page, limit, sort } = parsed.data
 
     const supabase = createAdminClient()
 
@@ -46,7 +53,13 @@ export async function GET(req: NextRequest) {
 
     if (role !== 'all') query = query.eq('role', role)
     if (planFilteredTeacherIds) query = query.in('id', planFilteredTeacherIds)
-    if (search) query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%`)
+    if (search) {
+      // Sanitize search input to prevent PostgREST filter injection
+      const sanitized = search.replace(/[%_\\.,()]/g, '')
+      if (sanitized) {
+        query = query.or(`name.ilike.%${sanitized}%,email.ilike.%${sanitized}%`)
+      }
+    }
     query = query.order('created_at', { ascending: sort === 'oldest' })
 
     const from = (page - 1) * limit
