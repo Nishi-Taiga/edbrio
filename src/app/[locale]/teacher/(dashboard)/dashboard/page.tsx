@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Link } from '@/i18n/navigation'
-import { AlertTriangle, Calendar, Check, DollarSign, FileText, Settings, Users, X } from 'lucide-react'
+import { AlertTriangle, Calendar, Check, DollarSign, FileText, Ticket, Users, X } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useBookings } from '@/hooks/use-bookings'
 import { useTickets } from '@/hooks/use-tickets'
@@ -15,7 +15,7 @@ import { useReports } from '@/hooks/use-reports'
 import { createClient } from '@/lib/supabase/client'
 import { format, isToday } from 'date-fns'
 import { ja } from 'date-fns/locale'
-import { Booking, Ticket, Payment, Report } from '@/lib/types/database'
+import { Booking, Ticket as TicketType, Payment, Report } from '@/lib/types/database'
 import { SkeletonStatsGrid, SkeletonList } from '@/components/ui/skeleton-card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorAlert } from '@/components/ui/error-alert'
@@ -25,6 +25,12 @@ import { ComprehensionBadge } from '@/components/reports/comprehension-badge'
 import { MoodIndicator } from '@/components/reports/mood-indicator'
 import { toast } from 'sonner'
 
+const iconBgColors: Record<string, string> = {
+  brand: 'bg-brand-100 text-brand-600 dark:bg-brand-900/40 dark:text-brand-400',
+  green: 'bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400',
+  purple: 'bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-400',
+  orange: 'bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400',
+}
 
 export default function TeacherDashboard() {
   const t = useTranslations('teacherDashboard')
@@ -45,7 +51,7 @@ export default function TeacherDashboard() {
 
   const supabase = useMemo(() => createClient(), [])
 
-  // Fetch monthly revenue
+  // Fetch monthly revenue & check setup
   useEffect(() => {
     if (!user?.id || dbUser?.role !== 'teacher') return
 
@@ -87,7 +93,7 @@ export default function TeacherDashboard() {
     checkSetup()
   }, [user, dbUser, supabase])
 
-  // Resolve student UUIDs to names (from bookings)
+  // Resolve student UUIDs to names
   useEffect(() => {
     if (bookings.length === 0) return
     const ids = [...new Set(bookings.map((b: Booking) => b.student_id))]
@@ -148,10 +154,8 @@ export default function TeacherDashboard() {
     [profiles]
   )
 
-  const activeTicketCount = useMemo(() => activeTickets.filter((t: Ticket) => t.is_active).length, [activeTickets])
-
+  const activeTicketCount = useMemo(() => activeTickets.filter((t: TicketType) => t.is_active).length, [activeTickets])
   const recentReports = useMemo(() => reports.slice(0, 5), [reports])
-
   const draftReports = useMemo(() => reports.filter((r: Report) => !r.published_at), [reports])
 
   const loading = authLoading || bookingsLoading || ticketsLoading || profilesLoading || reportsLoading || revenueLoading
@@ -173,57 +177,59 @@ export default function TeacherDashboard() {
     }
   }
 
-  const hasActionItems = pendingBookings.length > 0 || draftReports.length > 0
+  // Time-based greeting
+  const hour = new Date().getHours()
+  const greeting = hour < 12 ? t('greetingMorning') : hour < 18 ? t('greetingAfternoon') : t('greetingEvening')
+
+  // Unified action items
+  const actionItems: { text: string; href: string }[] = []
+  if (setupComplete === false) actionItems.push({ text: t('setupAction'), href: '/teacher/setup' })
+  if (pendingBookings.length > 0) actionItems.push({ text: t('pendingBookingsAction', { count: pendingBookings.length }), href: '/teacher/bookings' })
+  if (draftReports.length > 0) actionItems.push({ text: t('draftReportsAction', { count: draftReports.length }), href: '/teacher/reports' })
+
+  // Stat cards config
+  const statCards = [
+    { label: t('todayLessons'), value: todayBookings.length, icon: Calendar, color: 'brand', href: undefined as string | undefined },
+    { label: t('monthlyRevenue'), value: formatYen(monthRevenue), icon: DollarSign, color: 'green', href: undefined as string | undefined },
+    { label: t('activeStudents'), value: activeStudentCount, icon: Users, color: 'purple', href: '/teacher/curriculum' },
+    { label: t('activeTickets'), value: activeTicketCount, icon: Ticket, color: 'orange', href: '/teacher/tickets' },
+  ]
 
   return (
     <ProtectedRoute allowedRoles={['teacher']}>
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{t('title')}</h1>
-          <p className="text-gray-600 dark:text-slate-400">{t('description')}</p>
+      <div className="container mx-auto px-4 py-6 sm:py-8">
+
+        {/* ── Welcome Header ── */}
+        <div className="relative rounded-2xl bg-gradient-to-r from-brand-600 to-brand-500 dark:from-brand-900 dark:to-brand-800 p-6 sm:p-8 mb-6 overflow-hidden">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
+          <div className="absolute bottom-0 left-1/3 w-56 h-28 bg-accent-400/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="relative">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">
+              {t('greeting', { name: dbUser?.name || '', greeting })}
+            </h1>
+            <p className="text-brand-100 dark:text-brand-300 text-sm sm:text-base">
+              {todayBookings.length > 0
+                ? t('todaySummary', { count: todayBookings.length })
+                : t('noLessonsTodaySummary')}
+            </p>
+          </div>
         </div>
 
-        {/* Setup Alert */}
-        {setupComplete === false && (
+        {/* ── Unified Action Banner ── */}
+        {!loading && actionItems.length > 0 && (
           <Card className="mb-6 border-amber-200 bg-amber-50 dark:border-amber-800/30 dark:bg-amber-900/10">
-            <CardContent className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4">
-              <div className="flex items-start gap-3">
-                <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
-                <div>
-                  <p className="font-medium text-amber-800 dark:text-amber-300">{t('initialSetupIncomplete')}</p>
-                  <p className="text-sm text-amber-600 dark:text-amber-400 mt-0.5">
-                    {t('initialSetupDescriptionDynamic', { items: missingItems.map(k => tp(k)).join('・') })}
-                  </p>
-                </div>
-              </div>
-              <Link href="/teacher/setup">
-                <Button variant="outline" size="sm" className="border-amber-300 hover:bg-amber-100 dark:border-amber-700 dark:hover:bg-amber-900/30 whitespace-nowrap">
-                  <Settings className="w-4 h-4 mr-1.5" />
-                  {t('goToSetup')}
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Action Required Banner */}
-        {!loading && hasActionItems && (
-          <Card className="mb-6 border-blue-200 bg-blue-50 dark:border-blue-800/30 dark:bg-blue-900/10">
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
-                <AlertTriangle className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
-                <div className="space-y-1">
-                  <p className="font-medium text-blue-800 dark:text-blue-300">{t('actionRequired')}</p>
-                  {pendingBookings.length > 0 && (
-                    <p className="text-sm text-blue-600 dark:text-blue-400">
-                      {t('pendingBookingsAction', { count: pendingBookings.length })}
-                    </p>
-                  )}
-                  {draftReports.length > 0 && (
-                    <p className="text-sm text-blue-600 dark:text-blue-400">
-                      {t('draftReportsAction', { count: draftReports.length })}
-                    </p>
-                  )}
+                <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+                <div className="space-y-1.5 flex-1">
+                  <p className="font-medium text-amber-800 dark:text-amber-300">{t('actionRequired')}</p>
+                  {actionItems.map((item, i) => (
+                    <Link key={i} href={item.href}>
+                      <p className="text-sm text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200 transition-colors cursor-pointer">
+                        {item.text}
+                      </p>
+                    </Link>
+                  ))}
                 </div>
               </div>
             </CardContent>
@@ -232,57 +238,40 @@ export default function TeacherDashboard() {
 
         {error && <ErrorAlert message={tc('dataFetchError', { error })} />}
 
-        {/* Stats Grid - 4 cards */}
+        {/* ── Stats Grid ── */}
         {loading ? <SkeletonStatsGrid count={4} /> : (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm text-gray-600 dark:text-slate-400">{t('todayLessons')}</CardTitle>
-                <Calendar className="h-4 w-4 text-brand-600 dark:text-brand-400" />
-              </div>
-            </CardHeader>
-            <CardContent><div className="text-2xl font-bold">{todayBookings.length}</div></CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm text-gray-600 dark:text-slate-400">{t('monthlyRevenue')}</CardTitle>
-                <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
-              </div>
-            </CardHeader>
-            <CardContent><div className="text-2xl font-bold">{formatYen(monthRevenue)}</div></CardContent>
-          </Card>
-          <Link href="/teacher/curriculum">
-            <Card className="cursor-pointer transition-all hover:shadow-md hover:border-brand-200 dark:hover:border-brand-700/30 h-full">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm text-gray-600 dark:text-slate-400">{t('activeStudents')}</CardTitle>
-                  <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                </div>
-              </CardHeader>
-              <CardContent><div className="text-2xl font-bold">{activeStudentCount}</div></CardContent>
-            </Card>
-          </Link>
-          <Link href="/teacher/tickets">
-            <Card className="cursor-pointer transition-all hover:shadow-md hover:border-brand-200 dark:hover:border-brand-700/30 h-full">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm text-gray-600 dark:text-slate-400">{t('activeTickets')}</CardTitle>
-                  <DollarSign className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-                </div>
-              </CardHeader>
-              <CardContent><div className="text-2xl font-bold">{activeTicketCount}</div></CardContent>
-            </Card>
-          </Link>
-        </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            {statCards.map((stat) => {
+              const Icon = stat.icon
+              const inner = (
+                <Card className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 h-full">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm font-medium text-gray-500 dark:text-slate-400">{stat.label}</span>
+                      <div className={`rounded-full p-2 ${iconBgColors[stat.color]}`}>
+                        <Icon className="h-4 w-4" />
+                      </div>
+                    </div>
+                    <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</div>
+                  </CardContent>
+                </Card>
+              )
+              return stat.href ? (
+                <Link key={stat.label} href={stat.href} className="cursor-pointer">{inner}</Link>
+              ) : (
+                <div key={stat.label}>{inner}</div>
+              )
+            })}
+          </div>
         )}
 
-        {/* Main content: 2/3 + 1/3 layout */}
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left column - 2/3 */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Today's Schedule */}
+        {/* ── Main Content ── */}
+        <div className="grid lg:grid-cols-3 gap-6">
+
+          {/* Left Column */}
+          <div className="lg:col-span-2 space-y-6">
+
+            {/* Today's Schedule - Timeline */}
             <Card>
               <CardHeader>
                 <CardTitle>{t('todaySchedule')}</CardTitle>
@@ -299,24 +288,39 @@ export default function TeacherDashboard() {
                     action={{ label: t('calendarManagement'), href: '/teacher/calendar' }}
                   />
                 ) : (
-                  <div className="space-y-3">
-                    {todayBookings.map((b: Booking) => (
-                      <div key={b.id} className="flex items-center justify-between p-3 border dark:border-brand-800/20 rounded-lg">
-                        <div>
-                          <div className="font-medium">
-                            {format(new Date(b.start_time), 'p', { locale: ja })}
-                            <span className="mx-1">-</span>
-                            {format(new Date(b.end_time), 'p', { locale: ja })}
+                  <div className="relative pl-1">
+                    {todayBookings.map((b: Booking, i: number) => {
+                      const dotColor = b.status === 'confirmed'
+                        ? 'bg-green-500 dark:bg-green-400'
+                        : b.status === 'done'
+                          ? 'bg-gray-400 dark:bg-gray-500'
+                          : 'bg-amber-500 dark:bg-amber-400'
+                      return (
+                        <div key={b.id} className="flex gap-4">
+                          <div className="flex flex-col items-center w-3">
+                            <div className={`w-3 h-3 rounded-full mt-1.5 shrink-0 ${dotColor}`} />
+                            {i < todayBookings.length - 1 && (
+                              <div className="w-0.5 flex-1 bg-gray-200 dark:bg-brand-800/30 my-1" />
+                            )}
                           </div>
-                          <div className="text-sm text-gray-600 dark:text-slate-400 mt-0.5">
-                            {t('studentLabel', { name: studentNames[b.student_id] || b.student_id })}
+                          <div className={`flex-1 flex items-center justify-between ${i < todayBookings.length - 1 ? 'pb-5' : 'pb-1'}`}>
+                            <div>
+                              <div className="text-sm font-medium text-gray-500 dark:text-slate-400">
+                                {format(new Date(b.start_time), 'p', { locale: ja })}
+                                <span className="mx-1.5">-</span>
+                                {format(new Date(b.end_time), 'p', { locale: ja })}
+                              </div>
+                              <div className="font-semibold text-gray-900 dark:text-white mt-0.5">
+                                {studentNames[b.student_id] || b.student_id}
+                              </div>
+                            </div>
+                            <Badge variant={b.status === 'confirmed' ? 'default' : 'secondary'}>
+                              {tc('statusLabels.' + b.status)}
+                            </Badge>
                           </div>
                         </div>
-                        <Badge variant={b.status === 'confirmed' ? 'default' : 'secondary'}>
-                          {tc('statusLabels.' + b.status)}
-                        </Badge>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 )}
               </CardContent>
@@ -345,15 +349,15 @@ export default function TeacherDashboard() {
                 ) : (
                   <div className="space-y-3">
                     {upcoming.map((b: Booking) => (
-                      <div key={b.id} className="flex items-center justify-between p-3 border dark:border-brand-800/20 rounded-lg">
+                      <div key={b.id} className="flex items-center justify-between p-3 rounded-lg border dark:border-brand-800/20 hover:bg-gray-50 dark:hover:bg-brand-900/20 transition-colors">
                         <div>
-                          <div className="font-medium">
+                          <div className="font-medium text-sm">
                             {format(new Date(b.start_time), 'PPP p', { locale: ja })}
                             <span className="mx-1">-</span>
                             {format(new Date(b.end_time), 'p', { locale: ja })}
                           </div>
-                          <div className="text-sm text-gray-600 dark:text-slate-400 mt-0.5">
-                            {t('studentLabel', { name: studentNames[b.student_id] || b.student_id })}
+                          <div className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">
+                            {studentNames[b.student_id] || b.student_id}
                           </div>
                         </div>
                         <Badge variant={b.status === 'confirmed' ? 'default' : 'secondary'}>
@@ -367,12 +371,21 @@ export default function TeacherDashboard() {
             </Card>
           </div>
 
-          {/* Right column - 1/3 */}
-          <div className="space-y-8">
+          {/* Right Column */}
+          <div className="space-y-6">
+
             {/* Pending Approvals */}
             <Card>
               <CardHeader>
-                <CardTitle>{t('pendingApprovals')}</CardTitle>
+                <div className="flex items-center gap-2">
+                  <CardTitle>{t('pendingApprovals')}</CardTitle>
+                  {pendingBookings.length > 0 && (
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500" />
+                    </span>
+                  )}
+                </div>
                 <CardDescription>{t('pendingApprovalsDesc')}</CardDescription>
               </CardHeader>
               <CardContent>
@@ -387,20 +400,20 @@ export default function TeacherDashboard() {
                 ) : (
                   <div className="space-y-3">
                     {pendingBookings.map((b: Booking) => (
-                      <div key={b.id} className="p-3 border dark:border-brand-800/20 rounded-lg">
-                        <div className="font-medium text-sm">
-                          {t('studentLabel', { name: studentNames[b.student_id] || b.student_id })}
+                      <div key={b.id} className="p-3 rounded-lg border border-amber-200 bg-amber-50/50 dark:border-amber-800/20 dark:bg-amber-900/10">
+                        <div className="font-medium text-sm text-gray-900 dark:text-white">
+                          {studentNames[b.student_id] || b.student_id}
                         </div>
-                        <div className="text-xs text-gray-600 dark:text-slate-400 mt-1">
+                        <div className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                           {format(new Date(b.start_time), 'PPP p', { locale: ja })}
                           <span className="mx-1">-</span>
                           {format(new Date(b.end_time), 'p', { locale: ja })}
                         </div>
-                        <div className="flex gap-2 mt-2">
+                        <div className="flex gap-2 mt-3">
                           <Button
                             size="sm"
-                            variant="outline"
-                            className="h-7 text-xs text-red-600 hover:text-red-700"
+                            variant="ghost"
+                            className="h-7 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
                             onClick={() => handleStatusUpdate(b.id, 'canceled')}
                             disabled={isUpdating === b.id}
                           >
@@ -447,11 +460,11 @@ export default function TeacherDashboard() {
                   <div className="space-y-3">
                     {recentReports.map((r: Report) => (
                       <Link key={r.id} href={`/teacher/reports/${r.id}`}>
-                        <div className="p-3 border dark:border-brand-800/20 rounded-lg hover:bg-gray-50 dark:hover:bg-brand-900/20 transition-colors cursor-pointer">
-                          <div className="font-medium text-sm">
+                        <div className="p-3 rounded-lg border dark:border-brand-800/20 hover:bg-gray-50 dark:hover:bg-brand-900/20 hover:scale-[1.01] transition-all cursor-pointer">
+                          <div className="font-medium text-sm text-gray-900 dark:text-white">
                             {r.profile_id ? (profileNames[r.profile_id] || tc('student')) : tc('student')}
                           </div>
-                          <div className="text-xs text-gray-600 dark:text-slate-400 mt-0.5">
+                          <div className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
                             {r.published_at ? format(new Date(r.published_at), 'PPP', { locale: ja }) : r.created_at ? format(new Date(r.created_at), 'PPP', { locale: ja }) : '-'}
                             {r.subject && <span className="ml-2">{r.subject}</span>}
                           </div>

@@ -261,6 +261,13 @@
   "teacherDashboard": {
     "title": "ダッシュボード",
     "description": "予約とチケット、売上の概要",
+    "greetingMorning": "おはようございます",
+    "greetingAfternoon": "こんにちは",
+    "greetingEvening": "おつかれさまです",
+    "greeting": "{greeting}、{name}先生",
+    "todaySummary": "今日は{count}件のレッスンがあります",
+    "noLessonsTodaySummary": "今日の予定はありません。ゆっくり準備しましょう",
+    "setupAction": "初期設定が未完了です",
     "todayLessons": "今日のレッスン",
     "monthlyRevenue": "今月の売上",
     "activeStudents": "アクティブ生徒",
