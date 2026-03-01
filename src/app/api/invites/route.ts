@@ -19,48 +19,45 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
     }
 
-    const { email, studentProfileId } = await req.json()
+    const { email, method = 'email' } = await req.json()
 
-    if (!email || !studentProfileId) {
-      return NextResponse.json({ error: 'email and studentProfileId are required' }, { status: 400 })
+    if (method !== 'email' && method !== 'qr') {
+      return NextResponse.json({ error: 'Invalid method' }, { status: 400 })
     }
 
-    // Verify teacher owns the student profile
-    const { data: profile, error: profileErr } = await supabase
-      .from('student_profiles')
-      .select('id, name, teacher_id')
-      .eq('id', studentProfileId)
-      .eq('teacher_id', session.user.id)
-      .single()
-
-    if (profileErr || !profile) {
-      return NextResponse.json({ error: 'Student profile not found' }, { status: 404 })
+    if (method === 'email' && !email) {
+      return NextResponse.json({ error: 'email is required for email invites' }, { status: 400 })
     }
 
-    // Check for existing active invite for same email + profile
-    const { data: existing } = await supabase
-      .from('invites')
-      .select('id')
-      .eq('email', email)
-      .eq('student_profile_id', studentProfileId)
-      .eq('used', false)
-      .gt('expires_at', new Date().toISOString())
-      .maybeSingle()
+    // Check for existing active invite (email method only)
+    if (method === 'email') {
+      const { data: existing } = await supabase
+        .from('invites')
+        .select('id')
+        .eq('email', email)
+        .eq('teacher_id', session.user.id)
+        .eq('used', false)
+        .gt('expires_at', new Date().toISOString())
+        .maybeSingle()
 
-    if (existing) {
-      return NextResponse.json({ error: 'Invite already sent' }, { status: 409 })
+      if (existing) {
+        return NextResponse.json({ error: 'Invite already sent' }, { status: 409 })
+      }
     }
 
-    // Generate token and insert
+    // Generate token and set expiration
     const token = crypto.randomUUID()
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    const expiresAt = method === 'qr'
+      ? new Date(Date.now() + 30 * 60 * 1000)            // 30 minutes for QR
+      : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)   // 7 days for email
 
     const { error: insertErr } = await supabase.from('invites').insert({
       teacher_id: session.user.id,
-      email,
-      student_profile_id: studentProfileId,
+      email: method === 'email' ? email : null,
+      student_profile_id: null,
       token,
       role: 'guardian',
+      method,
       expires_at: expiresAt.toISOString(),
     })
 
@@ -69,26 +66,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to create invite' }, { status: 500 })
     }
 
-    // Get teacher name for email
-    const { data: teacher } = await supabase
-      .from('users')
-      .select('name')
-      .eq('id', session.user.id)
-      .single()
+    // Send email only for email method
+    if (method === 'email') {
+      const { data: teacher } = await supabase
+        .from('users')
+        .select('name')
+        .eq('id', session.user.id)
+        .single()
 
-    // Send invitation email
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://edbrio.com'
-    const inviteUrl = `${appUrl}/invite/${token}`
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://edbrio.com'
+      const inviteUrl = `${appUrl}/invite/${token}`
 
-    const emailContent = buildGuardianInviteEmail({
-      teacherName: teacher?.name || '講師',
-      studentName: profile.name,
-      inviteUrl,
-    })
+      const emailContent = buildGuardianInviteEmail({
+        teacherName: teacher?.name || '講師',
+        inviteUrl,
+      })
 
-    await sendEmail(email, emailContent.subject, emailContent.html)
+      await sendEmail(email, emailContent.subject, emailContent.html)
+    }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, token })
   } catch (error: unknown) {
     console.error('Invite create error:', error)
     return NextResponse.json(

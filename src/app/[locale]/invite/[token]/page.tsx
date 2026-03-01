@@ -15,8 +15,8 @@ interface InviteInfo {
   valid: boolean
   reason?: string
   teacherName?: string
-  studentName?: string
   email?: string
+  method?: 'email' | 'qr'
 }
 
 export default function InvitePage() {
@@ -145,7 +145,6 @@ export default function InvitePage() {
             <CardDescription>
               {t('acceptDescription', {
                 teacherName: inviteInfo.teacherName,
-                studentName: inviteInfo.studentName,
               })}
             </CardDescription>
           </CardHeader>
@@ -198,7 +197,6 @@ export default function InvitePage() {
           <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
             {t('acceptDescription', {
               teacherName: inviteInfo.teacherName,
-              studentName: inviteInfo.studentName,
             })}
           </p>
         </CardContent>

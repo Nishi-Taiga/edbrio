@@ -47,46 +47,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Only guardian accounts can accept invites' }, { status: 403 })
     }
 
-    // Get the student profile
-    const { data: profile } = await admin
-      .from('student_profiles')
-      .select('id, name, teacher_id, student_id')
-      .eq('id', invite.student_profile_id)
-      .single()
-
-    if (!profile) {
-      return NextResponse.json({ error: 'Student profile not found' }, { status: 404 })
-    }
-
-    // Link guardian to student profile
-    await admin
-      .from('student_profiles')
-      .update({ guardian_id: session.user.id })
-      .eq('id', profile.id)
-
-    // If there's a linked student record, also set guardian_id there
-    if (profile.student_id) {
-      await admin
-        .from('students')
-        .update({ guardian_id: session.user.id })
-        .eq('id', profile.student_id)
-
-      // Ensure teacher-student relationship exists
-      await admin
-        .from('teacher_students')
-        .upsert(
-          { teacher_id: profile.teacher_id, student_id: profile.student_id },
-          { onConflict: 'teacher_id,student_id' }
-        )
-    }
-
     // Mark invite as used
     await admin
       .from('invites')
       .update({ used: true, accepted_at: new Date().toISOString() })
       .eq('id', invite.id)
 
-    return NextResponse.json({ success: true, teacherId: profile.teacher_id })
+    return NextResponse.json({ success: true, teacherId: invite.teacher_id })
   } catch (error: unknown) {
     console.error('Invite accept error:', error)
     return NextResponse.json(

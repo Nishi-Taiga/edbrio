@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
 
     const { data: invite } = await admin
       .from('invites')
-      .select('id, email, used, expires_at, teacher_id, student_profile_id')
+      .select('id, email, used, expires_at, teacher_id, method')
       .eq('token', token)
       .single()
 
@@ -30,17 +30,18 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ valid: false, reason: 'expired' })
     }
 
-    // Fetch display info
-    const [{ data: teacher }, { data: profile }] = await Promise.all([
-      admin.from('users').select('name').eq('id', invite.teacher_id).single(),
-      admin.from('student_profiles').select('name').eq('id', invite.student_profile_id).single(),
-    ])
+    // Fetch teacher info
+    const { data: teacher } = await admin
+      .from('users')
+      .select('name')
+      .eq('id', invite.teacher_id)
+      .single()
 
     return NextResponse.json({
       valid: true,
       teacherName: teacher?.name,
-      studentName: profile?.name,
       email: invite.email,
+      method: invite.method,
     })
   } catch (error: unknown) {
     console.error('Invite validate error:', error)
