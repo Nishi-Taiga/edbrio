@@ -473,13 +473,13 @@ function TeacherProfileContent() {
                       </tr>
                       <tr className="border-b border-dashed">
                         <td className="py-3 pr-4">Stripe決済連携</td>
-                        <td className="text-center py-3 px-4"><X className="w-4 h-4 mx-auto text-gray-300 dark:text-gray-600" /></td>
+                        <td className="text-center py-3 px-4"><Check className="w-4 h-4 mx-auto text-emerald-500" /></td>
                         <td className="text-center py-3 pl-4"><Check className="w-4 h-4 mx-auto text-brand-600 dark:text-brand-400" /></td>
                       </tr>
                       <tr className="border-b border-dashed">
                         <td className="py-3 pr-4">決済手数料</td>
                         <td className="text-center py-3 px-4">7%</td>
-                        <td className="text-center py-3 pl-4 font-semibold text-brand-700 dark:text-brand-300">2%</td>
+                        <td className="text-center py-3 pl-4 font-semibold text-brand-700 dark:text-brand-300">6%</td>
                       </tr>
                       <tr>
                         <td className="py-3 pr-4">優先サポート</td>
