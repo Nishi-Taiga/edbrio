@@ -17,7 +17,7 @@ interface GoalListProps {
 const statusVariant: Record<string, 'default' | 'secondary' | 'outline'> = { active: 'default', achieved: 'secondary', paused: 'outline' }
 
 export function GoalList({ goals, onAdd, onUpdate, onDelete }: GoalListProps) {
-  const t = useTranslations('karte')
+  const t = useTranslations('curriculum')
 
   const statusLabel: Record<string, string> = {
     active: t('goals.statusActive'),

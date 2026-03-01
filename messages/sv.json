@@ -10,6 +10,7 @@
     "delete": "Radera",
     "edit": "Redigera",
     "add": "Lagg till",
+    "adding": "Laggar till...",
     "create": "Skapa",
     "close": "Stang",
     "back": "Tillbaka",
@@ -47,10 +48,10 @@
   "metadata": {
     "defaultTitle": "EdBrio — Allt-i-ett-hanteringssystem för privatlärare",
     "titleTemplate": "%s | EdBrio",
-    "description": "Allt-i-ett-hanteringssystem för privatlärare och handledare. Bokningar, betalningar, AI-rapporter och elevkort på ett ställe. Prova gratis.",
-    "ogDescription": "Allt-i-ett-hantering av bokningar, betalningar, AI-rapporter och elevkort för privatlärare.",
-    "twitterDescription": "Hanteringssystem för privatlärare. Bokningar, betalningar, AI-rapporter och elevkort på ett ställe.",
-    "oneLiner": "Allt-i-ett-hanteringssystem för privatlärare. Bokningar, betalningar, AI-rapporter och elevkort på ett ställe.",
+    "description": "Allt-i-ett-hanteringssystem för privatlärare och handledare. Bokningar, betalningar, AI-rapporter och studentcurriculum på ett ställe. Prova gratis.",
+    "ogDescription": "Allt-i-ett-hantering av bokningar, betalningar, AI-rapporter och studentcurriculum för privatlärare.",
+    "twitterDescription": "Hanteringssystem för privatlärare. Bokningar, betalningar, AI-rapporter och studentcurriculum på ett ställe.",
+    "oneLiner": "Allt-i-ett-hanteringssystem för privatlärare. Bokningar, betalningar, AI-rapporter och studentcurriculum på ett ställe.",
     "jsonLdDescription": "Allt-i-ett-hanteringssystem för privatlärare och handledare",
     "jsonLdOfferDescription": "Skapa konto gratis"
   },
@@ -66,10 +67,10 @@
     },
     "alphaNotice": "Systemet ar for narvarande i alfaversion och under testdrift. Det kan forekomma fel under anvandningen.",
     "hero": {
-      "badge": "Bokningar, betalningar, rapporter och elevkort på ett ställe",
+      "badge": "Bokningar, betalningar, rapporter och studentcurriculum på ett ställe",
       "title1": "Fokusera på undervisningen.",
       "title2": "Vi tar hand om resten.",
-      "description": "EdBrio är allt-i-ett-hanteringssystemet för privatlärare och handledare. Bokningar, betalningar, AI-rapporter och elevkort — allt på en plattform.",
+      "description": "EdBrio är allt-i-ett-hanteringssystemet för privatlärare och handledare. Bokningar, betalningar, AI-rapporter och studentcurriculum — allt på en plattform.",
       "ctaStart": "Kom igang gratis",
       "ctaFeatures": "Utforska funktionerna"
     },
@@ -91,8 +92,8 @@
       "sectionDescription": "LINE, Excel, bankappar, planerare. EdBrio integrerar smidigt alla dessa spridda verktyg.",
       "aiReportTitle": "AI-rapportgenerering",
       "aiReportDescription": "Skriv in anteckningar efter lektionen och lat AI automatiskt skapa professionella rapporter for vardnadshavare. Rapporter med forstaelseniva, laxor och nasta lektion skapas pa nagra sekunder.",
-      "studentKarteTitle": "Elevjournaler",
-      "studentKarteDescription": "Hantera larandemal, svarigheter och styrkor pa ett stalle. Visualisera undervisningsplaner per elev och underlatta overlamning mellan larare.",
+      "studentKarteTitle": "Studentcurriculum",
+      "studentKarteDescription": "Hantera larandemal, fardigheter och framsteg pa ett stalle. Visualisera undervisningsplaner per elev och underlatta overlamning mellan larare.",
       "schedulingTitle": "Schemahantering",
       "schedulingDescription": "Lagg bara in schemat i kalendern sa beraknas manadsbeloppet automatiskt. Hantera ombokade lektioner utan misstag.",
       "paymentsTitle": "Smidig betalning",
@@ -104,7 +105,7 @@
       "tutorTitle": "Privatlärare",
       "tutorDescription": "Hantera bokningar, betalningar och rapporter i ett enda system. Fokusera på att bygga förtroende med föräldrar.",
       "jukuTitle": "Individuell handledning",
-      "jukuDescription": "Centralisera informationsdelning mellan flera handledare med elevkort. Överlämningsanteckningar säkerställer smidig övergång vid vikariat.",
+      "jukuDescription": "Centralisera informationsdelning mellan flera handledare med studentcurriculum. Överlämningsanteckningar säkerställer smidig övergång vid vikariat.",
       "onlineTitle": "Onlinelarare",
       "onlineDescription": "Hantera allt online från bokningshantering till rapportdelning och betalningar. Undervisa var som helst."
     },
@@ -117,7 +118,7 @@
       "freeStudents": "Upp till 2 elever",
       "freeReports": "AI-rapporter: upp till 5 per manad",
       "freeCalendar": "Schema- och kalenderhantering",
-      "freeKarte": "Elevjournaler",
+      "freeKarte": "Studentcurriculum",
       "freeStripe": "Stripe-betalningsintegration (avgift 7%)",
       "freeCta": "Kom igang gratis",
       "standardPlan": "Standard",
@@ -128,7 +129,7 @@
       "standardStudents": "Obegransat antal elever",
       "standardReports": "Obegransad AI-rapportgenerering",
       "standardCalendar": "Schema- och kalenderhantering",
-      "standardKarte": "Elevjournaler",
+      "standardKarte": "Studentcurriculum",
       "standardStripe": "Stripe-betalningsintegration (avgift 1.4%)",
       "standardSupport": "Prioriterad kundsupport",
       "standardCta": "Prova gratis i 1 manad"
@@ -189,7 +190,7 @@
       "q5": "Kan jag använda Free-planen på obestämd tid?",
       "a5": "Ja, Free-planen har ingen tidsbegränsning. Du kan fortsätta använda den gratis inom gränsen på 2 elever och 5 AI-rapporter per månad.",
       "q6": "Kan jag använda EdBrio utan betalningsfunktionen (biljetter)?",
-      "a6": "Absolut. AI-rapporter, elevportföljer, kalender och andra funktioner är tillgängliga utan Stripe-betalningsintegration. Betalningsfunktionen är helt valfri.",
+      "a6": "Absolut. AI-rapporter, studentcurriculum, kalender och andra funktioner är tillgängliga utan Stripe-betalningsintegration. Betalningsfunktionen är helt valfri.",
       "q7": "Kan en förälder kopplas till flera lärare?",
       "a7": "Ja, ett föräldrakonto kan kopplas till flera lärare. Du kan hantera alla ditt barns rapporter och bokningar från olika handledare på ett ställe.",
       "q8": "Kan man använda det bara med telefonen?",
@@ -242,7 +243,7 @@
       "dashboard": "Instrumentpanel",
       "calendar": "Kalender",
       "tickets": "Biljetter",
-      "students": "Elevjournaler",
+      "students": "Studentcurriculum",
       "reports": "Rapporter",
       "bookings": "Bokningar",
       "profile": "Installningar",
@@ -269,7 +270,7 @@
     "noScheduleDescription": "Bokningar fran vardnadshavare visas har",
     "quickActions": "Snabbatgarder",
     "quickActionsDescription": "Vanliga atgarder",
-    "studentKarte": "Elevjournaler",
+    "studentKarte": "Studentcurriculum",
     "studentKarteDesc": "Elevinformation och larandeutveckling",
     "calendarManagement": "Kalenderhantering",
     "calendarManagementDesc": "Stall in arbetspass och lediga tider",
@@ -285,7 +286,7 @@
     "goToProfile": "Gå till profilinställningar"
   },
   "teacherStudents": {
-    "title": "Elevjournaler",
+    "title": "Studentcurriculum",
     "description": "Hantera elevers larandeinformation",
     "addStudent": "Lagg till elev",
     "searchPlaceholder": "Sok pa elevnamn eller arskurs...",
@@ -493,7 +494,7 @@
     "featureAiReportsFree": "Upp till 5 per manad",
     "featureAiReportsStandard": "Obegransat",
     "featureCalendar": "Schema- och kalenderhantering",
-    "featureKarte": "Elevjournaler",
+    "featureKarte": "Studentcurriculum",
     "featureStripe": "Stripe-betalningsintegration",
     "featureFee": "Betalningsavgift",
     "featurePrioritySupport": "Prioriterad support",
@@ -650,10 +651,36 @@
     "nextPlanLabel": "Nasta lektion",
     "nextPlanPlaceholder": "T.ex.: Tillampningsuppgifter for andragradsekvationer"
   },
-  "karte": {
+  "curriculum": {
     "card": {
       "statusActive": "Aktiv",
-      "statusInactive": "Vilande"
+      "statusInactive": "Inaktiv"
+    },
+    "page": {
+      "breadcrumb": "Studentcurriculum",
+      "loading": "Laddar...",
+      "notFound": "Eleven hittades inte",
+      "createReport": "Skapa rapport",
+      "tabProfile": "Profil",
+      "tabCurriculum": "Curriculum",
+      "tabGoals": "Mal",
+      "tabSkills": "Fardigheter",
+      "tabHandover": "Overlamnningsanteckningar"
+    },
+    "profile": {
+      "title": "Grundlaggande information",
+      "editTitle": "Redigera grundlaggande information",
+      "name": "Namn",
+      "grade": "Arskurs",
+      "gradePlaceholder": "T.ex. Arskurs 8",
+      "school": "Skola",
+      "birthDate": "Fodelsedatum",
+      "subjects": "Amnen",
+      "subjectsLabel": "Amnen (kommaseparerade)",
+      "subjectsPlaceholder": "T.ex. Matematik, Engelska, Naturvetenskap",
+      "personality": "Personlighet och larstil",
+      "personalityPlaceholder": "T.ex. Hog koncentration. Foredrar visuellt material.",
+      "notSet": "Ej angivet"
     },
     "goals": {
       "title": "Larandemal",
@@ -665,26 +692,61 @@
       "progress": "Framsteg",
       "achieveButton": "Uppnatt",
       "pauseButton": "Pausa",
-      "resumeButton": "Ateruppta"
+      "resumeButton": "Ateruppta",
+      "addTitle": "Lagg till larandemal",
+      "addDescription": "Ange maldetaljer",
+      "goalLabel": "Mal *",
+      "goalPlaceholder": "T.ex. Beharska grundlaggande aritmetik",
+      "subjectLabel": "Amne",
+      "subjectPlaceholder": "T.ex. Matematik",
+      "detailLabel": "Detaljer",
+      "targetDateLabel": "Maldatum"
     },
-    "strengths": {
-      "title": "Styrkor",
+    "units": {
+      "title": "Curriculum",
       "add": "Lagg till",
-      "empty": "Inga styrkor har registrerats."
+      "empty": "Inga enheter har registrerats.",
+      "statusNotStarted": "Ej paborjad",
+      "statusInProgress": "Pagaende",
+      "statusCompleted": "Slutford",
+      "start": "Starta",
+      "complete": "Slutfor",
+      "reopen": "Ateropna",
+      "addTitle": "Lagg till enhet",
+      "addDescription": "Ange amne och enhetsnamn",
+      "subjectLabel": "Amne *",
+      "subjectPlaceholder": "T.ex. Matematik",
+      "nameLabel": "Enhetsnamn *",
+      "namePlaceholder": "T.ex. Andragradsekvationer",
+      "descriptionLabel": "Beskrivning"
     },
-    "weakPoints": {
-      "title": "Svarigheter",
+    "skills": {
+      "title": "Fardighetsbedoming",
       "add": "Lagg till",
-      "empty": "Inga svarigheter har registrerats.",
-      "severityHigh": "Viktig",
-      "severityMedium": "Observera",
-      "severityLow": "Mindre",
-      "statusActive": "Under behandling",
-      "statusImproving": "Forbattras",
-      "statusResolved": "Lost",
-      "toImproving": "Markera som forbattras",
-      "toResolved": "Markera som lost",
-      "reoccurred": "Aterkommande"
+      "empty": "Inga fardighetsbedoemningar har registrerats.",
+      "rating1": "Svag",
+      "rating2": "Nagot svag",
+      "rating3": "Genomsnittlig",
+      "rating4": "Nagot stark",
+      "rating5": "Stark",
+      "addTitle": "Lagg till fardighetsbedoming",
+      "addDescription": "Ange amne och amnesomrade",
+      "subjectLabel": "Amne *",
+      "subjectPlaceholder": "T.ex. Matematik",
+      "topicLabel": "Amnesomrade *",
+      "topicPlaceholder": "T.ex. Brakberakningar",
+      "ratingLabel": "Betyg",
+      "notesLabel": "Anteckningar"
+    },
+    "handover": {
+      "title": "Overlamnningsanteckningar",
+      "add": "Lagg till anteckning",
+      "empty": "Inga overlamnningsanteckningar annu.",
+      "addFirst": "Lagg till forsta anteckningen",
+      "addTitle": "Lagg till overlamnningsanteckning",
+      "addDescription": "Ange overlamnningsdetaljer",
+      "contentLabel": "Anteckningsinnehall *",
+      "contentPlaceholder": "T.ex. Har svarigheter med att forkorta brak. Att forklara med konkreta tal hjalper."
     }
   },
   "reports": {

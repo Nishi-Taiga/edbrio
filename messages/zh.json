@@ -10,6 +10,7 @@
     "delete": "删除",
     "edit": "编辑",
     "add": "添加",
+    "adding": "添加中...",
     "create": "创建",
     "close": "关闭",
     "back": "返回",
@@ -47,10 +48,10 @@
   "metadata": {
     "defaultTitle": "EdBrio — 家教一站式管理系统",
     "titleTemplate": "%s | EdBrio",
-    "description": "面向家教和辅导老师的一站式管理系统。预约、收款、AI报告、学生档案集中管理。免费试用。",
-    "ogDescription": "面向家教的预约、收款、AI报告、学生档案一站式管理系统。",
-    "twitterDescription": "家教管理系统。预约、收款、AI报告、学生档案集中管理。",
-    "oneLiner": "面向家教和辅导老师的一站式管理系统。预约、收款、AI报告、学生档案集中管理。",
+    "description": "面向家教和辅导老师的一站式管理系统。预约、收款、AI报告、学生课程集中管理。免费试用。",
+    "ogDescription": "面向家教的预约、收款、AI报告、学生课程一站式管理系统。",
+    "twitterDescription": "家教管理系统。预约、收款、AI报告、学生课程集中管理。",
+    "oneLiner": "面向家教和辅导老师的一站式管理系统。预约、收款、AI报告、学生课程集中管理。",
     "jsonLdDescription": "面向家教和辅导老师的一站式管理系统",
     "jsonLdOfferDescription": "可免费创建账号"
   },
@@ -66,10 +67,10 @@
     },
     "alphaNotice": "本系统目前处于Alpha测试阶段。使用过程中可能会出现问题。",
     "hero": {
-      "badge": "预约、收款、报告、档案集中管理",
+      "badge": "预约、收款、报告、学生课程集中管理",
       "title1": "专注于教学。",
       "title2": "其余交给我们。",
-      "description": "EdBrio是面向家教和辅导老师的一站式管理系统。预约、收款、AI报告、学生档案——全部在一个平台上完成。",
+      "description": "EdBrio是面向家教和辅导老师的一站式管理系统。预约、收款、AI报告、学生课程——全部在一个平台上完成。",
       "ctaStart": "免费开始",
       "ctaFeatures": "查看详细功能"
     },
@@ -91,8 +92,8 @@
       "sectionDescription": "LINE、Excel、银行App、手帐。EdBrio将分散的工具智能整合。",
       "aiReportTitle": "AI报告生成",
       "aiReportDescription": "只需输入课后笔记，AI即可自动生成面向家长的专业报告。包含理解程度、作业、下次课程安排等内容的专业报告，几秒钟即可完成。",
-      "studentKarteTitle": "学生档案",
-      "studentKarteDescription": "一站式管理学习目标、薄弱环节、擅长领域。将每位学生的教学方针可视化，讲师间的交接也更加顺畅。",
+      "studentKarteTitle": "学生课程",
+      "studentKarteDescription": "一站式管理学习目标、技能、学习进度。将每位学生的教学方针可视化，讲师间的交接也更加顺畅。",
       "schedulingTitle": "日程管理",
       "schedulingDescription": "只需在日历中添加日程，月末账单金额自动计算。补课管理也不会出错。",
       "paymentsTitle": "无缝支付",
@@ -104,7 +105,7 @@
       "tutorTitle": "家教",
       "tutorDescription": "预约、收款、报告在一个系统中完成。专注于与家长建立信任关系。",
       "jukuTitle": "辅导机构",
-      "jukuDescription": "通过学生档案实现多位老师之间的信息共享。交接备注确保代课时顺畅衔接。",
+      "jukuDescription": "通过学生课程实现多位老师之间的信息共享。交接备注确保代课时顺畅衔接。",
       "onlineTitle": "在线讲师",
       "onlineDescription": "从预约管理到报告共享、收款，全程在线完成。不受地点限制，专注教学。"
     },
@@ -117,7 +118,7 @@
       "freeStudents": "最多2名学生",
       "freeReports": "AI报告每月最多5份",
       "freeCalendar": "日程与日历管理",
-      "freeKarte": "学生档案",
+      "freeKarte": "学生课程",
       "freeStripe": "Stripe支付集成（手续费 7%）",
       "freeCta": "免费开始",
       "standardPlan": "Standard",
@@ -128,7 +129,7 @@
       "standardStudents": "学生数量不限",
       "standardReports": "AI报告无限生成",
       "standardCalendar": "日程与日历管理",
-      "standardKarte": "学生档案",
+      "standardKarte": "学生课程",
       "standardStripe": "Stripe支付集成（手续费 1.4%）",
       "standardSupport": "优先客户支持",
       "standardCta": "免费试用1个月"
@@ -189,7 +190,7 @@
       "q5": "Free计划可以一直使用吗？",
       "a5": "是的，Free计划没有使用期限。只要在2名学生和每月5份AI报告的范围内，您可以免费持续使用。",
       "q6": "不使用支付（课时券）功能也可以吗？",
-      "a6": "当然可以。AI报告、学生档案、日历等功能无需Stripe支付集成即可使用。支付功能是可选的。",
+      "a6": "当然可以。AI报告、学生课程、日历等功能无需Stripe支付集成即可使用。支付功能是可选的。",
       "q7": "家长可以与多位讲师关联吗？",
       "a7": "是的，家长账户可以关联多位讲师。您可以在一个界面上管理孩子来自不同讲师的所有报告和预约。",
       "q8": "只用手机可以使用吗？",
@@ -242,7 +243,7 @@
       "dashboard": "仪表盘",
       "calendar": "日历",
       "tickets": "课时券",
-      "students": "学生档案",
+      "students": "学生课程",
       "reports": "报告",
       "bookings": "预约列表",
       "profile": "设置",
@@ -269,7 +270,7 @@
     "noScheduleDescription": "家长预约后将在此显示",
     "quickActions": "快捷操作",
     "quickActionsDescription": "常用操作",
-    "studentKarte": "学生档案",
+    "studentKarte": "学生课程",
     "studentKarteDesc": "学生信息与学习进度",
     "calendarManagement": "日历管理",
     "calendarManagementDesc": "设置排班和空闲时间",
@@ -285,7 +286,7 @@
     "goToProfile": "前往个人资料设置"
   },
   "teacherStudents": {
-    "title": "学生档案",
+    "title": "学生课程",
     "description": "管理学生的学习信息",
     "addStudent": "添加学生",
     "searchPlaceholder": "按学生姓名或年级搜索...",
@@ -493,7 +494,7 @@
     "featureAiReportsFree": "每月最多5份",
     "featureAiReportsStandard": "不限",
     "featureCalendar": "日程与日历管理",
-    "featureKarte": "学生档案",
+    "featureKarte": "学生课程",
     "featureStripe": "Stripe支付集成",
     "featureFee": "支付手续费",
     "featurePrioritySupport": "优先支持",
@@ -650,10 +651,36 @@
     "nextPlanLabel": "下次课程安排",
     "nextPlanPlaceholder": "例：挑战一元二次方程的应用题"
   },
-  "karte": {
+  "curriculum": {
     "card": {
-      "statusActive": "在读",
-      "statusInactive": "暂停"
+      "statusActive": "活跃",
+      "statusInactive": "未活跃"
+    },
+    "page": {
+      "breadcrumb": "学生课程",
+      "loading": "加载中...",
+      "notFound": "未找到学生",
+      "createReport": "创建报告",
+      "tabProfile": "基本信息",
+      "tabCurriculum": "课程",
+      "tabGoals": "目标",
+      "tabSkills": "技能",
+      "tabHandover": "交接备注"
+    },
+    "profile": {
+      "title": "基本信息",
+      "editTitle": "编辑基本信息",
+      "name": "姓名",
+      "grade": "年级",
+      "gradePlaceholder": "例：初二",
+      "school": "学校",
+      "birthDate": "出生日期",
+      "subjects": "科目",
+      "subjectsLabel": "科目（用逗号分隔）",
+      "subjectsPlaceholder": "例：数学、英语、科学",
+      "personality": "性格与学习风格",
+      "personalityPlaceholder": "例：专注力强。偏好视觉材料。",
+      "notSet": "未设置"
     },
     "goals": {
       "title": "学习目标",
@@ -665,26 +692,61 @@
       "progress": "进度",
       "achieveButton": "达成",
       "pauseButton": "暂停",
-      "resumeButton": "恢复"
+      "resumeButton": "恢复",
+      "addTitle": "添加学习目标",
+      "addDescription": "请输入目标详情",
+      "goalLabel": "目标 *",
+      "goalPlaceholder": "例：掌握基础运算",
+      "subjectLabel": "科目",
+      "subjectPlaceholder": "例：数学",
+      "detailLabel": "详情",
+      "targetDateLabel": "目标日期"
     },
-    "strengths": {
-      "title": "擅长领域",
+    "units": {
+      "title": "课程",
       "add": "添加",
-      "empty": "暂无擅长领域。"
+      "empty": "暂无已注册的单元。",
+      "statusNotStarted": "未开始",
+      "statusInProgress": "进行中",
+      "statusCompleted": "已完成",
+      "start": "开始",
+      "complete": "完成",
+      "reopen": "重新开启",
+      "addTitle": "添加单元",
+      "addDescription": "请输入科目和单元名称",
+      "subjectLabel": "科目 *",
+      "subjectPlaceholder": "例：数学",
+      "nameLabel": "单元名称 *",
+      "namePlaceholder": "例：一元二次方程",
+      "descriptionLabel": "描述"
     },
-    "weakPoints": {
-      "title": "薄弱环节",
+    "skills": {
+      "title": "技能评估",
       "add": "添加",
-      "empty": "暂无薄弱环节。",
-      "severityHigh": "重要",
-      "severityMedium": "注意",
-      "severityLow": "轻微",
-      "statusActive": "处理中",
-      "statusImproving": "改善中",
-      "statusResolved": "已解决",
-      "toImproving": "转为改善中",
-      "toResolved": "转为已解决",
-      "reoccurred": "复发"
+      "empty": "暂无技能评估。",
+      "rating1": "薄弱",
+      "rating2": "较弱",
+      "rating3": "一般",
+      "rating4": "较强",
+      "rating5": "优秀",
+      "addTitle": "添加技能评估",
+      "addDescription": "请输入科目和主题",
+      "subjectLabel": "科目 *",
+      "subjectPlaceholder": "例：数学",
+      "topicLabel": "主题 *",
+      "topicPlaceholder": "例：分数计算",
+      "ratingLabel": "评分",
+      "notesLabel": "备注"
+    },
+    "handover": {
+      "title": "交接备注",
+      "add": "添加备注",
+      "empty": "暂无交接备注。",
+      "addFirst": "添加第一条备注",
+      "addTitle": "添加交接备注",
+      "addDescription": "请输入交接详情",
+      "contentLabel": "备注内容 *",
+      "contentPlaceholder": "例：约分有困难。用具体数字解释会有帮助。"
     }
   },
   "reports": {

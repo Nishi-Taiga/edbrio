@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { useTranslations } from 'next-intl'
 
 interface HandoverNoteFormProps {
   open: boolean
@@ -13,6 +14,8 @@ interface HandoverNoteFormProps {
 }
 
 export function HandoverNoteForm({ open, onClose, onSubmit }: HandoverNoteFormProps) {
+  const t = useTranslations('curriculum.handover')
+  const tc = useTranslations('common')
   const [content, setContent] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -32,25 +35,25 @@ export function HandoverNoteForm({ open, onClose, onSubmit }: HandoverNoteFormPr
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>引継ぎメモを追加</DialogTitle>
-          <DialogDescription>引継ぎ内容を入力してください</DialogDescription>
+          <DialogTitle>{t('addTitle')}</DialogTitle>
+          <DialogDescription>{t('addDescription')}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="handover-content">メモ内容 *</Label>
+            <Label htmlFor="handover-content">{t('contentLabel')}</Label>
             <Textarea
               id="handover-content"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="例: 分数の通分でつまずきがち。具体的な数字で説明すると理解しやすい。"
+              placeholder={t('contentPlaceholder')}
               rows={5}
             />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={saving}>キャンセル</Button>
+          <Button variant="outline" onClick={onClose} disabled={saving}>{tc('cancel')}</Button>
           <Button onClick={handleSubmit} disabled={saving || !content.trim()}>
-            {saving ? '追加中...' : '追加'}
+            {saving ? tc('adding') : tc('add')}
           </Button>
         </DialogFooter>
       </DialogContent>

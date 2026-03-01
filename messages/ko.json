@@ -10,6 +10,7 @@
     "delete": "삭제",
     "edit": "편집",
     "add": "추가",
+    "adding": "추가 중...",
     "create": "생성",
     "close": "닫기",
     "back": "뒤로",
@@ -47,10 +48,10 @@
   "metadata": {
     "defaultTitle": "EdBrio — 과외 강사를 위한 올인원 관리 시스템",
     "titleTemplate": "%s | EdBrio",
-    "description": "과외 강사 및 개인지도 강사를 위한 올인원 관리 시스템. 예약, 결제, AI 보고서, 학생 카르테를 한 곳에서 관리. 무료로 시작하세요.",
-    "ogDescription": "과외 강사를 위한 예약, 결제, AI 보고서, 학생 카르테 올인원 관리 시스템.",
-    "twitterDescription": "과외 강사를 위한 관리 시스템. 예약, 결제, AI 보고서, 카르테를 한 곳에서 관리.",
-    "oneLiner": "과외 강사를 위한 올인원 관리 시스템. 예약, 결제, AI 보고서, 카르테를 한 곳에서 관리.",
+    "description": "과외 강사 및 개인지도 강사를 위한 올인원 관리 시스템. 예약, 결제, AI 보고서, 학생 커리큘럼을 한 곳에서 관리. 무료로 시작하세요.",
+    "ogDescription": "과외 강사를 위한 예약, 결제, AI 보고서, 학생 커리큘럼 올인원 관리 시스템.",
+    "twitterDescription": "과외 강사를 위한 관리 시스템. 예약, 결제, AI 보고서, 커리큘럼을 한 곳에서 관리.",
+    "oneLiner": "과외 강사를 위한 올인원 관리 시스템. 예약, 결제, AI 보고서, 커리큘럼을 한 곳에서 관리.",
     "jsonLdDescription": "과외 강사 및 개인지도 강사를 위한 올인원 관리 시스템",
     "jsonLdOfferDescription": "무료로 계정 생성 가능"
   },
@@ -66,10 +67,10 @@
     },
     "alphaNotice": "본 시스템은 현재 알파 버전으로 테스트 운영 중입니다. 이용 중 오류가 발생할 수 있습니다.",
     "hero": {
-      "badge": "예약, 결제, 보고서, 카르테를 한 곳에서 관리",
+      "badge": "예약, 결제, 보고서, 커리큘럼을 한 곳에서 관리",
       "title1": "가르치는 일에 집중하세요.",
       "title2": "나머지는 저희가 처리합니다.",
-      "description": "EdBrio는 과외 강사 및 개인지도 강사를 위한 올인원 관리 시스템입니다. 예약, 결제, AI 보고서, 학생 카르테까지 하나의 플랫폼에서 완결됩니다.",
+      "description": "EdBrio는 과외 강사 및 개인지도 강사를 위한 올인원 관리 시스템입니다. 예약, 결제, AI 보고서, 학생 커리큘럼까지 하나의 플랫폼에서 완결됩니다.",
       "ctaStart": "무료로 시작하기",
       "ctaFeatures": "기능 자세히 보기"
     },
@@ -91,8 +92,8 @@
       "sectionDescription": "LINE, Excel, 뱅킹 앱, 수첩. 흩어져 있던 도구들을 EdBrio가 스마트하게 통합합니다.",
       "aiReportTitle": "AI 보고서 생성",
       "aiReportDescription": "수업 후 메모만 입력하면 AI가 학부모용 정성스러운 보고서를 자동 생성. 이해도·숙제·다음 수업 예정까지 포함된 전문적인 리포트를 몇 초 만에 작성합니다.",
-      "studentKarteTitle": "학생 프로필",
-      "studentKarteDescription": "학습 목표·취약 포인트·강점을 통합 관리. 학생별 지도 방침을 시각화하고, 강사 간 인수인계도 원활하게 진행할 수 있습니다.",
+      "studentKarteTitle": "학생 커리큘럼",
+      "studentKarteDescription": "학습 목표·스킬 평가·커리큘럼을 통합 관리. 학생별 지도 방침을 시각화하고, 강사 간 인수인계도 원활하게 진행할 수 있습니다.",
       "schedulingTitle": "일정 관리",
       "schedulingDescription": "캘린더에 일정을 입력하면 월말 청구 금액을 자동 계산. 보충 수업 관리도 실수 없이 완료됩니다.",
       "paymentsTitle": "간편 결제",
@@ -104,7 +105,7 @@
       "tutorTitle": "과외 선생님",
       "tutorDescription": "예약, 결제, 보고서까지 하나의 시스템으로 완결. 학부모와의 신뢰 관계 구축에 집중할 수 있습니다.",
       "jukuTitle": "학원",
-      "jukuDescription": "여러 강사 간의 정보 공유를 학생 카르테로 일원화. 인수인계 메모로 대체 수업 시에도 원활하게 대응.",
+      "jukuDescription": "여러 강사 간의 정보 공유를 학생 커리큘럼으로 일원화. 인수인계 메모로 대체 수업 시에도 원활하게 대응.",
       "onlineTitle": "온라인 강사",
       "onlineDescription": "예약 관리부터 보고서 공유, 결제까지 완전 온라인으로 완결. 장소에 구애받지 않고 지도에 집중."
     },
@@ -117,7 +118,7 @@
       "freeStudents": "학생 수 2명까지",
       "freeReports": "AI 보고서 월 5건까지",
       "freeCalendar": "일정·캘린더 관리",
-      "freeKarte": "학생 프로필",
+      "freeKarte": "학생 커리큘럼",
       "freeStripe": "Stripe 결제 연동 (수수료 7%)",
       "freeCta": "무료로 시작하기",
       "standardPlan": "Standard",
@@ -128,7 +129,7 @@
       "standardStudents": "학생 수 무제한",
       "standardReports": "AI 보고서 무제한 생성",
       "standardCalendar": "일정·캘린더 관리",
-      "standardKarte": "학생 프로필",
+      "standardKarte": "학생 커리큘럼",
       "standardStripe": "Stripe 결제 연동 (수수료 1.4%)",
       "standardSupport": "우선 고객 지원",
       "standardCta": "무료로 1개월 체험하기"
@@ -189,7 +190,7 @@
       "q5": "Free 플랜을 계속 사용할 수 있나요?",
       "a5": "네, Free 플랜에는 사용 기한이 없습니다. 학생 2명, AI 보고서 월 5건 범위 내에서 무료로 계속 이용하실 수 있습니다.",
       "q6": "결제(티켓) 기능 없이도 사용할 수 있나요?",
-      "a6": "물론입니다. AI 보고서, 학생 카르테, 캘린더 등 모든 기능은 Stripe 결제 연동 없이도 사용 가능합니다. 결제 기능은 선택 사항입니다.",
+      "a6": "물론입니다. AI 보고서, 학생 커리큘럼, 캘린더 등 모든 기능은 Stripe 결제 연동 없이도 사용 가능합니다. 결제 기능은 선택 사항입니다.",
       "q7": "학부모가 여러 강사와 연결할 수 있나요?",
       "a7": "네, 학부모 계정은 여러 강사와 연결할 수 있습니다. 자녀의 모든 강사 보고서와 예약을 한 화면에서 관리할 수 있습니다.",
       "q8": "스마트폰만으로 사용할 수 있나요?",
@@ -242,7 +243,7 @@
       "dashboard": "대시보드",
       "calendar": "캘린더",
       "tickets": "티켓",
-      "students": "학생 프로필",
+      "students": "학생 커리큘럼",
       "reports": "리포트",
       "bookings": "예약 목록",
       "profile": "설정",
@@ -269,7 +270,7 @@
     "noScheduleDescription": "학부모의 예약이 들어오면 표시됩니다",
     "quickActions": "빠른 작업",
     "quickActionsDescription": "자주 사용하는 기능",
-    "studentKarte": "학생 프로필",
+    "studentKarte": "학생 커리큘럼",
     "studentKarteDesc": "학생 정보와 학습 진도",
     "calendarManagement": "캘린더 관리",
     "calendarManagementDesc": "근무 시간과 가용 시간 설정",
@@ -285,7 +286,7 @@
     "goToProfile": "프로필 설정으로"
   },
   "teacherStudents": {
-    "title": "학생 프로필",
+    "title": "학생 커리큘럼",
     "description": "학생의 학습 정보 관리",
     "addStudent": "학생 추가",
     "searchPlaceholder": "학생 이름·학년으로 검색...",
@@ -493,7 +494,7 @@
     "featureAiReportsFree": "월 5건까지",
     "featureAiReportsStandard": "무제한",
     "featureCalendar": "일정·캘린더 관리",
-    "featureKarte": "학생 프로필",
+    "featureKarte": "학생 커리큘럼",
     "featureStripe": "Stripe 결제 연동",
     "featureFee": "결제 수수료",
     "featurePrioritySupport": "우선 지원",
@@ -650,10 +651,36 @@
     "nextPlanLabel": "다음 수업 예정",
     "nextPlanPlaceholder": "예: 이차방정식 응용 문제에 도전"
   },
-  "karte": {
+  "curriculum": {
     "card": {
-      "statusActive": "재학 중",
-      "statusInactive": "휴학 중"
+      "statusActive": "활성",
+      "statusInactive": "비활성"
+    },
+    "page": {
+      "breadcrumb": "학생 커리큘럼",
+      "loading": "로딩 중...",
+      "notFound": "학생을 찾을 수 없습니다",
+      "createReport": "리포트 작성",
+      "tabProfile": "프로필",
+      "tabCurriculum": "커리큘럼",
+      "tabGoals": "목표",
+      "tabSkills": "스킬",
+      "tabHandover": "인수인계 메모"
+    },
+    "profile": {
+      "title": "기본 정보",
+      "editTitle": "기본 정보 편집",
+      "name": "이름",
+      "grade": "학년",
+      "gradePlaceholder": "예: 중학교 2학년",
+      "school": "학교",
+      "birthDate": "생년월일",
+      "subjects": "과목",
+      "subjectsLabel": "과목 (쉼표로 구분)",
+      "subjectsPlaceholder": "예: 수학, 영어, 과학",
+      "personality": "성격 및 학습 스타일",
+      "personalityPlaceholder": "예: 집중력이 높음. 시각적 자료를 선호함.",
+      "notSet": "미설정"
     },
     "goals": {
       "title": "학습 목표",
@@ -665,26 +692,61 @@
       "progress": "진도",
       "achieveButton": "달성",
       "pauseButton": "중단",
-      "resumeButton": "재개"
+      "resumeButton": "재개",
+      "addTitle": "학습 목표 추가",
+      "addDescription": "목표 세부 사항을 입력하세요",
+      "goalLabel": "목표 *",
+      "goalPlaceholder": "예: 기초 산수 마스터",
+      "subjectLabel": "과목",
+      "subjectPlaceholder": "예: 수학",
+      "detailLabel": "세부 사항",
+      "targetDateLabel": "목표 일자"
     },
-    "strengths": {
-      "title": "강점 분야",
+    "units": {
+      "title": "커리큘럼",
       "add": "추가",
-      "empty": "강점 분야가 등록되어 있지 않습니다."
+      "empty": "등록된 단원이 없습니다.",
+      "statusNotStarted": "미시작",
+      "statusInProgress": "진행 중",
+      "statusCompleted": "완료",
+      "start": "시작",
+      "complete": "완료",
+      "reopen": "다시 열기",
+      "addTitle": "단원 추가",
+      "addDescription": "과목과 단원명을 입력하세요",
+      "subjectLabel": "과목 *",
+      "subjectPlaceholder": "예: 수학",
+      "nameLabel": "단원명 *",
+      "namePlaceholder": "예: 이차방정식",
+      "descriptionLabel": "설명"
     },
-    "weakPoints": {
-      "title": "취약 포인트",
+    "skills": {
+      "title": "스킬 평가",
       "add": "추가",
-      "empty": "취약 포인트가 등록되어 있지 않습니다.",
-      "severityHigh": "중요",
-      "severityMedium": "주의",
-      "severityLow": "경미",
-      "statusActive": "대응 중",
-      "statusImproving": "개선 중",
-      "statusResolved": "해결 완료",
-      "toImproving": "개선 중으로",
-      "toResolved": "해결 완료로",
-      "reoccurred": "재발"
+      "empty": "등록된 스킬 평가가 없습니다.",
+      "rating1": "약함",
+      "rating2": "다소 약함",
+      "rating3": "보통",
+      "rating4": "다소 강함",
+      "rating5": "강함",
+      "addTitle": "스킬 평가 추가",
+      "addDescription": "과목과 주제를 입력하세요",
+      "subjectLabel": "과목 *",
+      "subjectPlaceholder": "예: 수학",
+      "topicLabel": "주제 *",
+      "topicPlaceholder": "예: 분수 계산",
+      "ratingLabel": "평가",
+      "notesLabel": "메모"
+    },
+    "handover": {
+      "title": "인수인계 메모",
+      "add": "메모 추가",
+      "empty": "인수인계 메모가 없습니다.",
+      "addFirst": "첫 번째 메모를 추가하세요",
+      "addTitle": "인수인계 메모 추가",
+      "addDescription": "인수인계 내용을 입력하세요",
+      "contentLabel": "메모 내용 *",
+      "contentPlaceholder": "예: 분수의 약분에 어려움이 있음. 구체적인 숫자로 설명하면 도움이 됨."
     }
   },
   "reports": {

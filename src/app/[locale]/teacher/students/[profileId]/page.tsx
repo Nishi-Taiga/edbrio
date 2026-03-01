@@ -11,25 +11,28 @@ import { SkeletonList } from '@/components/ui/skeleton-card'
 import { ErrorAlert } from '@/components/ui/error-alert'
 import { useAuth } from '@/hooks/use-auth'
 import { useStudentProfiles } from '@/hooks/use-student-profiles'
-import { useStudentKarte } from '@/hooks/use-student-karte'
+import { useStudentCurriculum } from '@/hooks/use-student-curriculum'
 import { createClient } from '@/lib/supabase/client'
 import { StudentProfile } from '@/lib/types/database'
-import { KarteProfile } from '@/components/karte/karte-profile'
-import { GoalList } from '@/components/karte/goal-list'
-import { GoalForm } from '@/components/karte/goal-form'
-import { WeakPointList } from '@/components/karte/weak-point-list'
-import { StrengthList } from '@/components/karte/strength-list'
-import { PointForm } from '@/components/karte/point-form'
+import { CurriculumProfile } from '@/components/curriculum/curriculum-profile'
+import { GoalList } from '@/components/curriculum/goal-list'
+import { GoalForm } from '@/components/curriculum/goal-form'
+import { UnitList } from '@/components/curriculum/unit-list'
+import { UnitForm } from '@/components/curriculum/unit-form'
+import { SkillList } from '@/components/curriculum/skill-list'
+import { SkillForm } from '@/components/curriculum/skill-form'
 import { useHandoverNotes } from '@/hooks/use-handover-notes'
-import { HandoverNoteList } from '@/components/karte/handover-note-list'
-import { HandoverNoteForm } from '@/components/karte/handover-note-form'
+import { HandoverNoteList } from '@/components/curriculum/handover-note-list'
+import { HandoverNoteForm } from '@/components/curriculum/handover-note-form'
+import { useTranslations } from 'next-intl'
 
-export default function StudentKartePage() {
+export default function StudentCurriculumPage() {
   const params = useParams()
   const profileId = params.profileId as string
+  const tPage = useTranslations('curriculum.page')
   const { user, loading: authLoading } = useAuth()
   const { updateProfile } = useStudentProfiles(user?.id)
-  const { goals, weakPoints, strengths, loading: karteLoading, error: karteError, addGoal, updateGoal, deleteGoal, addWeakPoint, updateWeakPoint, deleteWeakPoint, addStrength, deleteStrength } = useStudentKarte(profileId)
+  const { goals, units, skills, loading: curriculumLoading, error: curriculumError, addGoal, updateGoal, deleteGoal, addUnit, updateUnit, deleteUnit, addSkill, updateSkill, deleteSkill } = useStudentCurriculum(profileId)
   const { notes: handoverNotes, loading: handoverLoading, error: handoverError, addNote, deleteNote: deleteHandoverNote } = useHandoverNotes(profileId)
   const supabase = useMemo(() => createClient(), [])
 
@@ -39,8 +42,8 @@ export default function StudentKartePage() {
 
   // Dialogs
   const [showGoalForm, setShowGoalForm] = useState(false)
-  const [showWeakPointForm, setShowWeakPointForm] = useState(false)
-  const [showStrengthForm, setShowStrengthForm] = useState(false)
+  const [showUnitForm, setShowUnitForm] = useState(false)
+  const [showSkillForm, setShowSkillForm] = useState(false)
   const [showHandoverForm, setShowHandoverForm] = useState(false)
 
   useEffect(() => {
@@ -67,27 +70,26 @@ export default function StudentKartePage() {
 
   const handleUpdateProfile = async (id: string, updates: Partial<StudentProfile>) => {
     await updateProfile(id, updates)
-    // Refresh local profile state
     const { data } = await supabase.from('student_profiles').select('*').eq('id', id).single()
     if (data) setProfile(data)
   }
 
-  const anyError = error || karteError || handoverError
+  const anyError = error || curriculumError || handoverError
 
   return (
     <ProtectedRoute allowedRoles={["teacher"]}>
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 mb-4">
-          <Link href="/teacher/students" className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">生徒カルテ</Link>
+          <Link href="/teacher/students" className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">{tPage('breadcrumb')}</Link>
           <span>/</span>
-          <span className="text-slate-900 dark:text-white font-medium">{profile?.name || '読み込み中...'}</span>
+          <span className="text-slate-900 dark:text-white font-medium">{profile?.name || tPage('loading')}</span>
         </nav>
 
         {(loading || authLoading) ? (
           <SkeletonList count={3} />
         ) : !profile ? (
-          <ErrorAlert message="生徒が見つかりません" />
+          <ErrorAlert message={tPage('notFound')} />
         ) : (<>
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -97,7 +99,7 @@ export default function StudentKartePage() {
           </div>
           <Link href={`/teacher/reports/new?profileId=${profileId}`}>
             <Button>
-              <FileText className="w-4 h-4 mr-1" />レポート作成
+              <FileText className="w-4 h-4 mr-1" />{tPage('createReport')}
             </Button>
           </Link>
         </div>
@@ -107,38 +109,44 @@ export default function StudentKartePage() {
         {/* Tabs */}
         <Tabs defaultValue="profile">
           <TabsList className="mb-6">
-            <TabsTrigger value="profile">基本情報</TabsTrigger>
-            <TabsTrigger value="goals">学習目標</TabsTrigger>
-            <TabsTrigger value="points">つまずき・得意</TabsTrigger>
-            <TabsTrigger value="handover">引継ぎメモ</TabsTrigger>
+            <TabsTrigger value="profile">{tPage('tabProfile')}</TabsTrigger>
+            <TabsTrigger value="units">{tPage('tabCurriculum')}</TabsTrigger>
+            <TabsTrigger value="goals">{tPage('tabGoals')}</TabsTrigger>
+            <TabsTrigger value="skills">{tPage('tabSkills')}</TabsTrigger>
+            <TabsTrigger value="handover">{tPage('tabHandover')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile">
-            <KarteProfile profile={profile} onUpdate={handleUpdateProfile} />
+            <CurriculumProfile profile={profile} onUpdate={handleUpdateProfile} />
+          </TabsContent>
+
+          <TabsContent value="units">
+            {curriculumLoading ? (
+              <div className="text-gray-500">{tPage('loading')}</div>
+            ) : (
+              <UnitList units={units} onAdd={() => setShowUnitForm(true)} onUpdate={updateUnit} onDelete={deleteUnit} />
+            )}
           </TabsContent>
 
           <TabsContent value="goals">
-            {karteLoading ? (
-              <div className="text-gray-500">読み込み中...</div>
+            {curriculumLoading ? (
+              <div className="text-gray-500">{tPage('loading')}</div>
             ) : (
               <GoalList goals={goals} onAdd={() => setShowGoalForm(true)} onUpdate={updateGoal} onDelete={deleteGoal} />
             )}
           </TabsContent>
 
-          <TabsContent value="points">
-            {karteLoading ? (
-              <div className="text-gray-500">読み込み中...</div>
+          <TabsContent value="skills">
+            {curriculumLoading ? (
+              <div className="text-gray-500">{tPage('loading')}</div>
             ) : (
-              <div className="space-y-6">
-                <WeakPointList weakPoints={weakPoints} onAdd={() => setShowWeakPointForm(true)} onUpdate={updateWeakPoint} onDelete={deleteWeakPoint} />
-                <StrengthList strengths={strengths} onAdd={() => setShowStrengthForm(true)} onDelete={deleteStrength} />
-              </div>
+              <SkillList skills={skills} onAdd={() => setShowSkillForm(true)} onUpdate={updateSkill} onDelete={deleteSkill} />
             )}
           </TabsContent>
 
           <TabsContent value="handover">
             {handoverLoading ? (
-              <div className="text-gray-500">読み込み中...</div>
+              <div className="text-gray-500">{tPage('loading')}</div>
             ) : (
               <HandoverNoteList notes={handoverNotes} onAdd={() => setShowHandoverForm(true)} onDelete={deleteHandoverNote} />
             )}
@@ -147,8 +155,8 @@ export default function StudentKartePage() {
 
         {/* Dialogs */}
         <GoalForm open={showGoalForm} onClose={() => setShowGoalForm(false)} onSubmit={addGoal} />
-        <PointForm open={showWeakPointForm} onClose={() => setShowWeakPointForm(false)} type="weakness" onSubmitWeakness={addWeakPoint} />
-        <PointForm open={showStrengthForm} onClose={() => setShowStrengthForm(false)} type="strength" onSubmitStrength={addStrength} />
+        <UnitForm open={showUnitForm} onClose={() => setShowUnitForm(false)} onSubmit={addUnit} />
+        <SkillForm open={showSkillForm} onClose={() => setShowSkillForm(false)} onSubmit={addSkill} />
         <HandoverNoteForm open={showHandoverForm} onClose={() => setShowHandoverForm(false)} onSubmit={addNote} />
         </>)}
       </div>

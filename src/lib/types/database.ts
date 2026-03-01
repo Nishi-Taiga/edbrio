@@ -171,7 +171,7 @@ export interface AuditLog {
   created_at: string
 }
 
-// --- Karte (指導カルテ) ---
+// --- Curriculum (生徒カリキュラム) ---
 
 export interface StudentProfile {
   id: string
@@ -232,4 +232,34 @@ export interface HandoverNote {
   to_teacher_id?: string | null
   content: string
   created_at: string
+}
+
+// --- カリキュラム単元 & スキル評価 ---
+
+export type UnitStatus = 'not_started' | 'in_progress' | 'completed'
+
+export interface CurriculumUnit {
+  id: string
+  profile_id: string
+  subject: string
+  unit_name: string
+  description?: string
+  order_index: number
+  status: UnitStatus
+  started_at?: string
+  completed_at?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface SkillAssessment {
+  id: string
+  profile_id: string
+  subject: string
+  topic: string
+  rating: number
+  notes?: string
+  last_assessed_at: string
+  created_at: string
+  updated_at: string
 }

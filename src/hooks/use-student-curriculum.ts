@@ -2,36 +2,36 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { StudentGoal, StudentWeakPoint, StudentStrength } from '@/lib/types/database'
+import { StudentGoal, CurriculumUnit, SkillAssessment } from '@/lib/types/database'
 
-export function useStudentKarte(profileId: string | undefined) {
+export function useStudentCurriculum(profileId: string | undefined) {
   const [goals, setGoals] = useState<StudentGoal[]>([])
-  const [weakPoints, setWeakPoints] = useState<StudentWeakPoint[]>([])
-  const [strengths, setStrengths] = useState<StudentStrength[]>([])
+  const [units, setUnits] = useState<CurriculumUnit[]>([])
+  const [skills, setSkills] = useState<SkillAssessment[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const supabase = useMemo(() => createClient(), [])
 
   const fetchAll = useCallback(async () => {
     if (!profileId) {
-      setGoals([]); setWeakPoints([]); setStrengths([])
+      setGoals([]); setUnits([]); setSkills([])
       setLoading(false)
       return
     }
     try {
       setLoading(true)
       setError(null)
-      const [goalsRes, wpRes, strRes] = await Promise.all([
+      const [goalsRes, unitsRes, skillsRes] = await Promise.all([
         supabase.from('student_goals').select('*').eq('profile_id', profileId).order('created_at', { ascending: false }),
-        supabase.from('student_weak_points').select('*').eq('profile_id', profileId).order('created_at', { ascending: false }),
-        supabase.from('student_strengths').select('*').eq('profile_id', profileId).order('created_at', { ascending: false }),
+        supabase.from('curriculum_units').select('*').eq('profile_id', profileId).order('order_index', { ascending: true }),
+        supabase.from('skill_assessments').select('*').eq('profile_id', profileId).order('created_at', { ascending: false }),
       ])
       if (goalsRes.error) throw goalsRes.error
-      if (wpRes.error) throw wpRes.error
-      if (strRes.error) throw strRes.error
+      if (unitsRes.error) throw unitsRes.error
+      if (skillsRes.error) throw skillsRes.error
       setGoals(goalsRes.data || [])
-      setWeakPoints(wpRes.data || [])
-      setStrengths(strRes.data || [])
+      setUnits(unitsRes.data || [])
+      setSkills(skillsRes.data || [])
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -69,50 +69,59 @@ export function useStudentKarte(profileId: string | undefined) {
     await fetchAll()
   }
 
-  // Weak Points CRUD
-  const addWeakPoint = async (wp: Omit<StudentWeakPoint, 'id' | 'profile_id' | 'created_at' | 'updated_at'>) => {
+  // Units CRUD
+  const addUnit = async (unit: Omit<CurriculumUnit, 'id' | 'profile_id' | 'created_at' | 'updated_at'>) => {
     const { error: err } = await supabase
-      .from('student_weak_points')
-      .insert({ ...wp, profile_id: profileId })
+      .from('curriculum_units')
+      .insert({ ...unit, profile_id: profileId })
     if (err) throw err
     await fetchAll()
   }
 
-  const updateWeakPoint = async (id: string, updates: Partial<StudentWeakPoint>) => {
+  const updateUnit = async (id: string, updates: Partial<CurriculumUnit>) => {
     const { error: err } = await supabase
-      .from('student_weak_points')
+      .from('curriculum_units')
       .update({ ...updates, updated_at: new Date().toISOString() })
       .eq('id', id)
     if (err) throw err
     await fetchAll()
   }
 
-  const deleteWeakPoint = async (id: string) => {
-    const { error: err } = await supabase.from('student_weak_points').delete().eq('id', id)
+  const deleteUnit = async (id: string) => {
+    const { error: err } = await supabase.from('curriculum_units').delete().eq('id', id)
     if (err) throw err
     await fetchAll()
   }
 
-  // Strengths CRUD
-  const addStrength = async (s: Omit<StudentStrength, 'id' | 'profile_id' | 'created_at'>) => {
+  // Skills CRUD
+  const addSkill = async (skill: Omit<SkillAssessment, 'id' | 'profile_id' | 'created_at' | 'updated_at'>) => {
     const { error: err } = await supabase
-      .from('student_strengths')
-      .insert({ ...s, profile_id: profileId })
+      .from('skill_assessments')
+      .insert({ ...skill, profile_id: profileId })
     if (err) throw err
     await fetchAll()
   }
 
-  const deleteStrength = async (id: string) => {
-    const { error: err } = await supabase.from('student_strengths').delete().eq('id', id)
+  const updateSkill = async (id: string, updates: Partial<SkillAssessment>) => {
+    const { error: err } = await supabase
+      .from('skill_assessments')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+    if (err) throw err
+    await fetchAll()
+  }
+
+  const deleteSkill = async (id: string) => {
+    const { error: err } = await supabase.from('skill_assessments').delete().eq('id', id)
     if (err) throw err
     await fetchAll()
   }
 
   return {
-    goals, weakPoints, strengths, loading, error,
+    goals, units, skills, loading, error,
     addGoal, updateGoal, deleteGoal,
-    addWeakPoint, updateWeakPoint, deleteWeakPoint,
-    addStrength, deleteStrength,
+    addUnit, updateUnit, deleteUnit,
+    addSkill, updateSkill, deleteSkill,
     refresh: fetchAll,
   }
 }

@@ -6,6 +6,7 @@ import { Plus, Trash2 } from 'lucide-react'
 import { HandoverNote } from '@/lib/types/database'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
+import { useTranslations } from 'next-intl'
 
 interface HandoverNoteListProps {
   notes: HandoverNote[]
@@ -14,20 +15,21 @@ interface HandoverNoteListProps {
 }
 
 export function HandoverNoteList({ notes, onAdd, onDelete }: HandoverNoteListProps) {
+  const t = useTranslations('curriculum.handover')
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">引継ぎメモ</h3>
+        <h3 className="text-lg font-semibold">{t('title')}</h3>
         <Button size="sm" onClick={onAdd}>
-          <Plus className="w-4 h-4 mr-1" />メモ追加
+          <Plus className="w-4 h-4 mr-1" />{t('add')}
         </Button>
       </div>
 
       {notes.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-500 mb-4">引継ぎメモはまだありません。</p>
+          <p className="text-gray-500 mb-4">{t('empty')}</p>
           <Button variant="outline" onClick={onAdd}>
-            <Plus className="w-4 h-4 mr-1" />最初のメモを追加
+            <Plus className="w-4 h-4 mr-1" />{t('addFirst')}
           </Button>
         </div>
       ) : (

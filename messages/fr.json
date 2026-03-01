@@ -10,6 +10,7 @@
     "delete": "Supprimer",
     "edit": "Modifier",
     "add": "Ajouter",
+    "adding": "Ajout en cours...",
     "create": "Créer",
     "close": "Fermer",
     "back": "Retour",
@@ -47,10 +48,10 @@
   "metadata": {
     "defaultTitle": "EdBrio — Système de gestion tout-en-un pour tuteurs privés",
     "titleTemplate": "%s | EdBrio",
-    "description": "Système de gestion tout-en-un pour tuteurs privés et instructeurs. Réservations, paiements, rapports IA et fiches élèves en un seul endroit. Essayez gratuitement.",
-    "ogDescription": "Gestion tout-en-un des réservations, paiements, rapports IA et fiches élèves pour tuteurs privés.",
-    "twitterDescription": "Système de gestion pour tuteurs privés. Réservations, paiements, rapports IA et fiches en un seul endroit.",
-    "oneLiner": "Système de gestion tout-en-un pour tuteurs privés. Réservations, paiements, rapports IA et fiches en un seul endroit.",
+    "description": "Système de gestion tout-en-un pour tuteurs privés et instructeurs. Réservations, paiements, rapports IA et curriculum de l'élève en un seul endroit. Essayez gratuitement.",
+    "ogDescription": "Gestion tout-en-un des réservations, paiements, rapports IA et curriculum de l'élève pour tuteurs privés.",
+    "twitterDescription": "Système de gestion pour tuteurs privés. Réservations, paiements, rapports IA et curriculum en un seul endroit.",
+    "oneLiner": "Système de gestion tout-en-un pour tuteurs privés. Réservations, paiements, rapports IA et curriculum en un seul endroit.",
     "jsonLdDescription": "Système de gestion tout-en-un pour tuteurs privés et instructeurs",
     "jsonLdOfferDescription": "Création de compte gratuite"
   },
@@ -66,10 +67,10 @@
     },
     "alphaNotice": "Ce système est actuellement en phase alpha. Des dysfonctionnements peuvent survenir lors de l'utilisation.",
     "hero": {
-      "badge": "Réservations, paiements, rapports et fiches en un seul endroit",
+      "badge": "Réservations, paiements, rapports et curriculum en un seul endroit",
       "title1": "Concentrez-vous sur l'enseignement.",
       "title2": "On s'occupe du reste.",
-      "description": "EdBrio est le système de gestion tout-en-un pour tuteurs privés et instructeurs. Réservations, paiements, rapports IA et fiches élèves — tout sur une seule plateforme.",
+      "description": "EdBrio est le système de gestion tout-en-un pour tuteurs privés et instructeurs. Réservations, paiements, rapports IA et curriculum de l'élève — tout sur une seule plateforme.",
       "ctaStart": "Commencer gratuitement",
       "ctaFeatures": "Découvrir les fonctionnalités"
     },
@@ -91,7 +92,7 @@
       "sectionDescription": "LINE, Excel, applis bancaires, agendas. EdBrio intègre intelligemment tous ces outils dispersés.",
       "aiReportTitle": "Génération de rapports par IA",
       "aiReportDescription": "Saisissez simplement vos notes après le cours, et l'IA génère automatiquement un rapport soigné pour les parents. Rapports professionnels incluant le niveau de compréhension, les devoirs et le programme du prochain cours, créés en quelques secondes.",
-      "studentKarteTitle": "Dossier élève",
+      "studentKarteTitle": "Curriculum de l'Élève",
       "studentKarteDescription": "Gérez de manière centralisée les objectifs d'apprentissage, les points de difficulté et les points forts. Visualisez les orientations pédagogiques pour chaque élève et facilitez les passations entre instructeurs.",
       "schedulingTitle": "Gestion du planning",
       "schedulingDescription": "Il suffit d'ajouter vos disponibilités au calendrier pour que le montant de facturation mensuel soit calculé automatiquement. La gestion des cours de remplacement se fait sans erreur.",
@@ -104,7 +105,7 @@
       "tutorTitle": "Tuteur privé",
       "tutorDescription": "Gérez réservations, paiements et rapports dans un seul système. Concentrez-vous sur la relation de confiance avec les parents.",
       "jukuTitle": "Centre de tutorat",
-      "jukuDescription": "Centralisez le partage d'informations entre plusieurs instructeurs avec les fiches élèves. Les notes de passation assurent une continuité lors des remplacements.",
+      "jukuDescription": "Centralisez le partage d'informations entre plusieurs instructeurs avec le curriculum de l'élève. Les notes de passation assurent une continuité lors des remplacements.",
       "onlineTitle": "Instructeur en ligne",
       "onlineDescription": "Gérez tout en ligne, des réservations au partage de rapports et aux paiements. Enseignez depuis n'importe où."
     },
@@ -117,7 +118,7 @@
       "freeStudents": "Jusqu'à 2 élèves",
       "freeReports": "Rapports IA : jusqu'à 5 par mois",
       "freeCalendar": "Gestion du planning et du calendrier",
-      "freeKarte": "Dossier élève",
+      "freeKarte": "Curriculum de l'Élève",
       "freeStripe": "Paiement Stripe intégré (frais 7 %)",
       "freeCta": "Commencer gratuitement",
       "standardPlan": "Standard",
@@ -128,7 +129,7 @@
       "standardStudents": "Élèves illimités",
       "standardReports": "Rapports IA illimités",
       "standardCalendar": "Gestion du planning et du calendrier",
-      "standardKarte": "Dossier élève",
+      "standardKarte": "Curriculum de l'Élève",
       "standardStripe": "Paiement Stripe intégré (frais 1,4 %)",
       "standardSupport": "Support client prioritaire",
       "standardCta": "Essayer gratuitement pendant 1 mois"
@@ -189,7 +190,7 @@
       "q5": "Puis-je utiliser le plan Free indéfiniment ?",
       "a5": "Oui, le plan Free n'a pas de limite de durée. Vous pouvez continuer à l'utiliser gratuitement dans la limite de 2 élèves et 5 rapports IA par mois.",
       "q6": "Puis-je utiliser EdBrio sans la fonction de paiement (tickets) ?",
-      "a6": "Bien sûr. Les rapports IA, les portfolios d'élèves, le calendrier et les autres fonctionnalités sont disponibles sans intégration de paiement Stripe. La fonction de paiement est entièrement optionnelle.",
+      "a6": "Bien sûr. Les rapports IA, le curriculum de l'élève, le calendrier et les autres fonctionnalités sont disponibles sans intégration de paiement Stripe. La fonction de paiement est entièrement optionnelle.",
       "q7": "Un parent peut-il être connecté à plusieurs professeurs ?",
       "a7": "Oui, un compte parent peut être lié à plusieurs professeurs. Vous pouvez gérer tous les rapports et réservations de votre enfant auprès de différents tuteurs en un seul endroit.",
       "q8": "Peut-on l'utiliser uniquement sur téléphone ?",
@@ -242,7 +243,7 @@
       "dashboard": "Tableau de bord",
       "calendar": "Calendrier",
       "tickets": "Tickets",
-      "students": "Dossier élève",
+      "students": "Curriculum de l'Élève",
       "reports": "Rapports",
       "bookings": "Réservations",
       "profile": "Paramètres",
@@ -269,7 +270,7 @@
     "noScheduleDescription": "Les réservations des parents s'afficheront ici",
     "quickActions": "Actions rapides",
     "quickActionsDescription": "Opérations fréquentes",
-    "studentKarte": "Dossier élève",
+    "studentKarte": "Curriculum de l'Élève",
     "studentKarteDesc": "Informations et progression des élèves",
     "calendarManagement": "Gestion du calendrier",
     "calendarManagementDesc": "Définir les créneaux et disponibilités",
@@ -285,7 +286,7 @@
     "goToProfile": "Aller aux paramètres du profil"
   },
   "teacherStudents": {
-    "title": "Dossier élève",
+    "title": "Curriculum de l'Élève",
     "description": "Gérer les informations d'apprentissage des élèves",
     "addStudent": "Ajouter un élève",
     "searchPlaceholder": "Rechercher par nom ou niveau...",
@@ -493,7 +494,7 @@
     "featureAiReportsFree": "Jusqu'à 5 par mois",
     "featureAiReportsStandard": "Illimité",
     "featureCalendar": "Gestion du planning et du calendrier",
-    "featureKarte": "Dossier élève",
+    "featureKarte": "Curriculum de l'Élève",
     "featureStripe": "Paiement Stripe intégré",
     "featureFee": "Frais de paiement",
     "featurePrioritySupport": "Support prioritaire",
@@ -650,10 +651,36 @@
     "nextPlanLabel": "Programme du prochain cours",
     "nextPlanPlaceholder": "Ex : Aborder les exercices d'application sur les équations du second degré"
   },
-  "karte": {
+  "curriculum": {
     "card": {
       "statusActive": "Inscrit",
       "statusInactive": "En pause"
+    },
+    "page": {
+      "breadcrumb": "Curriculum de l'Élève",
+      "loading": "Chargement...",
+      "notFound": "Élève introuvable",
+      "createReport": "Créer un rapport",
+      "tabProfile": "Profil",
+      "tabCurriculum": "Curriculum",
+      "tabGoals": "Objectifs",
+      "tabSkills": "Compétences",
+      "tabHandover": "Notes de passation"
+    },
+    "profile": {
+      "title": "Informations de base",
+      "editTitle": "Modifier les informations de base",
+      "name": "Nom",
+      "grade": "Niveau",
+      "gradePlaceholder": "Ex : 4ème",
+      "school": "Établissement",
+      "birthDate": "Date de naissance",
+      "subjects": "Matières",
+      "subjectsLabel": "Matières (séparées par des virgules)",
+      "subjectsPlaceholder": "Ex : Mathématiques, Anglais, Sciences",
+      "personality": "Personnalité et style d'apprentissage",
+      "personalityPlaceholder": "Ex : Forte concentration. Préfère les supports visuels.",
+      "notSet": "Non défini"
     },
     "goals": {
       "title": "Objectifs d'apprentissage",
@@ -665,26 +692,61 @@
       "progress": "Progression",
       "achieveButton": "Atteint",
       "pauseButton": "Mettre en pause",
-      "resumeButton": "Reprendre"
+      "resumeButton": "Reprendre",
+      "addTitle": "Ajouter un objectif d'apprentissage",
+      "addDescription": "Saisissez les détails de l'objectif",
+      "goalLabel": "Objectif *",
+      "goalPlaceholder": "Ex : Maîtriser les bases de l'arithmétique",
+      "subjectLabel": "Matière",
+      "subjectPlaceholder": "Ex : Mathématiques",
+      "detailLabel": "Détails",
+      "targetDateLabel": "Date cible"
     },
-    "strengths": {
-      "title": "Points forts",
+    "units": {
+      "title": "Curriculum",
       "add": "Ajouter",
-      "empty": "Aucun point fort enregistré."
+      "empty": "Aucune unité enregistrée.",
+      "statusNotStarted": "Non commencé",
+      "statusInProgress": "En cours",
+      "statusCompleted": "Terminé",
+      "start": "Commencer",
+      "complete": "Terminer",
+      "reopen": "Rouvrir",
+      "addTitle": "Ajouter une unité",
+      "addDescription": "Saisissez la matière et le nom de l'unité",
+      "subjectLabel": "Matière *",
+      "subjectPlaceholder": "Ex : Mathématiques",
+      "nameLabel": "Nom de l'unité *",
+      "namePlaceholder": "Ex : Équations du second degré",
+      "descriptionLabel": "Description"
     },
-    "weakPoints": {
-      "title": "Points de difficulté",
+    "skills": {
+      "title": "Évaluation des compétences",
       "add": "Ajouter",
-      "empty": "Aucun point de difficulté enregistré.",
-      "severityHigh": "Important",
-      "severityMedium": "Attention",
-      "severityLow": "Mineur",
-      "statusActive": "En traitement",
-      "statusImproving": "En amélioration",
-      "statusResolved": "Résolu",
-      "toImproving": "Marquer en amélioration",
-      "toResolved": "Marquer comme résolu",
-      "reoccurred": "Récurrence"
+      "empty": "Aucune évaluation de compétences enregistrée.",
+      "rating1": "Faible",
+      "rating2": "Plutôt faible",
+      "rating3": "Correct",
+      "rating4": "Plutôt fort",
+      "rating5": "Fort",
+      "addTitle": "Ajouter une évaluation de compétence",
+      "addDescription": "Saisissez la matière et le thème",
+      "subjectLabel": "Matière *",
+      "subjectPlaceholder": "Ex : Mathématiques",
+      "topicLabel": "Thème *",
+      "topicPlaceholder": "Ex : Calcul de fractions",
+      "ratingLabel": "Évaluation",
+      "notesLabel": "Notes"
+    },
+    "handover": {
+      "title": "Notes de passation",
+      "add": "Ajouter une note",
+      "empty": "Aucune note de passation enregistrée.",
+      "addFirst": "Ajouter la première note",
+      "addTitle": "Ajouter une note de passation",
+      "addDescription": "Saisissez les détails de la passation",
+      "contentLabel": "Contenu de la note *",
+      "contentPlaceholder": "Ex : Difficultés avec la réduction de fractions. L'explication avec des nombres concrets aide."
     }
   },
   "reports": {

@@ -14,7 +14,7 @@ import { toast } from 'sonner'
 import { useAuth } from '@/hooks/use-auth'
 import { useStudentProfiles } from '@/hooks/use-student-profiles'
 import { LoadingButton } from '@/components/ui/loading-button'
-import { StudentCard } from '@/components/karte/student-card'
+import { StudentCard } from '@/components/curriculum/student-card'
 import { useTranslations } from 'next-intl'
 
 export default function TeacherStudentsPage() {

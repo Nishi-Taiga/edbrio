@@ -10,6 +10,7 @@
     "delete": "Elimina",
     "edit": "Modifica",
     "add": "Aggiungi",
+    "adding": "Aggiunta in corso...",
     "create": "Crea",
     "close": "Chiudi",
     "back": "Indietro",
@@ -47,10 +48,10 @@
   "metadata": {
     "defaultTitle": "EdBrio — Sistema di gestione tutto-in-uno per tutor privati",
     "titleTemplate": "%s | EdBrio",
-    "description": "Sistema di gestione tutto-in-uno per tutor privati e istruttori. Prenotazioni, pagamenti, report IA e schede studenti in un unico posto. Provalo gratis.",
-    "ogDescription": "Gestione tutto-in-uno di prenotazioni, pagamenti, report IA e schede studenti per tutor privati.",
-    "twitterDescription": "Sistema di gestione per tutor privati. Prenotazioni, pagamenti, report IA e schede in un unico posto.",
-    "oneLiner": "Sistema di gestione tutto-in-uno per tutor privati. Prenotazioni, pagamenti, report IA e schede in un unico posto.",
+    "description": "Sistema di gestione tutto-in-uno per tutor privati e istruttori. Prenotazioni, pagamenti, report IA e curriculum dello studente in un unico posto. Provalo gratis.",
+    "ogDescription": "Gestione tutto-in-uno di prenotazioni, pagamenti, report IA e curriculum dello studente per tutor privati.",
+    "twitterDescription": "Sistema di gestione per tutor privati. Prenotazioni, pagamenti, report IA e curriculum in un unico posto.",
+    "oneLiner": "Sistema di gestione tutto-in-uno per tutor privati. Prenotazioni, pagamenti, report IA e curriculum in un unico posto.",
     "jsonLdDescription": "Sistema di gestione tutto-in-uno per tutor privati e istruttori",
     "jsonLdOfferDescription": "Creazione account gratuita"
   },
@@ -66,10 +67,10 @@
     },
     "alphaNotice": "Il sistema è attualmente in fase alpha di test. Potrebbero verificarsi malfunzionamenti durante l'utilizzo.",
     "hero": {
-      "badge": "Prenotazioni, pagamenti, report e schede in un unico posto",
+      "badge": "Prenotazioni, pagamenti, report e curriculum in un unico posto",
       "title1": "Concentrati sull'insegnamento.",
       "title2": "Al resto pensiamo noi.",
-      "description": "EdBrio è il sistema di gestione tutto-in-uno per tutor privati e istruttori. Prenotazioni, pagamenti, report IA e schede studenti — tutto su un'unica piattaforma.",
+      "description": "EdBrio è il sistema di gestione tutto-in-uno per tutor privati e istruttori. Prenotazioni, pagamenti, report IA e curriculum dello studente — tutto su un'unica piattaforma.",
       "ctaStart": "Inizia gratis",
       "ctaFeatures": "Scopri le funzionalità"
     },
@@ -91,8 +92,8 @@
       "sectionDescription": "LINE, Excel, app bancarie, agende. EdBrio integra in modo intelligente tutti quegli strumenti sparsi.",
       "aiReportTitle": "Generazione report con IA",
       "aiReportDescription": "Basta inserire gli appunti post-lezione e l'IA genera automaticamente report professionali per i genitori. Report completi di livello di comprensione, compiti e programma della prossima lezione, pronti in pochi secondi.",
-      "studentKarteTitle": "Scheda studente",
-      "studentKarteDescription": "Gestione centralizzata di obiettivi di apprendimento, punti critici e punti di forza. Visualizza le strategie didattiche per ogni studente e facilita il passaggio di consegne tra insegnanti.",
+      "studentKarteTitle": "Curriculum dello Studente",
+      "studentKarteDescription": "Gestione centralizzata di obiettivi di apprendimento, valutazioni delle competenze e curriculum. Visualizza le strategie didattiche per ogni studente e facilita il passaggio di consegne tra insegnanti.",
       "schedulingTitle": "Gestione agenda",
       "schedulingDescription": "Basta inserire gli appuntamenti nel calendario per calcolare automaticamente l'importo di fatturazione a fine mese. Anche la gestione delle lezioni di recupero è semplice e senza errori.",
       "paymentsTitle": "Pagamenti integrati",
@@ -104,7 +105,7 @@
       "tutorTitle": "Tutor privati",
       "tutorDescription": "Gestisci prenotazioni, pagamenti e report in un unico sistema. Concentrati sulla fiducia con i genitori.",
       "jukuTitle": "Scuole di ripetizioni",
-      "jukuDescription": "Centralizza la condivisione di informazioni tra più istruttori con le schede studenti. Le note di passaggio garantiscono continuità nelle sostituzioni.",
+      "jukuDescription": "Centralizza la condivisione di informazioni tra più istruttori con il curriculum dello studente. Le note di passaggio garantiscono continuità nelle sostituzioni.",
       "onlineTitle": "Insegnanti online",
       "onlineDescription": "Gestisci tutto online dalla gestione delle prenotazioni alla condivisione dei report e ai pagamenti. Insegna da qualsiasi luogo."
     },
@@ -117,7 +118,7 @@
       "freeStudents": "Fino a 2 studenti",
       "freeReports": "Report IA: fino a 5 al mese",
       "freeCalendar": "Gestione agenda e calendario",
-      "freeKarte": "Scheda studente",
+      "freeKarte": "Curriculum dello Studente",
       "freeStripe": "Pagamenti Stripe (commissione 7%)",
       "freeCta": "Inizia gratis",
       "standardPlan": "Standard",
@@ -128,7 +129,7 @@
       "standardStudents": "Studenti illimitati",
       "standardReports": "Report IA illimitati",
       "standardCalendar": "Gestione agenda e calendario",
-      "standardKarte": "Scheda studente",
+      "standardKarte": "Curriculum dello Studente",
       "standardStripe": "Pagamenti Stripe (commissione 1.4%)",
       "standardSupport": "Supporto clienti prioritario",
       "standardCta": "Prova gratis per 1 mese"
@@ -189,7 +190,7 @@
       "q5": "Posso usare il piano Free a tempo indeterminato?",
       "a5": "Sì, il piano Free non ha limiti di tempo. Puoi continuare a usarlo gratuitamente entro il limite di 2 studenti e 5 report IA al mese.",
       "q6": "Posso usare EdBrio senza la funzione di pagamento (ticket)?",
-      "a6": "Certamente. I report IA, i portfolio degli studenti, il calendario e le altre funzionalità sono tutti disponibili senza l'integrazione dei pagamenti Stripe. La funzione di pagamento è completamente opzionale.",
+      "a6": "Certamente. I report IA, il curriculum dello studente, il calendario e le altre funzionalità sono tutti disponibili senza l'integrazione dei pagamenti Stripe. La funzione di pagamento è completamente opzionale.",
       "q7": "Un genitore può collegarsi con più insegnanti?",
       "a7": "Sì, un account genitore può essere collegato a più insegnanti. Puoi gestire tutti i report e le prenotazioni di tuo figlio da diversi tutor in un unico posto.",
       "q8": "Si può usare solo con lo smartphone?",
@@ -242,7 +243,7 @@
       "dashboard": "Dashboard",
       "calendar": "Calendario",
       "tickets": "Pacchetti lezione",
-      "students": "Schede studente",
+      "students": "Curriculum dello Studente",
       "reports": "Report",
       "bookings": "Prenotazioni",
       "profile": "Impostazioni",
@@ -269,7 +270,7 @@
     "noScheduleDescription": "Quando un genitore effettua una prenotazione, verrà mostrata qui",
     "quickActions": "Azioni rapide",
     "quickActionsDescription": "Operazioni frequenti",
-    "studentKarte": "Scheda studente",
+    "studentKarte": "Curriculum dello Studente",
     "studentKarteDesc": "Informazioni e progressi degli studenti",
     "calendarManagement": "Gestione calendario",
     "calendarManagementDesc": "Imposta turni e disponibilità",
@@ -285,7 +286,7 @@
     "goToProfile": "Vai alle impostazioni del profilo"
   },
   "teacherStudents": {
-    "title": "Schede studente",
+    "title": "Curriculum dello Studente",
     "description": "Gestisci le informazioni di apprendimento degli studenti",
     "addStudent": "Aggiungi studente",
     "searchPlaceholder": "Cerca per nome o classe...",
@@ -493,7 +494,7 @@
     "featureAiReportsFree": "Fino a 5 al mese",
     "featureAiReportsStandard": "Illimitati",
     "featureCalendar": "Gestione agenda e calendario",
-    "featureKarte": "Scheda studente",
+    "featureKarte": "Curriculum dello Studente",
     "featureStripe": "Integrazione pagamenti Stripe",
     "featureFee": "Commissione sui pagamenti",
     "featurePrioritySupport": "Supporto prioritario",
@@ -650,10 +651,36 @@
     "nextPlanLabel": "Programma della prossima lezione",
     "nextPlanPlaceholder": "Es.: Affrontare esercizi applicati sulle equazioni di secondo grado"
   },
-  "karte": {
+  "curriculum": {
     "card": {
       "statusActive": "Attivo",
-      "statusInactive": "In pausa"
+      "statusInactive": "Inattivo"
+    },
+    "page": {
+      "breadcrumb": "Curriculum dello Studente",
+      "loading": "Caricamento...",
+      "notFound": "Studente non trovato",
+      "createReport": "Crea report",
+      "tabProfile": "Profilo",
+      "tabCurriculum": "Curriculum",
+      "tabGoals": "Obiettivi",
+      "tabSkills": "Competenze",
+      "tabHandover": "Note di passaggio"
+    },
+    "profile": {
+      "title": "Informazioni di base",
+      "editTitle": "Modifica informazioni di base",
+      "name": "Nome",
+      "grade": "Classe",
+      "gradePlaceholder": "Es.: 2ª Media",
+      "school": "Scuola",
+      "birthDate": "Data di nascita",
+      "subjects": "Materie",
+      "subjectsLabel": "Materie (separate da virgola)",
+      "subjectsPlaceholder": "Es.: Matematica, Inglese, Scienze",
+      "personality": "Personalità e stile di apprendimento",
+      "personalityPlaceholder": "Es.: Alta concentrazione. Preferisce materiali visivi.",
+      "notSet": "Non impostato"
     },
     "goals": {
       "title": "Obiettivi di apprendimento",
@@ -665,26 +692,61 @@
       "progress": "Progresso",
       "achieveButton": "Raggiunto",
       "pauseButton": "Pausa",
-      "resumeButton": "Riprendi"
+      "resumeButton": "Riprendi",
+      "addTitle": "Aggiungi obiettivo di apprendimento",
+      "addDescription": "Inserisci i dettagli dell'obiettivo",
+      "goalLabel": "Obiettivo *",
+      "goalPlaceholder": "Es.: Padroneggiare l'aritmetica di base",
+      "subjectLabel": "Materia",
+      "subjectPlaceholder": "Es.: Matematica",
+      "detailLabel": "Dettagli",
+      "targetDateLabel": "Data obiettivo"
     },
-    "strengths": {
-      "title": "Punti di forza",
+    "units": {
+      "title": "Curriculum",
       "add": "Aggiungi",
-      "empty": "Nessun punto di forza registrato."
+      "empty": "Nessuna unità registrata.",
+      "statusNotStarted": "Non iniziato",
+      "statusInProgress": "In corso",
+      "statusCompleted": "Completato",
+      "start": "Inizia",
+      "complete": "Completa",
+      "reopen": "Riapri",
+      "addTitle": "Aggiungi unità",
+      "addDescription": "Inserisci la materia e il nome dell'unità",
+      "subjectLabel": "Materia *",
+      "subjectPlaceholder": "Es.: Matematica",
+      "nameLabel": "Nome dell'unità *",
+      "namePlaceholder": "Es.: Equazioni di secondo grado",
+      "descriptionLabel": "Descrizione"
     },
-    "weakPoints": {
-      "title": "Punti critici",
+    "skills": {
+      "title": "Valutazione delle competenze",
       "add": "Aggiungi",
-      "empty": "Nessun punto critico registrato.",
-      "severityHigh": "Importante",
-      "severityMedium": "Attenzione",
-      "severityLow": "Lieve",
-      "statusActive": "In gestione",
-      "statusImproving": "In miglioramento",
-      "statusResolved": "Risolto",
-      "toImproving": "In miglioramento",
-      "toResolved": "Risolto",
-      "reoccurred": "Ricorrente"
+      "empty": "Nessuna valutazione delle competenze registrata.",
+      "rating1": "Debole",
+      "rating2": "Piuttosto debole",
+      "rating3": "Nella media",
+      "rating4": "Piuttosto forte",
+      "rating5": "Forte",
+      "addTitle": "Aggiungi valutazione competenza",
+      "addDescription": "Inserisci la materia e l'argomento",
+      "subjectLabel": "Materia *",
+      "subjectPlaceholder": "Es.: Matematica",
+      "topicLabel": "Argomento *",
+      "topicPlaceholder": "Es.: Calcolo delle frazioni",
+      "ratingLabel": "Valutazione",
+      "notesLabel": "Note"
+    },
+    "handover": {
+      "title": "Note di passaggio",
+      "add": "Aggiungi nota",
+      "empty": "Nessuna nota di passaggio presente.",
+      "addFirst": "Aggiungi la prima nota",
+      "addTitle": "Aggiungi nota di passaggio",
+      "addDescription": "Inserisci i dettagli del passaggio di consegne",
+      "contentLabel": "Contenuto della nota *",
+      "contentPlaceholder": "Es.: Ha difficoltà con la riduzione delle frazioni. Spiegare con numeri concreti aiuta."
     }
   },
   "reports": {
