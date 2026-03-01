@@ -6,14 +6,10 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(req: NextRequest) {
   try {
-    // Rate limit by IP
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
     const { success: rateLimitOk } = adminLimiter.check(ip)
     if (!rateLimitOk) {
-      return NextResponse.json(
-        { error: 'Too many requests. Please wait.' },
-        { status: 429 }
-      )
+      return NextResponse.json({ error: 'Too many requests.' }, { status: 429 })
     }
 
     const { searchParams } = new URL(req.url)
@@ -26,57 +22,38 @@ export async function GET(req: NextRequest) {
 
     const supabase = createAdminClient()
 
-    // If plan filter is active, pre-fetch teacher IDs with that plan
+    // Plan filter: pre-fetch teacher IDs
     let planFilteredTeacherIds: string[] | null = null
     if (plan !== 'all') {
       const { data: filteredTeachers, error: planErr } = await supabase
         .from('teachers')
         .select('id')
         .eq('plan', plan)
-
       if (planErr) {
         console.error('Failed to query teachers by plan:', planErr)
         return NextResponse.json({ error: 'Failed to filter by plan.' }, { status: 500 })
       }
-
       planFilteredTeacherIds = (filteredTeachers || []).map((t) => t.id)
-
-      // If no teachers match the plan filter, return empty result early
       if (planFilteredTeacherIds.length === 0) {
         return NextResponse.json({ users: [], total: 0, page, limit })
       }
     }
 
-    // Build the users query
+    // Build users query
     let query = supabase
       .from('users')
       .select('id, name, email, role, created_at, is_suspended', { count: 'exact' })
 
-    // Apply role filter
-    if (role !== 'all') {
-      query = query.eq('role', role)
-    }
-
-    // Apply plan filter — restrict to teacher IDs that match the plan
-    if (planFilteredTeacherIds) {
-      query = query.in('id', planFilteredTeacherIds)
-    }
-
-    // Apply search filter
-    if (search) {
-      query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%`)
-    }
-
-    // Apply sort
+    if (role !== 'all') query = query.eq('role', role)
+    if (planFilteredTeacherIds) query = query.in('id', planFilteredTeacherIds)
+    if (search) query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%`)
     query = query.order('created_at', { ascending: sort === 'oldest' })
 
-    // Apply pagination
     const from = (page - 1) * limit
     const to = from + limit - 1
     query = query.range(from, to)
 
     const { data: users, error: usersErr, count } = await query
-
     if (usersErr) {
       console.error('Failed to query users:', usersErr)
       return NextResponse.json({ error: 'Failed to fetch users.' }, { status: 500 })
@@ -84,28 +61,86 @@ export async function GET(req: NextRequest) {
 
     const total = count || 0
     const userList = users || []
+    const userIds = userList.map((u) => u.id)
 
-    // Batch-query teachers table to get plan info for teacher users
-    const teacherIds = userList
-      .filter((u) => u.role === 'teacher')
-      .map((u) => u.id)
+    // Enrich with role-specific data
+    const teacherIds = userList.filter((u) => u.role === 'teacher').map((u) => u.id)
+    const guardianIds = userList.filter((u) => u.role === 'guardian').map((u) => u.id)
+    const studentIds = userList.filter((u) => u.role === 'student').map((u) => u.id)
 
-    let teacherPlanMap: Record<string, string> = {}
+    // Teacher data: plan, subjects, is_onboarding_complete, student count
+    let teacherMap: Record<string, { plan: string; subjects: string[]; is_onboarding_complete: boolean; student_count: number }> = {}
     if (teacherIds.length > 0) {
-      const { data: teachers, error: teachersErr } = await supabase
-        .from('teachers')
-        .select('id, plan')
-        .in('id', teacherIds)
-
-      if (teachersErr) {
-        console.error('Failed to query teacher plans:', teachersErr)
-        // Non-fatal: continue without plan info
-      } else if (teachers) {
-        teacherPlanMap = Object.fromEntries(teachers.map((t) => [t.id, t.plan]))
-      }
+      const [teachersRes, tsRes] = await Promise.all([
+        supabase.from('teachers').select('id, plan, subjects, is_onboarding_complete').in('id', teacherIds),
+        supabase.from('teacher_students').select('teacher_id').in('teacher_id', teacherIds),
+      ])
+      const teacherRows = teachersRes.data || []
+      const tsRows = tsRes.data || []
+      // Count students per teacher
+      const studentCountMap: Record<string, number> = {}
+      tsRows.forEach((r) => {
+        studentCountMap[r.teacher_id] = (studentCountMap[r.teacher_id] || 0) + 1
+      })
+      teacherRows.forEach((t) => {
+        teacherMap[t.id] = {
+          plan: t.plan,
+          subjects: t.subjects || [],
+          is_onboarding_complete: t.is_onboarding_complete ?? false,
+          student_count: studentCountMap[t.id] || 0,
+        }
+      })
     }
 
-    // Build response with plan info attached to teacher users
+    // Guardian data: student count
+    let guardianMap: Record<string, { student_count: number }> = {}
+    if (guardianIds.length > 0) {
+      const { data: studentRows } = await supabase
+        .from('students')
+        .select('guardian_id')
+        .in('guardian_id', guardianIds)
+      const countMap: Record<string, number> = {}
+      ;(studentRows || []).forEach((s) => {
+        if (s.guardian_id) countMap[s.guardian_id] = (countMap[s.guardian_id] || 0) + 1
+      })
+      guardianIds.forEach((id) => {
+        guardianMap[id] = { student_count: countMap[id] || 0 }
+      })
+    }
+
+    // Student data: grade, guardian name, teacher count
+    let studentMap: Record<string, { grade: string | null; guardian_name: string | null; teacher_count: number }> = {}
+    if (studentIds.length > 0) {
+      const [studentsRes, tsRes2] = await Promise.all([
+        supabase.from('students').select('id, grade, guardian_id').in('id', studentIds),
+        supabase.from('teacher_students').select('student_id').in('student_id', studentIds),
+      ])
+      const studentRows = studentsRes.data || []
+      const tsRows2 = tsRes2.data || []
+      // Teacher count per student
+      const tCountMap: Record<string, number> = {}
+      tsRows2.forEach((r) => {
+        tCountMap[r.student_id] = (tCountMap[r.student_id] || 0) + 1
+      })
+      // Resolve guardian names
+      const guardianIdsForStudents = [...new Set(studentRows.filter((s) => s.guardian_id).map((s) => s.guardian_id!))]
+      let guardianNameMap: Record<string, string> = {}
+      if (guardianIdsForStudents.length > 0) {
+        const { data: guardianUsers } = await supabase.from('users').select('id, name').in('id', guardianIdsForStudents)
+        ;(guardianUsers || []).forEach((u) => {
+          guardianNameMap[u.id] = u.name
+        })
+      }
+      studentRows.forEach((s) => {
+        studentMap[s.id] = {
+          grade: s.grade || null,
+          guardian_name: s.guardian_id ? (guardianNameMap[s.guardian_id] || null) : null,
+          teacher_count: tCountMap[s.id] || 0,
+        }
+      })
+    }
+
+    // Build enriched response
     const result = userList.map((u) => ({
       id: u.id,
       name: u.name,
@@ -113,17 +148,14 @@ export async function GET(req: NextRequest) {
       role: u.role,
       created_at: u.created_at,
       is_suspended: u.is_suspended ?? false,
-      ...(u.role === 'teacher' && teacherPlanMap[u.id]
-        ? { plan: teacherPlanMap[u.id] }
-        : {}),
+      ...(u.role === 'teacher' && teacherMap[u.id] ? teacherMap[u.id] : {}),
+      ...(u.role === 'guardian' && guardianMap[u.id] ? guardianMap[u.id] : {}),
+      ...(u.role === 'student' && studentMap[u.id] ? studentMap[u.id] : {}),
     }))
 
     return NextResponse.json({ users: result, total, page, limit })
   } catch (error: unknown) {
     console.error('Admin users list error:', error)
-    return NextResponse.json(
-      { error: 'Internal server error.' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 })
   }
 }
