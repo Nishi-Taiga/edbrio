@@ -806,6 +806,10 @@
   "invite": {
     "inviteParent": "학부모 초대",
     "inviteParentDescription": "{studentName} 학생의 학부모에게 초대 이메일을 보냅니다",
+    "inviteParentSettingsDescription": "학생을 선택하고 학부모/보호자에게 초대 이메일을 보냅니다",
+    "selectStudent": "학생",
+    "selectStudentPlaceholder": "학생을 선택하세요",
+    "noStudents": "등록된 학생이 없습니다. 먼저 커리큘럼 페이지에서 학생을 추가해 주세요.",
     "emailLabel": "학부모 이메일 주소",
     "emailPlaceholder": "example@email.com",
     "sendInvite": "초대 보내기",

@@ -806,6 +806,10 @@
   "invite": {
     "inviteParent": "Invitar a tutor legal",
     "inviteParentDescription": "Enviar un correo de invitación al tutor legal de {studentName}",
+    "inviteParentSettingsDescription": "Selecciona un alumno y envía un correo de invitación a su padre/tutor legal",
+    "selectStudent": "Alumno",
+    "selectStudentPlaceholder": "Seleccionar un alumno",
+    "noStudents": "No hay alumnos registrados. Por favor, añade alumnos primero desde la página de Currículo.",
     "emailLabel": "Correo electrónico del tutor legal",
     "emailPlaceholder": "example@email.com",
     "sendInvite": "Enviar invitación",

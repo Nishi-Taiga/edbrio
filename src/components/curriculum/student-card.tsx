@@ -14,7 +14,7 @@ interface StudentCardProps {
 export function StudentCard({ profile }: StudentCardProps) {
   const t = useTranslations('curriculum')
   return (
-    <Link href={`/teacher/students/${profile.id}`}>
+    <Link href={`/teacher/curriculum/${profile.id}`}>
       <Card className="hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors cursor-pointer h-full">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">

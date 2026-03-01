@@ -38,7 +38,7 @@ test.describe.serial('Functional Tests', () => {
     await login(page, TEACHER.email, TEACHER.password)
 
     // Navigate to students page
-    await page.goto(`${BASE}/ja/teacher/students`, { waitUntil: 'networkidle' })
+    await page.goto(`${BASE}/ja/teacher/curriculum`, { waitUntil: 'networkidle' })
     await dismissThemeDialog(page)
     await page.waitForTimeout(5000)
 

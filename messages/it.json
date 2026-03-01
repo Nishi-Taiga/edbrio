@@ -806,6 +806,10 @@
   "invite": {
     "inviteParent": "Invita genitore",
     "inviteParentDescription": "Invia un'e-mail di invito al genitore di {studentName}",
+    "inviteParentSettingsDescription": "Seleziona uno studente e invia un'e-mail di invito al suo genitore/tutore",
+    "selectStudent": "Studente",
+    "selectStudentPlaceholder": "Seleziona uno studente",
+    "noStudents": "Nessuno studente registrato. Aggiungi prima gli studenti dalla pagina Curriculum.",
     "emailLabel": "Indirizzo e-mail del genitore",
     "emailPlaceholder": "example@email.com",
     "sendInvite": "Invia invito",

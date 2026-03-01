@@ -806,6 +806,10 @@
   "invite": {
     "inviteParent": "邀请家长",
     "inviteParentDescription": "向{studentName}的家长发送邀请邮件",
+    "inviteParentSettingsDescription": "选择一名学生，向其家长/监护人发送邀请邮件",
+    "selectStudent": "学生",
+    "selectStudentPlaceholder": "选择学生",
+    "noStudents": "暂无注册学生。请先在课程页面添加学生。",
     "emailLabel": "家长邮箱地址",
     "emailPlaceholder": "example@email.com",
     "sendInvite": "发送邀请",

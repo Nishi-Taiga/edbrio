@@ -832,6 +832,10 @@
   "invite": {
     "inviteParent": "保護者を招待",
     "inviteParentDescription": "{studentName}さんの保護者にEdBrioへの招待メールを送信します",
+    "inviteParentSettingsDescription": "生徒を選択して保護者にEdBrioへの招待メールを送信します",
+    "selectStudent": "生徒",
+    "selectStudentPlaceholder": "生徒を選択",
+    "noStudents": "生徒が登録されていません。先にカリキュラムページで生徒を追加してください。",
     "emailLabel": "保護者のメールアドレス",
     "emailPlaceholder": "example@email.com",
     "sendInvite": "招待を送信",

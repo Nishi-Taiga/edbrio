@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Check, Edit2, X, Sun, Moon, Monitor } from 'lucide-react'
+import { Check, Edit2, X, Sun, Moon, Monitor, Mail, Loader2, Clock, CheckCircle2 } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { getStripe } from '@/lib/stripe'
 import { toast } from 'sonner'
@@ -16,7 +16,10 @@ import { useTheme } from 'next-themes'
 import { useTranslations } from 'next-intl'
 import { isInitialSetupComplete } from '@/lib/teacher-setup'
 import { AreaSelector } from '@/components/area/area-selector'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Label } from '@/components/ui/label'
 import type { AreaSelection } from '@/lib/types/database'
+import type { StudentProfile } from '@/lib/types/database'
 
 type PublicProfile = {
   display_name?: string
@@ -63,6 +66,7 @@ export default function TeacherProfilePage() {
 function TeacherProfileContent() {
   const t = useTranslations('teacherProfile')
   const tc = useTranslations('common')
+  const tInvite = useTranslations('invite')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [teacher, setTeacher] = useState<TeacherRow | null>(null)
@@ -72,6 +76,14 @@ function TeacherProfileContent() {
   const [editedProfile, setEditedProfile] = useState<PublicProfile>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubscriptionLoading, setIsSubscriptionLoading] = useState(false)
+
+  // Invite parent state
+  const [profiles, setProfiles] = useState<StudentProfile[]>([])
+  const [selectedProfileId, setSelectedProfileId] = useState('')
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [inviteSending, setInviteSending] = useState(false)
+  const [inviteStatuses, setInviteStatuses] = useState<Record<string, { email: string; used: boolean; accepted_at?: string }>>({})
+  const [inviteStatusLoading, setInviteStatusLoading] = useState(false)
 
   const SUBJECT_OPTIONS = [
     t('subjectOptions.japanese'), t('subjectOptions.arithmetic'), t('subjectOptions.math'), t('subjectOptions.english'), t('subjectOptions.science'), t('subjectOptions.socialStudies'),
@@ -135,6 +147,80 @@ function TeacherProfileContent() {
     load()
     return () => { mounted = false }
   }, [supabase])
+
+  // Load student profiles and invite statuses
+  useEffect(() => {
+    let mounted = true
+    async function loadProfiles() {
+      try {
+        const { data: session } = await supabase.auth.getSession()
+        const uid = session.session?.user?.id
+        if (!uid) return
+
+        const { data: profileData } = await supabase
+          .from('student_profiles')
+          .select('id, name, grade, status')
+          .eq('teacher_id', uid)
+          .eq('status', 'active')
+          .order('name')
+        if (mounted && profileData) setProfiles(profileData as StudentProfile[])
+
+        // Load invite statuses
+        setInviteStatusLoading(true)
+        const { data: inviteData } = await supabase
+          .from('invites')
+          .select('student_profile_id, email, used, accepted_at')
+          .order('created_at', { ascending: false })
+        if (mounted && inviteData) {
+          const statusMap: Record<string, { email: string; used: boolean; accepted_at?: string }> = {}
+          for (const inv of inviteData) {
+            if (inv.student_profile_id && !statusMap[inv.student_profile_id]) {
+              statusMap[inv.student_profile_id] = { email: inv.email, used: inv.used, accepted_at: inv.accepted_at }
+            }
+          }
+          setInviteStatuses(statusMap)
+        }
+      } catch {
+        // Ignore - non-critical
+      } finally {
+        if (mounted) setInviteStatusLoading(false)
+      }
+    }
+    loadProfiles()
+    return () => { mounted = false }
+  }, [supabase])
+
+  const handleInvite = async () => {
+    if (!selectedProfileId || !inviteEmail.trim()) return
+    setInviteSending(true)
+    try {
+      const res = await fetch('/api/invites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: inviteEmail.trim(), studentProfileId: selectedProfileId }),
+      })
+      if (res.status === 409) {
+        toast.error(tInvite('inviteAlreadySent'))
+        return
+      }
+      if (!res.ok) {
+        const data = await res.json()
+        toast.error(data.error || tInvite('inviteError'))
+        return
+      }
+      toast.success(tInvite('inviteSent'))
+      setInviteStatuses(prev => ({
+        ...prev,
+        [selectedProfileId]: { email: inviteEmail.trim(), used: false },
+      }))
+      setInviteEmail('')
+      setSelectedProfileId('')
+    } catch {
+      toast.error(tInvite('inviteError'))
+    } finally {
+      setInviteSending(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -312,6 +398,89 @@ function TeacherProfileContent() {
         ) : (
           /* -- View Mode -- */
           <>
+            {/* Invite Parent */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="w-5 h-5" />
+                  {tInvite('inviteParent')}
+                </CardTitle>
+                <CardDescription>{tInvite('inviteParentSettingsDescription')}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex-1">
+                    <Label className="text-xs text-muted-foreground mb-1 block">{tInvite('selectStudent')}</Label>
+                    <Select value={selectedProfileId} onValueChange={(v) => {
+                      setSelectedProfileId(v)
+                      // Show existing invite email if any
+                      const existing = inviteStatuses[v]
+                      if (existing && !existing.accepted_at) {
+                        setInviteEmail(existing.email || '')
+                      } else {
+                        setInviteEmail('')
+                      }
+                    }}>
+                      <SelectTrigger>
+                        <SelectValue placeholder={tInvite('selectStudentPlaceholder')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {profiles.map((p) => (
+                          <SelectItem key={p.id} value={p.id}>
+                            <span className="flex items-center gap-2">
+                              {p.name}
+                              {p.grade && <span className="text-xs text-muted-foreground">({p.grade})</span>}
+                              {inviteStatuses[p.id]?.accepted_at && <CheckCircle2 className="w-3 h-3 text-green-500" />}
+                              {inviteStatuses[p.id] && !inviteStatuses[p.id].used && !inviteStatuses[p.id].accepted_at && <Clock className="w-3 h-3 text-amber-500" />}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex-1">
+                    <Label className="text-xs text-muted-foreground mb-1 block">{tInvite('emailLabel')}</Label>
+                    <Input
+                      type="email"
+                      value={inviteEmail}
+                      onChange={(e) => setInviteEmail(e.target.value)}
+                      placeholder={tInvite('emailPlaceholder')}
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <Button onClick={handleInvite} disabled={inviteSending || !selectedProfileId || !inviteEmail.trim()}>
+                      {inviteSending ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Mail className="w-4 h-4 mr-1" />}
+                      {inviteSending ? tc('processing') : tInvite('sendInvite')}
+                    </Button>
+                  </div>
+                </div>
+
+                {selectedProfileId && inviteStatuses[selectedProfileId] && (
+                  <div className={`mt-3 flex items-center gap-2 p-2.5 rounded-lg text-sm ${
+                    inviteStatuses[selectedProfileId].accepted_at
+                      ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800'
+                      : 'bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800'
+                  }`}>
+                    {inviteStatuses[selectedProfileId].accepted_at ? (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400 shrink-0" />
+                        <span className="text-green-700 dark:text-green-300">{tInvite('inviteAccepted')}: {inviteStatuses[selectedProfileId].email}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                        <span className="text-amber-700 dark:text-amber-300">{tInvite('invitePending')}: {inviteStatuses[selectedProfileId].email}</span>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {profiles.length === 0 && !inviteStatusLoading && (
+                  <p className="mt-3 text-sm text-muted-foreground">{tInvite('noStudents')}</p>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Profile */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">

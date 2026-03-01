@@ -806,6 +806,10 @@
   "invite": {
     "inviteParent": "Пригласить родителя",
     "inviteParentDescription": "Отправить приглашение на электронную почту родителю ученика {studentName}",
+    "inviteParentSettingsDescription": "Выберите ученика и отправьте приглашение на электронную почту его родителю/опекуну",
+    "selectStudent": "Ученик",
+    "selectStudentPlaceholder": "Выберите ученика",
+    "noStudents": "Ученики не зарегистрированы. Сначала добавьте учеников на странице «Учебный план».",
     "emailLabel": "Электронная почта родителя",
     "emailPlaceholder": "example@email.com",
     "sendInvite": "Отправить приглашение",

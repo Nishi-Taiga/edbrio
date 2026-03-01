@@ -74,7 +74,7 @@ export default function TeacherDashboard() {
     new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' }).format((cents || 0) / 100)
 
   const quickActions = [
-    { title: t('studentKarte'), description: t('studentKarteDesc'), href: '/teacher/students', icon: Users },
+    { title: t('studentKarte'), description: t('studentKarteDesc'), href: '/teacher/curriculum', icon: Users },
     { title: t('calendarManagement'), description: t('calendarManagementDesc'), href: '/teacher/calendar', icon: Calendar },
     { title: t('ticketManagement'), description: t('ticketManagementDesc'), href: '/teacher/tickets', icon: DollarSign },
     { title: t('reportCreate'), description: t('reportCreateDesc'), href: '/teacher/reports', icon: FileText },

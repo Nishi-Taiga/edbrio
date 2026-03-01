@@ -832,6 +832,10 @@
   "invite": {
     "inviteParent": "Invite Parent",
     "inviteParentDescription": "Send an invitation email to the parent/guardian of {studentName}",
+    "inviteParentSettingsDescription": "Select a student and send an invitation email to their parent/guardian",
+    "selectStudent": "Student",
+    "selectStudentPlaceholder": "Select a student",
+    "noStudents": "No students registered. Please add students from the Curriculum page first.",
     "emailLabel": "Parent's email address",
     "emailPlaceholder": "example@email.com",
     "sendInvite": "Send Invitation",

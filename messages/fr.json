@@ -806,6 +806,10 @@
   "invite": {
     "inviteParent": "Inviter un parent",
     "inviteParentDescription": "Envoyer un e-mail d'invitation au parent de {studentName}",
+    "inviteParentSettingsDescription": "Sélectionnez un élève et envoyez un e-mail d'invitation à son parent/tuteur",
+    "selectStudent": "Élève",
+    "selectStudentPlaceholder": "Sélectionner un élève",
+    "noStudents": "Aucun élève enregistré. Veuillez d'abord ajouter des élèves depuis la page Curriculum.",
     "emailLabel": "Adresse e-mail du parent",
     "emailPlaceholder": "example@email.com",
     "sendInvite": "Envoyer l'invitation",

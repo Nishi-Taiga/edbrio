@@ -806,6 +806,10 @@
   "invite": {
     "inviteParent": "Bjud in vardnadshavare",
     "inviteParentDescription": "Skicka ett inbjudningsmejl till vardnadshavaren for {studentName}",
+    "inviteParentSettingsDescription": "Valj en elev och skicka ett inbjudningsmejl till dess vardnadshavare",
+    "selectStudent": "Elev",
+    "selectStudentPlaceholder": "Valj en elev",
+    "noStudents": "Inga elever registrerade. Lagg till elever fran sidan Curriculum forst.",
     "emailLabel": "Vardnadshavarens e-postadress",
     "emailPlaceholder": "example@email.com",
     "sendInvite": "Skicka inbjudan",
