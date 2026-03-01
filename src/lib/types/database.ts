@@ -1,3 +1,9 @@
+export interface AreaSelection {
+  prefecture: string
+  municipality: string
+}
+
+/** @deprecated Use AreaSelection instead. Kept for backward compatibility with legacy data. */
 export interface StationSelection {
   name: string
   line: string

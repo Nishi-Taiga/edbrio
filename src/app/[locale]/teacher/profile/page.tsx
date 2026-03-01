@@ -15,16 +15,28 @@ import { toast } from 'sonner'
 import { useTheme } from 'next-themes'
 import { useTranslations } from 'next-intl'
 import { isInitialSetupComplete } from '@/lib/teacher-setup'
-import { StationSelector } from '@/components/area/station-selector'
-import type { StationSelection } from '@/lib/types/database'
+import { AreaSelector } from '@/components/area/area-selector'
+import type { AreaSelection } from '@/lib/types/database'
 
 type PublicProfile = {
   display_name?: string
   bio?: string
   area?: string
-  service_areas?: StationSelection[]
+  service_areas?: AreaSelection[]
   available_online?: boolean
   experience_years?: string
+}
+
+/** Convert legacy StationSelection data to AreaSelection format */
+function migrateServiceAreas(raw: unknown[]): AreaSelection[] {
+  if (!Array.isArray(raw)) return []
+  return raw.map(item => {
+    const obj = item as Record<string, string>
+    if ('line' in obj && 'name' in obj) {
+      return { prefecture: obj.prefecture, municipality: obj.name }
+    }
+    return item as AreaSelection
+  })
 }
 
 type TeacherRow = {
@@ -105,10 +117,14 @@ function TeacherProfileContent() {
         if (error) throw error
         if (mounted) {
           const profile = (data?.public_profile || {}) as PublicProfile
+          const migratedProfile = {
+            ...profile,
+            service_areas: migrateServiceAreas(profile.service_areas || []),
+          }
           setTeacher(data)
           setEditedSubjects(data?.subjects || [])
           setEditedGrades(data?.grades || [])
-          setEditedProfile(profile)
+          setEditedProfile(migratedProfile)
         }
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : String(e))
@@ -228,16 +244,6 @@ function TeacherProfileContent() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">{t('areaLabel')}</label>
-                  <StationSelector
-                    selectedStations={editedProfile.service_areas || []}
-                    onStationsChange={(stations) => setEditedProfile(p => ({ ...p, service_areas: stations }))}
-                    availableOnline={editedProfile.available_online || false}
-                    onAvailableOnlineChange={(v) => setEditedProfile(p => ({ ...p, available_online: v }))}
-                  />
-                </div>
-
-                <div>
                   <label className="block text-sm font-medium mb-1">{t('experienceLabel')}</label>
                   <Input
                     value={editedProfile.experience_years || ''}
@@ -284,6 +290,16 @@ function TeacherProfileContent() {
                   </div>
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium mb-2">{t('areaLabel')}</label>
+                  <AreaSelector
+                    selectedAreas={editedProfile.service_areas || []}
+                    onAreasChange={(areas) => setEditedProfile(p => ({ ...p, service_areas: areas }))}
+                    availableOnline={editedProfile.available_online || false}
+                    onAvailableOnlineChange={(v) => setEditedProfile(p => ({ ...p, available_online: v }))}
+                  />
+                </div>
+
                 <div className="flex gap-2 justify-end pt-2">
                   <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>{tc('cancel')}</Button>
                   <Button type="submit" disabled={isSubmitting}>
@@ -322,25 +338,6 @@ function TeacherProfileContent() {
                         <span className="text-gray-400">{tc('notSet')}</span>
                       )}
                     </div>
-                    <div className="md:col-span-2">
-                      <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase mb-1">{t('areaLabel')}</span>
-                      {(teacher.public_profile?.service_areas?.length || teacher.public_profile?.available_online) ? (
-                        <div className="flex flex-wrap gap-1.5">
-                          {teacher.public_profile?.available_online && (
-                            <Badge variant="outline">{t('availableOnline')}</Badge>
-                          )}
-                          {(teacher.public_profile?.service_areas || []).map((s: StationSelection, i: number) => (
-                            <Badge key={`${s.line}-${s.name}-${i}`} variant="secondary">
-                              {s.name} <span className="text-xs text-muted-foreground ml-0.5">({s.line})</span>
-                            </Badge>
-                          ))}
-                        </div>
-                      ) : teacher.public_profile?.area ? (
-                        <span>{teacher.public_profile.area}</span>
-                      ) : (
-                        <span className="text-gray-400">{tc('notSet')}</span>
-                      )}
-                    </div>
                     <div>
                       <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">{t('experienceLabel')}</span>
                       {teacher.public_profile?.experience_years || <span className="text-gray-400">{tc('notSet')}</span>}
@@ -352,6 +349,25 @@ function TeacherProfileContent() {
                     <div>
                       <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase">{t('gradesLabel')}</span>
                       {(teacher.grades || []).join(' / ') || '-'}
+                    </div>
+                    <div className="md:col-span-2">
+                      <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase mb-1">{t('areaLabel')}</span>
+                      {(teacher.public_profile?.service_areas?.length || teacher.public_profile?.available_online) ? (
+                        <div className="flex flex-wrap gap-1.5">
+                          {teacher.public_profile?.available_online && (
+                            <Badge variant="outline">{t('availableOnline')}</Badge>
+                          )}
+                          {migrateServiceAreas(teacher.public_profile?.service_areas || []).map((a: AreaSelection, i: number) => (
+                            <Badge key={`${a.prefecture}-${a.municipality}-${i}`} variant="secondary">
+                              {a.municipality} <span className="text-xs text-muted-foreground ml-0.5">({a.prefecture})</span>
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : teacher.public_profile?.area ? (
+                        <span>{teacher.public_profile.area}</span>
+                      ) : (
+                        <span className="text-gray-400">{tc('notSet')}</span>
+                      )}
                     </div>
                   </div>
                 </div>
