@@ -11,6 +11,7 @@ import { format, differenceInDays } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { getStripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/client'
+import { LoadingButton } from '@/components/ui/loading-button'
 import { SkeletonProductCard } from '@/components/ui/skeleton-card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorAlert } from '@/components/ui/error-alert'
@@ -277,9 +278,9 @@ export default function GuardianTickets() {
             </DialogHeader>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setShowPurchaseDialog(false)}>キャンセル</Button>
-              <Button onClick={handleStripeCheckout} disabled={!selectedTicket || purchasing}>
-                {purchasing ? '処理中...' : '購入に進む'}
-              </Button>
+              <LoadingButton onClick={handleStripeCheckout} disabled={!selectedTicket} loading={purchasing}>
+                購入に進む
+              </LoadingButton>
             </div>
           </DialogContent>
         </Dialog>

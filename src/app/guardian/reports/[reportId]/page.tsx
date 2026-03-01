@@ -5,8 +5,8 @@ import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { ArrowLeft } from 'lucide-react'
+import { SkeletonList } from '@/components/ui/skeleton-card'
+import { ErrorAlert } from '@/components/ui/error-alert'
 import { createClient } from '@/lib/supabase/client'
 import { Report } from '@/lib/types/database'
 import { format } from 'date-fns'
@@ -56,41 +56,27 @@ export default function GuardianReportDetailPage() {
     return () => { mounted = false }
   }, [reportId, supabase])
 
-  if (loading) {
-    return (
-      <ProtectedRoute allowedRoles={["guardian"]}>
-        <div className="container mx-auto px-4 py-8"><div className="text-gray-500 dark:text-slate-400">読み込み中...</div></div>
-      </ProtectedRoute>
-    )
-  }
-
-  if (!report) {
-    return (
-      <ProtectedRoute allowedRoles={["guardian"]}>
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-red-600 dark:text-red-400">レポートが見つかりません。</div>
-          <Link href="/guardian/reports"><Button variant="outline" className="mt-4"><ArrowLeft className="w-4 h-4 mr-1" />一覧に戻る</Button></Link>
-        </div>
-      </ProtectedRoute>
-    )
-  }
-
   return (
     <ProtectedRoute allowedRoles={["guardian"]}>
       <div className="container mx-auto px-4 py-8 max-w-3xl">
-        <div className="flex items-center gap-3 mb-6">
-          <Link href="/guardian/reports">
-            <Button variant="ghost" size="sm"><ArrowLeft className="w-4 h-4" /></Button>
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">レポート詳細</h1>
-            {profileName && <p className="text-gray-600 dark:text-slate-400 text-sm">{profileName}</p>}
-          </div>
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 mb-4">
+          <Link href="/guardian/reports" className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">レポート</Link>
+          <span>/</span>
+          <span className="text-slate-900 dark:text-white font-medium">レポート詳細</span>
+        </nav>
+
+        {loading ? (
+          <SkeletonList count={3} />
+        ) : !report ? (
+          <ErrorAlert message="レポートが見つかりません" />
+        ) : (<>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">レポート詳細</h1>
+          {profileName && <p className="text-gray-600 dark:text-slate-400 text-sm">{profileName}</p>}
         </div>
 
-        {error && (
-          <div className="mb-4 p-3 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded text-red-700 dark:text-red-400">{error}</div>
-        )}
+        {error && <ErrorAlert message={error} />}
 
         <div className="space-y-4">
           {/* Report Info */}
@@ -156,6 +142,7 @@ export default function GuardianReportDetailPage() {
             </Card>
           )}
         </div>
+        </>)}
       </div>
     </ProtectedRoute>
   )

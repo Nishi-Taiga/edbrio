@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
-import { ArrowLeft, Save, Send } from 'lucide-react'
+import { Save, Send } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useStudentProfiles } from '@/hooks/use-student-profiles'
 import { useStudentKarte } from '@/hooks/use-student-karte'
@@ -19,6 +19,7 @@ import { ReportForm } from '@/components/reports/report-form'
 import { AiGenerateButton } from '@/components/reports/ai-generate-button'
 import { ReportPreview } from '@/components/reports/report-preview'
 import { ErrorAlert } from '@/components/ui/error-alert'
+import { LoadingButton } from '@/components/ui/loading-button'
 
 export default function NewReportPage() {
   return (
@@ -141,12 +142,31 @@ function NewReportContent() {
   return (
     <ProtectedRoute allowedRoles={["teacher"]}>
       <div className="container mx-auto px-4 py-8 max-w-3xl">
-        <div className="flex items-center gap-3 mb-6">
-          <Link href="/teacher/reports">
-            <Button variant="ghost" size="sm"><ArrowLeft className="w-4 h-4" /></Button>
-          </Link>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">レポート作成</h1>
-        </div>
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 mb-4">
+          <Link href="/teacher/reports" className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">レポート</Link>
+          <span>/</span>
+          <span className="text-slate-900 dark:text-white font-medium">新規作成</span>
+        </nav>
+
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">レポート作成</h1>
+
+        {/* Step Indicator */}
+        {(() => {
+          const steps = ['生徒選択', 'メモ入力', 'AI生成', 'プレビュー', '保存']
+          const currentStep = !selectedProfileId ? 0 : !formData.contentRaw.trim() ? 1 : !editedPublic ? 2 : 3
+          return (
+            <div className="flex items-center justify-center gap-2 mb-6">
+              {steps.map((label, i) => (
+                <div key={label} className="flex items-center gap-2">
+                  <div className={`w-2.5 h-2.5 rounded-full ${i <= currentStep ? 'bg-brand-600' : 'bg-slate-200 dark:bg-slate-700'}`} />
+                  <span className={`text-xs hidden sm:inline ${i <= currentStep ? 'text-brand-600 font-medium' : 'text-slate-400'}`}>{label}</span>
+                  {i < steps.length - 1 && <div className={`w-6 h-px ${i < currentStep ? 'bg-brand-600' : 'bg-slate-200 dark:bg-slate-700'}`} />}
+                </div>
+              ))}
+            </div>
+          )
+        })()}
 
         {(aiError || saveError) && <ErrorAlert message={aiError || saveError || ''} />}
 
@@ -208,12 +228,12 @@ function NewReportContent() {
 
               {/* Step 5: Save */}
               <div className="flex justify-end gap-3">
-                <Button variant="outline" onClick={() => handleSave(false)} disabled={saving}>
-                  <Save className="w-4 h-4 mr-1" />{saving ? '保存中...' : '下書き保存'}
-                </Button>
-                <Button onClick={() => handleSave(true)} disabled={saving}>
-                  <Send className="w-4 h-4 mr-1" />{saving ? '保存中...' : '公開'}
-                </Button>
+                <LoadingButton variant="outline" onClick={() => handleSave(false)} loading={saving}>
+                  <Save className="w-4 h-4 mr-1" />下書き保存
+                </LoadingButton>
+                <LoadingButton onClick={() => handleSave(true)} loading={saving}>
+                  <Send className="w-4 h-4 mr-1" />公開
+                </LoadingButton>
               </div>
             </>
           )}

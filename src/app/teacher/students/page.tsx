@@ -13,6 +13,7 @@ import { ErrorAlert } from '@/components/ui/error-alert'
 import { toast } from 'sonner'
 import { useAuth } from '@/hooks/use-auth'
 import { useStudentProfiles } from '@/hooks/use-student-profiles'
+import { LoadingButton } from '@/components/ui/loading-button'
 import { StudentCard } from '@/components/karte/student-card'
 
 export default function TeacherStudentsPage() {
@@ -124,9 +125,9 @@ export default function TeacherStudentsPage() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowAdd(false)} disabled={saving}>キャンセル</Button>
-              <Button onClick={handleAdd} disabled={saving || !newName.trim()}>
-                {saving ? '追加中...' : '追加'}
-              </Button>
+              <LoadingButton onClick={handleAdd} loading={saving} disabled={!newName.trim()}>
+                追加
+              </LoadingButton>
             </DialogFooter>
           </DialogContent>
         </Dialog>

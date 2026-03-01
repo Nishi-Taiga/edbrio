@@ -15,6 +15,7 @@ import { ErrorAlert } from '@/components/ui/error-alert'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/use-auth'
+import { LoadingButton } from '@/components/ui/loading-button'
 
 type TicketRow = {
   id: string
@@ -343,9 +344,9 @@ export default function TeacherTicketsPage() {
               <Button variant="outline" onClick={() => setShowCreate(false)} disabled={saving}>
                 キャンセル
               </Button>
-              <Button onClick={handleCreate} disabled={saving || !formData.name.trim()}>
-                {saving ? '作成中...' : '作成'}
-              </Button>
+              <LoadingButton onClick={handleCreate} loading={saving} disabled={!formData.name.trim()}>
+                作成
+              </LoadingButton>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -361,9 +362,9 @@ export default function TeacherTicketsPage() {
               <Button variant="outline" onClick={() => setEditTarget(null)} disabled={saving}>
                 キャンセル
               </Button>
-              <Button onClick={handleUpdate} disabled={saving || !formData.name.trim()}>
-                {saving ? '保存中...' : '保存'}
-              </Button>
+              <LoadingButton onClick={handleUpdate} loading={saving} disabled={!formData.name.trim()}>
+                保存
+              </LoadingButton>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -381,9 +382,9 @@ export default function TeacherTicketsPage() {
               <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={saving}>
                 キャンセル
               </Button>
-              <Button variant="destructive" onClick={handleDelete} disabled={saving}>
-                {saving ? '削除中...' : '削除'}
-              </Button>
+              <LoadingButton variant="destructive" onClick={handleDelete} loading={saving}>
+                削除
+              </LoadingButton>
             </DialogFooter>
           </DialogContent>
         </Dialog>

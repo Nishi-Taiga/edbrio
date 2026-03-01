@@ -6,7 +6,9 @@ import Link from 'next/link'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ArrowLeft, FileText } from 'lucide-react'
+import { FileText } from 'lucide-react'
+import { SkeletonList } from '@/components/ui/skeleton-card'
+import { ErrorAlert } from '@/components/ui/error-alert'
 import { useAuth } from '@/hooks/use-auth'
 import { useStudentProfiles } from '@/hooks/use-student-profiles'
 import { useStudentKarte } from '@/hooks/use-student-karte'
@@ -72,42 +74,26 @@ export default function StudentKartePage() {
 
   const anyError = error || karteError || handoverError
 
-  if (loading || authLoading) {
-    return (
-      <ProtectedRoute allowedRoles={["teacher"]}>
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-gray-500">読み込み中...</div>
-        </div>
-      </ProtectedRoute>
-    )
-  }
-
-  if (!profile) {
-    return (
-      <ProtectedRoute allowedRoles={["teacher"]}>
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-red-600">生徒が見つかりません。</div>
-          <Link href="/teacher/students">
-            <Button variant="outline" className="mt-4"><ArrowLeft className="w-4 h-4 mr-1" />一覧に戻る</Button>
-          </Link>
-        </div>
-      </ProtectedRoute>
-    )
-  }
-
   return (
     <ProtectedRoute allowedRoles={["teacher"]}>
       <div className="container mx-auto px-4 py-8">
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 mb-4">
+          <Link href="/teacher/students" className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">生徒カルテ</Link>
+          <span>/</span>
+          <span className="text-slate-900 dark:text-white font-medium">{profile?.name || '読み込み中...'}</span>
+        </nav>
+
+        {(loading || authLoading) ? (
+          <SkeletonList count={3} />
+        ) : !profile ? (
+          <ErrorAlert message="生徒が見つかりません" />
+        ) : (<>
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Link href="/teacher/students">
-              <Button variant="ghost" size="sm"><ArrowLeft className="w-4 h-4" /></Button>
-            </Link>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{profile.name}</h1>
-              {profile.grade && <p className="text-gray-600 dark:text-gray-400 text-sm">{profile.grade}</p>}
-            </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{profile.name}</h1>
+            {profile.grade && <p className="text-gray-600 dark:text-gray-400 text-sm">{profile.grade}</p>}
           </div>
           <Link href={`/teacher/reports/new?profileId=${profileId}`}>
             <Button>
@@ -116,9 +102,7 @@ export default function StudentKartePage() {
           </Link>
         </div>
 
-        {anyError && (
-          <div className="mb-4 p-3 text-sm bg-red-50 border border-red-200 rounded text-red-700">{anyError}</div>
-        )}
+        {anyError && <ErrorAlert message={anyError} />}
 
         {/* Tabs */}
         <Tabs defaultValue="profile">
@@ -166,6 +150,7 @@ export default function StudentKartePage() {
         <PointForm open={showWeakPointForm} onClose={() => setShowWeakPointForm(false)} type="weakness" onSubmitWeakness={addWeakPoint} />
         <PointForm open={showStrengthForm} onClose={() => setShowStrengthForm(false)} type="strength" onSubmitStrength={addStrength} />
         <HandoverNoteForm open={showHandoverForm} onClose={() => setShowHandoverForm(false)} onSubmit={addNote} />
+        </>)}
       </div>
     </ProtectedRoute>
   )

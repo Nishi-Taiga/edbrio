@@ -15,6 +15,7 @@ import { ErrorAlert } from '@/components/ui/error-alert'
 import { useAuth } from '@/hooks/use-auth'
 import { useBookings } from '@/hooks/use-bookings'
 import { useRouter } from 'next/navigation'
+import { LoadingButton } from '@/components/ui/loading-button'
 
 type AvailabilityRow = {
   id: string
@@ -350,9 +351,9 @@ export default function BookingPage() {
                 </div>
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={resetBooking}>キャンセル</Button>
-                  <Button onClick={handleBookSlot} disabled={!selectedTicket || isSubmitting}>
-                    {isSubmitting ? '予約中...' : <><Check className="w-4 h-4 mr-1" /> 予約確定</>}
-                  </Button>
+                  <LoadingButton onClick={handleBookSlot} disabled={!selectedTicket} loading={isSubmitting}>
+                    <Check className="w-4 h-4 mr-1" /> 予約確定
+                  </LoadingButton>
                 </div>
               </div>
             )}

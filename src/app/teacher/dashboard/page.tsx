@@ -115,7 +115,7 @@ export default function TeacherDashboard() {
                       <div key={b.id} className="flex items-center justify-between p-3 border rounded">
                         <div>
                           <div className="font-medium">
-                            {format(new Date(b.start_time), 'PPPp', { locale: ja })}
+                            {format(new Date(b.start_time), 'PPP p', { locale: ja })}
                             <span className="mx-1">-</span>
                             {format(new Date(b.end_time), 'p', { locale: ja })}
                           </div>

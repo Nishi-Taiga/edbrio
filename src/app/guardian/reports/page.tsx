@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { createClient } from '@/lib/supabase/client'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
@@ -33,6 +34,7 @@ export default function GuardianReportsPage() {
   const [error, setError] = useState<string | null>(null)
   const [items, setItems] = useState<ReportRow[]>([])
   const [profileNames, setProfileNames] = useState<ProfileMap>({})
+  const [filterProfile, setFilterProfile] = useState<string>('all')
   const supabase = useMemo(() => createClient(), [])
 
   const selectFields = 'id,booking_id,published_at,content_public,subject,student_mood,comprehension_level,profile_id'
@@ -142,6 +144,24 @@ export default function GuardianReportsPage() {
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">レポート</h1>
         {error && <ErrorAlert message={error} />}
+
+        {/* Student filter */}
+        {!loading && Object.keys(profileNames).length > 1 && (
+          <div className="mb-4 w-full sm:w-64">
+            <Select value={filterProfile} onValueChange={setFilterProfile}>
+              <SelectTrigger>
+                <SelectValue placeholder="生徒で絞り込み" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">すべての生徒</SelectItem>
+                {Object.entries(profileNames).map(([id, name]) => (
+                  <SelectItem key={id} value={id}>{name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
         {loading ? (
           <SkeletonList count={3} />
         ) : items.length === 0 ? (
@@ -150,9 +170,13 @@ export default function GuardianReportsPage() {
             title="レポートはありません"
             description="授業後に講師がレポートを公開すると、ここに表示されます"
           />
-        ) : (
+        ) : (() => {
+          const filtered = filterProfile === 'all' ? items : items.filter(r => r.profile_id === filterProfile)
+          return filtered.length === 0 ? (
+            <div className="text-center py-8 text-slate-500 dark:text-slate-400 text-sm">該当するレポートはありません</div>
+          ) : (
           <div className="space-y-3">
-            {items.map((r) => (
+            {filtered.map((r) => (
               <Link key={r.id} href={`/guardian/reports/${r.id}`}>
                 <Card className="hover:bg-gray-50 dark:hover:bg-brand-900/20 transition-colors cursor-pointer">
                   <CardHeader className="pb-2">
@@ -183,7 +207,8 @@ export default function GuardianReportsPage() {
               </Link>
             ))}
           </div>
-        )}
+          )
+        })()}
       </div>
     </ProtectedRoute>
   )
