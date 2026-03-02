@@ -246,6 +246,27 @@ export interface HandoverNote {
   created_at: string
 }
 
+// --- チャット (先生 ↔ 保護者) ---
+
+export interface Conversation {
+  id: string
+  teacher_id: string
+  guardian_id: string
+  student_profile_id: string
+  last_message_at: string
+  created_at: string
+}
+
+export interface Message {
+  id: string
+  conversation_id: string
+  sender_id: string
+  content?: string
+  image_url?: string
+  is_read: boolean
+  created_at: string
+}
+
 // --- カリキュラム単元 & スキル評価 ---
 
 export type UnitStatus = 'not_started' | 'in_progress' | 'completed'

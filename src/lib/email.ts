@@ -149,6 +149,39 @@ export function buildGuardianInviteEmail(params: {
   }
 }
 
+export function buildNewChatMessageEmail(params: {
+  senderName: string
+  studentName: string
+  messagePreview: string
+}): { subject: string; html: string } {
+  const { senderName, studentName, messagePreview } = params
+
+  const preview = messagePreview.length > 100 ? messagePreview.slice(0, 100) + '…' : messagePreview
+
+  const body = `
+<p style="margin:0 0 16px;font-size:15px;color:#374151;">
+  ${senderName}さんから新しいメッセージが届きました。
+</p>
+<table width="100%" cellpadding="12" cellspacing="0" style="background:#f5f0ff;border-radius:12px;margin:16px 0;">
+<tr>
+  <td style="font-size:13px;color:#6b7280;width:80px;">生徒</td>
+  <td style="font-size:15px;color:#1f2937;font-weight:600;">${studentName}</td>
+</tr>
+<tr>
+  <td style="font-size:13px;color:#6b7280;">内容</td>
+  <td style="font-size:14px;color:#374151;">${preview}</td>
+</tr>
+</table>
+<p style="margin:24px 0 0;text-align:center;">
+  <a href="https://edbrio.com/login" style="display:inline-block;background:#7c3aed;color:#ffffff;padding:12px 32px;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px;">チャットを開く</a>
+</p>`
+
+  return {
+    subject: `【EdBrio】${senderName}さんからのメッセージ（${studentName}）`,
+    html: wrapInLayout(body),
+  }
+}
+
 export function buildBookingReminderEmail(params: {
   teacherName: string
   studentName: string

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { sendEmail, buildBookingConfirmationEmail, buildReportPublishedEmail } from '@/lib/email'
+import { sendEmail, buildBookingConfirmationEmail, buildReportPublishedEmail, buildNewChatMessageEmail } from '@/lib/email'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { emailLimiter } from '@/lib/rate-limit'
@@ -153,6 +153,82 @@ export async function POST(req: NextRequest) {
 
         await sendEmail(guardian.email, email.subject, email.html)
         return NextResponse.json({ success: true, sent: ['guardian'] })
+      }
+
+      case 'new_chat_message': {
+        const { conversationId } = data
+
+        // Fetch conversation
+        const { data: conv, error: convErr } = await supabase
+          .from('conversations')
+          .select('id, teacher_id, guardian_id, student_profile_id')
+          .eq('id', conversationId)
+          .single()
+        if (convErr || !conv) {
+          return NextResponse.json({ error: 'Conversation not found' }, { status: 404 })
+        }
+
+        // Determine recipient (the other party)
+        const senderId = session.user.id
+        const recipientId = senderId === conv.teacher_id ? conv.guardian_id : conv.teacher_id
+
+        // Check if recipient already has unread messages (throttle)
+        const { count: existingUnread } = await supabase
+          .from('messages')
+          .select('*', { count: 'exact', head: true })
+          .eq('conversation_id', conversationId)
+          .eq('is_read', false)
+          .neq('sender_id', recipientId)
+
+        // Only send email if this is the first unread (avoid spam)
+        if ((existingUnread || 0) > 1) {
+          return NextResponse.json({ success: true, sent: [], note: 'Throttled: existing unread messages' })
+        }
+
+        // Fetch sender name
+        const { data: sender } = await supabase
+          .from('users')
+          .select('name')
+          .eq('id', senderId)
+          .single()
+
+        // Fetch recipient email
+        const { data: recipient } = await supabase
+          .from('users')
+          .select('email')
+          .eq('id', recipientId)
+          .single()
+
+        // Fetch student profile name
+        const { data: profile } = await supabase
+          .from('student_profiles')
+          .select('name')
+          .eq('id', conv.student_profile_id)
+          .single()
+
+        if (!recipient?.email) {
+          return NextResponse.json({ success: true, sent: [], note: 'No recipient email' })
+        }
+
+        // Get latest message content for preview
+        const { data: latestMsg } = await supabase
+          .from('messages')
+          .select('content, image_url')
+          .eq('conversation_id', conversationId)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single()
+
+        const preview = latestMsg?.content || (latestMsg?.image_url ? '画像が送信されました' : '')
+
+        const email = buildNewChatMessageEmail({
+          senderName: sender?.name || '送信者',
+          studentName: profile?.name || '生徒',
+          messagePreview: preview,
+        })
+
+        await sendEmail(recipient.email, email.subject, email.html)
+        return NextResponse.json({ success: true, sent: ['recipient'] })
       }
 
       default:

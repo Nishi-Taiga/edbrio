@@ -48,6 +48,12 @@ export const emailSendSchema = z.discriminatedUnion('type', [
       reportId: uuidSchema,
     }),
   }),
+  z.object({
+    type: z.literal('new_chat_message'),
+    data: z.object({
+      conversationId: uuidSchema,
+    }),
+  }),
 ])
 
 // ── /api/invites ──

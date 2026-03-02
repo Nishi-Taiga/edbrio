@@ -4,8 +4,10 @@ import { Link } from '@/i18n/navigation'
 import { usePathname } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks/use-auth'
+import { useUnreadCount } from '@/hooks/use-unread-count'
 import { LogOut, User, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 
 function classNames(...xs: (string | false | null | undefined)[]) {
   return xs.filter(Boolean).join(' ')
@@ -21,6 +23,8 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
   const isGuardian = pathname?.startsWith('/guardian')
   const { user, dbUser, signOut } = useAuth()
   const t = useTranslations('sidebar')
+  const role = isGuardian ? 'guardian' as const : 'teacher' as const
+  const { count: unreadCount } = useUnreadCount(user?.id, role)
 
   const guardianItems = [
     { href: '/guardian/dashboard', label: t('guardian.home') },
@@ -28,6 +32,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
     { href: '/guardian/tickets', label: t('guardian.tickets') },
     { href: '/guardian/bookings', label: t('guardian.bookings') },
     { href: '/guardian/reports', label: t('guardian.reports') },
+    { href: '/guardian/chat', label: t('guardian.chat'), badge: unreadCount },
     { href: '/guardian/contact', label: t('guardian.contact') },
   ]
 
@@ -37,6 +42,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
     { href: '/teacher/tickets', label: t('teacher.tickets') },
     { href: '/teacher/curriculum', label: t('teacher.students') },
     { href: '/teacher/reports', label: t('teacher.reports') },
+    { href: '/teacher/chat', label: t('teacher.chat'), badge: unreadCount },
     { href: '/teacher/bookings', label: t('teacher.bookings') },
     { href: '/teacher/profile', label: t('teacher.profile') },
     { href: '/teacher/contact', label: t('teacher.contact') },
@@ -63,13 +69,18 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
                   href={it.href}
                   onClick={onClose}
                   className={classNames(
-                    'block rounded-lg px-3 py-2 text-sm transition-colors',
+                    'flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors',
                     active
                       ? 'bg-brand-50 text-brand-700 font-medium border-l-[3px] border-brand-600 dark:bg-brand-900/40 dark:text-brand-200 dark:border-brand-400'
                       : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800/50'
                   )}
                 >
                   {it.label}
+                  {'badge' in it && it.badge ? (
+                    <Badge variant="default" className="text-[10px] px-1.5 py-0 min-w-[18px] h-[18px] flex items-center justify-center">
+                      {it.badge}
+                    </Badge>
+                  ) : null}
                 </Link>
               </li>
             )

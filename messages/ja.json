@@ -275,6 +275,7 @@
       "tickets": "チケット",
       "students": "生徒カリキュラム",
       "reports": "レポート",
+      "chat": "チャット",
       "bookings": "予約一覧",
       "profile": "設定",
       "contact": "お問い合わせ"
@@ -285,6 +286,7 @@
       "tickets": "チケット",
       "bookings": "予約履歴",
       "reports": "レポート",
+      "chat": "チャット",
       "contact": "お問い合わせ"
     }
   },
@@ -932,5 +934,24 @@
     "expiredToken": "この招待リンクは期限切れです。講師に新しい招待を依頼してください。",
     "usedToken": "この招待リンクはすでに使用されています。",
     "wrongRole": "講師アカウントでログインしています。保護者アカウントでログインし直してください。"
+  },
+  "chat": {
+    "title": "チャット",
+    "newConversation": "新しいチャット",
+    "noConversations": "チャットはまだありません",
+    "selectConversation": "チャットを選択してください",
+    "noMessages": "メッセージはまだありません。最初のメッセージを送りましょう！",
+    "loadingMessages": "メッセージを読み込み中...",
+    "loading": "読み込み中...",
+    "loadMore": "過去のメッセージを読み込む",
+    "inputPlaceholder": "メッセージを入力...",
+    "read": "既読",
+    "guardian": "保護者",
+    "noProfilesAvailable": "チャットを開始できる生徒がいません。生徒カルテに保護者を紐づけてください。",
+    "planGate": {
+      "title": "チャット機能",
+      "description": "チャット機能はスタンダードプランでご利用いただけます。保護者と直接メッセージをやり取りして、よりスムーズなコミュニケーションを実現しましょう。",
+      "upgrade": "プランをアップグレード"
+    }
   }
 }
