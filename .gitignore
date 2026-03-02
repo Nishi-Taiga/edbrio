@@ -55,6 +55,7 @@ tests/testacounts.txt
 tests/e2e-full.spec.ts
 MILESTONES.md
 TODO.md
+SNS-MARKETING.md
 
 # build artifacts
 lint-errors.json
