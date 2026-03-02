@@ -245,6 +245,7 @@
       "tickets": "Tickets",
       "students": "Currículo del Estudiante",
       "reports": "Informes",
+      "chat": "Chat",
       "bookings": "Lista de reservas",
       "profile": "Configuración",
       "contact": "Contacto"
@@ -255,6 +256,7 @@
       "tickets": "Tickets",
       "bookings": "Historial de reservas",
       "reports": "Informes",
+      "chat": "Chat",
       "contact": "Contacto"
     }
   },
@@ -510,7 +512,7 @@
     "upgradeButton": "Actualizar a Standard",
     "upgradeError": "Error al actualizar el plan.",
     "portalError": "Error al crear el portal.",
-    "upgradeSuccess": "¡Actualización al plan Pro completada!",
+    "upgradeSuccess": "¡Actualización al plan Standard completada!",
     "upgradeCanceled": "Actualización cancelada.",
     "themeTitle": "Tema",
     "themeDescription": "Cambia el modo de visualización",
@@ -861,5 +863,24 @@
     "expiredToken": "Este enlace de invitación ha expirado. Solicite una nueva invitación al profesor.",
     "usedToken": "Este enlace de invitación ya ha sido utilizado.",
     "wrongRole": "Ha iniciado sesión como profesor. Inicie sesión con una cuenta de tutor legal."
+  },
+  "chat": {
+    "title": "Chat",
+    "newConversation": "Nuevo chat",
+    "noConversations": "Aún no hay chats",
+    "selectConversation": "Seleccione un chat",
+    "noMessages": "Aún no hay mensajes. ¡Envíe el primer mensaje!",
+    "loadingMessages": "Cargando mensajes...",
+    "loading": "Cargando...",
+    "loadMore": "Cargar mensajes anteriores",
+    "inputPlaceholder": "Escriba un mensaje...",
+    "read": "Leído",
+    "guardian": "Tutor legal",
+    "noProfilesAvailable": "No hay estudiantes disponibles para iniciar un chat. Primero vincule un tutor legal a un perfil de estudiante.",
+    "planGate": {
+      "title": "Función de chat",
+      "description": "La función de chat está disponible en el plan Standard. Comuníquese directamente con los tutores legales para una mejor coordinación.",
+      "upgrade": "Mejorar plan"
+    }
   }
 }

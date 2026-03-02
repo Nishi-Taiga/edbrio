@@ -567,7 +567,7 @@
     "upgradeButton": "Standardにアップグレード",
     "upgradeError": "アップグレードに失敗しました。",
     "portalError": "ポータルの作成に失敗しました。",
-    "upgradeSuccess": "Proプランへのアップグレードが完了しました！",
+    "upgradeSuccess": "Standardプランへのアップグレードが完了しました！",
     "upgradeCanceled": "アップグレードがキャンセルされました。",
     "themeTitle": "テーマ",
     "themeDescription": "表示モードを切り替えます",

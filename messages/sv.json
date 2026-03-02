@@ -245,6 +245,7 @@
       "tickets": "Biljetter",
       "students": "Studentcurriculum",
       "reports": "Rapporter",
+      "chat": "Chatt",
       "bookings": "Bokningar",
       "profile": "Installningar",
       "contact": "Kontakt"
@@ -255,6 +256,7 @@
       "tickets": "Biljetter",
       "bookings": "Bokningshistorik",
       "reports": "Rapporter",
+      "chat": "Chatt",
       "contact": "Kontakt"
     }
   },
@@ -861,5 +863,24 @@
     "expiredToken": "Denna inbjudningslank har gatt ut. Be lararen om en ny inbjudan.",
     "usedToken": "Denna inbjudningslank har redan anvants.",
     "wrongRole": "Du ar inloggad som larare. Logga in med ett vardnadshavarkonto."
+  },
+  "chat": {
+    "title": "Chatt",
+    "newConversation": "Ny chatt",
+    "noConversations": "Inga chattar annu",
+    "selectConversation": "Valj en chatt",
+    "noMessages": "Inga meddelanden annu. Skicka det forsta meddelandet!",
+    "loadingMessages": "Laddar meddelanden...",
+    "loading": "Laddar...",
+    "loadMore": "Ladda aldre meddelanden",
+    "inputPlaceholder": "Skriv ett meddelande...",
+    "read": "Last",
+    "guardian": "Vardnadshavare",
+    "noProfilesAvailable": "Inga elever tillgangliga for att starta en chatt. Lank forst en vardnadshavare till en elevprofil.",
+    "planGate": {
+      "title": "Chattfunktion",
+      "description": "Chattfunktionen ar tillganglig med Standard-planen. Kommunicera direkt med vardnadshavare for smidigare samordning.",
+      "upgrade": "Uppgradera plan"
+    }
   }
 }

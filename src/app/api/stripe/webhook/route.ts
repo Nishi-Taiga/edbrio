@@ -92,11 +92,11 @@ async function handleSubscriptionCheckoutCompleted(session: Stripe.Checkout.Sess
     .eq('id', teacherId)
 
   if (error) {
-    console.error('Failed to activate Pro plan:', error)
+    console.error('Failed to activate Standard plan:', error)
     throw error
   }
 
-  console.log(`Pro plan activated: teacher=${teacherId}, subscription=${subscriptionId}`)
+  console.log(`Standard plan activated: teacher=${teacherId}, subscription=${subscriptionId}`)
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {

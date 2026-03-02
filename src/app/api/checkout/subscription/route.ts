@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (teacher.plan === 'pro' && teacher.stripe_subscription_id) {
-      return NextResponse.json({ error: '既にProプランです。' }, { status: 400 })
+      return NextResponse.json({ error: '既にStandardプランです。' }, { status: 400 })
     }
 
     // Create or reuse Stripe Customer

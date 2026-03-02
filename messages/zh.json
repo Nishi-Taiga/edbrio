@@ -245,6 +245,7 @@
       "tickets": "课时券",
       "students": "学生课程",
       "reports": "报告",
+      "chat": "聊天",
       "bookings": "预约列表",
       "profile": "设置",
       "contact": "联系我们"
@@ -255,6 +256,7 @@
       "tickets": "课时券",
       "bookings": "预约记录",
       "reports": "报告",
+      "chat": "聊天",
       "contact": "联系我们"
     }
   },
@@ -510,7 +512,7 @@
     "upgradeButton": "升级至Standard",
     "upgradeError": "升级失败。",
     "portalError": "创建门户失败。",
-    "upgradeSuccess": "已成功升级至Pro计划！",
+    "upgradeSuccess": "已成功升级至Standard计划！",
     "upgradeCanceled": "升级已取消。",
     "themeTitle": "主题",
     "themeDescription": "切换显示模式",
@@ -861,5 +863,24 @@
     "expiredToken": "此邀请链接已过期。请联系老师获取新的邀请。",
     "usedToken": "此邀请链接已被使用。",
     "wrongRole": "您当前以讲师身份登录。请使用家长账号登录。"
+  },
+  "chat": {
+    "title": "聊天",
+    "newConversation": "新建聊天",
+    "noConversations": "暂无聊天",
+    "selectConversation": "请选择聊天",
+    "noMessages": "暂无消息。发送第一条消息吧！",
+    "loadingMessages": "加载消息中...",
+    "loading": "加载中...",
+    "loadMore": "加载更早的消息",
+    "inputPlaceholder": "输入消息...",
+    "read": "已读",
+    "guardian": "家长",
+    "noProfilesAvailable": "没有可以开始聊天的学生。请先将家长与学生档案关联。",
+    "planGate": {
+      "title": "聊天功能",
+      "description": "聊天功能在Standard计划中可用。与家长直接沟通，实现更顺畅的协调。",
+      "upgrade": "升级计划"
+    }
   }
 }

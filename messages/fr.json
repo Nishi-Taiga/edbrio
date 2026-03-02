@@ -245,6 +245,7 @@
       "tickets": "Tickets",
       "students": "Curriculum de l'Élève",
       "reports": "Rapports",
+      "chat": "Chat",
       "bookings": "Réservations",
       "profile": "Paramètres",
       "contact": "Contact"
@@ -255,6 +256,7 @@
       "tickets": "Tickets",
       "bookings": "Historique des réservations",
       "reports": "Rapports",
+      "chat": "Chat",
       "contact": "Contact"
     }
   },
@@ -510,7 +512,7 @@
     "upgradeButton": "Passer au forfait Standard",
     "upgradeError": "La mise à niveau a échoué.",
     "portalError": "La création du portail a échoué.",
-    "upgradeSuccess": "La mise à niveau vers le forfait Pro est terminée !",
+    "upgradeSuccess": "La mise à niveau vers le forfait Standard est terminée !",
     "upgradeCanceled": "La mise à niveau a été annulée.",
     "themeTitle": "Thème",
     "themeDescription": "Changer le mode d'affichage",
@@ -861,5 +863,24 @@
     "expiredToken": "Ce lien d'invitation a expiré. Veuillez demander une nouvelle invitation à l'enseignant.",
     "usedToken": "Ce lien d'invitation a déjà été utilisé.",
     "wrongRole": "Vous êtes connecté(e) en tant qu'enseignant. Veuillez vous connecter avec un compte parent."
+  },
+  "chat": {
+    "title": "Chat",
+    "newConversation": "Nouveau chat",
+    "noConversations": "Pas encore de chats",
+    "selectConversation": "Sélectionnez un chat",
+    "noMessages": "Pas encore de messages. Envoyez le premier message !",
+    "loadingMessages": "Chargement des messages...",
+    "loading": "Chargement...",
+    "loadMore": "Charger les messages précédents",
+    "inputPlaceholder": "Saisissez un message...",
+    "read": "Lu",
+    "guardian": "Parent",
+    "noProfilesAvailable": "Aucun élève disponible pour démarrer un chat. Veuillez d'abord lier un parent à un profil d'élève.",
+    "planGate": {
+      "title": "Fonction chat",
+      "description": "La fonction chat est disponible avec le forfait Standard. Communiquez directement avec les parents pour une meilleure coordination.",
+      "upgrade": "Mettre à niveau"
+    }
   }
 }

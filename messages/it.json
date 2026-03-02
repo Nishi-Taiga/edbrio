@@ -245,6 +245,7 @@
       "tickets": "Pacchetti lezione",
       "students": "Curriculum dello Studente",
       "reports": "Report",
+      "chat": "Chat",
       "bookings": "Prenotazioni",
       "profile": "Impostazioni",
       "contact": "Contatti"
@@ -255,6 +256,7 @@
       "tickets": "Pacchetti lezione",
       "bookings": "Storico prenotazioni",
       "reports": "Report",
+      "chat": "Chat",
       "contact": "Contatti"
     }
   },
@@ -510,7 +512,7 @@
     "upgradeButton": "Passa a Standard",
     "upgradeError": "Upgrade non riuscito.",
     "portalError": "Creazione del portale non riuscita.",
-    "upgradeSuccess": "Upgrade al piano Pro completato!",
+    "upgradeSuccess": "Upgrade al piano Standard completato!",
     "upgradeCanceled": "Upgrade annullato.",
     "themeTitle": "Tema",
     "themeDescription": "Cambia la modalità di visualizzazione",
@@ -861,5 +863,24 @@
     "expiredToken": "Questo link di invito è scaduto. Chiedi all'insegnante un nuovo invito.",
     "usedToken": "Questo link di invito è già stato utilizzato.",
     "wrongRole": "Hai effettuato l'accesso come insegnante. Accedi con un account genitore."
+  },
+  "chat": {
+    "title": "Chat",
+    "newConversation": "Nuova chat",
+    "noConversations": "Nessuna chat ancora",
+    "selectConversation": "Seleziona una chat",
+    "noMessages": "Nessun messaggio ancora. Invia il primo messaggio!",
+    "loadingMessages": "Caricamento messaggi...",
+    "loading": "Caricamento...",
+    "loadMore": "Carica messaggi precedenti",
+    "inputPlaceholder": "Scrivi un messaggio...",
+    "read": "Letto",
+    "guardian": "Genitore",
+    "noProfilesAvailable": "Nessuno studente disponibile per avviare una chat. Collega prima un genitore a un profilo studente.",
+    "planGate": {
+      "title": "Funzione chat",
+      "description": "La funzione chat è disponibile con il piano Standard. Comunica direttamente con i genitori per un coordinamento più efficace.",
+      "upgrade": "Aggiorna il piano"
+    }
   }
 }

@@ -245,6 +245,7 @@
       "tickets": "Tickets",
       "students": "Student Curriculum",
       "reports": "Reports",
+      "chat": "Chat",
       "bookings": "Bookings",
       "profile": "Settings",
       "contact": "Contact"
@@ -255,6 +256,7 @@
       "tickets": "Tickets",
       "bookings": "Booking History",
       "reports": "Reports",
+      "chat": "Chat",
       "contact": "Contact"
     }
   },
@@ -520,7 +522,7 @@
     "upgradeButton": "Upgrade to Standard",
     "upgradeError": "Upgrade failed.",
     "portalError": "Failed to create portal.",
-    "upgradeSuccess": "Successfully upgraded to the Pro plan!",
+    "upgradeSuccess": "Successfully upgraded to the Standard plan!",
     "upgradeCanceled": "Upgrade canceled.",
     "themeTitle": "Theme",
     "themeDescription": "Switch display mode",
@@ -887,5 +889,24 @@
     "expiredToken": "This invitation link has expired. Please ask the teacher for a new invitation.",
     "usedToken": "This invitation link has already been used.",
     "wrongRole": "You are logged in as a teacher. Please log in with a parent account."
+  },
+  "chat": {
+    "title": "Chat",
+    "newConversation": "New Chat",
+    "noConversations": "No chats yet",
+    "selectConversation": "Select a chat",
+    "noMessages": "No messages yet. Send the first message!",
+    "loadingMessages": "Loading messages...",
+    "loading": "Loading...",
+    "loadMore": "Load older messages",
+    "inputPlaceholder": "Type a message...",
+    "read": "Read",
+    "guardian": "Guardian",
+    "noProfilesAvailable": "No students available to start a chat. Please link a guardian to a student profile first.",
+    "planGate": {
+      "title": "Chat Feature",
+      "description": "The chat feature is available on the Standard plan. Communicate directly with guardians for smoother coordination.",
+      "upgrade": "Upgrade Plan"
+    }
   }
 }

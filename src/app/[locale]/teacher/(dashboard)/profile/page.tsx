@@ -589,7 +589,7 @@ function TeacherProfileContent() {
                       </Button>
                     </div>
 
-                    {/* Stripe Integration - Pro plan only */}
+                    {/* Stripe Integration - Standard plan only */}
                     <div>
                       <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase mb-2">{t('stripePaymentTitle')}</span>
                       {teacher.stripe_account_id ? (
