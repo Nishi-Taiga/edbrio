@@ -148,7 +148,7 @@ export default function GuardianBookingsPage() {
           <div className="space-y-3">
             {filtered.map((b) => (
               <Card key={b.id}>
-                <CardHeader><CardTitle className="text-sm">{t('teacherLabel', { name: teacherNames[b.teacher_id] || b.teacher_id })}</CardTitle></CardHeader>
+                <CardHeader><CardTitle className="text-sm">{t('teacherLabel', { name: teacherNames[b.teacher_id] || tc('teacher') })}</CardTitle></CardHeader>
                 <CardContent>
                   <div className="text-sm text-gray-700 dark:text-slate-300">
                     {format(new Date(b.start_time), 'PPP p', { locale: ja })} - {format(new Date(b.end_time), 'p', { locale: ja })}

@@ -100,6 +100,14 @@
       "paymentsTitle": "シームレス決済",
       "paymentsDescription": "Stripe連携により、請求書の自動送付から入金確認まで自動化。現金や振込確認の手間から解放されます。"
     },
+    "screenshots": {
+      "title": "実際の画面をご覧ください",
+      "description": "講師と保護者、それぞれ専用のダッシュボードで情報を一元管理できます。",
+      "teacherAlt": "講師ダッシュボード画面",
+      "teacherCaption": "講師用ダッシュボード — 今日の予定・売上・承認待ちを一目で確認",
+      "guardianAlt": "保護者ダッシュボード画面",
+      "guardianCaption": "保護者用ダッシュボード — 予約・チケット・レポートを簡単管理"
+    },
     "useCases": {
       "sectionTitle1": "こんな方に",
       "sectionTitle2": "選ばれています",

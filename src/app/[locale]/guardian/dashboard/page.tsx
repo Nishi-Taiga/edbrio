@@ -43,7 +43,7 @@ export default function GuardianHome() {
         if (data) {
           const map: Record<string, string> = {}
           data.forEach((u: { id: string; name: string | null }) => {
-            map[u.id] = u.name || u.id
+            map[u.id] = u.name || tc('teacher')
           })
           setTeacherNames(map)
         }
@@ -53,7 +53,7 @@ export default function GuardianHome() {
   const stats = useMemo(() => {
     const upcomingList = bookings.filter((b: Booking) => new Date(b.start_time) > new Date())
     const nextVal = upcomingList[0] ? format(new Date(upcomingList[0].start_time), 'PPP p', { locale: ja }) : '-'
-    const nextDesc = upcomingList[0] ? t('teacherLabel', { name: teacherNames[upcomingList[0].teacher_id] || upcomingList[0].teacher_id }) : '-'
+    const nextDesc = upcomingList[0] ? t('teacherLabel', { name: teacherNames[upcomingList[0].teacher_id] || tc('teacher') }) : '-'
 
     const totalMin = balances.reduce((a: number, b: TicketBalance) => a + (b.remaining_minutes || 0), 0)
     const nearest = [...balances]
@@ -190,7 +190,7 @@ export default function GuardianHome() {
                         <span className="mx-1">-</span>
                         {format(new Date(b.end_time), 'p', { locale: ja })}
                       </div>
-                      <div className="text-xs text-gray-600 dark:text-slate-400 mt-1">{t('teacherLabel', { name: teacherNames[b.teacher_id] || b.teacher_id })}</div>
+                      <div className="text-xs text-gray-600 dark:text-slate-400 mt-1">{t('teacherLabel', { name: teacherNames[b.teacher_id] || tc('teacher') })}</div>
                     </div>
                     <div>
                       {b.status === 'confirmed' ? (

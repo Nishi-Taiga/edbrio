@@ -194,7 +194,7 @@ export default function GuardianTickets() {
                         <span>{ticket.name}</span>
                         <span className="text-brand-600 dark:text-brand-400">{formatPrice(ticket.price_cents)}</span>
                       </CardTitle>
-                      <CardDescription>{t('teacherLabel', { name: teacherNames[ticket.teacher_id] || ticket.teacher_id })}</CardDescription>
+                      <CardDescription>{t('teacherLabel', { name: teacherNames[ticket.teacher_id] || tc('teacher') })}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="text-sm text-gray-600 dark:text-slate-400 mb-3">

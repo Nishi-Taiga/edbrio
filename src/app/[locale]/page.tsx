@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
+import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { Sparkles, BookOpen, Calendar, CreditCard, ArrowRight, ChevronDown, Check, Menu, X, Send } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceDot, Legend } from 'recharts'
@@ -185,6 +186,32 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── Product Screenshots ── */}
+      <section className="py-12 sm:py-20 px-4 sm:px-6 bg-slate-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-xl sm:text-3xl font-black tracking-tight text-slate-900 mb-3">
+              {t('screenshots.title')}
+            </h2>
+            <p className="text-sm sm:text-base text-slate-500 max-w-2xl mx-auto">{t('screenshots.description')}</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+            <div className="group">
+              <div className="relative rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200 shadow-lg group-hover:shadow-xl transition-shadow">
+                <Image src="/screenshots/10_teacher_dashboard.png" alt={t('screenshots.teacherAlt')} width={1400} height={900} className="w-full h-auto" />
+              </div>
+              <p className="text-center text-xs sm:text-sm font-semibold text-slate-600 mt-3">{t('screenshots.teacherCaption')}</p>
+            </div>
+            <div className="group">
+              <div className="relative rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200 shadow-lg group-hover:shadow-xl transition-shadow">
+                <Image src="/screenshots/20_guardian_dashboard.png" alt={t('screenshots.guardianAlt')} width={1400} height={900} className="w-full h-auto" />
+              </div>
+              <p className="text-center text-xs sm:text-sm font-semibold text-slate-600 mt-3">{t('screenshots.guardianCaption')}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Features ── */}
       <section id="features" className="py-16 sm:py-32 px-4 sm:px-6 bg-background">
         <div className="max-w-7xl mx-auto">
@@ -203,9 +230,12 @@ export default function HomePage() {
                 <Sparkles className="w-6 h-6 sm:w-7 sm:h-7" />
               </div>
               <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-slate-900 dark:text-white">{t('features.aiReportTitle')}</h3>
-              <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm sm:text-base">
+              <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm sm:text-base mb-4 sm:mb-6">
                 {t('features.aiReportDescription')}
               </p>
+              <div className="rounded-lg sm:rounded-xl overflow-hidden border border-brand-100 dark:border-brand-700/30 shadow-sm">
+                <Image src="/screenshots/14_teacher_reports.png" alt={t('features.aiReportTitle')} width={1400} height={900} className="w-full h-auto" />
+              </div>
             </div>
             {/* Student Karte */}
             <div className="group p-6 sm:p-10 rounded-2xl sm:rounded-3xl bg-white dark:bg-surface-raised border border-slate-100 dark:border-brand-800/20 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] dark:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] hover:translate-y-[-8px] hover:border-brand-200 dark:hover:border-brand-700/50 transition duration-300">
@@ -213,9 +243,12 @@ export default function HomePage() {
                 <BookOpen className="w-6 h-6 sm:w-7 sm:h-7" />
               </div>
               <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-slate-900 dark:text-white">{t('features.studentKarteTitle')}</h3>
-              <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm sm:text-base">
+              <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm sm:text-base mb-4 sm:mb-6">
                 {t('features.studentKarteDescription')}
               </p>
+              <div className="rounded-lg sm:rounded-xl overflow-hidden border border-slate-100 dark:border-brand-800/20 shadow-sm">
+                <Image src="/screenshots/12_teacher_curriculum_list.png" alt={t('features.studentKarteTitle')} width={1400} height={900} className="w-full h-auto" />
+              </div>
             </div>
             {/* Scheduling */}
             <div className="group p-6 sm:p-10 rounded-2xl sm:rounded-3xl bg-white dark:bg-surface-raised border border-slate-100 dark:border-brand-800/20 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] dark:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] hover:translate-y-[-8px] hover:border-brand-200 dark:hover:border-brand-700/50 transition duration-300">
@@ -223,9 +256,12 @@ export default function HomePage() {
                 <Calendar className="w-6 h-6 sm:w-7 sm:h-7" />
               </div>
               <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-slate-900 dark:text-white">{t('features.schedulingTitle')}</h3>
-              <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm sm:text-base">
+              <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm sm:text-base mb-4 sm:mb-6">
                 {t('features.schedulingDescription')}
               </p>
+              <div className="rounded-lg sm:rounded-xl overflow-hidden border border-slate-100 dark:border-brand-800/20 shadow-sm">
+                <Image src="/screenshots/11_teacher_calendar.png" alt={t('features.schedulingTitle')} width={1400} height={900} className="w-full h-auto" />
+              </div>
             </div>
             {/* Payments */}
             <div className="group p-6 sm:p-10 rounded-2xl sm:rounded-3xl bg-white dark:bg-surface-raised border border-slate-100 dark:border-brand-800/20 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] dark:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] hover:translate-y-[-8px] hover:border-brand-200 dark:hover:border-brand-700/50 transition duration-300">
@@ -233,9 +269,12 @@ export default function HomePage() {
                 <CreditCard className="w-6 h-6 sm:w-7 sm:h-7" />
               </div>
               <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-slate-900 dark:text-white">{t('features.paymentsTitle')}</h3>
-              <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm sm:text-base">
+              <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm sm:text-base mb-4 sm:mb-6">
                 {t('features.paymentsDescription')}
               </p>
+              <div className="rounded-lg sm:rounded-xl overflow-hidden border border-slate-100 dark:border-brand-800/20 shadow-sm">
+                <Image src="/screenshots/21_guardian_booking.png" alt={t('features.paymentsTitle')} width={1400} height={900} className="w-full h-auto" />
+              </div>
             </div>
           </div>
         </div>
