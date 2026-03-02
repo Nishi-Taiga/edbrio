@@ -197,7 +197,8 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
             {/* AI Reports — featured */}
-            <div className="group p-6 sm:p-10 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-brand-50/80 to-white dark:from-brand-900/30 dark:to-brand-950/50 border border-brand-100 dark:border-brand-700/30 shadow-[0_10px_30px_-10px_rgba(124,58,237,0.1)] dark:shadow-[0_10px_30px_-10px_rgba(124,58,237,0.2)] hover:translate-y-[-8px] hover:shadow-[0_20px_40px_-10px_rgba(124,58,237,0.2)] transition duration-300">
+            <div className="group p-6 sm:p-10 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-brand-50/80 to-white dark:from-brand-900/30 dark:to-brand-950/50 border border-brand-100 dark:border-brand-700/30 shadow-[0_10px_30px_-10px_rgba(124,58,237,0.1)] dark:shadow-[0_10px_30px_-10px_rgba(124,58,237,0.2)] hover:translate-y-[-8px] hover:shadow-[0_20px_40px_-10px_rgba(124,58,237,0.2)] transition duration-300 relative">
+              <span className="absolute top-4 right-4 sm:top-6 sm:right-6 bg-gradient-to-r from-brand-600 to-accent-600 text-white px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold">{t('features.aiReportBadge')}</span>
               <div className="w-12 h-12 sm:w-14 sm:h-14 bg-brand-100 dark:bg-brand-800/40 rounded-xl sm:rounded-2xl flex items-center justify-center text-brand-600 dark:text-brand-400 mb-5 sm:mb-8">
                 <Sparkles className="w-6 h-6 sm:w-7 sm:h-7" />
               </div>
@@ -676,6 +677,15 @@ export default function HomePage() {
               </summary>
               <div className="px-4 sm:px-6 pb-4 sm:pb-6 text-slate-500 dark:text-slate-400 leading-relaxed text-sm sm:text-base">
                 {t('faq.a8')}
+              </div>
+            </details>
+            <details className="group bg-white dark:bg-surface-raised rounded-xl sm:rounded-2xl border border-slate-100 dark:border-brand-800/20 shadow-sm dark:shadow-md dark:shadow-black/20">
+              <summary className="p-4 sm:p-6 cursor-pointer flex items-center justify-between font-bold text-base sm:text-lg list-none text-slate-900 dark:text-white gap-2">
+                <span>{t('faq.q9')}</span>
+                <ChevronDown className="w-5 h-5 text-slate-400 dark:text-slate-500 group-open:rotate-180 transition-transform shrink-0" />
+              </summary>
+              <div className="px-4 sm:px-6 pb-4 sm:pb-6 text-slate-500 dark:text-slate-400 leading-relaxed text-sm sm:text-base">
+                {t('faq.a9')}
               </div>
             </details>
           </div>
