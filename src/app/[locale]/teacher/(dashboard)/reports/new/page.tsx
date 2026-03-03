@@ -297,32 +297,34 @@ function NewReportContent() {
         {(aiError || saveError) && <ErrorAlert message={aiError || saveError || ''} />}
 
         <div className="space-y-6">
-          {/* Step 1: Select booking */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">{t('step1Title')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Label>{t('bookingLabel')}</Label>
-              {bookingsLoading || authLoading ? (
-                <div className="text-gray-500 dark:text-slate-400 text-sm">{tc('loading')}</div>
-              ) : unreportedBookings.length === 0 ? (
-                <p className="text-sm text-muted-foreground">{t('noUnreportedBookings')}</p>
-              ) : (
-                <Select value={selectedBookingId} onValueChange={handleBookingChange}>
-                  <SelectTrigger><SelectValue placeholder={t('bookingPlaceholder')} /></SelectTrigger>
-                  <SelectContent>
-                    {unreportedBookings.map(b => (
-                      <SelectItem key={b.id} value={b.id}>{formatBookingLabel(b)}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </CardContent>
-          </Card>
+          {/* Step 1: Select booking (hidden when preview showing) */}
+          {!showPreview && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">{t('step1Title')}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Label>{t('bookingLabel')}</Label>
+                {bookingsLoading || authLoading ? (
+                  <div className="text-gray-500 dark:text-slate-400 text-sm">{tc('loading')}</div>
+                ) : unreportedBookings.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">{t('noUnreportedBookings')}</p>
+                ) : (
+                  <Select value={selectedBookingId} onValueChange={handleBookingChange}>
+                    <SelectTrigger><SelectValue placeholder={t('bookingPlaceholder')} /></SelectTrigger>
+                    <SelectContent>
+                      {unreportedBookings.map(b => (
+                        <SelectItem key={b.id} value={b.id}>{formatBookingLabel(b)}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
-          {/* Step 2: Input form */}
-          {selectedBookingId && (
+          {/* Step 2: Input form (hidden when preview showing) */}
+          {selectedBookingId && !showPreview && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">{t('step2Title')}</CardTitle>

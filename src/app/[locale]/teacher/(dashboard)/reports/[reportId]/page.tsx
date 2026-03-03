@@ -7,7 +7,8 @@ import { Link } from '@/i18n/navigation'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Save, Send } from 'lucide-react'
+import { ArrowLeft, Save, Send, Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { useAuth } from '@/hooks/use-auth'
 import { useAiReport } from '@/hooks/use-ai-report'
 import { createClient } from '@/lib/supabase/client'
@@ -35,6 +36,7 @@ export default function ReportDetailPage() {
   const [error, setError] = useState<string | null>(null)
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   const [formData, setFormData] = useState({
     subject: '',
@@ -133,6 +135,47 @@ export default function ReportDetailPage() {
     }
   }
 
+  const handlePublish = async () => {
+    setSaving(true)
+    try {
+      const { error: err } = await supabase.from('reports').update({
+        visibility: 'public',
+        published_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }).eq('id', reportId)
+      if (err) throw err
+
+      // Fire-and-forget email notification
+      fetch('/api/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'report_published', data: { reportId } }),
+      }).catch(console.error)
+
+      toast.success(t('publishSuccess'))
+      router.push('/teacher/reports')
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!confirm(t('deleteConfirm'))) return
+    setDeleting(true)
+    try {
+      const { error: err } = await supabase.from('reports').delete().eq('id', reportId)
+      if (err) throw err
+      toast.success(t('deleteSuccess'))
+      router.push('/teacher/reports')
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setDeleting(false)
+    }
+  }
+
   if (loading || authLoading) {
     return (
       <ProtectedRoute allowedRoles={["teacher"]}>
@@ -197,6 +240,25 @@ export default function ReportDetailPage() {
                 <CardHeader><CardTitle className="text-base">{t('teacherMemo')}</CardTitle></CardHeader>
                 <CardContent><div className="whitespace-pre-wrap text-sm text-gray-600">{report.content_raw}</div></CardContent>
               </Card>
+            )}
+
+            {/* Draft actions: publish and delete */}
+            {report.visibility !== 'public' && (
+              <div className="flex justify-between items-center pt-2">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={handleDelete}
+                  disabled={deleting}
+                >
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  {deleting ? tc('loading') : t('deleteDraft')}
+                </Button>
+                <Button onClick={handlePublish} disabled={saving}>
+                  <Send className="w-4 h-4 mr-1" />
+                  {saving ? tc('loading') : t('publishDraft')}
+                </Button>
+              </div>
             )}
           </div>
         )}
