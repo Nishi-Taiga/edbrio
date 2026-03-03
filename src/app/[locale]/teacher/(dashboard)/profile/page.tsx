@@ -281,6 +281,11 @@ function TeacherProfileContent() {
     try {
       const res = await fetch('/api/stripe/onboard', { method: 'POST' })
       const data = await res.json()
+      if (!res.ok) {
+        console.error('Stripe onboard error:', data.error)
+        toast.error(data.error || t('stripeConnectRefresh'))
+        return
+      }
       if (data.url) window.location.href = data.url
     } catch (err) {
       console.error('Stripe onboarding error:', err)
