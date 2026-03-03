@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { SkeletonList } from '@/components/ui/skeleton-card'
 import { ErrorAlert } from '@/components/ui/error-alert'
 import { EmptyState } from '@/components/ui/empty-state'
+import { useTranslations } from 'next-intl'
 import { Shield } from 'lucide-react'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
@@ -37,6 +38,9 @@ interface ListData {
 /* ---------- Component ---------- */
 
 export default function AdminAuditPage() {
+  const t = useTranslations('adminAudit')
+  const tc = useTranslations('adminCommon')
+
   const [listData, setListData] = useState<ListData | null>(null)
   const [actionFilter, setActionFilter] = useState('')
   const [targetTableFilter, setTargetTableFilter] = useState('all')
@@ -81,10 +85,10 @@ export default function AdminAuditPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-        監査ログ
+        {t('title')}
       </h1>
       <p className="text-gray-600 dark:text-slate-400 mb-8">
-        プラットフォームの操作履歴
+        {t('description')}
       </p>
 
       {/* Error */}
@@ -94,7 +98,7 @@ export default function AdminAuditPage() {
       <Card className="mb-6">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-            フィルター
+            {tc('filter')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -103,15 +107,15 @@ export default function AdminAuditPage() {
               type="text"
               value={actionFilter}
               onChange={(e) => { setActionFilter(e.target.value); setPage(1) }}
-              placeholder="アクション"
+              placeholder={t('actionPlaceholder')}
               className="w-44"
             />
             <Select value={targetTableFilter} onValueChange={(v) => { setTargetTableFilter(v); setPage(1) }}>
               <SelectTrigger className="w-44">
-                <SelectValue placeholder="対象テーブル" />
+                <SelectValue placeholder={t('targetTablePlaceholder')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">すべて</SelectItem>
+                <SelectItem value="all">{tc('all')}</SelectItem>
                 <SelectItem value="users">users</SelectItem>
                 <SelectItem value="teachers">teachers</SelectItem>
                 <SelectItem value="students">students</SelectItem>
@@ -129,14 +133,14 @@ export default function AdminAuditPage() {
               value={fromDate}
               onChange={(e) => { setFromDate(e.target.value); setPage(1) }}
               className="w-40"
-              placeholder="開始日"
+              placeholder={tc('startDate')}
             />
             <Input
               type="date"
               value={toDate}
               onChange={(e) => { setToDate(e.target.value); setPage(1) }}
               className="w-40"
-              placeholder="終了日"
+              placeholder={tc('endDate')}
             />
           </div>
         </CardContent>
@@ -156,7 +160,7 @@ export default function AdminAuditPage() {
             {listData.logs.length === 0 ? (
               <EmptyState
                 icon={Shield}
-                title="監査ログはまだ記録されていません"
+                title={t('noLogs')}
               />
             ) : (
               <>
@@ -164,12 +168,12 @@ export default function AdminAuditPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>日時</TableHead>
-                        <TableHead>アクター</TableHead>
-                        <TableHead>アクション</TableHead>
-                        <TableHead>対象テーブル</TableHead>
-                        <TableHead>対象ID</TableHead>
-                        <TableHead>メタデータ</TableHead>
+                        <TableHead>{tc('dateTime')}</TableHead>
+                        <TableHead>{t('actor')}</TableHead>
+                        <TableHead>{tc('action')}</TableHead>
+                        <TableHead>{tc('targetTable')}</TableHead>
+                        <TableHead>{tc('targetId')}</TableHead>
+                        <TableHead>{t('metadata')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -195,7 +199,7 @@ export default function AdminAuditPage() {
                                 size="sm"
                                 onClick={() => setMetadataLog(log)}
                               >
-                                詳細
+                                {tc('details')}
                               </Button>
                             ) : (
                               <span className="text-gray-400 text-sm">-</span>
@@ -211,8 +215,7 @@ export default function AdminAuditPage() {
                 {totalPages > 1 && (
                   <div className="flex items-center justify-between mt-4">
                     <p className="text-sm text-gray-500 dark:text-slate-400">
-                      全{listData.total}件中 {(page - 1) * listData.limit + 1}-
-                      {Math.min(page * listData.limit, listData.total)}件
+                      {tc('paginationInfo', { total: listData.total, from: (page - 1) * listData.limit + 1, to: Math.min(page * listData.limit, listData.total) })}
                     </p>
                     <div className="flex gap-2">
                       <Button
@@ -221,7 +224,7 @@ export default function AdminAuditPage() {
                         disabled={page <= 1}
                         onClick={() => setPage((p) => p - 1)}
                       >
-                        前へ
+                        {tc('prev')}
                       </Button>
                       <Button
                         variant="outline"
@@ -229,7 +232,7 @@ export default function AdminAuditPage() {
                         disabled={page >= totalPages}
                         onClick={() => setPage((p) => p + 1)}
                       >
-                        次へ
+                        {tc('next')}
                       </Button>
                     </div>
                   </div>
@@ -247,21 +250,21 @@ export default function AdminAuditPage() {
       >
         <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>メタデータ詳細</DialogTitle>
+            <DialogTitle>{t('metadataDetail')}</DialogTitle>
           </DialogHeader>
           {metadataLog && (
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-2 text-sm">
-                <div className="text-gray-500 dark:text-slate-400">アクション:</div>
+                <div className="text-gray-500 dark:text-slate-400">{t('actionLabel')}</div>
                 <div className="font-mono">{metadataLog.action}</div>
-                <div className="text-gray-500 dark:text-slate-400">対象テーブル:</div>
+                <div className="text-gray-500 dark:text-slate-400">{t('targetTableLabel')}</div>
                 <div className="font-mono">{metadataLog.target_table || '-'}</div>
-                <div className="text-gray-500 dark:text-slate-400">対象ID:</div>
+                <div className="text-gray-500 dark:text-slate-400">{t('targetIdLabel')}</div>
                 <div className="font-mono text-xs break-all">{metadataLog.target_id || '-'}</div>
               </div>
               <div>
                 <h4 className="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
-                  JSON
+                  {t('json')}
                 </h4>
                 <pre className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg text-xs font-mono whitespace-pre-wrap break-all overflow-x-auto">
                   {JSON.stringify(metadataLog.metadata, null, 2)}
