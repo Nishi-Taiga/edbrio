@@ -110,8 +110,7 @@ export default function HomePage() {
   const featureCards = [
     {
       icon: Sparkles,
-      iconBg: 'bg-brand-100 dark:bg-brand-900/50',
-      iconColor: 'text-brand-600',
+      iconContainerClass: 'bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400',
       badge: t('features.aiReportBadge'),
       title: t('features.aiReportTitle'),
       description: t('features.aiReportDescription'),
@@ -120,8 +119,7 @@ export default function HomePage() {
     },
     {
       icon: BookOpen,
-      iconBg: 'bg-amber-50 dark:bg-amber-900/30',
-      iconColor: 'text-amber-600 dark:text-amber-400',
+      iconContainerClass: 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400',
       title: t('features.studentKarteTitle'),
       description: t('features.studentKarteDescription'),
       screenshot: '/screenshots/12_teacher_curriculum_list.png',
@@ -129,8 +127,7 @@ export default function HomePage() {
     },
     {
       icon: Calendar,
-      iconBg: 'bg-purple-50 dark:bg-purple-900/30',
-      iconColor: 'text-purple-600 dark:text-purple-400',
+      iconContainerClass: 'bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400',
       title: t('features.schedulingTitle'),
       description: t('features.schedulingDescription'),
       screenshot: '/screenshots/11_teacher_calendar.png',
@@ -138,8 +135,7 @@ export default function HomePage() {
     },
     {
       icon: CreditCard,
-      iconBg: 'bg-emerald-50 dark:bg-emerald-900/30',
-      iconColor: 'text-emerald-600 dark:text-emerald-400',
+      iconContainerClass: 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400',
       title: t('features.paymentsTitle'),
       description: t('features.paymentsDescription'),
       screenshot: '/screenshots/21_guardian_booking.png',
@@ -147,8 +143,7 @@ export default function HomePage() {
     },
     {
       icon: MessageSquare,
-      iconBg: 'bg-sky-50 dark:bg-sky-900/30',
-      iconColor: 'text-sky-600 dark:text-sky-400',
+      iconContainerClass: 'bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400',
       badge: t('features.chatBadge'),
       title: t('features.chatTitle'),
       description: t('features.chatDescription'),
@@ -168,12 +163,13 @@ export default function HomePage() {
         [data-reveal][data-delay="4"]{transition-delay:.4s}
         .scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none}
         .scrollbar-hide::-webkit-scrollbar{display:none}
+        @keyframes hero-float{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-12px) rotate(0deg)}}
+        .hero-screenshot{animation:hero-float 6s ease-in-out infinite}
       `}} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* ── Fixed Header (Alpha Bar + Nav) ── */}
       <div className="fixed top-0 w-full z-50">
-        {/* Alpha Bar */}
         <div className="bg-amber-50 dark:bg-amber-950/80 border-b border-amber-200 dark:border-amber-800 text-center py-2 px-4">
           <span className="text-[11px] sm:text-xs font-semibold text-amber-700 dark:text-amber-300">
             <span className="font-black">ALPHA</span>
@@ -182,7 +178,6 @@ export default function HomePage() {
           </span>
         </div>
 
-        {/* Navigation */}
         <nav className="bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
             <div className="flex items-center gap-2.5 shrink-0">
@@ -190,8 +185,7 @@ export default function HomePage() {
             </div>
             <div className="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-500 dark:text-slate-400">
               <a href="#features" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('nav.features')}</a>
-              <a href="#use-cases" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('nav.useCases')}</a>
-              <a href="#pricing" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('nav.pricing')}</a>
+              <Link href="/pricing" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('nav.pricing')}</Link>
               <a href="#faq" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('nav.faq')}</a>
               <a href="#contact" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('nav.contact')}</a>
             </div>
@@ -215,8 +209,7 @@ export default function HomePage() {
             <div className="lg:hidden bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 px-4 pb-4">
               <div className="flex flex-col gap-1 pt-2 text-sm font-medium text-slate-600 dark:text-slate-300">
                 <a href="#features" className="py-2.5 hover:text-brand-600 transition" onClick={() => setMobileMenuOpen(false)}>{t('nav.features')}</a>
-                <a href="#use-cases" className="py-2.5 hover:text-brand-600 transition" onClick={() => setMobileMenuOpen(false)}>{t('nav.useCases')}</a>
-                <a href="#pricing" className="py-2.5 hover:text-brand-600 transition" onClick={() => setMobileMenuOpen(false)}>{t('nav.pricing')}</a>
+                <Link href="/pricing" className="py-2.5 hover:text-brand-600 transition" onClick={() => setMobileMenuOpen(false)}>{t('nav.pricing')}</Link>
                 <a href="#faq" className="py-2.5 hover:text-brand-600 transition" onClick={() => setMobileMenuOpen(false)}>{t('nav.faq')}</a>
                 <a href="#contact" className="py-2.5 hover:text-brand-600 transition" onClick={() => setMobileMenuOpen(false)}>{t('nav.contact')}</a>
                 <div className="flex items-center gap-3 pt-2 md:hidden">
@@ -251,7 +244,7 @@ export default function HomePage() {
               </div>
             </div>
             <div data-reveal data-delay="2">
-              <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-2xl shadow-brand-600/10 dark:shadow-brand-400/5">
+              <div className="hero-screenshot rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-2xl shadow-brand-600/10 dark:shadow-brand-400/5">
                 <picture>
                   <source srcSet="/screenshots/10_teacher_dashboard-dark.png" media="(prefers-color-scheme: dark)" />
                   <img src="/screenshots/10_teacher_dashboard.png" alt={t('screenshots.teacherAlt')} width={1400} height={900} className="w-full h-auto" loading="eager" />
@@ -298,8 +291,73 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── Features Carousel (5 cards) ── */}
+      <section id="features" className="py-16 sm:py-24 px-4 sm:px-6 bg-white dark:bg-slate-950">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12 sm:mb-16" data-reveal>
+            <span className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-3 block">{t('sections.features')}</span>
+            <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white mb-4">
+              {t('features.sectionTitle1')}<span className="text-brand-600 dark:text-brand-400">{t('features.sectionTitle2')}</span>
+            </h2>
+            <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-lg max-w-2xl mx-auto">{t('features.sectionDescription')}</p>
+          </div>
+
+          <div className="relative" data-reveal>
+            <button
+              type="button"
+              onClick={() => scrollCarousel('left')}
+              className={`absolute -left-3 sm:-left-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 shadow-lg flex items-center justify-center transition ${canScrollLeft ? 'opacity-100 hover:bg-slate-50 dark:hover:bg-slate-700' : 'opacity-0 pointer-events-none'}`}
+              aria-label="Previous"
+            >
+              <ChevronLeft className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+            </button>
+
+            <div
+              ref={carouselRef}
+              className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-1 py-1"
+            >
+              {featureCards.map((card) => {
+                const Icon = card.icon
+                return (
+                  <div
+                    key={card.title}
+                    className="min-w-[calc(100%-8px)] sm:min-w-[calc(50%-12px)] lg:min-w-[calc(33.333%-16px)] flex-shrink-0 snap-start bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 sm:p-6 border border-slate-100 dark:border-slate-700 flex flex-col relative"
+                  >
+                    {card.badge && (
+                      <span className="absolute top-4 right-4 bg-brand-50 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold">
+                        {card.badge}
+                      </span>
+                    )}
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${card.iconContainerClass}`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{card.title}</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-4 flex-1">{card.description}</p>
+                    <div className="rounded-lg overflow-hidden border border-slate-100 dark:border-slate-700">
+                      <picture>
+                        <source srcSet={card.screenshotDark} media="(prefers-color-scheme: dark)" />
+                        <img src={card.screenshot} alt={card.title} width={700} height={450} className="w-full h-auto" loading="lazy" />
+                      </picture>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => scrollCarousel('right')}
+              className={`absolute -right-3 sm:-right-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 shadow-lg flex items-center justify-center transition ${canScrollRight ? 'opacity-100 hover:bg-slate-50 dark:hover:bg-slate-700' : 'opacity-0 pointer-events-none'}`}
+              aria-label="Next"
+            >
+              <ChevronRight className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* ── How It Works (3 Steps) ── */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-white dark:bg-slate-950">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-slate-50 dark:bg-slate-900">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 sm:mb-16" data-reveal>
             <span className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-3 block">{t('sections.howItWorks')}</span>
@@ -322,231 +380,6 @@ export default function HomePage() {
                 <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">{step.desc}</p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Features Carousel (5 cards) ── */}
-      <section id="features" className="py-16 sm:py-24 px-4 sm:px-6 bg-slate-50 dark:bg-slate-900">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12 sm:mb-16" data-reveal>
-            <span className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-3 block">{t('sections.features')}</span>
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white mb-4">
-              {t('features.sectionTitle1')}<span className="text-brand-600 dark:text-brand-400">{t('features.sectionTitle2')}</span>
-            </h2>
-            <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-lg max-w-2xl mx-auto">{t('features.sectionDescription')}</p>
-          </div>
-
-          {/* Carousel container */}
-          <div className="relative" data-reveal>
-            {/* Left arrow */}
-            <button
-              type="button"
-              onClick={() => scrollCarousel('left')}
-              className={`absolute -left-3 sm:-left-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 shadow-lg flex items-center justify-center transition ${canScrollLeft ? 'opacity-100 hover:bg-slate-50 dark:hover:bg-slate-700' : 'opacity-0 pointer-events-none'}`}
-              aria-label="Previous"
-            >
-              <ChevronLeft className="w-5 h-5 text-slate-700 dark:text-slate-300" />
-            </button>
-
-            {/* Scrollable area */}
-            <div
-              ref={carouselRef}
-              className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-1 py-1"
-            >
-              {featureCards.map((card) => {
-                const Icon = card.icon
-                return (
-                  <div
-                    key={card.title}
-                    className="min-w-[calc(100%-8px)] sm:min-w-[calc(50%-12px)] lg:min-w-[calc(33.333%-16px)] flex-shrink-0 snap-start bg-white dark:bg-slate-800/50 rounded-2xl p-6 sm:p-8 border border-slate-100 dark:border-slate-700 flex flex-col relative"
-                  >
-                    {card.badge && (
-                      <span className="absolute top-4 right-4 sm:top-6 sm:right-6 bg-brand-50 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold">
-                        {card.badge}
-                      </span>
-                    )}
-                    <div className={`w-12 h-12 ${card.iconBg} rounded-xl flex items-center justify-center ${card.iconColor} mb-5`}>
-                      <Icon className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">{card.title}</h3>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-5 flex-1">{card.description}</p>
-                    <div className="rounded-xl overflow-hidden border border-slate-100 dark:border-slate-700">
-                      <picture>
-                        <source srcSet={card.screenshotDark} media="(prefers-color-scheme: dark)" />
-                        <img src={card.screenshot} alt={card.title} width={1400} height={900} className="w-full h-auto" loading="lazy" />
-                      </picture>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-
-            {/* Right arrow */}
-            <button
-              type="button"
-              onClick={() => scrollCarousel('right')}
-              className={`absolute -right-3 sm:-right-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 shadow-lg flex items-center justify-center transition ${canScrollRight ? 'opacity-100 hover:bg-slate-50 dark:hover:bg-slate-700' : 'opacity-0 pointer-events-none'}`}
-              aria-label="Next"
-            >
-              <ChevronRight className="w-5 h-5 text-slate-700 dark:text-slate-300" />
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Use Cases ── */}
-      <section id="use-cases" className="py-16 sm:py-24 px-4 sm:px-6 bg-white dark:bg-slate-950">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16" data-reveal>
-            <span className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-3 block">{t('sections.useCases')}</span>
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white">
-              {t('useCases.sectionTitle1')}<span className="text-brand-600 dark:text-brand-400">{t('useCases.sectionTitle2')}</span>
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {[
-              { emoji: '\u{1F3E0}', title: t('useCases.tutorTitle'), desc: t('useCases.tutorDescription') },
-              { emoji: '\u{1F3EB}', title: t('useCases.jukuTitle'), desc: t('useCases.jukuDescription') },
-              { emoji: '\u{1F4BB}', title: t('useCases.onlineTitle'), desc: t('useCases.onlineDescription') },
-            ].map((uc, i) => (
-              <div key={uc.title} className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 sm:p-10 border border-slate-100 dark:border-slate-700" data-reveal data-delay={String(i + 1)}>
-                <div className="text-3xl sm:text-4xl mb-4 sm:mb-6">{uc.emoji}</div>
-                <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-2 sm:mb-3">{uc.title}</h3>
-                <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm">{uc.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Pricing ── */}
-      <section id="pricing" className="py-16 sm:py-24 px-4 sm:px-6 bg-slate-50 dark:bg-slate-900">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-10 sm:mb-16" data-reveal>
-            <span className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-3 block">{t('sections.pricing')}</span>
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white mb-4">{t('pricing.sectionTitle')}</h2>
-            <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-lg">{t('pricing.sectionDescription')}</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-stretch">
-            {/* Free Plan */}
-            <div className="bg-white dark:bg-slate-800/50 rounded-3xl p-8 sm:p-10 border-2 border-slate-200 dark:border-slate-700 flex flex-col" data-reveal>
-              <h3 className="text-lg font-bold text-slate-400 mb-2">{t('pricing.freePlan')}</h3>
-              <div className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white mb-6">{t('pricing.freePrice')}</div>
-              <p className="text-slate-500 dark:text-slate-400 mb-8 text-sm">{t('pricing.freeDescription')}</p>
-              <div className="flex-1">
-                <ul className="space-y-3 mb-8">
-                  {['freeStudents', 'freeReports', 'freeCalendar', 'freeKarte', 'freeStripe'].map((key) => (
-                    <li key={key} className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-medium text-sm">
-                      <Check className="w-5 h-5 text-emerald-500 shrink-0" /> {t(`pricing.${key}`)}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <Link href="/login" className="w-full py-4 rounded-2xl bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white font-bold text-center hover:bg-slate-200 dark:hover:bg-slate-600 transition block text-sm">
-                {t('pricing.freeCta')}
-              </Link>
-            </div>
-
-            {/* Standard Plan */}
-            <div className="bg-gradient-to-br from-brand-600 to-brand-700 rounded-3xl p-8 sm:p-10 flex flex-col relative text-white" data-reveal data-delay="1">
-              <div className="absolute top-6 right-6 sm:top-8 sm:right-8 bg-white/20 text-white px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold">
-                {t('pricing.standardTrialBadge')}
-              </div>
-              <h3 className="text-lg font-bold text-brand-200 mb-2">{t('pricing.standardPlan')}</h3>
-              <div className="text-4xl sm:text-5xl font-black text-white mb-6">{t('pricing.standardPrice')}<span className="text-lg font-medium text-brand-200">{t('pricing.standardPriceUnit')}</span></div>
-              <p className="text-brand-200 mb-8 text-xs sm:text-sm">{t('pricing.standardDescription')}</p>
-              <div className="flex-1">
-                <ul className="space-y-3 mb-8">
-                  {['standardStudents', 'standardReports', 'standardCalendar', 'standardKarte', 'standardStripe', 'standardChat', 'standardSupport'].map((key) => (
-                    <li key={key} className="flex items-center gap-3 text-white/90 font-semibold text-sm">
-                      <Check className="w-5 h-5 text-brand-200 shrink-0" /> {t(`pricing.${key}`)}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <Link href="/login" className="w-full py-4 rounded-2xl bg-white text-brand-600 font-bold text-center hover:bg-brand-50 transition block text-sm">
-                {t('pricing.standardCta')}
-              </Link>
-            </div>
-          </div>
-
-          {/* Fee Structure */}
-          <div className="mt-12 sm:mt-16 bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 p-6 sm:p-10" data-reveal>
-            <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-6">{t('feeExplanation.title')}</h3>
-            <div className="space-y-6">
-              <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{t('feeExplanation.description')}</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 sm:p-5">
-                    <div className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-1">{t('feeExplanation.freePlanLabel')}</div>
-                    <div className="text-2xl font-black text-slate-900 dark:text-white">{t('feeExplanation.freePlanTotal')}<span className="text-sm font-medium text-slate-400 ml-1">{t('feeExplanation.total')}</span></div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('feeExplanation.freePlanBreakdown')}</div>
-                  </div>
-                  <div className="bg-brand-50 dark:bg-brand-900/20 rounded-xl p-4 sm:p-5 border border-brand-200 dark:border-brand-700">
-                    <div className="text-sm font-semibold text-brand-600 dark:text-brand-400 mb-1">{t('feeExplanation.standardPlanLabel')}</div>
-                    <div className="text-2xl font-black text-slate-900 dark:text-white">{t('feeExplanation.standardPlanTotal')}<span className="text-sm font-medium text-slate-400 ml-1">{t('feeExplanation.total')}</span></div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('feeExplanation.standardPlanBreakdown')}</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="border-t border-slate-100 dark:border-slate-700 pt-6">
-                <h4 className="text-base font-bold text-slate-900 dark:text-white mb-3">{t('feeExplanation.industryComparisonTitle')}</h4>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mb-5">{t('feeExplanation.industryComparisonDescription')}</p>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">{t('feeExplanation.industryTakeHomeLabel')}</p>
-                <div className="space-y-4 mb-6">
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 whitespace-nowrap">{t('feeExplanation.industryAgencyLabel')}</span>
-                      <span className="text-sm font-black text-slate-900 dark:text-white whitespace-nowrap">{t('feeExplanation.industryAgencyRate')}</span>
-                    </div>
-                    <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-3">
-                      <div className="bg-red-300 dark:bg-red-500/60 h-3 rounded-full" style={{ width: '45%' }} />
-                    </div>
-                    <p className="text-xs text-slate-400 mt-1">{t('feeExplanation.industryAgencyNote')}</p>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-sm font-semibold text-slate-700 dark:text-slate-300 whitespace-nowrap">{t('feeExplanation.industryMatchingLabel')}</span>
-                      <span className="text-sm font-black text-slate-900 dark:text-white whitespace-nowrap">{t('feeExplanation.industryMatchingRate')}</span>
-                    </div>
-                    <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-3">
-                      <div className="bg-amber-300 dark:bg-amber-500/60 h-3 rounded-full" style={{ width: '65%' }} />
-                    </div>
-                    <p className="text-xs text-slate-400 mt-1">{t('feeExplanation.industryMatchingNote')}</p>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">{t('feeExplanation.industryEdbrioLabel')}</span>
-                      <span className="text-sm font-black text-emerald-600 dark:text-emerald-400 whitespace-nowrap">{t('feeExplanation.industryEdbrioRate')}</span>
-                    </div>
-                    <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-3">
-                      <div className="bg-emerald-500 h-3 rounded-full" style={{ width: '95%' }} />
-                    </div>
-                    <p className="text-xs text-slate-400 mt-1">{t('feeExplanation.industryEdbrioNote')}</p>
-                  </div>
-                </div>
-                <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 sm:p-5">
-                  <h5 className="text-sm font-bold text-slate-900 dark:text-white mb-3">{t('feeExplanation.industryExampleTitle')}</h5>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-start gap-2">
-                      <span className="w-2 h-2 rounded-full bg-red-300 mt-1.5 shrink-0" />
-                      <span className="text-slate-600 dark:text-slate-400">{t('feeExplanation.industryExampleAgency')}</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="w-2 h-2 rounded-full bg-amber-300 mt-1.5 shrink-0" />
-                      <span className="text-slate-600 dark:text-slate-400">{t('feeExplanation.industryExampleMatching')}</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
-                      <span className="font-bold text-emerald-600 dark:text-emerald-400">{t('feeExplanation.industryExampleEdbrio')}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -587,9 +420,9 @@ export default function HomePage() {
             <Link href="/login" className="bg-white text-brand-600 px-8 py-4 rounded-2xl font-bold text-sm sm:text-base transition hover:bg-brand-50 flex items-center gap-2">
               {t('ctaBanner.ctaPrimary')} <ArrowRight className="w-5 h-5" />
             </Link>
-            <a href="#features" className="border border-white/30 text-white px-8 py-4 rounded-2xl font-bold text-sm sm:text-base transition hover:bg-white/10 text-center">
-              {t('ctaBanner.ctaSecondary')}
-            </a>
+            <Link href="/pricing" className="border border-white/30 text-white px-8 py-4 rounded-2xl font-bold text-sm sm:text-base transition hover:bg-white/10 text-center">
+              {t('nav.pricing')}
+            </Link>
           </div>
         </div>
       </section>
@@ -688,7 +521,7 @@ export default function HomePage() {
               <h4 className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 sm:mb-6">{t('footer.productHeading')}</h4>
               <ul className="space-y-2 sm:space-y-4 text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300">
                 <li><a href="#features" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('footer.features')}</a></li>
-                <li><a href="#pricing" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('footer.pricing')}</a></li>
+                <li><Link href="/pricing" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('footer.pricing')}</Link></li>
               </ul>
             </div>
             <div>
