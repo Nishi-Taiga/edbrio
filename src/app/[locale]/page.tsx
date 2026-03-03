@@ -238,10 +238,7 @@ export default function HomePage() {
                 {t('features.aiReportDescription')}
               </p>
               <div className="rounded-lg sm:rounded-xl overflow-hidden border border-brand-100 dark:border-brand-700/30 shadow-sm">
-                <picture>
-                  <source srcSet="/screenshots/14_teacher_reports-dark.png" media="(prefers-color-scheme: dark)" />
-                  <img src="/screenshots/14_teacher_reports.png" alt={t('features.aiReportTitle')} width={1400} height={900} className="w-full h-auto" loading="lazy" />
-                </picture>
+                <img src="/screenshots/14_teacher_reports.png" alt={t('features.aiReportTitle')} width={1400} height={900} className="w-full h-auto" loading="lazy" />
               </div>
             </div>
             {/* Student Karte */}
