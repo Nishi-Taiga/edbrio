@@ -184,7 +184,7 @@ export default function TeacherDashboard() {
   // Unified action items
   const actionItems: { text: string; href: string }[] = []
   if (setupComplete === false) actionItems.push({ text: t('setupAction'), href: '/teacher/setup' })
-  if (pendingBookings.length > 0) actionItems.push({ text: t('pendingBookingsAction', { count: pendingBookings.length }), href: '/teacher/bookings' })
+  if (pendingBookings.length > 0) actionItems.push({ text: t('pendingBookingsAction', { count: pendingBookings.length }), href: '/teacher/calendar' })
   if (draftReports.length > 0) actionItems.push({ text: t('draftReportsAction', { count: draftReports.length }), href: '/teacher/reports' })
 
   // Stat cards config
@@ -333,7 +333,7 @@ export default function TeacherDashboard() {
                   <CardTitle>{t('upcomingBookings')}</CardTitle>
                   <CardDescription>{t('upcomingDescription')}</CardDescription>
                 </div>
-                <Link href="/teacher/bookings">
+                <Link href="/teacher/calendar">
                   <Button variant="ghost" size="sm">{t('viewAll')}</Button>
                 </Link>
               </CardHeader>

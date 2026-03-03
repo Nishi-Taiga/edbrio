@@ -314,6 +314,11 @@
       "reports": "レポート",
       "chat": "チャット",
       "contact": "お問い合わせ"
+    },
+    "userMenu": {
+      "settings": "設定",
+      "contact": "お問い合わせ",
+      "logout": "ログアウト"
     }
   },
   "teacherDashboard": {
@@ -474,7 +479,12 @@
     "teacherMemo": "授業メモ（講師用）",
     "editMemo": "授業メモを編集",
     "saveDraft": "下書き保存",
-    "publish": "公開"
+    "publish": "公開",
+    "publishDraft": "公開する",
+    "publishSuccess": "レポートを公開しました",
+    "deleteDraft": "下書きを削除",
+    "deleteConfirm": "この下書きを削除しますか？この操作は取り消せません。",
+    "deleteSuccess": "下書きを削除しました"
   },
   "teacherCalendar": {
     "title": "カレンダー",
@@ -487,7 +497,15 @@
     "eventBookingPending": "未確定",
     "deleteSlotTitle": "空き枠の削除",
     "deleteSlotDescription": "{title}を削除しますか？関連する空き枠（未予約分）も削除されます。",
-    "slotOf": "の空き枠"
+    "slotOf": "の空き枠",
+    "legendPending": "予約（承認待ち）",
+    "legendDone": "予約（完了）",
+    "bookingDetailTitle": "予約詳細",
+    "bookingStudent": "生徒: {name}",
+    "approveButton": "承認",
+    "rejectButton": "拒否",
+    "approveSuccess": "予約を承認しました",
+    "rejectSuccess": "予約を拒否しました"
   },
   "slotForm": {
     "title": "空き枠を追加",

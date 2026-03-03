@@ -314,6 +314,11 @@
       "reports": "Reports",
       "chat": "Chat",
       "contact": "Contact"
+    },
+    "userMenu": {
+      "settings": "Settings",
+      "contact": "Contact",
+      "logout": "Logout"
     }
   },
   "teacherDashboard": {
@@ -484,7 +489,15 @@
     "addSlot": "Add Slot",
     "deleteSlotTitle": "Delete Slot",
     "deleteSlotDescription": "Are you sure you want to delete {title}? Related slots (unbooked) will also be deleted.",
-    "slotOf": "'s slots"
+    "slotOf": "'s slots",
+    "legendPending": "Booking (Pending)",
+    "legendDone": "Booking (Done)",
+    "bookingDetailTitle": "Booking Details",
+    "bookingStudent": "Student: {name}",
+    "approveButton": "Approve",
+    "rejectButton": "Reject",
+    "approveSuccess": "Booking approved",
+    "rejectSuccess": "Booking rejected"
   },
   "slotForm": {
     "title": "Add Available Slot",

@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -11,13 +11,25 @@ import jaLocale from '@fullcalendar/core/locales/ja'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-import { Plus, Trash2 } from 'lucide-react'
+import { Check, Plus, Trash2, X } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useShifts } from '@/hooks/use-shifts'
 import { useAvailability } from '@/hooks/use-availability'
 import { useBookings } from '@/hooks/use-bookings'
 import { ShiftForm } from '@/components/calendar/shift-form'
 import { useTranslations } from 'next-intl'
+import { createClient } from '@/lib/supabase/client'
+import { format } from 'date-fns'
+import { ja } from 'date-fns/locale'
+import { toast } from 'sonner'
+
+type BookingDetail = {
+  id: string
+  studentName: string
+  start: Date
+  end: Date
+  status: 'pending' | 'confirmed' | 'done'
+}
 
 export default function TeacherCalendarPage() {
   const t = useTranslations('teacherCalendar')
@@ -35,13 +47,37 @@ export default function TeacherCalendarPage() {
 
   const { shifts, loading: shiftsLoading, error: shiftsError, createShift, deleteShift } = useShifts(teacherId)
   const { availability, loading: availLoading } = useAvailability(teacherId, dateRange)
-  const { bookings, loading: bookingsLoading } = useBookings(teacherId, 'teacher')
+  const { bookings, loading: bookingsLoading, updateBookingStatus } = useBookings(teacherId, 'teacher')
 
   // Dialog state
   const [shiftFormOpen, setShiftFormOpen] = useState(false)
   const [shiftFormDate, setShiftFormDate] = useState<Date | undefined>()
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; title: string } | null>(null)
   const [deleting, setDeleting] = useState(false)
+
+  // Booking detail dialog
+  const [bookingDetail, setBookingDetail] = useState<BookingDetail | null>(null)
+  const [isUpdatingBooking, setIsUpdatingBooking] = useState(false)
+
+  // Student name resolution
+  const [studentNames, setStudentNames] = useState<Record<string, string>>({})
+  const supabase = useMemo(() => createClient(), [])
+
+  useEffect(() => {
+    if (bookings.length === 0) return
+    const ids = [...new Set(bookings.map(b => b.student_id))]
+    supabase
+      .from('student_profiles')
+      .select('student_id, name')
+      .in('student_id', ids)
+      .then(({ data }) => {
+        if (data) {
+          const map: Record<string, string> = {}
+          data.forEach(p => { if (p.student_id) map[p.student_id] = p.name })
+          setStudentNames(map)
+        }
+      })
+  }, [bookings, supabase])
 
   // Build a lookup from availability source to shift ID for deletion
   const availToShiftId = useMemo(() => {
@@ -74,24 +110,37 @@ export default function TeacherCalendarPage() {
       }
     }
 
-    // Bookings (blue)
+    // Bookings (color-coded by status)
     for (const b of bookings) {
-      if (b.status !== 'canceled') {
-        result.push({
-          id: `booking:${b.id}`,
-          title: `${tc('statusLabels.' + (b.status === 'confirmed' ? 'confirmed' : b.status === 'done' ? 'done' : 'pending'))}`,
-          start: b.start_time,
-          end: b.end_time,
-          backgroundColor: '#3b82f6',
-          borderColor: '#2563eb',
-          textColor: '#ffffff',
-          extendedProps: { type: 'booking' },
-        })
+      if (b.status === 'canceled') continue
+      const name = studentNames[b.student_id] || ''
+      const statusLabel = tc('statusLabels.' + (b.status === 'confirmed' ? 'confirmed' : b.status === 'done' ? 'done' : 'pending'))
+      const title = name ? `${name}（${statusLabel}）` : statusLabel
+
+      let bgColor = '#3b82f6'
+      let borderColor = '#2563eb'
+      if (b.status === 'pending') {
+        bgColor = '#f59e0b'
+        borderColor = '#d97706'
+      } else if (b.status === 'done') {
+        bgColor = '#94a3b8'
+        borderColor = '#64748b'
       }
+
+      result.push({
+        id: `booking:${b.id}`,
+        title,
+        start: b.start_time,
+        end: b.end_time,
+        backgroundColor: bgColor,
+        borderColor,
+        textColor: '#ffffff',
+        extendedProps: { type: 'booking', bookingId: b.id },
+      })
     }
 
     return result
-  }, [availability, bookings, t, tc])
+  }, [availability, bookings, studentNames, t, tc])
 
   // Handle date click -> open shift form
   const handleDateClick = useCallback((info: DateClickArg) => {
@@ -99,7 +148,7 @@ export default function TeacherCalendarPage() {
     setShiftFormOpen(true)
   }, [])
 
-  // Handle event click -> show delete dialog for availability (via parent shift)
+  // Handle event click
   const handleEventClick = useCallback((info: EventClickArg) => {
     const props = info.event.extendedProps
     if (props.type === 'availability') {
@@ -110,8 +159,19 @@ export default function TeacherCalendarPage() {
           title: `${info.event.start?.toLocaleDateString('ja-JP')} ${t('slotOf')}`,
         })
       }
+    } else if (props.type === 'booking') {
+      const booking = bookings.find(b => b.id === props.bookingId)
+      if (booking) {
+        setBookingDetail({
+          id: booking.id,
+          studentName: studentNames[booking.student_id] || booking.student_id,
+          start: new Date(booking.start_time),
+          end: new Date(booking.end_time),
+          status: booking.status as 'pending' | 'confirmed' | 'done',
+        })
+      }
     }
-  }, [t, availToShiftId])
+  }, [t, availToShiftId, bookings, studentNames])
 
   // Handle FullCalendar date range changes
   const handleDatesSet = useCallback((arg: DatesSetArg) => {
@@ -132,6 +192,21 @@ export default function TeacherCalendarPage() {
       setDeleteConfirm(null)
     } finally {
       setDeleting(false)
+    }
+  }
+
+  // Handle booking status update
+  const handleBookingStatus = async (status: 'confirmed' | 'canceled') => {
+    if (!bookingDetail) return
+    setIsUpdatingBooking(true)
+    try {
+      await updateBookingStatus(bookingDetail.id, status)
+      toast.success(status === 'confirmed' ? t('approveSuccess') : t('rejectSuccess'))
+      setBookingDetail(null)
+    } catch {
+      toast.error(tc('updateFailed'))
+    } finally {
+      setIsUpdatingBooking(false)
     }
   }
 
@@ -162,6 +237,14 @@ export default function TeacherCalendarPage() {
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-[#3b82f6]" />
             <span className="text-slate-600 dark:text-slate-400">{t('legendBooking')}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-[#f59e0b]" />
+            <span className="text-slate-600 dark:text-slate-400">{t('legendPending')}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-[#94a3b8]" />
+            <span className="text-slate-600 dark:text-slate-400">{t('legendDone')}</span>
           </div>
         </div>
 
@@ -220,6 +303,54 @@ export default function TeacherCalendarPage() {
                 <Trash2 className="w-4 h-4 mr-1" />{deleting ? tc('deleting') : tc('delete')}
               </Button>
             </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Booking Detail Dialog */}
+        <Dialog open={!!bookingDetail} onOpenChange={(o) => { if (!o) setBookingDetail(null) }}>
+          <DialogContent className="sm:max-w-sm">
+            <DialogHeader>
+              <DialogTitle>{t('bookingDetailTitle')}</DialogTitle>
+            </DialogHeader>
+            {bookingDetail && (
+              <div className="space-y-3">
+                <div className="text-sm">
+                  <span className="text-slate-500 dark:text-slate-400">{t('bookingStudent', { name: bookingDetail.studentName })}</span>
+                </div>
+                <div className="text-sm text-slate-700 dark:text-slate-300">
+                  {format(bookingDetail.start, 'PPP p', { locale: ja })} - {format(bookingDetail.end, 'p', { locale: ja })}
+                </div>
+                <div>
+                  <span className={`inline-block rounded px-2 py-0.5 text-xs border ${
+                    bookingDetail.status === 'confirmed' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800/30' :
+                    bookingDetail.status === 'pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800/30' :
+                    'bg-gray-50 text-gray-700 border-gray-200 dark:bg-surface dark:text-slate-300 dark:border-brand-800/20'
+                  }`}>
+                    {tc('statusLabels.' + bookingDetail.status)}
+                  </span>
+                </div>
+              </div>
+            )}
+            {bookingDetail?.status === 'pending' && (
+              <DialogFooter>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-red-600 hover:text-red-700"
+                  onClick={() => handleBookingStatus('canceled')}
+                  disabled={isUpdatingBooking}
+                >
+                  <X className="w-4 h-4 mr-1" /> {t('rejectButton')}
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => handleBookingStatus('confirmed')}
+                  disabled={isUpdatingBooking}
+                >
+                  <Check className="w-4 h-4 mr-1" /> {t('approveButton')}
+                </Button>
+              </DialogFooter>
+            )}
           </DialogContent>
         </Dialog>
       </div>
