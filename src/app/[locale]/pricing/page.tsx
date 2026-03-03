@@ -99,7 +99,7 @@ export default function PricingPage() {
               <p className="text-slate-500 dark:text-slate-400 mb-8 text-sm">{t('pricing.freeDescription')}</p>
               <div className="flex-1">
                 <ul className="space-y-3 mb-8">
-                  {['freeStudents', 'freeReports', 'freeCalendar', 'freeKarte', 'freeStripe'].map((key) => (
+                  {['freeStudents', 'freeReports', 'freeCalendar', 'freeStripe'].map((key) => (
                     <li key={key} className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-medium text-sm">
                       <Check className="w-5 h-5 text-emerald-500 shrink-0" /> {t(`pricing.${key}`)}
                     </li>

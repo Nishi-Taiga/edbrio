@@ -39,10 +39,10 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
   const teacherItems = [
     { href: '/teacher/dashboard', label: t('teacher.dashboard') },
     { href: '/teacher/calendar', label: t('teacher.calendar') },
-    { href: '/teacher/tickets', label: t('teacher.tickets') },
     { href: '/teacher/curriculum', label: t('teacher.students') },
     { href: '/teacher/reports', label: t('teacher.reports') },
     { href: '/teacher/chat', label: t('teacher.chat'), badge: unreadCount },
+    { href: '/teacher/tickets', label: t('teacher.tickets') },
     { href: '/teacher/bookings', label: t('teacher.bookings') },
     { href: '/teacher/profile', label: t('teacher.profile') },
     { href: '/teacher/contact', label: t('teacher.contact') },

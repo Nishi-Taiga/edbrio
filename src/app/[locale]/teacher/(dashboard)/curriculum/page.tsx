@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,7 +15,10 @@ import { useAuth } from '@/hooks/use-auth'
 import { useStudentProfiles } from '@/hooks/use-student-profiles'
 import { LoadingButton } from '@/components/ui/loading-button'
 import { StudentCard } from '@/components/curriculum/student-card'
+import { PlanGateCurriculum } from '@/components/curriculum/plan-gate-curriculum'
 import { useTranslations } from 'next-intl'
+import { createClient } from '@/lib/supabase/client'
+import { TeacherPlan } from '@/lib/types/database'
 
 export default function TeacherStudentsPage() {
   const t = useTranslations('teacherStudents')
@@ -28,6 +31,23 @@ export default function TeacherStudentsPage() {
   const [newGrade, setNewGrade] = useState('')
   const [newSubjects, setNewSubjects] = useState('')
   const [saving, setSaving] = useState(false)
+
+  const supabase = useMemo(() => createClient(), [])
+  const [plan, setPlan] = useState<TeacherPlan | null>(null)
+  const [planLoading, setPlanLoading] = useState(true)
+
+  useEffect(() => {
+    if (!user?.id) return
+    supabase
+      .from('teachers')
+      .select('plan')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => {
+        setPlan(data?.plan ?? 'free')
+        setPlanLoading(false)
+      })
+  }, [user?.id, supabase])
 
   const filtered = profiles.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -52,6 +72,24 @@ export default function TeacherStudentsPage() {
     } finally {
       setSaving(false)
     }
+  }
+
+  if (planLoading || authLoading) {
+    return (
+      <ProtectedRoute allowedRoles={["teacher"]}>
+        <div className="flex items-center justify-center h-64 text-sm text-gray-500">
+          読み込み中...
+        </div>
+      </ProtectedRoute>
+    )
+  }
+
+  if (plan !== 'standard') {
+    return (
+      <ProtectedRoute allowedRoles={["teacher"]}>
+        <PlanGateCurriculum />
+      </ProtectedRoute>
+    )
   }
 
   return (
@@ -81,7 +119,7 @@ export default function TeacherStudentsPage() {
           </div>
         )}
 
-        {loading || authLoading ? (
+        {loading ? (
           <SkeletonList count={3} />
         ) : filtered.length === 0 ? (
           profiles.length === 0 ? (
