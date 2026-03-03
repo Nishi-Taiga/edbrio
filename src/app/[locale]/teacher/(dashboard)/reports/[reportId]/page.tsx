@@ -6,6 +6,7 @@ import { useRouter } from '@/i18n/navigation'
 import { Link } from '@/i18n/navigation'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, RefreshCw, Save, Send, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -35,6 +36,7 @@ export default function ReportDetailPage() {
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   const [formData, setFormData] = useState({
     subject: '',
@@ -165,7 +167,6 @@ export default function ReportDetailPage() {
   }
 
   const handleDelete = async () => {
-    if (!confirm(t('deleteConfirm'))) return
     setDeleting(true)
     try {
       const { error: err } = await supabase.from('reports').delete().eq('id', reportId)
@@ -176,6 +177,7 @@ export default function ReportDetailPage() {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
       setDeleting(false)
+      setDeleteDialogOpen(false)
     }
   }
 
@@ -257,11 +259,10 @@ export default function ReportDetailPage() {
                 <Button
                   variant="destructive"
                   size="sm"
-                  onClick={handleDelete}
-                  disabled={deleting}
+                  onClick={() => setDeleteDialogOpen(true)}
                 >
                   <Trash2 className="w-4 h-4 mr-1" />
-                  {deleting ? tc('loading') : t('deleteDraft')}
+                  {t('deleteDraft')}
                 </Button>
                 <Button onClick={handlePublish} disabled={saving}>
                   <Send className="w-4 h-4 mr-1" />
@@ -313,6 +314,24 @@ export default function ReportDetailPage() {
             </div>
           </div>
         )}
+        {/* Delete confirmation modal */}
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{t('deleteDialogTitle')}</DialogTitle>
+              <DialogDescription>{t('deleteConfirm')}</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} disabled={deleting}>
+                {tc('cancel')}
+              </Button>
+              <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
+                <Trash2 className="w-4 h-4 mr-1" />
+                {deleting ? tc('deleting') : tc('delete')}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </ProtectedRoute>
   )

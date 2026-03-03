@@ -485,6 +485,7 @@
     "publishDraft": "公開する",
     "publishSuccess": "レポートを公開しました",
     "deleteDraft": "下書きを削除",
+    "deleteDialogTitle": "下書きの削除",
     "deleteConfirm": "この下書きを削除しますか？この操作は取り消せません。",
     "deleteSuccess": "下書きを削除しました"
   },
