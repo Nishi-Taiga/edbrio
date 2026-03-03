@@ -511,39 +511,39 @@ export default function HomePage() {
             <div className="flex items-center gap-2.5 mb-4 sm:mb-6">
               <Image src="/logo.svg" alt="EdBrio" width={140} height={36} className="h-8 sm:h-9 w-auto dark:brightness-0 dark:invert" />
             </div>
-            <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
+            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed font-medium">
               {t('footer.description')}
             </p>
-            <a href="https://x.com/EdBrio_info" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 mt-4 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition">
+            <a href="https://x.com/EdBrio_info" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 mt-4 text-sm font-semibold text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 transition">
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
               @EdBrio_info
             </a>
           </div>
           <div className="grid grid-cols-3 gap-6 sm:gap-16 w-full md:w-auto">
             <div>
-              <h4 className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 sm:mb-6">{t('footer.productHeading')}</h4>
-              <ul className="space-y-2 sm:space-y-4 text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300">
+              <h4 className="text-[10px] sm:text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-3 sm:mb-6">{t('footer.productHeading')}</h4>
+              <ul className="space-y-2 sm:space-y-4 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
                 <li><a href="#features" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('footer.features')}</a></li>
                 <li><Link href="/pricing" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('footer.pricing')}</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 sm:mb-6">{t('footer.legalHeading')}</h4>
-              <ul className="space-y-2 sm:space-y-4 text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300">
+              <h4 className="text-[10px] sm:text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-3 sm:mb-6">{t('footer.legalHeading')}</h4>
+              <ul className="space-y-2 sm:space-y-4 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
                 <li><Link href="/legal?tab=sctl" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('footer.sctl')}</Link></li>
                 <li><Link href="/legal?tab=privacy" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('footer.privacy')}</Link></li>
                 <li><Link href="/contact" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('footer.contact')}</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 sm:mb-6">{t('footer.snsHeading')}</h4>
-              <ul className="space-y-2 sm:space-y-4 text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300">
+              <h4 className="text-[10px] sm:text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-3 sm:mb-6">{t('footer.snsHeading')}</h4>
+              <ul className="space-y-2 sm:space-y-4 text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
                 <li><a href="https://x.com/EdBrio_info" target="_blank" rel="noopener noreferrer" className="hover:text-brand-600 dark:hover:text-brand-400 transition">Twitter / X</a></li>
               </ul>
             </div>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto flex justify-between items-center text-[10px] text-slate-400 font-bold tracking-widest">
+        <div className="max-w-7xl mx-auto flex justify-between items-center text-[10px] text-slate-500 dark:text-slate-400 font-bold tracking-widest">
           <span>{t('footer.copyright')}</span>
         </div>
       </footer>
