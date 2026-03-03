@@ -25,7 +25,15 @@ export default function TeacherBookingsPage() {
   const { bookings: items, loading, error, updateBookingStatus } = useBookings(user?.id, 'teacher')
   const [isUpdating, setIsUpdating] = useState<string | null>(null)
   const [studentNames, setStudentNames] = useState<Record<string, string>>({})
+  const [filter, setFilter] = useState<string>('all')
   const supabase = useMemo(() => createClient(), [])
+
+  const statusFilters = [
+    { key: 'all', label: t('filterAll') },
+    { key: 'upcoming', label: t('filterUpcoming') },
+    { key: 'done', label: t('filterDone') },
+    { key: 'canceled', label: t('filterCanceled') },
+  ] as const
 
   // Resolve student UUIDs to names
   useEffect(() => {
@@ -57,11 +65,40 @@ export default function TeacherBookingsPage() {
     }
   }
 
+  const now = new Date()
+  const filtered = items.filter(b => {
+    if (filter === 'all') return true
+    if (filter === 'upcoming') return (b.status === 'confirmed' || b.status === 'pending') && new Date(b.start_time) >= now
+    if (filter === 'done') return b.status === 'done' || (b.status === 'confirmed' && new Date(b.end_time) < now)
+    if (filter === 'canceled') return b.status === 'canceled'
+    return true
+  })
+
   return (
     <ProtectedRoute allowedRoles={["teacher"]}>
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-4">{t('title')}</h1>
         {error && <ErrorAlert message={error} />}
+
+        {/* Status filter tabs */}
+        {!loading && items.length > 0 && (
+          <div className="flex gap-1 mb-4 p-1 bg-slate-100 dark:bg-slate-800/50 rounded-lg w-fit">
+            {statusFilters.map((f) => (
+              <button
+                key={f.key}
+                onClick={() => setFilter(f.key)}
+                className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                  filter === f.key
+                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-medium'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        )}
+
         {loading ? (
           <SkeletonList count={3} />
         ) : items.length === 0 ? (
@@ -70,9 +107,11 @@ export default function TeacherBookingsPage() {
             title={t('emptyTitle')}
             description={t('emptyDescription')}
           />
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-8 text-slate-500 dark:text-slate-400 text-sm">{t('noFilterResults')}</div>
         ) : (
           <div className="space-y-3">
-            {items.map((b) => (
+            {filtered.map((b) => (
               <Card key={b.id}>
                 <CardHeader><CardTitle className="text-sm">{t('studentLabel', { name: studentNames[b.student_id] || b.student_id })}</CardTitle></CardHeader>
                 <CardContent>

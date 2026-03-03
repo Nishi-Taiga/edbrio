@@ -19,8 +19,6 @@ import { GoalList } from '@/components/curriculum/goal-list'
 import { GoalForm } from '@/components/curriculum/goal-form'
 import { UnitList } from '@/components/curriculum/unit-list'
 import { UnitForm } from '@/components/curriculum/unit-form'
-import { SkillList } from '@/components/curriculum/skill-list'
-import { SkillForm } from '@/components/curriculum/skill-form'
 import { useHandoverNotes } from '@/hooks/use-handover-notes'
 import { HandoverNoteList } from '@/components/curriculum/handover-note-list'
 import { HandoverNoteForm } from '@/components/curriculum/handover-note-form'
@@ -32,7 +30,7 @@ export default function StudentCurriculumPage() {
   const tPage = useTranslations('curriculum.page')
   const { user, loading: authLoading } = useAuth()
   const { updateProfile } = useStudentProfiles(user?.id)
-  const { goals, units, skills, loading: curriculumLoading, error: curriculumError, addGoal, updateGoal, deleteGoal, addUnit, updateUnit, deleteUnit, addSkill, updateSkill, deleteSkill } = useStudentCurriculum(profileId)
+  const { goals, units, loading: curriculumLoading, error: curriculumError, addGoal, updateGoal, deleteGoal, addUnit, updateUnit, deleteUnit } = useStudentCurriculum(profileId)
   const { notes: handoverNotes, loading: handoverLoading, error: handoverError, addNote, deleteNote: deleteHandoverNote } = useHandoverNotes(profileId)
   const supabase = useMemo(() => createClient(), [])
 
@@ -43,7 +41,6 @@ export default function StudentCurriculumPage() {
   // Dialogs
   const [showGoalForm, setShowGoalForm] = useState(false)
   const [showUnitForm, setShowUnitForm] = useState(false)
-  const [showSkillForm, setShowSkillForm] = useState(false)
   const [showHandoverForm, setShowHandoverForm] = useState(false)
 
   useEffect(() => {
@@ -112,7 +109,6 @@ export default function StudentCurriculumPage() {
             <TabsTrigger value="profile">{tPage('tabProfile')}</TabsTrigger>
             <TabsTrigger value="units">{tPage('tabCurriculum')}</TabsTrigger>
             <TabsTrigger value="goals">{tPage('tabGoals')}</TabsTrigger>
-            <TabsTrigger value="skills">{tPage('tabSkills')}</TabsTrigger>
             <TabsTrigger value="handover">{tPage('tabHandover')}</TabsTrigger>
           </TabsList>
 
@@ -136,14 +132,6 @@ export default function StudentCurriculumPage() {
             )}
           </TabsContent>
 
-          <TabsContent value="skills">
-            {curriculumLoading ? (
-              <div className="text-gray-500">{tPage('loading')}</div>
-            ) : (
-              <SkillList skills={skills} onAdd={() => setShowSkillForm(true)} onUpdate={updateSkill} onDelete={deleteSkill} />
-            )}
-          </TabsContent>
-
           <TabsContent value="handover">
             {handoverLoading ? (
               <div className="text-gray-500">{tPage('loading')}</div>
@@ -156,7 +144,6 @@ export default function StudentCurriculumPage() {
         {/* Dialogs */}
         <GoalForm open={showGoalForm} onClose={() => setShowGoalForm(false)} onSubmit={addGoal} />
         <UnitForm open={showUnitForm} onClose={() => setShowUnitForm(false)} onSubmit={addUnit} />
-        <SkillForm open={showSkillForm} onClose={() => setShowSkillForm(false)} onSubmit={addSkill} />
         <HandoverNoteForm open={showHandoverForm} onClose={() => setShowHandoverForm(false)} onSubmit={addNote} />
         </>)}
       </div>

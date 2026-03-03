@@ -2,10 +2,8 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { Sparkles, BookOpen, Calendar, CreditCard, ArrowRight, ChevronDown, Check, Menu, X, Send } from 'lucide-react'
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceDot, Legend } from 'recharts'
 import { EdBrioLogo } from '@/components/ui/edbrio-logo'
 import { LanguageSwitcher } from '@/components/ui/language-switcher'
 
@@ -198,13 +196,19 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
             <div className="group">
               <div className="relative rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200 shadow-lg group-hover:shadow-xl transition-shadow">
-                <Image src="/screenshots/10_teacher_dashboard.png" alt={t('screenshots.teacherAlt')} width={1400} height={900} className="w-full h-auto" />
+                <picture>
+                  <source srcSet="/screenshots/10_teacher_dashboard-dark.png" media="(prefers-color-scheme: dark)" />
+                  <img src="/screenshots/10_teacher_dashboard.png" alt={t('screenshots.teacherAlt')} width={1400} height={900} className="w-full h-auto" loading="lazy" />
+                </picture>
               </div>
               <p className="text-center text-xs sm:text-sm font-semibold text-slate-600 mt-3">{t('screenshots.teacherCaption')}</p>
             </div>
             <div className="group">
               <div className="relative rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200 shadow-lg group-hover:shadow-xl transition-shadow">
-                <Image src="/screenshots/20_guardian_dashboard.png" alt={t('screenshots.guardianAlt')} width={1400} height={900} className="w-full h-auto" />
+                <picture>
+                  <source srcSet="/screenshots/20_guardian_dashboard-dark.png" media="(prefers-color-scheme: dark)" />
+                  <img src="/screenshots/20_guardian_dashboard.png" alt={t('screenshots.guardianAlt')} width={1400} height={900} className="w-full h-auto" loading="lazy" />
+                </picture>
               </div>
               <p className="text-center text-xs sm:text-sm font-semibold text-slate-600 mt-3">{t('screenshots.guardianCaption')}</p>
             </div>
@@ -234,7 +238,10 @@ export default function HomePage() {
                 {t('features.aiReportDescription')}
               </p>
               <div className="rounded-lg sm:rounded-xl overflow-hidden border border-brand-100 dark:border-brand-700/30 shadow-sm">
-                <Image src="/screenshots/14_teacher_reports.png" alt={t('features.aiReportTitle')} width={1400} height={900} className="w-full h-auto" />
+                <picture>
+                  <source srcSet="/screenshots/14_teacher_reports-dark.png" media="(prefers-color-scheme: dark)" />
+                  <img src="/screenshots/14_teacher_reports.png" alt={t('features.aiReportTitle')} width={1400} height={900} className="w-full h-auto" loading="lazy" />
+                </picture>
               </div>
             </div>
             {/* Student Karte */}
@@ -247,7 +254,10 @@ export default function HomePage() {
                 {t('features.studentKarteDescription')}
               </p>
               <div className="rounded-lg sm:rounded-xl overflow-hidden border border-slate-100 dark:border-brand-800/20 shadow-sm">
-                <Image src="/screenshots/12_teacher_curriculum_list.png" alt={t('features.studentKarteTitle')} width={1400} height={900} className="w-full h-auto" />
+                <picture>
+                  <source srcSet="/screenshots/12_teacher_curriculum_list-dark.png" media="(prefers-color-scheme: dark)" />
+                  <img src="/screenshots/12_teacher_curriculum_list.png" alt={t('features.studentKarteTitle')} width={1400} height={900} className="w-full h-auto" loading="lazy" />
+                </picture>
               </div>
             </div>
             {/* Scheduling */}
@@ -260,7 +270,10 @@ export default function HomePage() {
                 {t('features.schedulingDescription')}
               </p>
               <div className="rounded-lg sm:rounded-xl overflow-hidden border border-slate-100 dark:border-brand-800/20 shadow-sm">
-                <Image src="/screenshots/11_teacher_calendar.png" alt={t('features.schedulingTitle')} width={1400} height={900} className="w-full h-auto" />
+                <picture>
+                  <source srcSet="/screenshots/11_teacher_calendar-dark.png" media="(prefers-color-scheme: dark)" />
+                  <img src="/screenshots/11_teacher_calendar.png" alt={t('features.schedulingTitle')} width={1400} height={900} className="w-full h-auto" loading="lazy" />
+                </picture>
               </div>
             </div>
             {/* Payments */}
@@ -273,7 +286,10 @@ export default function HomePage() {
                 {t('features.paymentsDescription')}
               </p>
               <div className="rounded-lg sm:rounded-xl overflow-hidden border border-slate-100 dark:border-brand-800/20 shadow-sm">
-                <Image src="/screenshots/21_guardian_booking.png" alt={t('features.paymentsTitle')} width={1400} height={900} className="w-full h-auto" />
+                <picture>
+                  <source srcSet="/screenshots/21_guardian_booking-dark.png" media="(prefers-color-scheme: dark)" />
+                  <img src="/screenshots/21_guardian_booking.png" alt={t('features.paymentsTitle')} width={1400} height={900} className="w-full h-auto" loading="lazy" />
+                </picture>
               </div>
             </div>
           </div>
@@ -410,166 +426,6 @@ export default function HomePage() {
                     <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">{t('feeExplanation.standardPlanBreakdown')}</div>
                   </div>
                 </div>
-              </div>
-
-              {/* Breakeven chart + table */}
-              <div className="border-t border-slate-100 dark:border-brand-800/20 pt-6">
-                <h4 className="text-base font-bold text-slate-900 dark:text-white mb-3">{t('feeExplanation.breakevenTitle')}</h4>
-                <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                  {t('feeExplanation.breakevenDescription')}
-                </p>
-
-                {/* Area Chart */}
-                {(() => {
-                  const FREE_RATE = 0.106
-                  const STD_RATE = 0.05
-                  const STD_MONTHLY = 1480
-                  const BREAKEVEN = Math.round(STD_MONTHLY / (FREE_RATE - STD_RATE))
-                  const revenues = [0, 10000, 20000, BREAKEVEN, 40000, 60000, 80000, 100000]
-                  const chartData = revenues.map(r => ({
-                    revenue: r,
-                    free: Math.round(r * FREE_RATE),
-                    standard: Math.round(r * STD_RATE + STD_MONTHLY),
-                  }))
-                  const breakevenData = chartData.find(d => d.revenue === BREAKEVEN)!
-                  const formatYen = (v: number) => `¥${v.toLocaleString()}`
-
-                  return (
-                    <div className="mb-6">
-                      <div className="h-[280px] sm:h-[320px]">
-                        <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-                          <AreaChart data={chartData} margin={{ top: 16, right: 12, left: 0, bottom: 0 }}>
-                            <defs>
-                              <linearGradient id="gradFree" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#94a3b8" stopOpacity={0.3} />
-                                <stop offset="95%" stopColor="#94a3b8" stopOpacity={0} />
-                              </linearGradient>
-                              <linearGradient id="gradStandard" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.3} />
-                                <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
-                              </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-slate-200 dark:text-slate-700" />
-                            <XAxis
-                              dataKey="revenue"
-                              tickFormatter={(v) => v === 0 ? '¥0' : `¥${(v / 10000).toFixed(v % 10000 === 0 ? 0 : 1)}万`}
-                              tick={{ fontSize: 11, fill: 'currentColor' }}
-                              className="text-slate-500 dark:text-slate-400"
-                              axisLine={{ stroke: 'currentColor' }}
-                              tickLine={{ stroke: 'currentColor' }}
-                            />
-                            <YAxis
-                              tickFormatter={formatYen}
-                              tick={{ fontSize: 11, fill: 'currentColor' }}
-                              className="text-slate-500 dark:text-slate-400"
-                              axisLine={{ stroke: 'currentColor' }}
-                              tickLine={{ stroke: 'currentColor' }}
-                              width={65}
-                            />
-                            <Tooltip
-                              formatter={(value: number, name: string) => [
-                                formatYen(value),
-                                name === 'free' ? t('feeExplanation.chartFreeLabel') : t('feeExplanation.chartStandardLabel'),
-                              ]}
-                              labelFormatter={(v: number) => `${t('feeExplanation.chartRevenue')}: ${formatYen(v)}`}
-                              contentStyle={{
-                                backgroundColor: 'var(--color-surface, #fff)',
-                                border: '1px solid var(--color-border, #e2e8f0)',
-                                borderRadius: '0.75rem',
-                                fontSize: '0.8rem',
-                              }}
-                            />
-                            <Legend
-                              formatter={(value: string) =>
-                                value === 'free' ? t('feeExplanation.chartFreeLabel') : t('feeExplanation.chartStandardLabel')
-                              }
-                              wrapperStyle={{ fontSize: '0.8rem' }}
-                            />
-                            <Area
-                              type="monotone"
-                              dataKey="free"
-                              stroke="#94a3b8"
-                              strokeWidth={2.5}
-                              fill="url(#gradFree)"
-                              dot={false}
-                              activeDot={{ r: 4 }}
-                            />
-                            <Area
-                              type="monotone"
-                              dataKey="standard"
-                              stroke="#7c3aed"
-                              strokeWidth={2.5}
-                              fill="url(#gradStandard)"
-                              dot={false}
-                              activeDot={{ r: 4 }}
-                            />
-                            <ReferenceDot
-                              x={BREAKEVEN}
-                              y={breakevenData.free}
-                              r={6}
-                              fill="#7c3aed"
-                              stroke="#fff"
-                              strokeWidth={2}
-                              label={{
-                                value: t('feeExplanation.chartBreakeven'),
-                                position: 'top',
-                                fontSize: 11,
-                                fontWeight: 700,
-                                fill: '#7c3aed',
-                                offset: 10,
-                              }}
-                            />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  )
-                })()}
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-slate-200 dark:border-brand-800/30">
-                        <th className="text-left py-2.5 pr-4 font-semibold text-slate-500 dark:text-slate-400">{t('feeExplanation.tableHeaderRevenue')}</th>
-                        <th className="text-center py-2.5 px-3 font-semibold text-slate-500 dark:text-slate-400">{t('feeExplanation.tableHeaderFreeFee')}</th>
-                        <th className="text-center py-2.5 px-3 font-semibold text-slate-500 dark:text-slate-400">{t('feeExplanation.tableHeaderStandardCost')}</th>
-                        <th className="text-center py-2.5 pl-3 font-semibold text-slate-500 dark:text-slate-400">{t('feeExplanation.tableHeaderDifference')}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="text-slate-600 dark:text-slate-300">
-                      <tr className="border-b border-dashed border-slate-100 dark:border-brand-800/20">
-                        <td className="py-2.5 pr-4">&yen;20,000</td>
-                        <td className="text-center py-2.5 px-3">&yen;2,120</td>
-                        <td className="text-center py-2.5 px-3">&yen;2,480</td>
-                        <td className="text-center py-2.5 pl-3 text-slate-400">{t('feeExplanation.freeIsBetter')}</td>
-                      </tr>
-                      <tr className="border-b border-dashed border-slate-100 dark:border-brand-800/20 bg-brand-50/50 dark:bg-brand-950/20">
-                        <td className="py-2.5 pr-4 font-semibold">&yen;26,500</td>
-                        <td className="text-center py-2.5 px-3">&yen;2,809</td>
-                        <td className="text-center py-2.5 px-3">&yen;2,805</td>
-                        <td className="text-center py-2.5 pl-3 font-semibold text-brand-600 dark:text-brand-400">{t('feeExplanation.sameAmount')}</td>
-                      </tr>
-                      <tr className="border-b border-dashed border-slate-100 dark:border-brand-800/20">
-                        <td className="py-2.5 pr-4">&yen;50,000</td>
-                        <td className="text-center py-2.5 px-3">&yen;5,300</td>
-                        <td className="text-center py-2.5 px-3">&yen;3,980</td>
-                        <td className="text-center py-2.5 pl-3 font-semibold text-emerald-600 dark:text-emerald-400">&yen;1,320 {t('feeExplanation.savings')}</td>
-                      </tr>
-                      <tr>
-                        <td className="py-2.5 pr-4">&yen;100,000</td>
-                        <td className="text-center py-2.5 px-3">&yen;10,600</td>
-                        <td className="text-center py-2.5 px-3">&yen;6,480</td>
-                        <td className="text-center py-2.5 pl-3 font-semibold text-emerald-600 dark:text-emerald-400">&yen;4,120 {t('feeExplanation.savings')}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <p className="text-xs text-slate-400 dark:text-slate-500 mt-3">
-                  {t('feeExplanation.feeNote')}
-                </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                  {t('feeExplanation.freePlanLimitation')}
-                </p>
               </div>
 
               {/* Industry Comparison */}

@@ -6,7 +6,8 @@ import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { FileText, Plus } from 'lucide-react'
+import { FileText, Plus, Search } from 'lucide-react'
+import { Input } from '@/components/ui/input'
 import { SkeletonList } from '@/components/ui/skeleton-card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorAlert } from '@/components/ui/error-alert'
@@ -39,6 +40,8 @@ export default function TeacherReportsPage() {
   const [error, setError] = useState<string | null>(null)
   const [items, setItems] = useState<ReportRow[]>([])
   const [profileNames, setProfileNames] = useState<ProfileMap>({})
+  const [search, setSearch] = useState('')
+  const [filter, setFilter] = useState<string>('all')
   const supabase = useMemo(() => createClient(), [])
 
   useEffect(() => {
@@ -114,6 +117,26 @@ export default function TeacherReportsPage() {
     load(); return () => { mounted = false }
   }, [supabase])
 
+  const statusFilters = [
+    { key: 'all', label: t('filterAll') },
+    { key: 'published', label: t('filterPublished') },
+    { key: 'draft', label: t('filterDraft') },
+  ] as const
+
+  const filtered = items.filter(r => {
+    // Status filter
+    if (filter === 'published' && r.visibility !== 'public') return false
+    if (filter === 'draft' && r.visibility === 'public') return false
+    // Text search
+    if (search) {
+      const q = search.toLowerCase()
+      const studentName = (r.profile_id && profileNames[r.profile_id]) || ''
+      const subject = r.subject || ''
+      if (!studentName.toLowerCase().includes(q) && !subject.toLowerCase().includes(q)) return false
+    }
+    return true
+  })
+
   return (
     <ProtectedRoute allowedRoles={["teacher"]}>
       <div className="container mx-auto px-4 py-8">
@@ -133,9 +156,40 @@ export default function TeacherReportsPage() {
             description={t('emptyDescription')}
             action={{ label: t('emptyAction'), href: "/teacher/reports/new" }}
           />
-        ) : (
+        ) : (<>
+          {/* Search & Filter */}
+          <div className="flex flex-col sm:flex-row gap-3 mb-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500" />
+              <Input
+                className="pl-10"
+                placeholder={t('searchPlaceholder')}
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
+            <div className="flex gap-1 p-1 bg-slate-100 dark:bg-slate-800/50 rounded-lg w-fit">
+              {statusFilters.map((f) => (
+                <button
+                  key={f.key}
+                  onClick={() => setFilter(f.key)}
+                  className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                    filter === f.key
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-medium'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {filtered.length === 0 ? (
+            <div className="text-center py-8 text-slate-500 dark:text-slate-400 text-sm">{t('noFilterResults')}</div>
+          ) : (
           <div className="space-y-3">
-            {items.map((r) => (
+            {filtered.map((r) => (
               <Link key={r.id} href={`/teacher/reports/${r.id}`}>
                 <Card className="hover:bg-gray-50 dark:hover:bg-brand-900/20 transition-colors cursor-pointer">
                   <CardHeader className="pb-2">
@@ -169,7 +223,8 @@ export default function TeacherReportsPage() {
               </Link>
             ))}
           </div>
-        )}
+          )}
+        </>)}
       </div>
     </ProtectedRoute>
   )
