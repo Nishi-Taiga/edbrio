@@ -69,9 +69,9 @@ export async function POST(req: NextRequest) {
 
 // Helper function to calculate platform fee
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function calculateApplicationFee(amount: number, teacherPlan: 'free' | 'pro' = 'free'): number {
-  const feePercent = teacherPlan === 'pro' ?
-    parseFloat(process.env.EDBRIO_PLATFORM_FEE_PERCENT_PRO!) :
+function calculateApplicationFee(amount: number, teacherPlan: 'free' | 'standard' = 'free'): number {
+  const feePercent = teacherPlan === 'standard' ?
+    parseFloat(process.env.EDBRIO_PLATFORM_FEE_PERCENT_STANDARD!) :
     parseFloat(process.env.EDBRIO_PLATFORM_FEE_PERCENT_FREE!)
 
   const minFee = parseInt(process.env.EDBRIO_MIN_FEE_JPY!) * 100 // Convert to cents

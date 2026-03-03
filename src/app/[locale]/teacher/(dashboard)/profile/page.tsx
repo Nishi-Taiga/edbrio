@@ -46,7 +46,7 @@ type TeacherRow = {
   id: string
   subjects: string[]
   grades: string[]
-  plan: 'free' | 'pro'
+  plan: 'free' | 'standard'
   public_profile: PublicProfile
   stripe_account_id?: string
   stripe_customer_id?: string
@@ -570,7 +570,7 @@ function TeacherProfileContent() {
                 <CardTitle>{t('planTitle')}</CardTitle>
               </CardHeader>
               <CardContent>
-                {teacher.plan === 'pro' ? (
+                {teacher.plan === 'standard' ? (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-4 rounded-lg bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800/30">
                       <div className="flex items-center gap-2">
@@ -725,7 +725,7 @@ function TeacherProfileContent() {
                   </table>
                 </div>
 
-                {teacher.plan !== 'pro' && (
+                {teacher.plan !== 'standard' && (
                   <div className="mt-6 flex justify-center">
                     <Button onClick={handleUpgrade} disabled={isSubscriptionLoading}>
                       {isSubscriptionLoading ? tc('processing') : t('upgradeButtonWithTrial')}

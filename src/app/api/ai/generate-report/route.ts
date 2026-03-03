@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
       .eq('id', session.user.id)
       .single()
 
-    if (!teacher || teacher.plan !== 'pro') {
+    if (!teacher || teacher.plan !== 'standard') {
       return NextResponse.json(
         { error: 'この機能はスタンダードプランでご利用いただけます。', code: 'PLAN_REQUIRED' },
         { status: 403 }

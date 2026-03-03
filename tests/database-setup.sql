@@ -3,7 +3,7 @@
 
 -- 1. Create user role enum
 CREATE TYPE user_role AS ENUM ('teacher', 'guardian', 'student');
-CREATE TYPE teacher_plan AS ENUM ('free', 'pro');
+CREATE TYPE teacher_plan AS ENUM ('free', 'standard');
 CREATE TYPE booking_status AS ENUM ('pending', 'confirmed', 'canceled', 'done');
 
 -- 2. Create users table

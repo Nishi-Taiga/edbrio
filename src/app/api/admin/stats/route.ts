@@ -47,11 +47,11 @@ export async function GET(req: NextRequest) {
       // teachersByPlan — fetch all teachers to group in JS
       supabase.from('teachers').select('plan'),
 
-      // proTeachers count for MRR
+      // Standard teachers count for MRR
       supabase
         .from('teachers')
         .select('*', { count: 'exact', head: true })
-        .eq('plan', 'pro'),
+        .eq('plan', 'standard'),
 
       // monthRevenue
       supabase
@@ -107,7 +107,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Compute teachersByPlan
-    const teachersByPlan: Record<string, number> = { free: 0, pro: 0 }
+    const teachersByPlan: Record<string, number> = { free: 0, standard: 0 }
     if (teachersRes.data) {
       for (const teacher of teachersRes.data) {
         const plan = teacher.plan as string

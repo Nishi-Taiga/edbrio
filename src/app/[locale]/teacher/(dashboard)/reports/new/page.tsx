@@ -159,7 +159,7 @@ function NewReportContent() {
       })
   }, [user?.id, supabase])
 
-  const isPro = teacherPlan === 'pro'
+  const isPro = teacherPlan === 'standard'
 
   // Update edited content when AI generates
   useEffect(() => {

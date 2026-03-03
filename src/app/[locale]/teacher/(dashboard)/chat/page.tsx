@@ -33,7 +33,7 @@ export default function TeacherChatPage() {
         <div className="flex items-center justify-center h-64 text-sm text-gray-500">
           読み込み中...
         </div>
-      ) : plan === 'pro' ? (
+      ) : plan === 'standard' ? (
         <ChatLayout role="teacher" />
       ) : (
         <PlanGateChat />

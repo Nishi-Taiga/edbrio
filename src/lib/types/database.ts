@@ -11,7 +11,7 @@ export interface StationSelection {
 }
 
 export type UserRole = 'teacher' | 'guardian' | 'student'
-export type TeacherPlan = 'free' | 'pro'
+export type TeacherPlan = 'free' | 'standard'
 export type BookingStatus = 'pending' | 'confirmed' | 'canceled' | 'done'
 export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded'
 export type GoalStatus = 'active' | 'achieved' | 'paused'

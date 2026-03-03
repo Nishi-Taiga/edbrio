@@ -52,17 +52,17 @@ export async function GET(req: NextRequest) {
           .select('amount_cents, teacher_id')
           .eq('status', 'completed'),
 
-        // Pro teacher count for MRR
+        // Standard teacher count for MRR
         supabase
           .from('teachers')
           .select('*', { count: 'exact', head: true })
-          .eq('plan', 'pro'),
+          .eq('plan', 'standard'),
 
-        // Pro subscriptions with user details
+        // Standard subscriptions with user details
         supabase
           .from('teachers')
           .select('user_id, stripe_subscription_id, created_at')
-          .eq('plan', 'pro'),
+          .eq('plan', 'standard'),
       ])
 
       const totalRevenue = (totalRevenueRes.data ?? []).reduce(
@@ -93,7 +93,7 @@ export async function GET(req: NextRequest) {
 
         for (const payment of feesDataRes.data) {
           const plan = teacherPlanMap.get(payment.teacher_id) || 'free'
-          const feeRate = plan === 'pro' ? 0.014 : 0.07
+          const feeRate = plan === 'standard' ? 0.014 : 0.07
           estimatedFees += (payment.amount_cents ?? 0) * feeRate
         }
       }

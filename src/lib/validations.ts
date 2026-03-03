@@ -103,7 +103,7 @@ export const resetPasswordSchema = z.object({
 
 export const adminUsersQuerySchema = z.object({
   role: z.enum(['all', 'teacher', 'guardian', 'student']).default('all'),
-  plan: z.enum(['all', 'free', 'pro']).default('all'),
+  plan: z.enum(['all', 'free', 'standard']).default('all'),
   search: z.string().max(100).default(''),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
@@ -114,7 +114,7 @@ export const adminUsersQuerySchema = z.object({
 
 export const adminUserUpdateSchema = z
   .object({
-    plan: z.enum(['free', 'pro']).optional(),
+    plan: z.enum(['free', 'standard']).optional(),
     is_suspended: z.boolean().optional(),
   })
   .refine(

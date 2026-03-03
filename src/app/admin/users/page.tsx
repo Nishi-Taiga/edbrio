@@ -177,7 +177,7 @@ export default function AdminUsersPage() {
                   <SelectContent>
                     <SelectItem value="all">すべて</SelectItem>
                     <SelectItem value="free">Free</SelectItem>
-                    <SelectItem value="pro">Standard</SelectItem>
+                    <SelectItem value="standard">Standard</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select value={sort} onValueChange={setSort}>
@@ -213,8 +213,8 @@ export default function AdminUsersPage() {
                             <TableCell className="font-medium">{user.name}</TableCell>
                             <TableCell className="text-sm text-muted-foreground">{user.email}</TableCell>
                             <TableCell>
-                              <Badge variant={user.plan === 'pro' ? 'default' : 'secondary'}>
-                                {user.plan === 'pro' ? 'Standard' : 'Free'}
+                              <Badge variant={user.plan === 'standard' ? 'default' : 'secondary'}>
+                                {user.plan === 'standard' ? 'Standard' : 'Free'}
                               </Badge>
                             </TableCell>
                             <TableCell>

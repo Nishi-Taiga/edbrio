@@ -197,7 +197,7 @@ export default function AdminUserDetailPage() {
 
   async function handlePlanChange() {
     if (!user || !user.teacher) return
-    const newPlan = user.teacher.plan === 'free' ? 'pro' : 'free'
+    const newPlan = user.teacher.plan === 'free' ? 'standard' : 'free'
     setPlanLoading(true)
     try {
       const res = await fetch(`/api/admin/users/${userId}`, {
@@ -299,7 +299,7 @@ export default function AdminUserDetailPage() {
             </Badge>
             {user.role === 'teacher' && user.teacher && (
               <Badge variant="secondary">
-                {user.teacher.plan === 'pro' ? 'Standard' : 'Free'}
+                {user.teacher.plan === 'standard' ? 'Standard' : 'Free'}
               </Badge>
             )}
           </div>
@@ -446,7 +446,7 @@ function TeacherTabs({ user }: { user: UserDetail }) {
                 <dt className="text-muted-foreground">プラン</dt>
                 <dd>
                   <Badge variant="secondary">
-                    {teacher?.plan === 'pro' ? 'Standard' : 'Free'}
+                    {teacher?.plan === 'standard' ? 'Standard' : 'Free'}
                   </Badge>
                 </dd>
               </div>

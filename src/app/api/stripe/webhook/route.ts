@@ -84,7 +84,7 @@ async function handleSubscriptionCheckoutCompleted(session: Stripe.Checkout.Sess
   const { error } = await supabase
     .from('teachers')
     .update({
-      plan: 'pro',
+      plan: 'standard',
       stripe_customer_id: customerId,
       stripe_subscription_id: subscriptionId,
       updated_at: new Date().toISOString(),
@@ -115,7 +115,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   }
 
   const isActive = ['active', 'trialing'].includes(subscription.status)
-  const newPlan = isActive ? 'pro' : 'free'
+  const newPlan = isActive ? 'standard' : 'free'
 
   if (teacher.plan !== newPlan) {
     const { error } = await supabase
