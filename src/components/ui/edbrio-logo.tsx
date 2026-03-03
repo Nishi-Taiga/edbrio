@@ -7,7 +7,7 @@ interface EdBrioLogoProps {
  * EdBrio 最終ロゴデザイン
  *
  * 特徴:
- * - パープル (#7C3AED) からピンク (#DB2777) へのグラデーション背景
+ * - パープル (#6528F7) からライトパープル (#A076F9) へのグラデーション背景
  * - 開いた本と卒業帽子のモチーフ（白色）
  * - アイコンに柔らかいドロップシャドウ
  * - 円形デザインで信頼感と完全性を表現
@@ -24,8 +24,8 @@ export function EdBrioLogo({ size = 32, className = "" }: EdBrioLogoProps) {
     >
       <defs>
         <linearGradient id="purplePinkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#7C3AED" />
-          <stop offset="100%" stopColor="#DB2777" />
+          <stop offset="0%" stopColor="#6528F7" />
+          <stop offset="100%" stopColor="#A076F9" />
         </linearGradient>
         <filter id="iconShadow" x="-50%" y="-50%" width="200%" height="200%">
           <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#000000" floodOpacity="0.25" />

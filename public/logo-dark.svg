@@ -1,8 +1,8 @@
 <svg width="200" height="48" viewBox="0 0 200 48" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="logoGradDark" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#7C3AED" />
-      <stop offset="100%" stop-color="#DB2777" />
+      <stop offset="0%" stop-color="#6528F7" />
+      <stop offset="100%" stop-color="#A076F9" />
     </linearGradient>
   </defs>
 
@@ -23,5 +23,5 @@
   <rect x="23" y="23" width="2" height="12.2" fill="#FFFFFF" opacity="0.7" />
 
   <!-- "EdBrio" text (light for dark backgrounds) -->
-  <text x="54" y="33" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="28" font-weight="800" letter-spacing="-0.5" fill="#C4B5FD">EdBrio</text>
+  <text x="54" y="33" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="28" font-weight="800" letter-spacing="-0.5" fill="#D7BBF5">EdBrio</text>
 </svg>
