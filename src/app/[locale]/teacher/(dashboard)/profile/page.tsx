@@ -574,7 +574,7 @@ function TeacherProfileContent() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-4 rounded-lg bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800/30">
                       <div className="flex items-center gap-2">
-                        <Badge className="bg-brand-600 text-white">Pro</Badge>
+                        <Badge className="bg-brand-600 text-white">Standard</Badge>
                         <span className="text-sm font-medium text-brand-700 dark:text-brand-300">
                           {t('standardPlanLabel')}
                         </span>
