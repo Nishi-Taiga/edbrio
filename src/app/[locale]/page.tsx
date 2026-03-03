@@ -163,8 +163,11 @@ export default function HomePage() {
         [data-reveal][data-delay="4"]{transition-delay:.4s}
         .scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none}
         .scrollbar-hide::-webkit-scrollbar{display:none}
-        @keyframes hero-float{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-12px) rotate(0deg)}}
-        .hero-screenshot{animation:hero-float 6s ease-in-out infinite}
+        @keyframes hero-rise{0%{opacity:0;transform:translateY(40px) scale(.96)}100%{opacity:1;transform:translateY(0) scale(1)}}
+        .hero-screenshot{opacity:0}
+        .revealed .hero-screenshot{animation:hero-rise .8s cubic-bezier(.22,1,.36,1) .3s forwards}
+        .carousel-card{flex:0 0 calc(100vw - 2.5rem)}
+        @media(min-width:640px){.carousel-card{flex:0 0 calc(50% - 12px)}}
       `}} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
@@ -321,7 +324,7 @@ export default function HomePage() {
                 return (
                   <div
                     key={card.title}
-                    className="min-w-[calc(100%-8px)] sm:min-w-[calc(50%-12px)] flex-shrink-0 snap-start bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 sm:p-6 border border-slate-100 dark:border-slate-700 flex flex-col relative"
+                    className="carousel-card snap-start bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 sm:p-6 border border-slate-100 dark:border-slate-700 flex flex-col relative"
                   >
                     {card.badge && (
                       <span className="absolute top-4 right-4 bg-brand-50 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold">
@@ -333,10 +336,10 @@ export default function HomePage() {
                     </div>
                     <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{card.title}</h3>
                     <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-4 flex-1">{card.description}</p>
-                    <div className="rounded-lg overflow-hidden border border-slate-100 dark:border-slate-700">
+                    <div className="rounded-lg overflow-hidden border border-slate-100 dark:border-slate-700 max-h-[180px]">
                       <picture>
                         <source srcSet={card.screenshotDark} media="(prefers-color-scheme: dark)" />
-                        <img src={card.screenshot} alt={card.title} width={700} height={450} className="w-full h-auto" loading="lazy" />
+                        <img src={card.screenshot} alt={card.title} width={700} height={450} className="w-full h-auto object-cover object-top" loading="lazy" />
                       </picture>
                     </div>
                   </div>
