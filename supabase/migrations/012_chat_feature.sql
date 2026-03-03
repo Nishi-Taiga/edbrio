@@ -103,7 +103,7 @@ INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_typ
 VALUES (
   'chat-images',
   'chat-images',
-  false,
+  true,
   5242880,  -- 5MB
   ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 );
