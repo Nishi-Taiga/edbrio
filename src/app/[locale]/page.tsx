@@ -19,6 +19,7 @@ export default function HomePage() {
 
   // Carousel
   const carouselRef = useRef<HTMLDivElement>(null)
+  const autoScrollPaused = useRef(false)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(true)
 
@@ -31,6 +32,7 @@ export default function HomePage() {
 
   const scrollCarousel = useCallback((direction: 'left' | 'right') => {
     if (!carouselRef.current) return
+    autoScrollPaused.current = true
     const card = carouselRef.current.children[0] as HTMLElement
     if (!card) return
     const scrollAmount = card.offsetWidth + 24
@@ -38,6 +40,7 @@ export default function HomePage() {
       left: direction === 'right' ? scrollAmount : -scrollAmount,
       behavior: 'smooth',
     })
+    setTimeout(() => { autoScrollPaused.current = false }, 5000)
   }, [])
 
   // Scroll reveal animations
@@ -69,6 +72,35 @@ export default function HomePage() {
       window.removeEventListener('resize', updateScrollState)
     }
   }, [updateScrollState])
+
+  // Auto-scroll carousel
+  useEffect(() => {
+    const container = carouselRef.current
+    if (!container) return
+    const interval = setInterval(() => {
+      if (autoScrollPaused.current) return
+      const { scrollLeft, scrollWidth, clientWidth } = container
+      if (scrollLeft + clientWidth >= scrollWidth - 2) {
+        container.scrollTo({ left: 0, behavior: 'smooth' })
+      } else {
+        const card = container.children[0] as HTMLElement
+        if (card) container.scrollBy({ left: card.offsetWidth + 24, behavior: 'smooth' })
+      }
+    }, 4000)
+    const pause = () => { autoScrollPaused.current = true }
+    const resume = () => { setTimeout(() => { autoScrollPaused.current = false }, 3000) }
+    container.addEventListener('pointerenter', pause)
+    container.addEventListener('pointerleave', resume)
+    container.addEventListener('touchstart', pause, { passive: true })
+    container.addEventListener('touchend', resume)
+    return () => {
+      clearInterval(interval)
+      container.removeEventListener('pointerenter', pause)
+      container.removeEventListener('pointerleave', resume)
+      container.removeEventListener('touchstart', pause)
+      container.removeEventListener('touchend', resume)
+    }
+  }, [])
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
