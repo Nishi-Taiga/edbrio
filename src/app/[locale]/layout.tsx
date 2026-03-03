@@ -35,6 +35,7 @@ export async function generateMetadata({
       title: t('defaultTitle'),
       description: t('ogDescription'),
       url: 'https://edbrio.com',
+      images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'EdBrio' }],
     },
     twitter: {
       card: 'summary_large_image',
@@ -42,7 +43,13 @@ export async function generateMetadata({
       description: t('twitterDescription'),
     },
     robots: { index: true, follow: true },
-    icons: { icon: '/icon.svg' },
+    icons: {
+      icon: [
+        { url: '/favicon.ico', sizes: '48x48' },
+        { url: '/icon.svg', type: 'image/svg+xml' },
+      ],
+      apple: '/apple-icon.png',
+    },
   };
 }
 
