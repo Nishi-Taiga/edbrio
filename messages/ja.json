@@ -658,7 +658,7 @@
     "stripeModalStep5Desc": "すべての入力が完了すると、自動的にEdBrioに戻ります。連携完了後、チケット販売を開始できます。",
     "stripeModalNote": "Stripeアカウントの作成は無料です。手数料はチケットが購入された時のみ発生します。",
     "stripeModalConnecting": "Stripeに接続中...",
-    "freePlanFeeLabel": "手数料 7% / Standardなら 1.4%",
+    "freePlanFeeLabel": "決済手数料 10.6% / Standardなら 5%",
     "upgradeButton": "Standardにアップグレード",
     "upgradeError": "アップグレードに失敗しました。",
     "portalError": "ポータルの作成に失敗しました。",
@@ -683,7 +683,7 @@
     "featureCalendar": "予定・カレンダー管理",
     "featureKarte": "生徒カリキュラム",
     "featureStripe": "Stripe決済連携",
-    "featureFee": "決済手数料",
+    "featureFee": "決済手数料（Stripe手数料込み）",
     "featureChat": "保護者メッセージ",
     "featurePrioritySupport": "優先サポート",
     "upgradeButtonWithTrial": "Standardプランにアップグレード（30日間無料）"

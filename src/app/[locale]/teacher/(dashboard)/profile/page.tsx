@@ -756,8 +756,8 @@ function TeacherProfileContent() {
                       </tr>
                       <tr className="border-b border-dashed">
                         <td className="py-3 pr-4">{t('featureFee')}</td>
-                        <td className="text-center py-3 px-4">7%</td>
-                        <td className="text-center py-3 pl-4 font-semibold text-brand-700 dark:text-brand-300">1.4%</td>
+                        <td className="text-center py-3 px-4">10.6%</td>
+                        <td className="text-center py-3 pl-4 font-semibold text-brand-700 dark:text-brand-300">5%</td>
                       </tr>
                       <tr className="border-b border-dashed">
                         <td className="py-3 pr-4">{t('featureChat')}</td>
