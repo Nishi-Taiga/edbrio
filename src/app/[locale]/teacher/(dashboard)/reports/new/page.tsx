@@ -17,7 +17,6 @@ import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { ReportForm } from '@/components/reports/report-form'
 import { AiGenerateButton } from '@/components/reports/ai-generate-button'
-import { ReportPreview } from '@/components/reports/report-preview'
 import { ErrorAlert } from '@/components/ui/error-alert'
 import { LoadingButton } from '@/components/ui/loading-button'
 import { useTranslations } from 'next-intl'
@@ -49,6 +48,7 @@ export default function NewReportPage() {
 
 function NewReportContent() {
   const t = useTranslations('teacherReportNew')
+  const tf = useTranslations('reportForm')
   const tc = useTranslations('common')
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -78,7 +78,6 @@ function NewReportContent() {
     maxLength: 100,
   })
 
-  const [editedPublic, setEditedPublic] = useState('')
   const [memoSubmitted, setMemoSubmitted] = useState<'ai' | 'skip' | null>(null)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -175,13 +174,7 @@ function NewReportContent() {
   const handleBookingChange = (bookingId: string) => {
     setSelectedBookingId(bookingId)
     setMemoSubmitted(null)
-    setEditedPublic('')
   }
-
-  // Update edited content when AI generates
-  useEffect(() => {
-    if (generatedContent) setEditedPublic(generatedContent)
-  }, [generatedContent])
 
   const handleGenerate = async () => {
     if (!formData.contentRaw.trim() || !selectedBooking) return
@@ -205,7 +198,7 @@ function NewReportContent() {
       const reportData: Record<string, any> = {
         booking_id: selectedBooking.id,
         content_raw: formData.contentRaw,
-        content_public: editedPublic || null,
+        content_public: generatedContent || null,
         ai_summary: generatedContent || null,
         tokens_used: tokensUsed || null,
         profile_id: selectedBooking.profileId,
@@ -257,15 +250,26 @@ function NewReportContent() {
   // Step indicator labels differ based on chosen path
   const showAiSteps = memoSubmitted === 'ai' || (!memoSubmitted && isPro)
   const steps = showAiSteps
-    ? [t('steps.selectBooking'), t('steps.inputMemo'), t('steps.aiGenerate'), t('steps.preview'), t('steps.save')]
-    : [t('steps.selectBooking'), t('steps.inputMemo'), t('steps.preview'), t('steps.save')]
+    ? [t('steps.selectBooking'), t('steps.inputMemo'), t('steps.aiGenerate'), t('steps.preview')]
+    : [t('steps.selectBooking'), t('steps.inputMemo'), t('steps.preview')]
+
+  const showPreview = memoSubmitted === 'skip' || (memoSubmitted === 'ai' && !!generatedContent)
 
   const currentStep = (() => {
     if (!selectedBookingId) return 0
     if (!memoSubmitted) return 1
-    if (!editedPublic) return 2
+    if (!showPreview) return 2
     return showAiSteps ? 3 : 2
   })()
+
+  const moodDisplay: Record<string, string> = {
+    good: tf('moodGood'), neutral: tf('moodNeutral'),
+    tired: tf('moodTired'), unmotivated: tf('moodUnmotivated'),
+  }
+  const comprehensionDisplay: Record<number, string> = {
+    1: tf('comprehension1'), 2: tf('comprehension2'), 3: tf('comprehension3'),
+    4: tf('comprehension4'), 5: tf('comprehension5'),
+  }
 
   return (
     <ProtectedRoute allowedRoles={["teacher"]}>
@@ -371,36 +375,60 @@ function NewReportContent() {
             </Card>
           )}
 
-          {/* Step 3b: Manual input (skipped AI) */}
-          {memoSubmitted === 'skip' && (
-            <ReportPreview
-              content={editedPublic}
-              onChange={setEditedPublic}
-            />
-          )}
+          {/* Unified Preview */}
+          {showPreview && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">{t('steps.preview')}</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{tf('contentLabel').replace(' *', '')}</p>
+                  <p className="text-sm whitespace-pre-wrap bg-slate-50 dark:bg-slate-900/50 rounded-md p-3">{formData.contentRaw}</p>
+                </div>
 
-          {/* Preview after AI generation */}
-          {memoSubmitted === 'ai' && editedPublic && (
-            <ReportPreview
-              content={editedPublic}
-              onChange={setEditedPublic}
-              onRegenerate={isPro ? handleGenerate : undefined}
-              regenerating={aiLoading}
-              canRegenerate={canGenerate}
-              remainingGenerations={remainingGenerations}
-            />
-          )}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{tf('comprehensionLabel')}</p>
+                    <p className="text-sm">{comprehensionDisplay[formData.comprehensionLevel]}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{tf('moodLabel')}</p>
+                    <p className="text-sm">{moodDisplay[formData.studentMood]}</p>
+                  </div>
+                </div>
 
-          {/* Save buttons */}
-          {editedPublic && (
-            <div className="flex justify-end gap-3">
-              <LoadingButton variant="outline" onClick={() => handleSave(false)} loading={saving}>
-                <Save className="w-4 h-4 mr-1" />{t('saveDraft')}
-              </LoadingButton>
-              <LoadingButton onClick={() => handleSave(true)} loading={saving}>
-                <Send className="w-4 h-4 mr-1" />{t('publish')}
-              </LoadingButton>
-            </div>
+                {formData.homework && (
+                  <div>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{tf('homeworkLabel')}</p>
+                    <p className="text-sm">{formData.homework}</p>
+                  </div>
+                )}
+
+                {formData.nextPlan && (
+                  <div>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{tf('nextPlanLabel')}</p>
+                    <p className="text-sm">{formData.nextPlan}</p>
+                  </div>
+                )}
+
+                {generatedContent && (
+                  <div>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{t('aiReportLabel')}</p>
+                    <p className="text-sm whitespace-pre-wrap bg-purple-50 dark:bg-purple-900/20 rounded-md p-3">{generatedContent}</p>
+                  </div>
+                )}
+
+                <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+                  <LoadingButton variant="outline" onClick={() => handleSave(false)} loading={saving}>
+                    <Save className="w-4 h-4 mr-1" />{t('saveDraft')}
+                  </LoadingButton>
+                  <LoadingButton onClick={() => handleSave(true)} loading={saving}>
+                    <Send className="w-4 h-4 mr-1" />{t('publish')}
+                  </LoadingButton>
+                </div>
+              </CardContent>
+            </Card>
           )}
         </div>
       </div>
