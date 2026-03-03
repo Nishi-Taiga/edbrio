@@ -16,6 +16,10 @@ const localeLabels: Record<string, string> = {
   zh: '中文',
   ko: '한국어',
   ar: 'العربية',
+  pt: 'Português',
+  de: 'Deutsch',
+  hi: 'हिन्दी',
+  'zh-TW': '繁體中文',
 };
 
 export function LanguageSwitcher({ className }: { className?: string }) {
