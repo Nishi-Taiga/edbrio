@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Check, Edit2, X, Sun, Moon, Monitor, Mail, Loader2, Clock, CheckCircle2, QrCode } from 'lucide-react'
+import { Check, Edit2, X, Sun, Moon, Monitor, Mail, Loader2, Clock, CheckCircle2, QrCode, CreditCard, AlertCircle } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { getStripe } from '@/lib/stripe'
 import { toast } from 'sonner'
@@ -18,6 +18,7 @@ import { isInitialSetupComplete } from '@/lib/teacher-setup'
 import { AreaSelector } from '@/components/area/area-selector'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Label } from '@/components/ui/label'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import type { AreaSelection } from '@/lib/types/database'
 import type { Invite } from '@/lib/types/database'
 
@@ -76,6 +77,8 @@ function TeacherProfileContent() {
   const [editedProfile, setEditedProfile] = useState<PublicProfile>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubscriptionLoading, setIsSubscriptionLoading] = useState(false)
+  const [isStripeOnboarding, setIsStripeOnboarding] = useState(false)
+  const [showStripeHelpModal, setShowStripeHelpModal] = useState(false)
 
   // Invite parent state
   const [inviteEmail, setInviteEmail] = useState('')
@@ -102,13 +105,19 @@ function TeacherProfileContent() {
   const supabase = useMemo(() => createClient(), [])
   const searchParams = useSearchParams()
 
-  // Show toast for subscription redirect results
+  // Show toast for subscription / stripe redirect results
   useEffect(() => {
     const status = searchParams.get('subscription')
     if (status === 'success') {
       toast.success(t('upgradeSuccess'))
     } else if (status === 'canceled') {
       toast.info(t('upgradeCanceled'))
+    }
+    const stripeStatus = searchParams.get('stripe')
+    if (stripeStatus === 'success') {
+      toast.success(t('stripeConnectSuccess'))
+    } else if (stripeStatus === 'refresh') {
+      toast.info(t('stripeConnectRefresh'))
     }
   }, [searchParams, t])
 
@@ -264,6 +273,20 @@ function TeacherProfileContent() {
       setError(err instanceof Error ? err.message : t('upgradeError'))
     } finally {
       setIsSubscriptionLoading(false)
+    }
+  }
+
+  const handleStripeOnboard = async () => {
+    setIsStripeOnboarding(true)
+    try {
+      const res = await fetch('/api/stripe/onboard', { method: 'POST' })
+      const data = await res.json()
+      if (data.url) window.location.href = data.url
+    } catch (err) {
+      console.error('Stripe onboarding error:', err)
+      toast.error(t('stripeConnectRefresh'))
+    } finally {
+      setIsStripeOnboarding(false)
     }
   }
 
@@ -564,6 +587,48 @@ function TeacherProfileContent() {
               </CardContent>
             </Card>
 
+            {/* Stripe Connect */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CreditCard className="w-5 h-5" />
+                  {t('stripeConnectTitle')}
+                </CardTitle>
+                <CardDescription>{t('stripeConnectDescription')}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {teacher.stripe_account_id ? (
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                    <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0" />
+                    <span className="text-sm font-medium text-green-700 dark:text-green-300">
+                      {t('stripeStatusConnected')}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                      <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                      <span className="text-sm text-amber-700 dark:text-amber-300">
+                        {t('stripeStatusNotConnected')}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                      <Button onClick={handleStripeOnboard} disabled={isStripeOnboarding}>
+                        {isStripeOnboarding ? (
+                          <><Loader2 className="w-4 h-4 mr-1 animate-spin" /> {t('stripeModalConnecting')}</>
+                        ) : (
+                          <><CreditCard className="w-4 h-4 mr-1" /> {t('stripeConnectButton')}</>
+                        )}
+                      </Button>
+                      <Button variant="outline" onClick={() => setShowStripeHelpModal(true)}>
+                        {t('stripeHowToConnect')}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Plan / Subscription */}
             <Card>
               <CardHeader>
@@ -587,33 +652,6 @@ function TeacherProfileContent() {
                       >
                         {isSubscriptionLoading ? tc('loading') : t('manageSubscription')}
                       </Button>
-                    </div>
-
-                    {/* Stripe Integration - Standard plan only */}
-                    <div>
-                      <span className="font-medium text-gray-500 dark:text-slate-400 block text-xs uppercase mb-2">{t('stripePaymentTitle')}</span>
-                      {teacher.stripe_account_id ? (
-                        <span className="text-green-600 dark:text-green-400 text-sm font-medium">{t('stripeLinked')}</span>
-                      ) : (
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm text-gray-600 dark:text-slate-400">{t('stripeNotLinked')}</span>
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={async () => {
-                              try {
-                                const res = await fetch('/api/stripe/onboard', { method: 'POST' })
-                                const data = await res.json()
-                                if (data.url) window.location.href = data.url
-                              } catch (err) {
-                                console.error('Stripe onboarding error:', err)
-                              }
-                            }}
-                          >
-                            {t('stripeLinkButton')}
-                          </Button>
-                        </div>
-                      )}
                     </div>
                   </div>
                 ) : (
@@ -703,7 +741,7 @@ function TeacherProfileContent() {
                       </tr>
                       <tr className="border-b border-dashed">
                         <td className="py-3 pr-4">{t('featureKarte')}</td>
-                        <td className="text-center py-3 px-4"><Check className="w-4 h-4 mx-auto text-emerald-500" /></td>
+                        <td className="text-center py-3 px-4"><X className="w-4 h-4 mx-auto text-gray-300 dark:text-gray-600" /></td>
                         <td className="text-center py-3 pl-4"><Check className="w-4 h-4 mx-auto text-brand-600 dark:text-brand-400" /></td>
                       </tr>
                       <tr className="border-b border-dashed">
@@ -739,6 +777,71 @@ function TeacherProfileContent() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Stripe Connect Help Modal */}
+            <Dialog open={showStripeHelpModal} onOpenChange={setShowStripeHelpModal}>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>{t('stripeModalTitle')}</DialogTitle>
+                  <DialogDescription>{t('stripeModalDescription')}</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-2">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
+                      <span className="text-sm font-semibold text-brand-700 dark:text-brand-300">1</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">{t('stripeModalStep1Title')}</p>
+                      <p className="text-sm text-muted-foreground mt-0.5">{t('stripeModalStep1Desc')}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
+                      <span className="text-sm font-semibold text-brand-700 dark:text-brand-300">2</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">{t('stripeModalStep2Title')}</p>
+                      <p className="text-sm text-muted-foreground mt-0.5">{t('stripeModalStep2Desc')}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
+                      <span className="text-sm font-semibold text-brand-700 dark:text-brand-300">3</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">{t('stripeModalStep3Title')}</p>
+                      <p className="text-sm text-muted-foreground mt-0.5">{t('stripeModalStep3Desc')}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
+                      <span className="text-sm font-semibold text-brand-700 dark:text-brand-300">4</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">{t('stripeModalStep4Title')}</p>
+                      <p className="text-sm text-muted-foreground mt-0.5">{t('stripeModalStep4Desc')}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
+                      <span className="text-sm font-semibold text-brand-700 dark:text-brand-300">5</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">{t('stripeModalStep5Title')}</p>
+                      <p className="text-sm text-muted-foreground mt-0.5">{t('stripeModalStep5Desc')}</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                    <p className="text-xs text-blue-700 dark:text-blue-300">{t('stripeModalNote')}</p>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setShowStripeHelpModal(false)}>
+                    {tc('close')}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </>
         )}
       </div>
