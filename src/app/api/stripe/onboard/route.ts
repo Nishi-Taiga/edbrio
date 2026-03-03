@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export const dynamic = 'force-dynamic'
 
@@ -43,8 +44,9 @@ export async function POST(req: NextRequest) {
             })
             stripeAccountId = account.id
 
-            // Save to DB
-            const { error: uErr } = await supabase
+            // Save to DB (use admin client to bypass RLS)
+            const adminSupabase = createAdminClient()
+            const { error: uErr } = await adminSupabase
                 .from('teachers')
                 .update({ stripe_account_id: stripeAccountId })
                 .eq('id', session.user.id)
@@ -52,11 +54,14 @@ export async function POST(req: NextRequest) {
             if (uErr) throw uErr
         }
 
+        // Derive base URL from request if env var is not set
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || `${req.nextUrl.protocol}//${req.nextUrl.host}`
+
         // Create an account link
         const accountLink = await stripe.accountLinks.create({
             account: stripeAccountId,
-            refresh_url: `${process.env.NEXT_PUBLIC_APP_URL}/teacher/profile?stripe=refresh`,
-            return_url: `${process.env.NEXT_PUBLIC_APP_URL}/teacher/profile?stripe=success`,
+            refresh_url: `${baseUrl}/teacher/profile?stripe=refresh`,
+            return_url: `${baseUrl}/teacher/profile?stripe=success`,
             type: 'account_onboarding',
         })
 
