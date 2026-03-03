@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -79,6 +80,8 @@ function formatTimeRange(start: string | null, end: string | null): string {
 /* ---------- Component ---------- */
 
 export default function AdminBookingsPage() {
+  const t = useTranslations('adminBookings')
+  const tc = useTranslations('adminCommon')
   const [stats, setStats] = useState<StatsData | null>(null)
   const [listData, setListData] = useState<ListData | null>(null)
   const [statusFilter, setStatusFilter] = useState('all')
@@ -129,10 +132,10 @@ export default function AdminBookingsPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-        予約分析
+        {t('title')}
       </h1>
       <p className="text-gray-600 dark:text-slate-400 mb-8">
-        予約状況の分析
+        {t('description')}
       </p>
 
       {/* Error */}
@@ -154,7 +157,7 @@ export default function AdminBookingsPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  総予約数
+                  {t('totalBookings')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -167,7 +170,7 @@ export default function AdminBookingsPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  今月
+                  {t('thisMonth')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -180,7 +183,7 @@ export default function AdminBookingsPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  ステータス別
+                  {t('byStatus')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -197,7 +200,7 @@ export default function AdminBookingsPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  キャンセル率
+                  {t('cancelRate')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -213,15 +216,15 @@ export default function AdminBookingsPage() {
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  予約一覧
+                  {t('bookingList')}
                 </CardTitle>
                 <div className="flex flex-wrap gap-2">
                   <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1) }}>
                     <SelectTrigger className="w-36">
-                      <SelectValue placeholder="ステータス" />
+                      <SelectValue placeholder={tc('status')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">すべて</SelectItem>
+                      <SelectItem value="all">{tc('all')}</SelectItem>
                       <SelectItem value="confirmed">confirmed</SelectItem>
                       <SelectItem value="pending">pending</SelectItem>
                       <SelectItem value="canceled">canceled</SelectItem>
@@ -233,33 +236,33 @@ export default function AdminBookingsPage() {
                     value={fromDate}
                     onChange={(e) => { setFromDate(e.target.value); setPage(1) }}
                     className="w-40"
-                    placeholder="開始日"
+                    placeholder={tc('startDate')}
                   />
                   <Input
                     type="date"
                     value={toDate}
                     onChange={(e) => { setToDate(e.target.value); setPage(1) }}
                     className="w-40"
-                    placeholder="終了日"
+                    placeholder={tc('endDate')}
                   />
                 </div>
               </div>
             </CardHeader>
             <CardContent>
               {listData.bookings.length === 0 ? (
-                <EmptyState icon={CalendarDays} title="予約データはありません" />
+                <EmptyState icon={CalendarDays} title={t('noBookingData')} />
               ) : (
                 <>
                   <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>日時</TableHead>
-                          <TableHead>講師</TableHead>
-                          <TableHead>生徒</TableHead>
-                          <TableHead>ステータス</TableHead>
-                          <TableHead>時間</TableHead>
-                          <TableHead>作成日</TableHead>
+                          <TableHead>{tc('dateTime')}</TableHead>
+                          <TableHead>{tc('teacher')}</TableHead>
+                          <TableHead>{tc('student')}</TableHead>
+                          <TableHead>{tc('status')}</TableHead>
+                          <TableHead>{t('time')}</TableHead>
+                          <TableHead>{t('createdAt')}</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -293,8 +296,7 @@ export default function AdminBookingsPage() {
                   {totalPages > 1 && (
                     <div className="flex items-center justify-between mt-4">
                       <p className="text-sm text-gray-500 dark:text-slate-400">
-                        全{listData.total}件中 {(page - 1) * listData.limit + 1}-
-                        {Math.min(page * listData.limit, listData.total)}件
+                        {tc('paginationInfo', { total: listData.total, from: (page - 1) * listData.limit + 1, to: Math.min(page * listData.limit, listData.total) })}
                       </p>
                       <div className="flex gap-2">
                         <Button
@@ -303,7 +305,7 @@ export default function AdminBookingsPage() {
                           disabled={page <= 1}
                           onClick={() => setPage((p) => p - 1)}
                         >
-                          前へ
+                          {tc('prev')}
                         </Button>
                         <Button
                           variant="outline"
@@ -311,7 +313,7 @@ export default function AdminBookingsPage() {
                           disabled={page >= totalPages}
                           onClick={() => setPage((p) => p + 1)}
                         >
-                          次へ
+                          {tc('next')}
                         </Button>
                       </div>
                     </div>
@@ -325,21 +327,21 @@ export default function AdminBookingsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                講師別稼働率
+                {t('teacherUtilization')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {stats.utilization.length === 0 ? (
-                <EmptyState icon={CalendarDays} title="稼働データはありません" />
+                <EmptyState icon={CalendarDays} title={t('noUtilizationData')} />
               ) : (
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>講師名</TableHead>
-                        <TableHead>総スロット数</TableHead>
-                        <TableHead>予約済みスロット</TableHead>
-                        <TableHead>稼働率</TableHead>
+                        <TableHead>{t('teacherName')}</TableHead>
+                        <TableHead>{t('totalSlots')}</TableHead>
+                        <TableHead>{t('bookedSlots')}</TableHead>
+                        <TableHead>{t('utilizationRate')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>

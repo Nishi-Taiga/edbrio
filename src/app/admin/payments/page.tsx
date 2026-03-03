@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -89,6 +90,8 @@ function statusBadgeClass(status: string): string {
 /* ---------- Component ---------- */
 
 export default function AdminPaymentsPage() {
+  const t = useTranslations('adminPayments')
+  const tc = useTranslations('adminCommon')
   const [summary, setSummary] = useState<SummaryData | null>(null)
   const [listData, setListData] = useState<ListData | null>(null)
   const [allCompletedPayments, setAllCompletedPayments] = useState<Payment[]>([])
@@ -163,10 +166,10 @@ export default function AdminPaymentsPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-        決済管理
+        {t('title')}
       </h1>
       <p className="text-gray-600 dark:text-slate-400 mb-8">
-        プラットフォームの決済状況
+        {t('description')}
       </p>
 
       {/* Error */}
@@ -188,7 +191,7 @@ export default function AdminPaymentsPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  総売上
+                  {t('totalRevenue')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -201,7 +204,7 @@ export default function AdminPaymentsPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  今月売上
+                  {t('monthRevenue')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -214,7 +217,7 @@ export default function AdminPaymentsPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  推定手数料収入
+                  {t('estimatedFees')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -242,23 +245,23 @@ export default function AdminPaymentsPage() {
           <Card className="mb-8">
             <CardHeader>
               <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                サブスクリプション一覧
+                {t('subscriptionList')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {summary.subscriptions.length === 0 ? (
                 <EmptyState
                   icon={CreditCard}
-                  title="サブスクリプションはありません"
+                  title={t('noSubscriptions')}
                 />
               ) : (
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>講師名</TableHead>
+                        <TableHead>{t('teacherName')}</TableHead>
                         <TableHead>Subscription ID</TableHead>
-                        <TableHead>登録日</TableHead>
+                        <TableHead>{tc('registeredDate')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -285,15 +288,15 @@ export default function AdminPaymentsPage() {
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  決済一覧
+                  {t('paymentList')}
                 </CardTitle>
                 <div className="w-48">
                   <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1) }}>
                     <SelectTrigger>
-                      <SelectValue placeholder="ステータス" />
+                      <SelectValue placeholder={tc('status')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">すべて</SelectItem>
+                      <SelectItem value="all">{tc('all')}</SelectItem>
                       <SelectItem value="completed">completed</SelectItem>
                       <SelectItem value="pending">pending</SelectItem>
                       <SelectItem value="failed">failed</SelectItem>
@@ -307,7 +310,7 @@ export default function AdminPaymentsPage() {
               {listData.payments.length === 0 ? (
                 <EmptyState
                   icon={CreditCard}
-                  title="決済データはありません"
+                  title={t('noPaymentData')}
                 />
               ) : (
                 <>
@@ -315,11 +318,11 @@ export default function AdminPaymentsPage() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>日時</TableHead>
-                          <TableHead>講師</TableHead>
-                          <TableHead>支払者</TableHead>
-                          <TableHead>金額</TableHead>
-                          <TableHead>ステータス</TableHead>
+                          <TableHead>{tc('dateTime')}</TableHead>
+                          <TableHead>{tc('teacher')}</TableHead>
+                          <TableHead>{t('payer')}</TableHead>
+                          <TableHead>{tc('amount')}</TableHead>
+                          <TableHead>{tc('status')}</TableHead>
                           <TableHead>Stripe ID</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -359,8 +362,7 @@ export default function AdminPaymentsPage() {
                   {totalPages > 1 && (
                     <div className="flex items-center justify-between mt-4">
                       <p className="text-sm text-gray-500 dark:text-slate-400">
-                        全{listData.total}件中 {(page - 1) * listData.limit + 1}-
-                        {Math.min(page * listData.limit, listData.total)}件
+                        {tc('paginationInfo', { total: listData.total, from: (page - 1) * listData.limit + 1, to: Math.min(page * listData.limit, listData.total) })}
                       </p>
                       <div className="flex gap-2">
                         <Button
@@ -369,7 +371,7 @@ export default function AdminPaymentsPage() {
                           disabled={page <= 1}
                           onClick={() => setPage((p) => p - 1)}
                         >
-                          前へ
+                          {tc('prev')}
                         </Button>
                         <Button
                           variant="outline"
@@ -377,7 +379,7 @@ export default function AdminPaymentsPage() {
                           disabled={page >= totalPages}
                           onClick={() => setPage((p) => p + 1)}
                         >
-                          次へ
+                          {tc('next')}
                         </Button>
                       </div>
                     </div>
@@ -391,12 +393,12 @@ export default function AdminPaymentsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                月別売上推移 (過去12ヶ月)
+                {t('monthlyRevenueTrend')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {monthlyRevenue.length === 0 ? (
-                <EmptyState icon={CreditCard} title="売上データがありません" />
+                <EmptyState icon={CreditCard} title={t('noRevenueData')} />
               ) : (
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={monthlyRevenue}>
@@ -411,7 +413,7 @@ export default function AdminPaymentsPage() {
                     />
                     <Tooltip
                       labelFormatter={(label) => String(label)}
-                      formatter={(value) => [yenFormatter.format(Number(value)), '売上']}
+                      formatter={(value) => [yenFormatter.format(Number(value)), t('revenueLabel')]}
                     />
                     <Bar dataKey="revenue" fill="#6366f1" radius={[4, 4, 0, 0]} />
                   </BarChart>
