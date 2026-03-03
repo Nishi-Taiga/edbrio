@@ -37,11 +37,11 @@ export function LanguageSwitcher({ className }: { className?: string }) {
       <select
         value={locale}
         onChange={onSelectChange}
-        className="appearance-none bg-transparent border border-slate-200 dark:border-brand-800/30 rounded-lg pl-7 pr-6 py-1.5 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-brand-900/20 transition focus:outline-none focus:ring-2 focus:ring-brand-500"
+        className="appearance-none bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-600 rounded-lg pl-7 pr-6 py-1.5 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition focus:outline-none focus:ring-2 focus:ring-brand-500"
         aria-label="Language"
       >
         {routing.locales.map((loc) => (
-          <option key={loc} value={loc}>
+          <option key={loc} value={loc} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
             {localeLabels[loc]}
           </option>
         ))}

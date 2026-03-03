@@ -225,31 +225,31 @@ export default function ReportDetailPage() {
           <div className="space-y-4">
             <Card>
               <CardHeader><CardTitle className="text-base">{t('reportInfo')}</CardTitle></CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
                 <dl className="grid grid-cols-2 gap-3 text-sm">
                   {report.subject && <div><dt className="text-gray-500">{t('subject')}</dt><dd>{report.subject}</dd></div>}
                   {report.comprehension_level && <div><dt className="text-gray-500">{t('comprehension')}</dt><dd><ComprehensionBadge level={report.comprehension_level} /></dd></div>}
                   {report.student_mood && <div><dt className="text-gray-500">{t('mood')}</dt><dd><MoodIndicator mood={report.student_mood} /></dd></div>}
                   <div><dt className="text-gray-500">{t('visibility')}</dt><dd>{report.visibility === 'public' ? t('visibilityPublished') : t('visibilityDraft')}</dd></div>
                 </dl>
+                {report.content_raw && (
+                  <div className="pt-3 border-t border-slate-200 dark:border-slate-700">
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{t('teacherMemo')}</dt>
+                    <dd className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">{report.content_raw}</dd>
+                  </div>
+                )}
+                {report.teacher_memo && (
+                  <div className="pt-3 border-t border-slate-200 dark:border-slate-700">
+                    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">{t('teacherMemoPrivate')}</dt>
+                    <dd className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300">{report.teacher_memo}</dd>
+                  </div>
+                )}
               </CardContent>
             </Card>
             {report.content_public && (
               <Card>
                 <CardHeader><CardTitle className="text-base">{t('publicReport')}</CardTitle></CardHeader>
                 <CardContent><div className="whitespace-pre-wrap text-sm">{report.content_public}</div></CardContent>
-              </Card>
-            )}
-            {report.content_raw && (
-              <Card>
-                <CardHeader><CardTitle className="text-base">{t('teacherMemo')}</CardTitle></CardHeader>
-                <CardContent><div className="whitespace-pre-wrap text-sm text-gray-600">{report.content_raw}</div></CardContent>
-              </Card>
-            )}
-            {report.teacher_memo && (
-              <Card>
-                <CardHeader><CardTitle className="text-base">{t('teacherMemoPrivate')}</CardTitle></CardHeader>
-                <CardContent><div className="whitespace-pre-wrap text-sm text-gray-600">{report.teacher_memo}</div></CardContent>
               </Card>
             )}
 

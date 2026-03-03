@@ -31,7 +31,7 @@ export function MobileSidebar() {
     <div className={`lg:hidden fixed top-16 left-0 right-0 bottom-0 z-40 ${mobileOpen ? '' : 'pointer-events-none'}`}>
       {/* Backdrop */}
       <div
-        className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ease-in-out ${mobileOpen ? 'opacity-100' : 'opacity-0'}`}
+        className={`absolute inset-0 bg-black transition-opacity duration-300 ease-in-out ${mobileOpen ? 'opacity-100' : 'opacity-0'}`}
         onClick={closeMobile}
       />
       {/* Sidebar panel */}
