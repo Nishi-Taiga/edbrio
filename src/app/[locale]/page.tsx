@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
+import Image from 'next/image'
 import { Sparkles, BookOpen, Calendar, CreditCard, ArrowRight, ChevronDown, Check, Menu, X, Send } from 'lucide-react'
-import { EdBrioLogo } from '@/components/ui/edbrio-logo'
 import { LanguageSwitcher } from '@/components/ui/language-switcher'
 
 export default function HomePage() {
@@ -62,8 +62,7 @@ export default function HomePage() {
       <nav className="fixed top-0 w-full z-50 bg-white/80 dark:bg-brand-950/80 backdrop-blur-md border-b border-brand-100/50 dark:border-brand-800/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 shrink-0">
-            <EdBrioLogo size={32} className="shrink-0" />
-            <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-brand-700 dark:text-brand-300">EdBrio</span>
+            <Image src="/logo.svg" alt="EdBrio" width={140} height={36} className="h-8 sm:h-9 w-auto" priority />
             <span className="hidden sm:inline bg-amber-100 text-amber-700 border border-amber-300 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide">ALPHA</span>
           </div>
           <div className="hidden lg:flex items-center gap-6 text-sm font-semibold text-slate-500 dark:text-slate-400 shrink-0">
@@ -663,8 +662,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-8 sm:gap-12 mb-12 sm:mb-20">
           <div className="max-w-xs">
             <div className="flex items-center gap-2.5 mb-4 sm:mb-6">
-              <EdBrioLogo size={32} className="shrink-0" />
-              <span className="text-2xl font-extrabold tracking-tight text-brand-700 dark:text-brand-400">EdBrio</span>
+              <Image src="/logo.svg" alt="EdBrio" width={140} height={36} className="h-8 sm:h-9 w-auto" />
             </div>
             <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
               {t('footer.description')}
