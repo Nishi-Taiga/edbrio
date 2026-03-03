@@ -8,6 +8,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import { notFound } from 'next/navigation';
+import { LocaleHtmlAttributes } from '@/components/locale-html-attributes';
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -71,6 +72,7 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider messages={messages}>
+      <LocaleHtmlAttributes locale={locale} />
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         <Toaster position="top-right" richColors closeButton duration={3000} />
         <ThemeChooserDialog />

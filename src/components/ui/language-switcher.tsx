@@ -15,6 +15,7 @@ const localeLabels: Record<string, string> = {
   ru: 'Русский',
   zh: '中文',
   ko: '한국어',
+  ar: 'العربية',
 };
 
 export function LanguageSwitcher({ className }: { className?: string }) {
