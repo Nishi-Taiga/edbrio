@@ -137,7 +137,7 @@
       "schedulingDescription": "أضف الأحداث إلى تقويمك ويتم حساب الفواتير الشهرية تلقائياً. إدارة الدروس البديلة بدون أخطاء.",
       "paymentsTitle": "مدفوعات سلسة",
       "paymentsDescription": "مع تكامل Stripe، يتم أتمتة كل شيء من إرسال الفواتير إلى تأكيد الدفع. تحرر من متاعب التحقق من النقد والتحويلات البنكية.",
-      "chatTitle": "دردشة أولياء الأمور",
+      "chatTitle": "رسائل أولياء الأمور",
       "chatBadge": "Standard فقط",
       "chatDescription": "احتفظ بجميع اتصالات أولياء الأمور داخل التطبيق. دردشة لكل طالب لمشاركة تقدم التعلم والجدولة في الوقت الفعلي. يدعم مشاركة الصور."
     },
@@ -182,7 +182,7 @@
       "standardKarte": "منهج الطالب",
       "standardStripe": "تكامل مدفوعات Stripe (رسوم 1.4%)",
       "standardSupport": "دعم عملاء ذو أولوية",
-      "standardChat": "دردشة أولياء الأمور (نص وصور)",
+      "standardChat": "رسائل أولياء الأمور (نص وصور)",
       "standardCta": "جرّب مجاناً لمدة شهر"
     },
     "feeExplanation": {
@@ -301,7 +301,7 @@
       "tickets": "التذاكر",
       "students": "منهج الطالب",
       "reports": "التقارير",
-      "chat": "الدردشة",
+      "chat": "الرسائل",
       "bookings": "الحجوزات",
       "profile": "الإعدادات",
       "contact": "اتصل بنا"
@@ -312,8 +312,13 @@
       "tickets": "التذاكر",
       "bookings": "سجل الحجوزات",
       "reports": "التقارير",
-      "chat": "الدردشة",
+      "chat": "الرسائل",
       "contact": "اتصل بنا"
+    },
+    "userMenu": {
+      "settings": "الإعدادات",
+      "contact": "اتصل بنا",
+      "logout": "تسجيل الخروج"
     }
   },
   "teacherDashboard": {
@@ -487,7 +492,15 @@
     "addSlot": "إضافة فترة",
     "deleteSlotTitle": "حذف الفترة",
     "deleteSlotDescription": "هل تريد حذف {title}؟ سيتم أيضاً حذف الفترات المرتبطة (غير المحجوزة).",
-    "slotOf": " فترات"
+    "slotOf": " فترات",
+    "legendPending": "حجز (قيد الانتظار)",
+    "legendDone": "حجز (مكتمل)",
+    "bookingDetailTitle": "تفاصيل الحجز",
+    "bookingStudent": "الطالب: {name}",
+    "approveButton": "موافقة",
+    "rejectButton": "رفض",
+    "approveSuccess": "تمت الموافقة على الحجز",
+    "rejectSuccess": "تم رفض الحجز"
   },
   "slotForm": {
     "title": "إضافة فترة متاحة",
@@ -663,7 +676,7 @@
     "featureKarte": "منهج الطالب",
     "featureStripe": "تكامل مدفوعات Stripe",
     "featureFee": "رسوم معالجة الدفع",
-    "featureChat": "دردشة أولياء الأمور",
+    "featureChat": "رسائل أولياء الأمور",
     "featurePrioritySupport": "دعم ذو أولوية",
     "upgradeButtonWithTrial": "الترقية إلى خطة Standard (تجربة مجانية 30 يوماً)"
   },
@@ -1011,10 +1024,10 @@
     "wrongRole": "أنت مسجّل الدخول كمعلم. يرجى تسجيل الدخول بحساب ولي أمر."
   },
   "chat": {
-    "title": "الدردشة",
-    "newConversation": "دردشة جديدة",
-    "noConversations": "لا توجد دردشات بعد",
-    "selectConversation": "اختر دردشة",
+    "title": "الرسائل",
+    "newConversation": "رسالة جديدة",
+    "noConversations": "لا توجد رسائل بعد",
+    "selectConversation": "اختر محادثة",
     "noMessages": "لا توجد رسائل بعد. أرسل أول رسالة!",
     "loadingMessages": "جارٍ تحميل الرسائل...",
     "loading": "جارٍ التحميل...",
@@ -1022,10 +1035,10 @@
     "inputPlaceholder": "اكتب رسالة...",
     "read": "مقروءة",
     "guardian": "ولي الأمر",
-    "noProfilesAvailable": "لا يوجد طلاب متاحون لبدء دردشة. يرجى ربط ولي أمر بملف طالب أولاً.",
+    "noProfilesAvailable": "لا يوجد طلاب متاحون لبدء محادثة. يرجى ربط ولي أمر بملف طالب أولاً.",
     "planGate": {
-      "title": "ميزة الدردشة",
-      "description": "ميزة الدردشة متاحة في خطة Standard. تواصل مباشرة مع أولياء الأمور لتنسيق أكثر سلاسة.",
+      "title": "ميزة الرسائل",
+      "description": "ميزة الرسائل متاحة في خطة Standard. تواصل مباشرة مع أولياء الأمور لتنسيق أكثر سلاسة.",
       "upgrade": "ترقية الخطة"
     }
   },
