@@ -74,7 +74,7 @@ export function ShiftForm({ open, onClose, onSubmit, initialDate }: ShiftFormPro
     <Dialog open={open} onOpenChange={(o) => { if (!o) onClose() }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>シフトを追加</DialogTitle>
+          <DialogTitle>空き枠を追加</DialogTitle>
           <DialogDescription>日付・時間帯・繰り返し設定を入力してください</DialogDescription>
         </DialogHeader>
 
@@ -134,7 +134,7 @@ export function ShiftForm({ open, onClose, onSubmit, initialDate }: ShiftFormPro
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={submitting}>キャンセル</Button>
           <Button onClick={handleSubmit} disabled={submitting}>
-            {submitting ? '作成中...' : 'シフトを作成'}
+            {submitting ? '作成中...' : '空き枠を作成'}
           </Button>
         </DialogFooter>
       </DialogContent>

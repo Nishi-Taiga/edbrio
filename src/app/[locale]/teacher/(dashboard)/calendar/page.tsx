@@ -43,25 +43,22 @@ export default function TeacherCalendarPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; title: string } | null>(null)
   const [deleting, setDeleting] = useState(false)
 
+  // Build a lookup from availability source to shift ID for deletion
+  const availToShiftId = useMemo(() => {
+    const map: Record<string, string> = {}
+    for (const a of availability) {
+      if (a.source?.startsWith('shift:')) {
+        map[a.id] = a.source.replace('shift:', '')
+      }
+    }
+    return map
+  }, [availability])
+
   // Convert data to FullCalendar events
   const events: EventInput[] = useMemo(() => {
     const result: EventInput[] = []
 
-    // Shifts (purple)
-    for (const s of shifts) {
-      result.push({
-        id: `shift:${s.id}`,
-        title: t('eventShift'),
-        start: s.start_time,
-        end: s.end_time,
-        backgroundColor: '#7c3aed',
-        borderColor: '#6d28d9',
-        textColor: '#ffffff',
-        extendedProps: { type: 'shift', shiftId: s.id, rrule: s.rrule },
-      })
-    }
-
-    // Availability (green)
+    // Availability / 空き枠 (green)
     for (const a of availability) {
       if (a.is_bookable) {
         result.push({
@@ -72,7 +69,7 @@ export default function TeacherCalendarPage() {
           backgroundColor: '#10b981',
           borderColor: '#059669',
           textColor: '#ffffff',
-          extendedProps: { type: 'availability' },
+          extendedProps: { type: 'availability', availId: a.id },
         })
       }
     }
@@ -94,7 +91,7 @@ export default function TeacherCalendarPage() {
     }
 
     return result
-  }, [shifts, availability, bookings, t, tc])
+  }, [availability, bookings, t, tc])
 
   // Handle date click -> open shift form
   const handleDateClick = useCallback((info: DateClickArg) => {
@@ -102,16 +99,19 @@ export default function TeacherCalendarPage() {
     setShiftFormOpen(true)
   }, [])
 
-  // Handle event click -> show delete dialog for shifts
+  // Handle event click -> show delete dialog for availability (via parent shift)
   const handleEventClick = useCallback((info: EventClickArg) => {
     const props = info.event.extendedProps
-    if (props.type === 'shift') {
-      setDeleteConfirm({
-        id: props.shiftId,
-        title: `${info.event.start?.toLocaleDateString('ja-JP')} ${t('shiftOf')}`,
-      })
+    if (props.type === 'availability') {
+      const shiftId = availToShiftId[props.availId]
+      if (shiftId) {
+        setDeleteConfirm({
+          id: shiftId,
+          title: `${info.event.start?.toLocaleDateString('ja-JP')} ${t('slotOf')}`,
+        })
+      }
     }
-  }, [t])
+  }, [t, availToShiftId])
 
   // Handle FullCalendar date range changes
   const handleDatesSet = useCallback((arg: DatesSetArg) => {
@@ -143,7 +143,7 @@ export default function TeacherCalendarPage() {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t('title')}</h1>
           <Button onClick={() => { setShiftFormDate(undefined); setShiftFormOpen(true) }}>
-            <Plus className="w-4 h-4 mr-1" /> {t('addShift')}
+            <Plus className="w-4 h-4 mr-1" /> {t('addSlot')}
           </Button>
         </div>
 
@@ -155,10 +155,6 @@ export default function TeacherCalendarPage() {
 
         {/* Legend */}
         <div className="flex flex-wrap gap-4 mb-4 text-sm">
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-[#7c3aed]" />
-            <span className="text-slate-600 dark:text-slate-400">{t('legendShift')}</span>
-          </div>
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-[#10b981]" />
             <span className="text-slate-600 dark:text-slate-400">{t('legendAvailable')}</span>
@@ -213,9 +209,9 @@ export default function TeacherCalendarPage() {
         <Dialog open={!!deleteConfirm} onOpenChange={(o) => { if (!o) setDeleteConfirm(null) }}>
           <DialogContent className="sm:max-w-sm">
             <DialogHeader>
-              <DialogTitle>{t('deleteShiftTitle')}</DialogTitle>
+              <DialogTitle>{t('deleteSlotTitle')}</DialogTitle>
               <DialogDescription>
-                {t('deleteShiftDescription', { title: deleteConfirm?.title || '' })}
+                {t('deleteSlotDescription', { title: deleteConfirm?.title || '' })}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
