@@ -293,7 +293,7 @@ export default function HomePage() {
 
       {/* ── Features Carousel (5 cards) ── */}
       <section id="features" className="py-16 sm:py-24 px-4 sm:px-6 bg-white dark:bg-slate-950">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 sm:mb-16" data-reveal>
             <span className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-3 block">{t('sections.features')}</span>
             <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white mb-4">
@@ -321,7 +321,7 @@ export default function HomePage() {
                 return (
                   <div
                     key={card.title}
-                    className="min-w-[calc(100%-8px)] sm:min-w-[calc(50%-12px)] lg:min-w-[calc(33.333%-16px)] flex-shrink-0 snap-start bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 sm:p-6 border border-slate-100 dark:border-slate-700 flex flex-col relative"
+                    className="min-w-[calc(100%-8px)] sm:min-w-[calc(50%-12px)] flex-shrink-0 snap-start bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 sm:p-6 border border-slate-100 dark:border-slate-700 flex flex-col relative"
                   >
                     {card.badge && (
                       <span className="absolute top-4 right-4 bg-brand-50 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold">
