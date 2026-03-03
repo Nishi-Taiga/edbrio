@@ -123,33 +123,35 @@ export function MessageList({ messages, currentUserId, loading, hasMore, onLoadM
                     isMine ? 'justify-end' : 'justify-start'
                   )}
                 >
-                  <div
-                    className={classNames(
-                      'max-w-[75%] rounded-2xl px-3.5 py-2',
-                      isMine
-                        ? 'bg-brand-600 text-white rounded-br-md'
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-md'
-                    )}
-                  >
-                    {msg.image_url && (
-                      <button
-                        onClick={() => setExpandedImage(msg.image_url!)}
-                        className="block mb-1 rounded-lg overflow-hidden"
-                      >
-                        <img
-                          src={msg.image_url}
-                          alt=""
-                          className="max-w-full max-h-48 object-cover rounded-lg"
-                          loading="lazy"
-                        />
-                      </button>
-                    )}
-                    {msg.content && (
-                      <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
-                    )}
+                  <div className="max-w-[75%]">
+                    <div
+                      className={classNames(
+                        'rounded-2xl px-3.5 py-2',
+                        isMine
+                          ? 'bg-brand-600 text-white rounded-br-md'
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-md'
+                      )}
+                    >
+                      {msg.image_url && (
+                        <button
+                          onClick={() => setExpandedImage(msg.image_url!)}
+                          className="block mb-1 rounded-lg overflow-hidden"
+                        >
+                          <img
+                            src={msg.image_url}
+                            alt=""
+                            className="max-w-full max-h-48 object-cover rounded-lg"
+                            loading="lazy"
+                          />
+                        </button>
+                      )}
+                      {msg.content && (
+                        <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
+                      )}
+                    </div>
                     <div className={classNames(
-                      'text-[10px] mt-1',
-                      isMine ? 'text-brand-200' : 'text-gray-400 dark:text-gray-500'
+                      'text-[10px] mt-1 px-1',
+                      isMine ? 'text-gray-400 dark:text-gray-500 text-right' : 'text-gray-400 dark:text-gray-500'
                     )}>
                       {formatMessageTime(msg.created_at)}
                       {isMine && msg.is_read && (
