@@ -476,8 +476,10 @@
     "visibilityPublished": "公開済み",
     "visibilityDraft": "下書き",
     "publicReport": "保護者向け報告書",
-    "teacherMemo": "授業メモ（講師用）",
+    "teacherMemo": "授業メモ",
+    "teacherMemoPrivate": "講師用メモ（保護者には公開されません）",
     "editMemo": "授業メモを編集",
+    "regenerate": "AIで再生成",
     "saveDraft": "下書き保存",
     "publish": "公開",
     "publishDraft": "公開する",
@@ -836,7 +838,10 @@
     "nextPlanLabel": "次回の予定",
     "nextPlanPlaceholder": "例: 二次方程式の応用問題に挑戦",
     "maxLengthLabel": "最大文字数（AI生成文字数）",
-    "maxLengthPlaceholder": "100"
+    "maxLengthPlaceholder": "100",
+    "teacherMemoLabel": "講師用メモ（保護者には公開されません）",
+    "teacherMemoPlaceholder": "自分用のメモや気づきなどを自由に記入...",
+    "teacherMemoHint": "このメモは講師のみが閲覧できます"
   },
   "curriculum": {
     "card": {

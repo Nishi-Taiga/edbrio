@@ -76,6 +76,7 @@ function NewReportContent() {
     homework: '',
     nextPlan: '',
     maxLength: 100,
+    teacherMemo: '',
   })
 
   const [memoSubmitted, setMemoSubmitted] = useState<'ai' | 'skip' | null>(null)
@@ -208,6 +209,7 @@ function NewReportContent() {
         next_plan: formData.nextPlan || null,
         student_mood: formData.studentMood || null,
         comprehension_level: formData.comprehensionLevel || null,
+        teacher_memo: formData.teacherMemo || null,
         visibility: publish ? 'public' : 'private',
         published_at: publish ? new Date().toISOString() : null,
       }
@@ -411,6 +413,13 @@ function NewReportContent() {
                   <div>
                     <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{tf('nextPlanLabel')}</p>
                     <p className="text-sm">{formData.nextPlan}</p>
+                  </div>
+                )}
+
+                {formData.teacherMemo && (
+                  <div>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{tf('teacherMemoLabel')}</p>
+                    <p className="text-sm whitespace-pre-wrap bg-amber-50 dark:bg-amber-900/20 rounded-md p-3">{formData.teacherMemo}</p>
                   </div>
                 )}
 

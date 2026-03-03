@@ -168,6 +168,7 @@ export interface Report {
   student_mood?: StudentMood
   comprehension_level?: number
   tokens_used?: number
+  teacher_memo?: string
   created_at: string
   updated_at: string
 }

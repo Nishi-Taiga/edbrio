@@ -13,6 +13,7 @@ interface ReportFormData {
   homework: string
   nextPlan: string
   maxLength: number
+  teacherMemo: string
 }
 
 interface ReportFormProps {
@@ -75,6 +76,18 @@ export function ReportForm({ data, onChange }: ReportFormProps) {
       <div>
         <Label htmlFor="rf-next">{t('nextPlanLabel')}</Label>
         <Input id="rf-next" value={data.nextPlan} onChange={e => update('nextPlan', e.target.value)} placeholder={t('nextPlanPlaceholder')} />
+      </div>
+
+      <div>
+        <Label htmlFor="rf-teachermemo">{t('teacherMemoLabel')}</Label>
+        <textarea
+          id="rf-teachermemo"
+          className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[80px]"
+          value={data.teacherMemo}
+          onChange={e => update('teacherMemo', e.target.value)}
+          placeholder={t('teacherMemoPlaceholder')}
+        />
+        <p className="text-xs text-muted-foreground mt-1">{t('teacherMemoHint')}</p>
       </div>
 
       <div>

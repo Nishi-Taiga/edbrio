@@ -7,15 +7,13 @@ import { Link } from '@/i18n/navigation'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Save, Send, Trash2 } from 'lucide-react'
+import { ArrowLeft, RefreshCw, Save, Send, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuth } from '@/hooks/use-auth'
 import { useAiReport } from '@/hooks/use-ai-report'
 import { createClient } from '@/lib/supabase/client'
 import { Report } from '@/lib/types/database'
 import { ReportForm } from '@/components/reports/report-form'
-import { AiGenerateButton } from '@/components/reports/ai-generate-button'
-import { ReportPreview } from '@/components/reports/report-preview'
 import { ComprehensionBadge } from '@/components/reports/comprehension-badge'
 import { MoodIndicator } from '@/components/reports/mood-indicator'
 import { useTranslations } from 'next-intl'
@@ -45,6 +43,8 @@ export default function ReportDetailPage() {
     studentMood: 'neutral',
     homework: '',
     nextPlan: '',
+    maxLength: 100,
+    teacherMemo: '',
   })
   const [editedPublic, setEditedPublic] = useState('')
 
@@ -68,6 +68,8 @@ export default function ReportDetailPage() {
           studentMood: data.student_mood || 'neutral',
           homework: data.homework || '',
           nextPlan: data.next_plan || '',
+          maxLength: 100,
+          teacherMemo: data.teacher_memo || '',
         })
         setEditedPublic(data.content_public || '')
 
@@ -115,6 +117,7 @@ export default function ReportDetailPage() {
         next_plan: formData.nextPlan || null,
         student_mood: formData.studentMood || null,
         comprehension_level: formData.comprehensionLevel || null,
+        teacher_memo: formData.teacherMemo || null,
         updated_at: new Date().toISOString(),
       }
       if (generatedContent) {
@@ -241,6 +244,12 @@ export default function ReportDetailPage() {
                 <CardContent><div className="whitespace-pre-wrap text-sm text-gray-600">{report.content_raw}</div></CardContent>
               </Card>
             )}
+            {report.teacher_memo && (
+              <Card>
+                <CardHeader><CardTitle className="text-base">{t('teacherMemoPrivate')}</CardTitle></CardHeader>
+                <CardContent><div className="whitespace-pre-wrap text-sm text-gray-600">{report.teacher_memo}</div></CardContent>
+              </Card>
+            )}
 
             {/* Draft actions: publish and delete */}
             {report.visibility !== 'public' && (
@@ -273,15 +282,28 @@ export default function ReportDetailPage() {
               </CardContent>
             </Card>
 
-            <div className="flex justify-center">
-              <AiGenerateButton onClick={handleRegenerate} loading={aiLoading} disabled={!formData.contentRaw.trim()} />
-            </div>
-
             {editedPublic && (
-              <ReportPreview content={editedPublic} onChange={setEditedPublic} onRegenerate={handleRegenerate} regenerating={aiLoading} />
+              <Card>
+                <CardHeader><CardTitle className="text-base">{t('publicReport')}</CardTitle></CardHeader>
+                <CardContent>
+                  <textarea
+                    className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[200px]"
+                    value={editedPublic}
+                    onChange={e => setEditedPublic(e.target.value)}
+                  />
+                </CardContent>
+              </Card>
             )}
 
             <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={handleRegenerate}
+                disabled={aiLoading || !formData.contentRaw.trim()}
+              >
+                <RefreshCw className={`w-4 h-4 mr-1 ${aiLoading ? 'animate-spin' : ''}`} />
+                {aiLoading ? tc('processing') : t('regenerate')}
+              </Button>
               <Button variant="outline" onClick={() => handleSave(false)} disabled={saving}>
                 <Save className="w-4 h-4 mr-1" />{saving ? tc('saving') : t('saveDraft')}
               </Button>
