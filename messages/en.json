@@ -86,7 +86,7 @@
       "step2Description": "AI creates a detailed report based on student info and lesson history",
       "step3Number": "03",
       "step3Title": "Share with Parents",
-      "step3Description": "Publish to parents with one click. Follow up via chat too"
+      "step3Description": "Publish to parents with one click. Follow up via messages too"
     },
     "ctaBanner": {
       "title": "Focus on teaching, starting today.",
@@ -137,9 +137,9 @@
       "schedulingDescription": "Just add events to your calendar and monthly billing is calculated automatically. Manage makeup lessons without any mistakes.",
       "paymentsTitle": "Seamless Payments",
       "paymentsDescription": "With Stripe integration, automate everything from invoice delivery to payment confirmation. Free yourself from the hassle of cash and bank transfer verification.",
-      "chatTitle": "Parent Chat",
+      "chatTitle": "Parent Messages",
       "chatBadge": "Standard Only",
-      "chatDescription": "Keep all parent communication within the app. Chat per student for real-time sharing of learning progress and scheduling. Image sharing supported."
+      "chatDescription": "Keep all parent communication within the app. Message per student for real-time sharing of learning progress and scheduling. Image sharing supported."
     },
     "screenshots": {
       "title": "Teaching and management, all in one place.",
@@ -182,7 +182,7 @@
       "standardKarte": "Student Curriculum",
       "standardStripe": "Stripe payment integration (1.4% fee)",
       "standardSupport": "Priority customer support",
-      "standardChat": "Parent chat (text & images)",
+      "standardChat": "Parent messages (text & images)",
       "standardCta": "Try free for 1 month"
     },
     "feeExplanation": {
@@ -301,7 +301,7 @@
       "tickets": "Tickets",
       "students": "Student Curriculum",
       "reports": "Reports",
-      "chat": "Chat",
+      "chat": "Messages",
       "bookings": "Bookings",
       "profile": "Settings",
       "contact": "Contact"
@@ -312,7 +312,7 @@
       "tickets": "Tickets",
       "bookings": "Booking History",
       "reports": "Reports",
-      "chat": "Chat",
+      "chat": "Messages",
       "contact": "Contact"
     },
     "userMenu": {
@@ -655,7 +655,7 @@
     "featureKarte": "Student Curriculum",
     "featureStripe": "Stripe Payment Integration",
     "featureFee": "Payment Processing Fee",
-    "featureChat": "Parent Chat",
+    "featureChat": "Parent Messages",
     "featurePrioritySupport": "Priority Support",
     "upgradeButtonWithTrial": "Upgrade to Standard Plan (30-day free trial)"
   },
@@ -1003,10 +1003,10 @@
     "wrongRole": "You are logged in as a teacher. Please log in with a parent account."
   },
   "chat": {
-    "title": "Chat",
-    "newConversation": "New Chat",
-    "noConversations": "No chats yet",
-    "selectConversation": "Select a chat",
+    "title": "Messages",
+    "newConversation": "New Message",
+    "noConversations": "No messages yet",
+    "selectConversation": "Select a conversation",
     "noMessages": "No messages yet. Send the first message!",
     "loadingMessages": "Loading messages...",
     "loading": "Loading...",
@@ -1014,10 +1014,10 @@
     "inputPlaceholder": "Type a message...",
     "read": "Read",
     "guardian": "Guardian",
-    "noProfilesAvailable": "No students available to start a chat. Please link a guardian to a student profile first.",
+    "noProfilesAvailable": "No students available to start a conversation. Please link a guardian to a student profile first.",
     "planGate": {
-      "title": "Chat Feature",
-      "description": "The chat feature is available on the Standard plan. Communicate directly with guardians for smoother coordination.",
+      "title": "Messages Feature",
+      "description": "The messages feature is available on the Standard plan. Communicate directly with guardians for smoother coordination.",
       "upgrade": "Upgrade Plan"
     }
   },

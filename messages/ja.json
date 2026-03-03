@@ -86,7 +86,7 @@
       "step2Description": "生徒情報と過去の授業記録を踏まえ、AIが丁寧な報告書を作成",
       "step3Number": "03",
       "step3Title": "保護者に共有",
-      "step3Description": "ワンクリックで保護者に公開。チャットでフォローアップも可能"
+      "step3Description": "ワンクリックで保護者に公開。メッセージでフォローアップも可能"
     },
     "ctaBanner": {
       "title": "指導に集中できる環境を、今日から。",
@@ -137,9 +137,9 @@
       "schedulingDescription": "カレンダーに予定を入れるだけで、月末の請求金額を自動計算。振替授業の管理もミスなく完結します。",
       "paymentsTitle": "シームレス決済",
       "paymentsDescription": "Stripe連携により、請求書の自動送付から入金確認まで自動化。現金や振込確認の手間から解放されます。",
-      "chatTitle": "保護者チャット",
+      "chatTitle": "保護者メッセージ",
       "chatBadge": "Standard限定",
-      "chatDescription": "保護者との連絡をアプリ内で完結。生徒ごとのチャットで学習状況の共有や日程調整がリアルタイムに行えます。画像送信にも対応。"
+      "chatDescription": "保護者との連絡をアプリ内で完結。生徒ごとのメッセージで学習状況の共有や日程調整がリアルタイムに行えます。画像送信にも対応。"
     },
     "screenshots": {
       "title": "指導も、管理も、ひとつの画面で。",
@@ -181,7 +181,7 @@
       "standardCalendar": "予定・カレンダー管理",
       "standardKarte": "生徒カリキュラム",
       "standardStripe": "Stripe決済連携（手数料 1.4%）",
-      "standardChat": "保護者チャット（テキスト・画像）",
+      "standardChat": "保護者メッセージ（テキスト・画像）",
       "standardSupport": "優先カスタマーサポート",
       "standardCta": "無料で1ヶ月試してみる"
     },
@@ -301,7 +301,7 @@
       "tickets": "チケット",
       "students": "生徒カリキュラム",
       "reports": "レポート",
-      "chat": "チャット",
+      "chat": "メッセージ",
       "bookings": "予約一覧",
       "profile": "設定",
       "contact": "お問い合わせ"
@@ -312,7 +312,7 @@
       "tickets": "チケット",
       "bookings": "予約履歴",
       "reports": "レポート",
-      "chat": "チャット",
+      "chat": "メッセージ",
       "contact": "お問い合わせ"
     },
     "userMenu": {
@@ -681,7 +681,7 @@
     "featureKarte": "生徒カリキュラム",
     "featureStripe": "Stripe決済連携",
     "featureFee": "決済手数料",
-    "featureChat": "保護者チャット",
+    "featureChat": "保護者メッセージ",
     "featurePrioritySupport": "優先サポート",
     "upgradeButtonWithTrial": "Standardプランにアップグレード（30日間無料）"
   },
@@ -1029,10 +1029,10 @@
     "wrongRole": "講師アカウントでログインしています。保護者アカウントでログインし直してください。"
   },
   "chat": {
-    "title": "チャット",
-    "newConversation": "新しいチャット",
-    "noConversations": "チャットはまだありません",
-    "selectConversation": "チャットを選択してください",
+    "title": "メッセージ",
+    "newConversation": "新しいメッセージ",
+    "noConversations": "メッセージはまだありません",
+    "selectConversation": "メッセージを選択してください",
     "noMessages": "メッセージはまだありません。最初のメッセージを送りましょう！",
     "loadingMessages": "メッセージを読み込み中...",
     "loading": "読み込み中...",
@@ -1040,10 +1040,10 @@
     "inputPlaceholder": "メッセージを入力...",
     "read": "既読",
     "guardian": "保護者",
-    "noProfilesAvailable": "チャットを開始できる生徒がいません。",
+    "noProfilesAvailable": "メッセージを開始できる生徒がいません。",
     "planGate": {
-      "title": "チャット機能",
-      "description": "チャット機能はスタンダードプランでご利用いただけます。保護者と直接メッセージをやり取りして、よりスムーズなコミュニケーションを実現しましょう。",
+      "title": "メッセージ機能",
+      "description": "メッセージ機能はスタンダードプランでご利用いただけます。保護者と直接メッセージをやり取りして、よりスムーズなコミュニケーションを実現しましょう。",
       "upgrade": "プランをアップグレード"
     }
   },
