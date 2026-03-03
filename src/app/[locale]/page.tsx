@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import Image from 'next/image'
-import { Sparkles, BookOpen, Calendar, CreditCard, ArrowRight, ChevronDown, Check, Menu, X, Send } from 'lucide-react'
+import { Sparkles, BookOpen, Calendar, CreditCard, MessageSquare, ArrowRight, ChevronDown, Check, Menu, X, Send } from 'lucide-react'
 import { LanguageSwitcher } from '@/components/ui/language-switcher'
 
 export default function HomePage() {
@@ -291,6 +291,17 @@ export default function HomePage() {
                 </picture>
               </div>
             </div>
+            {/* Chat */}
+            <div className="group p-6 sm:p-10 rounded-2xl sm:rounded-3xl bg-white dark:bg-surface-raised border border-slate-100 dark:border-brand-800/20 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] dark:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.3)] hover:translate-y-[-8px] hover:border-brand-200 dark:hover:border-brand-700/50 transition duration-300 md:col-span-2 relative">
+              <span className="absolute top-4 right-4 sm:top-6 sm:right-6 bg-brand-100 dark:bg-brand-800/40 text-brand-600 dark:text-brand-400 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold">{t('features.chatBadge')}</span>
+              <div className="w-12 h-12 sm:w-14 sm:h-14 bg-sky-50 dark:bg-sky-900/20 rounded-xl sm:rounded-2xl flex items-center justify-center text-sky-600 dark:text-sky-400 mb-5 sm:mb-8">
+                <MessageSquare className="w-6 h-6 sm:w-7 sm:h-7" />
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 text-slate-900 dark:text-white">{t('features.chatTitle')}</h3>
+              <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm sm:text-base">
+                {t('features.chatDescription')}
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -391,6 +402,9 @@ export default function HomePage() {
                   </li>
                   <li className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-bold text-sm sm:text-base">
                     <Check className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" /> {t('pricing.standardStripe')}
+                  </li>
+                  <li className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-bold text-sm sm:text-base">
+                    <Check className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" /> {t('pricing.standardChat')}
                   </li>
                   <li className="flex items-center gap-3 text-slate-600 dark:text-slate-300 font-bold text-sm sm:text-base">
                     <Check className="w-5 h-5 text-brand-600 dark:text-brand-400 shrink-0" /> {t('pricing.standardSupport')}

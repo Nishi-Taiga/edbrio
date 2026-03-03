@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { SkeletonStatsGrid, SkeletonList } from '@/components/ui/skeleton-card'
 import { ErrorAlert } from '@/components/ui/error-alert'
 import { EmptyState } from '@/components/ui/empty-state'
+import { useTranslations } from 'next-intl'
 import { FileText } from 'lucide-react'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
@@ -111,6 +112,16 @@ function renderComprehension(level: number | null): string {
 /* ---------- Component ---------- */
 
 export default function AdminReportsPage() {
+  const t = useTranslations('adminReports')
+  const tc = useTranslations('adminCommon')
+
+  const MOOD_LABELS_I18N = useMemo(() => ({
+    good: t('moodGood'),
+    neutral: t('moodNeutral'),
+    tired: t('moodTired'),
+    unmotivated: t('moodUnmotivated'),
+  } as Record<string, string>), [t])
+
   const [stats, setStats] = useState<StatsData | null>(null)
   const [listData, setListData] = useState<ListData | null>(null)
   const [visibilityFilter, setVisibilityFilter] = useState('all')
@@ -157,7 +168,7 @@ export default function AdminReportsPage() {
     ? Object.entries(stats.moodDistribution)
         .filter(([, count]) => count > 0)
         .map(([mood, count]) => ({
-          name: MOOD_LABELS[mood] || mood,
+          name: MOOD_LABELS_I18N[mood] || mood,
           value: count,
           color: MOOD_COLORS[mood] || '#9ca3af',
         }))
@@ -173,10 +184,10 @@ export default function AdminReportsPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-        レポート分析
+        {t('title')}
       </h1>
       <p className="text-gray-600 dark:text-slate-400 mb-8">
-        AIレポートの利用状況
+        {t('description')}
       </p>
 
       {/* Error */}
@@ -198,7 +209,7 @@ export default function AdminReportsPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  総レポート数
+                  {t('totalReports')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -211,7 +222,7 @@ export default function AdminReportsPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  今月
+                  {t('thisMonth')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -224,7 +235,7 @@ export default function AdminReportsPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  AI生成数
+                  {t('aiGenerated')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -237,7 +248,7 @@ export default function AdminReportsPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  平均理解度
+                  {t('avgComprehension')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -256,12 +267,12 @@ export default function AdminReportsPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  ムード分布
+                  {t('moodDistribution')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {moodChartData.length === 0 ? (
-                  <EmptyState icon={FileText} title="ムードデータがありません" />
+                  <EmptyState icon={FileText} title={t('noMoodData')} />
                 ) : (
                   <ResponsiveContainer width="100%" height={250}>
                     <PieChart>
@@ -292,12 +303,12 @@ export default function AdminReportsPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  講師別AI利用数 (Top 10)
+                  {t('aiUsageByTeacher')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {aiUsageChartData.length === 0 ? (
-                  <EmptyState icon={FileText} title="AI利用データがありません" />
+                  <EmptyState icon={FileText} title={t('noAiUsageData')} />
                 ) : (
                   <ResponsiveContainer width="100%" height={250}>
                     <BarChart data={aiUsageChartData} layout="vertical">
@@ -309,7 +320,7 @@ export default function AdminReportsPage() {
                         width={100}
                       />
                       <Tooltip
-                        formatter={(value) => [value, 'AI生成数']}
+                        formatter={(value) => [value, t('aiGenerated')]}
                       />
                       <Bar dataKey="ai_report_count" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
                     </BarChart>
@@ -324,17 +335,17 @@ export default function AdminReportsPage() {
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  レポート一覧
+                  {t('reportList')}
                 </CardTitle>
                 <div className="flex gap-2">
                   <Select value={visibilityFilter} onValueChange={(v) => { setVisibilityFilter(v); setPage(1) }}>
                     <SelectTrigger className="w-32">
-                      <SelectValue placeholder="公開状態" />
+                      <SelectValue placeholder={t('visibilityPlaceholder')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">すべて</SelectItem>
-                      <SelectItem value="public">公開</SelectItem>
-                      <SelectItem value="private">非公開</SelectItem>
+                      <SelectItem value="all">{tc('all')}</SelectItem>
+                      <SelectItem value="public">{t('visibilityPublic')}</SelectItem>
+                      <SelectItem value="private">{t('visibilityPrivate')}</SelectItem>
                     </SelectContent>
                   </Select>
                   <Select value={hasAiFilter} onValueChange={(v) => { setHasAiFilter(v); setPage(1) }}>
@@ -342,9 +353,9 @@ export default function AdminReportsPage() {
                       <SelectValue placeholder="AI" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">すべて</SelectItem>
-                      <SelectItem value="true">AI有り</SelectItem>
-                      <SelectItem value="false">AI無し</SelectItem>
+                      <SelectItem value="all">{tc('all')}</SelectItem>
+                      <SelectItem value="true">{t('aiHas')}</SelectItem>
+                      <SelectItem value="false">{t('aiNone')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -352,21 +363,21 @@ export default function AdminReportsPage() {
             </CardHeader>
             <CardContent>
               {listData.reports.length === 0 ? (
-                <EmptyState icon={FileText} title="レポートはありません" />
+                <EmptyState icon={FileText} title={t('noReports')} />
               ) : (
                 <>
                   <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>日時</TableHead>
-                          <TableHead>講師</TableHead>
-                          <TableHead>生徒</TableHead>
-                          <TableHead>科目</TableHead>
-                          <TableHead>理解度</TableHead>
-                          <TableHead>ムード</TableHead>
-                          <TableHead>公開状態</TableHead>
-                          <TableHead>AI</TableHead>
+                          <TableHead>{tc('dateTime')}</TableHead>
+                          <TableHead>{tc('teacher')}</TableHead>
+                          <TableHead>{tc('student')}</TableHead>
+                          <TableHead>{t('subject')}</TableHead>
+                          <TableHead>{t('comprehension')}</TableHead>
+                          <TableHead>{t('mood')}</TableHead>
+                          <TableHead>{t('visibility')}</TableHead>
+                          <TableHead>{t('aiLabel')}</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -388,7 +399,7 @@ export default function AdminReportsPage() {
                             <TableCell>
                               {r.student_mood ? (
                                 <Badge className={moodBadgeClass(r.student_mood)}>
-                                  {MOOD_LABELS[r.student_mood] || r.student_mood}
+                                  {MOOD_LABELS_I18N[r.student_mood] || r.student_mood}
                                 </Badge>
                               ) : (
                                 '-'
@@ -397,7 +408,7 @@ export default function AdminReportsPage() {
                             <TableCell>
                               {r.visibility ? (
                                 <Badge className={visibilityBadgeClass(r.visibility)}>
-                                  {r.visibility === 'public' ? '公開' : '非公開'}
+                                  {r.visibility === 'public' ? t('visibilityPublic') : t('visibilityPrivate')}
                                 </Badge>
                               ) : (
                                 '-'
@@ -422,8 +433,7 @@ export default function AdminReportsPage() {
                   {totalPages > 1 && (
                     <div className="flex items-center justify-between mt-4">
                       <p className="text-sm text-gray-500 dark:text-slate-400">
-                        全{listData.total}件中 {(page - 1) * listData.limit + 1}-
-                        {Math.min(page * listData.limit, listData.total)}件
+                        {tc('paginationInfo', { total: listData.total, from: (page - 1) * listData.limit + 1, to: Math.min(page * listData.limit, listData.total) })}
                       </p>
                       <div className="flex gap-2">
                         <Button
@@ -432,7 +442,7 @@ export default function AdminReportsPage() {
                           disabled={page <= 1}
                           onClick={() => setPage((p) => p - 1)}
                         >
-                          前へ
+                          {tc('prev')}
                         </Button>
                         <Button
                           variant="outline"
@@ -440,7 +450,7 @@ export default function AdminReportsPage() {
                           disabled={page >= totalPages}
                           onClick={() => setPage((p) => p + 1)}
                         >
-                          次へ
+                          {tc('next')}
                         </Button>
                       </div>
                     </div>
@@ -454,11 +464,11 @@ export default function AdminReportsPage() {
           <Dialog open={selectedReport !== null} onOpenChange={(open) => { if (!open) setSelectedReport(null) }}>
             <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>レポート詳細</DialogTitle>
+                <DialogTitle>{t('reportDetail')}</DialogTitle>
                 <DialogDescription>
                   {selectedReport && (
                     <>
-                      {selectedReport.teacher_name || '不明'} - {selectedReport.student_name || '不明'}
+                      {selectedReport.teacher_name || tc('unknown')} - {selectedReport.student_name || tc('unknown')}
                       {' '}
                       ({format(new Date(selectedReport.created_at), 'yyyy/MM/dd HH:mm', { locale: ja })})
                     </>
@@ -469,18 +479,18 @@ export default function AdminReportsPage() {
                 <div className="space-y-4">
                   <div>
                     <h4 className="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
-                      講師メモ (content_raw)
+                      {t('teacherNote')}
                     </h4>
                     <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg text-sm whitespace-pre-wrap">
-                      {selectedReport.content_raw || '(なし)'}
+                      {selectedReport.content_raw || tc('none')}
                     </div>
                   </div>
                   <div>
                     <h4 className="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
-                      AI生成コンテンツ (ai_summary)
+                      {t('aiContent')}
                     </h4>
                     <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg text-sm whitespace-pre-wrap">
-                      {selectedReport.ai_summary || '(なし)'}
+                      {selectedReport.ai_summary || tc('none')}
                     </div>
                   </div>
                 </div>

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { RRule } from 'rrule'
+import { useTranslations } from 'next-intl'
 
 type RecurrenceType = 'none' | 'weekly' | 'biweekly'
 
@@ -18,6 +19,9 @@ interface ShiftFormProps {
 }
 
 export function ShiftForm({ open, onClose, onSubmit, initialDate }: ShiftFormProps) {
+  const t = useTranslations('slotForm')
+  const tc = useTranslations('common')
+
   const defaultDate = initialDate
     ? formatDateLocal(initialDate)
     : formatDateLocal(new Date())
@@ -32,7 +36,7 @@ export function ShiftForm({ open, onClose, onSubmit, initialDate }: ShiftFormPro
   const handleSubmit = async () => {
     setError(null)
     if (!date || !startTime || !endTime) {
-      setError('すべての項目を入力してください')
+      setError(t('errorAllFields'))
       return
     }
 
@@ -40,7 +44,7 @@ export function ShiftForm({ open, onClose, onSubmit, initialDate }: ShiftFormPro
     const endDateTime = new Date(`${date}T${endTime}:00`)
 
     if (endDateTime <= startDateTime) {
-      setError('終了時刻は開始時刻より後にしてください')
+      setError(t('errorEndAfterStart'))
       return
     }
 
@@ -74,8 +78,8 @@ export function ShiftForm({ open, onClose, onSubmit, initialDate }: ShiftFormPro
     <Dialog open={open} onOpenChange={(o) => { if (!o) onClose() }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>空き枠を追加</DialogTitle>
-          <DialogDescription>日付・時間帯・繰り返し設定を入力してください</DialogDescription>
+          <DialogTitle>{t('title')}</DialogTitle>
+          <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
@@ -86,7 +90,7 @@ export function ShiftForm({ open, onClose, onSubmit, initialDate }: ShiftFormPro
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="shift-date">日付</Label>
+            <Label htmlFor="shift-date">{t('dateLabel')}</Label>
             <Input
               id="shift-date"
               type="date"
@@ -97,7 +101,7 @@ export function ShiftForm({ open, onClose, onSubmit, initialDate }: ShiftFormPro
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="shift-start">開始時刻</Label>
+              <Label htmlFor="shift-start">{t('startTimeLabel')}</Label>
               <Input
                 id="shift-start"
                 type="time"
@@ -106,7 +110,7 @@ export function ShiftForm({ open, onClose, onSubmit, initialDate }: ShiftFormPro
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="shift-end">終了時刻</Label>
+              <Label htmlFor="shift-end">{t('endTimeLabel')}</Label>
               <Input
                 id="shift-end"
                 type="time"
@@ -117,24 +121,24 @@ export function ShiftForm({ open, onClose, onSubmit, initialDate }: ShiftFormPro
           </div>
 
           <div className="space-y-2">
-            <Label>繰り返し</Label>
+            <Label>{t('recurrenceLabel')}</Label>
             <Select value={recurrence} onValueChange={(v) => setRecurrence(v as RecurrenceType)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">なし（単発）</SelectItem>
-                <SelectItem value="weekly">毎週</SelectItem>
-                <SelectItem value="biweekly">隔週</SelectItem>
+                <SelectItem value="none">{t('recurrenceNone')}</SelectItem>
+                <SelectItem value="weekly">{t('recurrenceWeekly')}</SelectItem>
+                <SelectItem value="biweekly">{t('recurrenceBiweekly')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={submitting}>キャンセル</Button>
+          <Button variant="outline" onClick={onClose} disabled={submitting}>{tc('cancel')}</Button>
           <Button onClick={handleSubmit} disabled={submitting}>
-            {submitting ? '作成中...' : '空き枠を作成'}
+            {submitting ? tc('creating') : t('submitButton')}
           </Button>
         </DialogFooter>
       </DialogContent>

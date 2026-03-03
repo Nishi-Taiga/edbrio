@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { SkeletonStatsGrid, SkeletonList } from '@/components/ui/skeleton-card'
@@ -15,6 +15,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts'
+import { useTranslations } from 'next-intl'
 
 /* ---------- Types ---------- */
 
@@ -97,6 +98,9 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
 /* ---------- Component ---------- */
 
 export default function AdminDashboardPage() {
+  const t = useTranslations('adminDashboard')
+  const tc = useTranslations('adminCommon')
+
   const [stats, setStats] = useState<StatsData | null>(null)
   const [trends, setTrends] = useState<TrendsData | null>(null)
   const [trendPeriod, setTrendPeriod] = useState<TrendPeriod>('7d')
@@ -152,12 +156,12 @@ export default function AdminDashboardPage() {
     student: '#f59e0b',
   }
 
-  const signupLabels: Record<SignupTab, string> = {
-    all: '全体',
-    teacher: '講師',
-    guardian: '保護者',
-    student: '生徒',
-  }
+  const signupLabels = useMemo(() => ({
+    all: t('signupAll'),
+    teacher: tc('teacher'),
+    guardian: tc('guardian'),
+    student: tc('student'),
+  } as Record<SignupTab, string>), [t, tc])
 
   const aiCostData = trends
     ? trends.aiTokens.map((d) => ({
@@ -172,10 +176,10 @@ export default function AdminDashboardPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-        管理者ダッシュボード
+        {t('title')}
       </h1>
       <p className="text-gray-600 dark:text-slate-400">
-        プラットフォームの概要
+        {t('description')}
       </p>
 
       {/* Error */}
@@ -198,7 +202,7 @@ export default function AdminDashboardPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  総ユーザー数
+                  {t('totalUsers')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -207,13 +211,13 @@ export default function AdminDashboardPage() {
                 </p>
                 <div className="flex flex-wrap gap-1 mt-2">
                   <Badge variant="secondary" className="text-xs">
-                    講師 {stats.usersByRole.teacher ?? 0}
+                    {tc('teacher')} {stats.usersByRole.teacher ?? 0}
                   </Badge>
                   <Badge variant="secondary" className="text-xs">
-                    保護者 {stats.usersByRole.guardian ?? 0}
+                    {tc('guardian')} {stats.usersByRole.guardian ?? 0}
                   </Badge>
                   <Badge variant="secondary" className="text-xs">
-                    生徒 {stats.usersByRole.student ?? 0}
+                    {tc('student')} {stats.usersByRole.student ?? 0}
                   </Badge>
                 </div>
               </CardContent>
@@ -223,7 +227,7 @@ export default function AdminDashboardPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  MRR
+                  {t('mrr')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -237,7 +241,7 @@ export default function AdminDashboardPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  今月売上
+                  {t('monthRevenue')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -251,12 +255,12 @@ export default function AdminDashboardPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  今月AI生成数
+                  {t('monthAiReports')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {stats.monthAiReports}件
+                  {tc('unitItems', { count: stats.monthAiReports })}
                 </p>
               </CardContent>
             </Card>
@@ -265,7 +269,7 @@ export default function AdminDashboardPage() {
           {/* -------- Trend Charts -------- */}
           <div className="mb-4 flex items-center gap-2">
             <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
-              期間:
+              {t('period')}
             </span>
             <button
               onClick={() => setTrendPeriod('7d')}
@@ -275,7 +279,7 @@ export default function AdminDashboardPage() {
                   : 'bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700'
               }`}
             >
-              7日間
+              {t('days7')}
             </button>
             <button
               onClick={() => setTrendPeriod('30d')}
@@ -285,7 +289,7 @@ export default function AdminDashboardPage() {
                   : 'bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700'
               }`}
             >
-              30日間
+              {t('days30')}
             </button>
           </div>
 
@@ -295,7 +299,7 @@ export default function AdminDashboardPage() {
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                    新規ユーザー
+                    {t('newUsers')}
                   </CardTitle>
                   <div className="flex gap-1">
                     {(['all', 'teacher', 'guardian', 'student'] as const).map((tab) => (
@@ -335,7 +339,7 @@ export default function AdminDashboardPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  売上
+                  {t('revenue')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -356,7 +360,7 @@ export default function AdminDashboardPage() {
                       labelFormatter={(label) => String(label)}
                       formatter={(value) => [
                         yenFormatter.format(Number(value)),
-                        '売上',
+                        t('revenue'),
                       ]}
                     />
                     <Area
@@ -375,7 +379,7 @@ export default function AdminDashboardPage() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  予約数
+                  {t('bookingCount')}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -389,7 +393,7 @@ export default function AdminDashboardPage() {
                     <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
                     <Tooltip
                       labelFormatter={(label) => String(label)}
-                      formatter={(value) => [value, '予約数']}
+                      formatter={(value) => [value, t('bookingCount')]}
                     />
                     <Area
                       type="monotone"
@@ -408,14 +412,14 @@ export default function AdminDashboardPage() {
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                    AI レポート
+                    {t('aiReport')}
                   </CardTitle>
                   <div className="flex gap-1">
                     <TabButton active={aiTab === 'count'} onClick={() => setAiTab('count')}>
-                      生成数
+                      {t('generationCount')}
                     </TabButton>
                     <TabButton active={aiTab === 'cost'} onClick={() => setAiTab('cost')}>
-                      API料金
+                      {t('apiCost')}
                     </TabButton>
                   </div>
                 </div>
@@ -432,7 +436,7 @@ export default function AdminDashboardPage() {
                       <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
                       <Tooltip
                         labelFormatter={(label) => String(label)}
-                        formatter={(value) => [value, 'AI生成数']}
+                        formatter={(value) => [value, t('aiGenerationCount')]}
                       />
                       <Area
                         type="monotone"
@@ -456,7 +460,7 @@ export default function AdminDashboardPage() {
                         labelFormatter={(label) => String(label)}
                         formatter={(value) => [
                           `${yenFormatter.format(Number(value))}`,
-                          'API料金',
+                          t('apiCost'),
                         ]}
                       />
                       <Area
@@ -479,7 +483,7 @@ export default function AdminDashboardPage() {
             <Card>
               <CardContent className="flex items-center justify-between p-4">
                 <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
-                  決済失敗 (24h)
+                  {t('failedPayments')}
                 </span>
                 <span
                   className={`text-sm font-bold ${
@@ -488,7 +492,7 @@ export default function AdminDashboardPage() {
                       : 'text-gray-500 dark:text-slate-400'
                   }`}
                 >
-                  {stats.failedPayments24h}件
+                  {tc('unitItems', { count: stats.failedPayments24h })}
                 </span>
               </CardContent>
             </Card>
@@ -497,7 +501,7 @@ export default function AdminDashboardPage() {
             <Card>
               <CardContent className="flex items-center justify-between p-4">
                 <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
-                  期限切れ間近チケット
+                  {t('expiringTickets')}
                 </span>
                 <span
                   className={`text-sm font-bold ${
@@ -506,7 +510,7 @@ export default function AdminDashboardPage() {
                       : 'text-gray-500 dark:text-slate-400'
                   }`}
                 >
-                  {stats.expiringTickets7d}件
+                  {tc('unitItems', { count: stats.expiringTickets7d })}
                 </span>
               </CardContent>
             </Card>
@@ -515,7 +519,7 @@ export default function AdminDashboardPage() {
             <Card>
               <CardContent className="flex items-center justify-between p-4">
                 <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
-                  未完了初期設定
+                  {t('incompleteSetup')}
                 </span>
                 <span
                   className={`text-sm font-bold ${
@@ -524,7 +528,7 @@ export default function AdminDashboardPage() {
                       : 'text-gray-500 dark:text-slate-400'
                   }`}
                 >
-                  {stats.incompleteInitialSetup}件
+                  {tc('unitItems', { count: stats.incompleteInitialSetup })}
                 </span>
               </CardContent>
             </Card>
@@ -534,13 +538,13 @@ export default function AdminDashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                最近のアクティビティ
+                {t('recentActivity')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <EmptyState
                 icon={Shield}
-                title="監査ログはまだ記録されていません"
+                title={t('noAuditLogs')}
               />
             </CardContent>
           </Card>

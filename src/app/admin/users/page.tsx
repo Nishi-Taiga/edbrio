@@ -28,6 +28,7 @@ import {
 import { SkeletonList } from '@/components/ui/skeleton-card'
 import { ErrorAlert } from '@/components/ui/error-alert'
 import { EmptyState } from '@/components/ui/empty-state'
+import { useTranslations } from 'next-intl'
 
 interface AdminUser {
   id: string
@@ -51,6 +52,8 @@ const LIMIT = 20
 
 export default function AdminUsersPage() {
   const router = useRouter()
+  const t = useTranslations('adminUsers')
+  const tc = useTranslations('adminCommon')
 
   const [activeTab, setActiveTab] = useState('teacher')
   const [users, setUsers] = useState<AdminUser[]>([])
@@ -78,14 +81,14 @@ export default function AdminUsersPage() {
       const res = await fetch(`/api/admin/users?${params.toString()}`)
       if (!res.ok) {
         const body = await res.json().catch(() => ({}))
-        throw new Error(body.error || 'ユーザーの取得に失敗しました。')
+        throw new Error(body.error || tc('fetchUserError'))
       }
 
       const data = await res.json()
       setUsers(data.users ?? [])
       setTotal(data.total ?? 0)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'ユーザーの取得に失敗しました。')
+      setError(err instanceof Error ? err.message : tc('fetchUserError'))
     } finally {
       setLoading(false)
     }
@@ -118,22 +121,22 @@ export default function AdminUsersPage() {
 
   const statusBadge = (user: AdminUser) =>
     user.is_suspended ? (
-      <Badge variant="destructive">停止中</Badge>
+      <Badge variant="destructive">{tc('statusSuspended')}</Badge>
     ) : (
-      <Badge className="bg-green-600 text-white hover:bg-green-700">有効</Badge>
+      <Badge className="bg-green-600 text-white hover:bg-green-700">{tc('statusActive')}</Badge>
     )
 
   const pagination = total > LIMIT && (
     <div className="flex items-center justify-between pt-2">
       <p className="text-sm text-muted-foreground">
-        {total}件中 {from}-{to}件
+        {tc('paginationInfoShort', { total, from, to })}
       </p>
       <div className="flex items-center gap-2">
         <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-          前へ
+          {tc('prev')}
         </Button>
         <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
-          次へ
+          {tc('next')}
         </Button>
       </div>
     </div>
@@ -144,7 +147,7 @@ export default function AdminUsersPage() {
       {error && <ErrorAlert message={error} onRetry={fetchUsers} />}
       {loading && <SkeletonList count={5} />}
       {!loading && !error && users.length === 0 && (
-        <EmptyState icon={icon} title={emptyTitle} description="検索条件を変更してください。" />
+        <EmptyState icon={icon} title={emptyTitle} description={tc('changeCondition')} />
       )}
     </>
   )
@@ -152,44 +155,44 @@ export default function AdminUsersPage() {
   return (
     <div className="container mx-auto px-4 py-8 space-y-6">
       <div className="mb-2">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">ユーザー管理</h1>
-        <p className="text-gray-600 dark:text-slate-400">講師・保護者・生徒の一覧と管理</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{t('title')}</h1>
+        <p className="text-gray-600 dark:text-slate-400">{t('description')}</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
-          <TabsTrigger value="teacher">講師</TabsTrigger>
-          <TabsTrigger value="guardian">保護者</TabsTrigger>
-          <TabsTrigger value="student">生徒</TabsTrigger>
+          <TabsTrigger value="teacher">{tc('teacher')}</TabsTrigger>
+          <TabsTrigger value="guardian">{tc('guardian')}</TabsTrigger>
+          <TabsTrigger value="student">{tc('student')}</TabsTrigger>
         </TabsList>
 
         {/* ── 講師一覧 ── */}
         <TabsContent value="teacher">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">講師一覧</CardTitle>
+              <CardTitle className="text-lg">{t('teacherList')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex flex-wrap items-center gap-3">
-                <Input placeholder="名前・メールで検索..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-64" />
+                <Input placeholder={tc('searchPlaceholder')} value={search} onChange={(e) => setSearch(e.target.value)} className="w-64" />
                 <Select value={plan} onValueChange={(v) => { setPlan(v); setPage(1) }}>
-                  <SelectTrigger className="w-36"><SelectValue placeholder="プラン" /></SelectTrigger>
+                  <SelectTrigger className="w-36"><SelectValue placeholder={tc('plan')} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">すべて</SelectItem>
+                    <SelectItem value="all">{tc('all')}</SelectItem>
                     <SelectItem value="free">Free</SelectItem>
                     <SelectItem value="standard">Standard</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select value={sort} onValueChange={setSort}>
-                  <SelectTrigger className="w-36"><SelectValue placeholder="並び替え" /></SelectTrigger>
+                  <SelectTrigger className="w-36"><SelectValue placeholder={tc('sortLabel')} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="newest">新しい順</SelectItem>
-                    <SelectItem value="oldest">古い順</SelectItem>
+                    <SelectItem value="newest">{tc('sortNewest')}</SelectItem>
+                    <SelectItem value="oldest">{tc('sortOldest')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              {renderLoadingOrEmpty(Users, '講師が見つかりません')}
+              {renderLoadingOrEmpty(Users, t('notFoundTeacher'))}
 
               {!loading && !error && users.length > 0 && (
                 <>
@@ -197,14 +200,14 @@ export default function AdminUsersPage() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>名前</TableHead>
-                          <TableHead>メール</TableHead>
-                          <TableHead>プラン</TableHead>
-                          <TableHead>科目</TableHead>
-                          <TableHead>生徒数</TableHead>
-                          <TableHead>初期設定</TableHead>
-                          <TableHead>登録日</TableHead>
-                          <TableHead>ステータス</TableHead>
+                          <TableHead>{tc('name')}</TableHead>
+                          <TableHead>{tc('email')}</TableHead>
+                          <TableHead>{tc('plan')}</TableHead>
+                          <TableHead>{t('subjects')}</TableHead>
+                          <TableHead>{t('studentCount')}</TableHead>
+                          <TableHead>{t('initialSetup')}</TableHead>
+                          <TableHead>{tc('registeredDate')}</TableHead>
+                          <TableHead>{tc('status')}</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -228,12 +231,12 @@ export default function AdminUsersPage() {
                                 {(user.subjects || []).length === 0 && <span className="text-muted-foreground">-</span>}
                               </div>
                             </TableCell>
-                            <TableCell>{user.student_count ?? 0}名</TableCell>
+                            <TableCell>{tc('unitPeople', { count: user.student_count ?? 0 })}</TableCell>
                             <TableCell>
                               {user.is_onboarding_complete ? (
-                                <Badge className="bg-green-600 text-white hover:bg-green-700">完了</Badge>
+                                <Badge className="bg-green-600 text-white hover:bg-green-700">{tc('onboardingComplete')}</Badge>
                               ) : (
-                                <Badge variant="outline" className="text-amber-600 border-amber-300">未完了</Badge>
+                                <Badge variant="outline" className="text-amber-600 border-amber-300">{tc('onboardingIncomplete')}</Badge>
                               )}
                             </TableCell>
                             <TableCell className="text-sm">{format(new Date(user.created_at), 'PPP', { locale: ja })}</TableCell>
@@ -254,21 +257,21 @@ export default function AdminUsersPage() {
         <TabsContent value="guardian">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">保護者一覧</CardTitle>
+              <CardTitle className="text-lg">{t('guardianList')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex flex-wrap items-center gap-3">
-                <Input placeholder="名前・メールで検索..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-64" />
+                <Input placeholder={tc('searchPlaceholder')} value={search} onChange={(e) => setSearch(e.target.value)} className="w-64" />
                 <Select value={sort} onValueChange={setSort}>
-                  <SelectTrigger className="w-36"><SelectValue placeholder="並び替え" /></SelectTrigger>
+                  <SelectTrigger className="w-36"><SelectValue placeholder={tc('sortLabel')} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="newest">新しい順</SelectItem>
-                    <SelectItem value="oldest">古い順</SelectItem>
+                    <SelectItem value="newest">{tc('sortNewest')}</SelectItem>
+                    <SelectItem value="oldest">{tc('sortOldest')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              {renderLoadingOrEmpty(ShieldCheck, '保護者が見つかりません')}
+              {renderLoadingOrEmpty(ShieldCheck, t('notFoundGuardian'))}
 
               {!loading && !error && users.length > 0 && (
                 <>
@@ -276,11 +279,11 @@ export default function AdminUsersPage() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>名前</TableHead>
-                          <TableHead>メール</TableHead>
-                          <TableHead>生徒数</TableHead>
-                          <TableHead>登録日</TableHead>
-                          <TableHead>ステータス</TableHead>
+                          <TableHead>{tc('name')}</TableHead>
+                          <TableHead>{tc('email')}</TableHead>
+                          <TableHead>{t('studentCount')}</TableHead>
+                          <TableHead>{tc('registeredDate')}</TableHead>
+                          <TableHead>{tc('status')}</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -288,7 +291,7 @@ export default function AdminUsersPage() {
                           <TableRow key={user.id} className="cursor-pointer hover:bg-muted/50" onClick={() => router.push(`/admin/users/${user.id}`)}>
                             <TableCell className="font-medium">{user.name}</TableCell>
                             <TableCell className="text-sm text-muted-foreground">{user.email}</TableCell>
-                            <TableCell>{user.student_count ?? 0}名</TableCell>
+                            <TableCell>{tc('unitPeople', { count: user.student_count ?? 0 })}</TableCell>
                             <TableCell className="text-sm">{format(new Date(user.created_at), 'PPP', { locale: ja })}</TableCell>
                             <TableCell>{statusBadge(user)}</TableCell>
                           </TableRow>
@@ -307,21 +310,21 @@ export default function AdminUsersPage() {
         <TabsContent value="student">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">生徒一覧</CardTitle>
+              <CardTitle className="text-lg">{t('studentList')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex flex-wrap items-center gap-3">
-                <Input placeholder="名前・メールで検索..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-64" />
+                <Input placeholder={tc('searchPlaceholder')} value={search} onChange={(e) => setSearch(e.target.value)} className="w-64" />
                 <Select value={sort} onValueChange={setSort}>
-                  <SelectTrigger className="w-36"><SelectValue placeholder="並び替え" /></SelectTrigger>
+                  <SelectTrigger className="w-36"><SelectValue placeholder={tc('sortLabel')} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="newest">新しい順</SelectItem>
-                    <SelectItem value="oldest">古い順</SelectItem>
+                    <SelectItem value="newest">{tc('sortNewest')}</SelectItem>
+                    <SelectItem value="oldest">{tc('sortOldest')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              {renderLoadingOrEmpty(GraduationCap, '生徒が見つかりません')}
+              {renderLoadingOrEmpty(GraduationCap, t('notFoundStudent'))}
 
               {!loading && !error && users.length > 0 && (
                 <>
@@ -329,13 +332,13 @@ export default function AdminUsersPage() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>名前</TableHead>
-                          <TableHead>メール</TableHead>
-                          <TableHead>学年</TableHead>
-                          <TableHead>保護者</TableHead>
-                          <TableHead>担当講師数</TableHead>
-                          <TableHead>登録日</TableHead>
-                          <TableHead>ステータス</TableHead>
+                          <TableHead>{tc('name')}</TableHead>
+                          <TableHead>{tc('email')}</TableHead>
+                          <TableHead>{t('grade')}</TableHead>
+                          <TableHead>{t('guardianLabel')}</TableHead>
+                          <TableHead>{t('teacherCount')}</TableHead>
+                          <TableHead>{tc('registeredDate')}</TableHead>
+                          <TableHead>{tc('status')}</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -345,7 +348,7 @@ export default function AdminUsersPage() {
                             <TableCell className="text-sm text-muted-foreground">{user.email}</TableCell>
                             <TableCell>{user.grade || <span className="text-muted-foreground">-</span>}</TableCell>
                             <TableCell>{user.guardian_name || <span className="text-muted-foreground">-</span>}</TableCell>
-                            <TableCell>{user.teacher_count ?? 0}名</TableCell>
+                            <TableCell>{tc('unitPeople', { count: user.teacher_count ?? 0 })}</TableCell>
                             <TableCell className="text-sm">{format(new Date(user.created_at), 'PPP', { locale: ja })}</TableCell>
                             <TableCell>{statusBadge(user)}</TableCell>
                           </TableRow>

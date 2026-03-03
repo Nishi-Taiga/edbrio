@@ -12,6 +12,7 @@ import { ErrorAlert } from '@/components/ui/error-alert'
 import { EmptyState } from '@/components/ui/empty-state'
 import { LoadingButton } from '@/components/ui/loading-button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { useTranslations } from 'next-intl'
 import { Ticket } from 'lucide-react'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
@@ -78,6 +79,9 @@ function isExpiringSoon(expiresAt: string | null): boolean {
 /* ---------- Component ---------- */
 
 export default function AdminTicketsPage() {
+  const t = useTranslations('adminTickets')
+  const tc = useTranslations('adminCommon')
+
   const [products, setProducts] = useState<ProductsData | null>(null)
   const [balances, setBalances] = useState<BalancesData | null>(null)
   const [expiringSoonOnly, setExpiringSoonOnly] = useState(false)
@@ -170,10 +174,10 @@ export default function AdminTicketsPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-        チケット管理
+        {t('title')}
       </h1>
       <p className="text-gray-600 dark:text-slate-400 mb-8">
-        チケット商品と残高管理
+        {t('description')}
       </p>
 
       {/* Error */}
@@ -194,49 +198,49 @@ export default function AdminTicketsPage() {
           <Card className="mb-8">
             <CardHeader>
               <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                チケット商品一覧
+                {t('productList')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {products.tickets.length === 0 ? (
-                <EmptyState icon={Ticket} title="チケット商品はありません" />
+                <EmptyState icon={Ticket} title={t('noProducts')} />
               ) : (
                 <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>講師名</TableHead>
-                        <TableHead>チケット名</TableHead>
-                        <TableHead>分数</TableHead>
-                        <TableHead>回数</TableHead>
-                        <TableHead>価格</TableHead>
-                        <TableHead>有効日数</TableHead>
-                        <TableHead>有効</TableHead>
+                        <TableHead>{tc('teacher')}</TableHead>
+                        <TableHead>{t('ticketName')}</TableHead>
+                        <TableHead>{t('minutes')}</TableHead>
+                        <TableHead>{t('quantity')}</TableHead>
+                        <TableHead>{t('price')}</TableHead>
+                        <TableHead>{t('validDays')}</TableHead>
+                        <TableHead>{t('active')}</TableHead>
                         <TableHead>Stripe ID</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {products.tickets.map((t) => (
-                        <TableRow key={t.id}>
-                          <TableCell className="font-medium">{t.teacher_name || '-'}</TableCell>
-                          <TableCell>{t.name}</TableCell>
-                          <TableCell>{t.minutes}</TableCell>
-                          <TableCell>{t.quantity}</TableCell>
-                          <TableCell>{yenFormatter.format(t.price_cents / 100)}</TableCell>
-                          <TableCell>{t.valid_days}日</TableCell>
+                      {products.tickets.map((ticket) => (
+                        <TableRow key={ticket.id}>
+                          <TableCell className="font-medium">{ticket.teacher_name || '-'}</TableCell>
+                          <TableCell>{ticket.name}</TableCell>
+                          <TableCell>{ticket.minutes}</TableCell>
+                          <TableCell>{ticket.quantity}</TableCell>
+                          <TableCell>{yenFormatter.format(ticket.price_cents / 100)}</TableCell>
+                          <TableCell>{tc('unitDays', { count: ticket.valid_days })}</TableCell>
                           <TableCell>
                             <Badge
                               className={
-                                t.active
+                                ticket.active
                                   ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
                                   : 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400'
                               }
                             >
-                              {t.active ? '有効' : '無効'}
+                              {ticket.active ? t('active') : t('inactive')}
                             </Badge>
                           </TableCell>
                           <TableCell className="text-xs text-gray-500 dark:text-slate-400 font-mono max-w-[120px] truncate">
-                            {t.stripe_price_id || '-'}
+                            {ticket.stripe_price_id || '-'}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -252,7 +256,7 @@ export default function AdminTicketsPage() {
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
-                  チケット残高一覧
+                  {t('balanceList')}
                 </CardTitle>
                 <div className="flex items-center gap-2">
                   <Checkbox
@@ -267,26 +271,26 @@ export default function AdminTicketsPage() {
                     htmlFor="expiring-soon"
                     className="text-sm text-gray-700 dark:text-slate-300 cursor-pointer"
                   >
-                    期限切れ間近のみ
+                    {t('expiringSoonOnly')}
                   </label>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
               {balances.balances.length === 0 ? (
-                <EmptyState icon={Ticket} title="チケット残高はありません" />
+                <EmptyState icon={Ticket} title={t('noBalances')} />
               ) : (
                 <>
                   <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>生徒名</TableHead>
-                          <TableHead>チケット名</TableHead>
-                          <TableHead>残り分数</TableHead>
-                          <TableHead>購入日</TableHead>
-                          <TableHead>有効期限</TableHead>
-                          <TableHead>操作</TableHead>
+                          <TableHead>{t('studentName')}</TableHead>
+                          <TableHead>{t('ticketName')}</TableHead>
+                          <TableHead>{t('remainingMinutes')}</TableHead>
+                          <TableHead>{t('purchaseDate')}</TableHead>
+                          <TableHead>{t('expiryDate')}</TableHead>
+                          <TableHead>{t('operation')}</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -294,7 +298,7 @@ export default function AdminTicketsPage() {
                           <TableRow key={b.id}>
                             <TableCell className="font-medium">{b.student_name || '-'}</TableCell>
                             <TableCell>{b.ticket_name || '-'}</TableCell>
-                            <TableCell>{b.remaining_minutes}分</TableCell>
+                            <TableCell>{tc('unitMinutes', { count: b.remaining_minutes })}</TableCell>
                             <TableCell className="whitespace-nowrap">
                               {format(new Date(b.created_at), 'yyyy/MM/dd', { locale: ja })}
                             </TableCell>
@@ -310,7 +314,7 @@ export default function AdminTicketsPage() {
                                 : '-'}
                               {isExpiringSoon(b.expires_at) && (
                                 <Badge className="ml-2 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
-                                  期限間近
+                                  {t('expiringSoon')}
                                 </Badge>
                               )}
                             </TableCell>
@@ -320,7 +324,7 @@ export default function AdminTicketsPage() {
                                 size="sm"
                                 onClick={() => handleOpenAdjust(b)}
                               >
-                                調整
+                                {tc('adjust')}
                               </Button>
                             </TableCell>
                           </TableRow>
@@ -333,8 +337,7 @@ export default function AdminTicketsPage() {
                   {balancesTotalPages > 1 && (
                     <div className="flex items-center justify-between mt-4">
                       <p className="text-sm text-gray-500 dark:text-slate-400">
-                        全{balances.total}件中 {(balancesPage - 1) * balances.limit + 1}-
-                        {Math.min(balancesPage * balances.limit, balances.total)}件
+                        {tc('paginationInfo', { total: balances.total, from: (balancesPage - 1) * balances.limit + 1, to: Math.min(balancesPage * balances.limit, balances.total) })}
                       </p>
                       <div className="flex gap-2">
                         <Button
@@ -343,7 +346,7 @@ export default function AdminTicketsPage() {
                           disabled={balancesPage <= 1}
                           onClick={() => setBalancesPage((p) => p - 1)}
                         >
-                          前へ
+                          {tc('prev')}
                         </Button>
                         <Button
                           variant="outline"
@@ -351,7 +354,7 @@ export default function AdminTicketsPage() {
                           disabled={balancesPage >= balancesTotalPages}
                           onClick={() => setBalancesPage((p) => p + 1)}
                         >
-                          次へ
+                          {tc('next')}
                         </Button>
                       </div>
                     </div>
@@ -368,11 +371,11 @@ export default function AdminTicketsPage() {
           >
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>チケット残高調整</DialogTitle>
+                <DialogTitle>{t('adjustBalance')}</DialogTitle>
                 <DialogDescription>
                   {adjustBalance && (
                     <>
-                      {adjustBalance.student_name || '不明'} - {adjustBalance.ticket_name || '不明'}
+                      {adjustBalance.student_name || tc('unknown')} - {adjustBalance.ticket_name || tc('unknown')}
                     </>
                   )}
                 </DialogDescription>
@@ -382,19 +385,19 @@ export default function AdminTicketsPage() {
                   {adjError && <ErrorAlert message={adjError} />}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
-                      残り分数
+                      {t('remainingMinutesLabel')}
                     </label>
                     <Input
                       type="number"
                       min={0}
                       value={adjMinutes}
                       onChange={(e) => setAdjMinutes(e.target.value)}
-                      placeholder="残り分数を入力"
+                      placeholder={t('remainingMinutesPlaceholder')}
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
-                      有効期限
+                      {t('expiryDateLabel')}
                     </label>
                     <Input
                       type="date"
@@ -407,7 +410,7 @@ export default function AdminTicketsPage() {
                       loading={adjSubmitting}
                       onClick={handleSubmitAdjust}
                     >
-                      保存
+                      {tc('save')}
                     </LoadingButton>
                   </div>
                 </div>

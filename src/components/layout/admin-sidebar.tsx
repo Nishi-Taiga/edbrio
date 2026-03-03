@@ -4,15 +4,18 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { LayoutDashboard, Users, CreditCard, FileText, Calendar, Ticket, Shield, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useTranslations } from 'next-intl'
 
-const items = [
-  { href: '/admin/dashboard', label: 'ダッシュボード', icon: LayoutDashboard },
-  { href: '/admin/users', label: 'ユーザー管理', icon: Users },
-  { href: '/admin/payments', label: '決済管理', icon: CreditCard },
-  { href: '/admin/reports', label: 'レポート分析', icon: FileText },
-  { href: '/admin/bookings', label: '予約分析', icon: Calendar },
-  { href: '/admin/tickets', label: 'チケット管理', icon: Ticket },
-  { href: '/admin/audit', label: '監査ログ', icon: Shield },
+type NavKey = 'dashboard' | 'users' | 'payments' | 'reports' | 'bookings' | 'tickets' | 'audit'
+
+const itemDefs: { href: string; key: NavKey; icon: typeof LayoutDashboard }[] = [
+  { href: '/admin/dashboard', key: 'dashboard', icon: LayoutDashboard },
+  { href: '/admin/users', key: 'users', icon: Users },
+  { href: '/admin/payments', key: 'payments', icon: CreditCard },
+  { href: '/admin/reports', key: 'reports', icon: FileText },
+  { href: '/admin/bookings', key: 'bookings', icon: Calendar },
+  { href: '/admin/tickets', key: 'tickets', icon: Ticket },
+  { href: '/admin/audit', key: 'audit', icon: Shield },
 ]
 
 interface AdminSidebarProps {
@@ -21,6 +24,7 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ onClose }: AdminSidebarProps) {
   const pathname = usePathname()
+  const t = useTranslations('adminNav')
 
   return (
     <nav className="h-full p-4 flex flex-col">
@@ -36,7 +40,7 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
         <div className="text-xs text-slate-500 dark:text-slate-400">Admin Console</div>
       </div>
       <ul className="space-y-1 flex-1">
-        {items.map((it) => {
+        {itemDefs.map((it) => {
           const active = pathname === it.href || (it.href !== '/admin/dashboard' && pathname?.startsWith(it.href))
           const Icon = it.icon
           return (
@@ -51,7 +55,7 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
                 }`}
               >
                 <Icon className="w-4 h-4" />
-                {it.label}
+                {t(it.key)}
               </Link>
             </li>
           )
