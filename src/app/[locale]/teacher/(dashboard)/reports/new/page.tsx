@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
-import { Save, Send } from 'lucide-react'
+import { Save, Send, Sparkles } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useStudentCurriculum } from '@/hooks/use-student-curriculum'
 import { useAiReport } from '@/hooks/use-ai-report'
@@ -31,6 +31,7 @@ interface UnreportedBooking {
   status: string
   profileId: string
   studentName: string
+  subjects: string[]
 }
 
 export default function NewReportPage() {
@@ -74,10 +75,11 @@ function NewReportContent() {
     studentMood: 'neutral',
     homework: '',
     nextPlan: '',
-    maxLength: 500,
+    maxLength: 100,
   })
 
   const [editedPublic, setEditedPublic] = useState('')
+  const [memoSubmitted, setMemoSubmitted] = useState<'ai' | 'skip' | null>(null)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [teacherPlan, setTeacherPlan] = useState<TeacherPlan>('free')
@@ -112,12 +114,12 @@ function NewReportContent() {
       // Get student profiles for this teacher (to map student_id → profile)
       const { data: profiles } = await supabase
         .from('student_profiles')
-        .select('id, student_id, name')
+        .select('id, student_id, name, subjects')
         .eq('teacher_id', user.id)
 
-      const profileMap = new Map<string, { id: string; name: string }>()
+      const profileMap = new Map<string, { id: string; name: string; subjects: string[] }>()
       for (const p of profiles || []) {
-        if (p.student_id) profileMap.set(p.student_id, { id: p.id, name: p.name })
+        if (p.student_id) profileMap.set(p.student_id, { id: p.id, name: p.name, subjects: p.subjects || [] })
       }
 
       // Filter: unreported bookings that have a matching student profile
@@ -134,6 +136,7 @@ function NewReportContent() {
             status: b.status,
             profileId: profile.id,
             studentName: profile.name,
+            subjects: profile.subjects,
           } satisfies UnreportedBooking
         })
         .filter((b): b is UnreportedBooking => b !== null)
@@ -160,6 +163,20 @@ function NewReportContent() {
   }, [user?.id, supabase])
 
   const isPro = teacherPlan === 'standard'
+
+  // Auto-set subject from selected booking's student subjects
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (selectedBooking) {
+      setFormData(prev => ({ ...prev, subject: selectedBooking.subjects?.join('・') || '' }))
+    }
+  }, [selectedBooking?.id])
+
+  const handleBookingChange = (bookingId: string) => {
+    setSelectedBookingId(bookingId)
+    setMemoSubmitted(null)
+    setEditedPublic('')
+  }
 
   // Update edited content when AI generates
   useEffect(() => {
@@ -233,17 +250,22 @@ function NewReportContent() {
     const dateStr = date.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric', weekday: 'short' })
     const startStr = date.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
     const endStr = new Date(b.end_time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
-    return `${dateStr} ${startStr}〜${endStr}  ${b.studentName}`
+    const subjectStr = b.subjects.length > 0 ? ` [${b.subjects.join('・')}]` : ''
+    return `${dateStr} ${startStr}〜${endStr}  ${b.studentName}${subjectStr}`
   }
 
-  // Step indicator labels differ based on plan
-  const steps = isPro
+  // Step indicator labels differ based on chosen path
+  const showAiSteps = memoSubmitted === 'ai' || (!memoSubmitted && isPro)
+  const steps = showAiSteps
     ? [t('steps.selectBooking'), t('steps.inputMemo'), t('steps.aiGenerate'), t('steps.preview'), t('steps.save')]
     : [t('steps.selectBooking'), t('steps.inputMemo'), t('steps.preview'), t('steps.save')]
 
-  const currentStep = isPro
-    ? (!selectedBookingId ? 0 : !formData.contentRaw.trim() ? 1 : !editedPublic ? 2 : 3)
-    : (!selectedBookingId ? 0 : !formData.contentRaw.trim() ? 1 : !editedPublic ? 2 : 3)
+  const currentStep = (() => {
+    if (!selectedBookingId) return 0
+    if (!memoSubmitted) return 1
+    if (!editedPublic) return 2
+    return showAiSteps ? 3 : 2
+  })()
 
   return (
     <ProtectedRoute allowedRoles={["teacher"]}>
@@ -283,7 +305,7 @@ function NewReportContent() {
               ) : unreportedBookings.length === 0 ? (
                 <p className="text-sm text-muted-foreground">{t('noUnreportedBookings')}</p>
               ) : (
-                <Select value={selectedBookingId} onValueChange={setSelectedBookingId}>
+                <Select value={selectedBookingId} onValueChange={handleBookingChange}>
                   <SelectTrigger><SelectValue placeholder={t('bookingPlaceholder')} /></SelectTrigger>
                   <SelectContent>
                     {unreportedBookings.map(b => (
@@ -303,55 +325,82 @@ function NewReportContent() {
               </CardHeader>
               <CardContent>
                 <ReportForm data={formData} onChange={setFormData} />
+                {/* Navigation buttons */}
+                {!memoSubmitted && (
+                  <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+                    <Button
+                      variant="outline"
+                      onClick={() => setMemoSubmitted('skip')}
+                      disabled={!formData.contentRaw.trim()}
+                    >
+                      {t('skipAi')}
+                    </Button>
+                    <Button
+                      onClick={() => setMemoSubmitted('ai')}
+                      disabled={!formData.contentRaw.trim()}
+                      className="bg-purple-600 hover:bg-purple-700 text-white"
+                    >
+                      <Sparkles className="w-4 h-4 mr-1" />
+                      {t('proceedToAi')}
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
 
-          {/* Step 3: AI Generate (Pro) or manual input prompt (Free) */}
-          {selectedBookingId && formData.contentRaw.trim() && (
-            <div className="flex justify-center">
-              <AiGenerateButton
-                onClick={handleGenerate}
-                loading={aiLoading}
-                disabled={!formData.contentRaw.trim() || !selectedBookingId}
-                isPro={isPro}
-                canGenerate={canGenerate}
-                remainingGenerations={remainingGenerations}
-                maxGenerations={maxGenerations}
-              />
-            </div>
+          {/* Step 3a: AI Generate */}
+          {memoSubmitted === 'ai' && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">{t('steps.aiGenerate')}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-center">
+                  <AiGenerateButton
+                    onClick={handleGenerate}
+                    loading={aiLoading}
+                    disabled={!formData.contentRaw.trim() || !selectedBookingId}
+                    isPro={isPro}
+                    canGenerate={canGenerate}
+                    remainingGenerations={remainingGenerations}
+                    maxGenerations={maxGenerations}
+                  />
+                </div>
+              </CardContent>
+            </Card>
           )}
 
-          {/* Free plan: manual input area (shown when no AI-generated content) */}
-          {!isPro && selectedBookingId && formData.contentRaw.trim() && !editedPublic && (
+          {/* Step 3b: Manual input (skipped AI) */}
+          {memoSubmitted === 'skip' && (
             <ReportPreview
               content={editedPublic}
               onChange={setEditedPublic}
             />
           )}
 
-          {/* Step 4: Preview & Edit */}
-          {editedPublic && (
-            <>
-              <ReportPreview
-                content={editedPublic}
-                onChange={setEditedPublic}
-                onRegenerate={isPro ? handleGenerate : undefined}
-                regenerating={aiLoading}
-                canRegenerate={canGenerate}
-                remainingGenerations={remainingGenerations}
-              />
+          {/* Preview after AI generation */}
+          {memoSubmitted === 'ai' && editedPublic && (
+            <ReportPreview
+              content={editedPublic}
+              onChange={setEditedPublic}
+              onRegenerate={isPro ? handleGenerate : undefined}
+              regenerating={aiLoading}
+              canRegenerate={canGenerate}
+              remainingGenerations={remainingGenerations}
+            />
+          )}
 
-              {/* Step 5: Save */}
-              <div className="flex justify-end gap-3">
-                <LoadingButton variant="outline" onClick={() => handleSave(false)} loading={saving}>
-                  <Save className="w-4 h-4 mr-1" />{t('saveDraft')}
-                </LoadingButton>
-                <LoadingButton onClick={() => handleSave(true)} loading={saving}>
-                  <Send className="w-4 h-4 mr-1" />{t('publish')}
-                </LoadingButton>
-              </div>
-            </>
+          {/* Save buttons */}
+          {editedPublic && (
+            <div className="flex justify-end gap-3">
+              <LoadingButton variant="outline" onClick={() => handleSave(false)} loading={saving}>
+                <Save className="w-4 h-4 mr-1" />{t('saveDraft')}
+              </LoadingButton>
+              <LoadingButton onClick={() => handleSave(true)} loading={saving}>
+                <Send className="w-4 h-4 mr-1" />{t('publish')}
+              </LoadingButton>
+            </div>
           )}
         </div>
       </div>

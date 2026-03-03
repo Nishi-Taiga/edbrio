@@ -447,7 +447,9 @@
     "aiGenerating": "AI生成中...",
     "aiGenerateButton": "AIで報告書を生成",
     "generationLimitReachedShort": "生成上限に達しました",
-    "generationsUsed": "{count}/{max}回使用済み"
+    "generationsUsed": "{count}/{max}回使用済み",
+    "proceedToAi": "AI生成に進む",
+    "skipAi": "AI生成をスキップする"
   },
   "teacherReportDetail": {
     "title": "レポート詳細",
@@ -791,8 +793,8 @@
     "homeworkPlaceholder": "例: テキストP.42-45の演習問題",
     "nextPlanLabel": "次回の予定",
     "nextPlanPlaceholder": "例: 二次方程式の応用問題に挑戦",
-    "maxLengthLabel": "最大文字数",
-    "maxLengthPlaceholder": "500"
+    "maxLengthLabel": "最大文字数（AI生成文字数）",
+    "maxLengthPlaceholder": "100"
   },
   "curriculum": {
     "card": {

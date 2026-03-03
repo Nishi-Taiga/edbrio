@@ -29,11 +29,6 @@ export function ReportForm({ data, onChange }: ReportFormProps) {
   return (
     <div className="space-y-4">
       <div>
-        <Label htmlFor="rf-subject">{t('subjectLabel')}</Label>
-        <Input id="rf-subject" value={data.subject} onChange={e => update('subject', e.target.value)} placeholder={t('subjectPlaceholder')} />
-      </div>
-
-      <div>
         <Label htmlFor="rf-content">{t('contentLabel')}</Label>
         <textarea
           id="rf-content"
