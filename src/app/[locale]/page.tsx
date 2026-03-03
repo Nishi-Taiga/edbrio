@@ -216,7 +216,8 @@ export default function HomePage() {
         <nav className="bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
             <div className="flex items-center gap-2.5 shrink-0">
-              <Image src="/logo.svg" alt="EdBrio" width={140} height={36} className="h-8 sm:h-9 w-auto dark:brightness-0 dark:invert" priority />
+              <Image src="/logo.svg" alt="EdBrio" width={140} height={36} className="h-8 sm:h-9 w-auto dark:hidden" priority />
+              <Image src="/logo-dark.svg" alt="EdBrio" width={140} height={36} className="h-8 sm:h-9 w-auto hidden dark:block" priority />
             </div>
             <div className="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-500 dark:text-slate-400">
               <a href="#features" className="hover:text-brand-600 dark:hover:text-brand-400 transition">{t('nav.features')}</a>
@@ -541,7 +542,8 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-8 sm:gap-12 mb-12 sm:mb-20">
           <div className="max-w-xs">
             <div className="flex items-center gap-2.5 mb-4 sm:mb-6">
-              <Image src="/logo.svg" alt="EdBrio" width={140} height={36} className="h-8 sm:h-9 w-auto dark:brightness-0 dark:invert" />
+              <Image src="/logo.svg" alt="EdBrio" width={140} height={36} className="h-8 sm:h-9 w-auto dark:hidden" />
+              <Image src="/logo-dark.svg" alt="EdBrio" width={140} height={36} className="h-8 sm:h-9 w-auto hidden dark:block" />
             </div>
             <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed font-medium">
               {t('footer.description')}

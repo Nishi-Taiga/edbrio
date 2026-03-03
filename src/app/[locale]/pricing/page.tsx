@@ -63,7 +63,8 @@ export default function PricingPage() {
       <nav className="fixed top-0 w-full z-50 bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
-            <Image src="/logo.svg" alt="EdBrio" width={140} height={36} className="h-8 sm:h-9 w-auto dark:brightness-0 dark:invert" priority />
+            <Image src="/logo.svg" alt="EdBrio" width={140} height={36} className="h-8 sm:h-9 w-auto dark:hidden" priority />
+            <Image src="/logo-dark.svg" alt="EdBrio" width={140} height={36} className="h-8 sm:h-9 w-auto hidden dark:block" priority />
           </Link>
           <div className="flex items-center gap-3 shrink-0">
             <LanguageSwitcher className="hidden md:inline-flex" />
