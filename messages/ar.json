@@ -444,11 +444,11 @@
     "bookingPlaceholder": "اختر درساً...",
     "noUnreportedBookings": "لا توجد دروس بدون تقارير",
     "step2Title": "2. أدخل ملاحظات الدرس",
-    "saveDraft": "حفظ كمسودة",
-    "publish": "نشر",
-    "publishSuccess": "تم نشر التقرير بنجاح",
-    "draftSuccess": "تم حفظ المسودة بنجاح",
-    "aiReportLabel": "تقرير منشأ بالذكاء الاصطناعي",
+    "saveDraft": "حفظ",
+    "publish": "حفظ ونشر",
+    "publishSuccess": "تم حفظ التقرير ونشره",
+    "draftSuccess": "تم حفظ التقرير",
+    "aiReportLabel": "تقرير مُنشأ بالذكاء الاصطناعي",
     "saveError": "فشل في حفظ التقرير",
     "planRequired": "إنشاء تقارير الذكاء الاصطناعي هو ميزة خطة Standard",
     "upgradeLink": "ترقية خطتك",
@@ -476,10 +476,17 @@
     "visibilityPublished": "منشور",
     "visibilityDraft": "مسودة",
     "publicReport": "تقرير لأولياء الأمور",
-    "teacherMemo": "ملاحظات الدرس (للمعلم فقط)",
+    "teacherMemo": "ملاحظات الدرس",
+    "teacherMemoPrivate": "ملاحظات المعلم (غير مرئية لأولياء الأمور)",
     "editMemo": "تعديل ملاحظات الدرس",
     "saveDraft": "حفظ كمسودة",
-    "publish": "نشر"
+    "publish": "نشر",
+    "regenerate": "إعادة الإنشاء بالذكاء الاصطناعي",
+    "publishDraft": "نشر",
+    "publishSuccess": "تم نشر التقرير",
+    "deleteDraft": "حذف المسودة",
+    "deleteConfirm": "هل تريد حذف هذه المسودة؟ لا يمكن التراجع عن هذا الإجراء.",
+    "deleteSuccess": "تم حذف المسودة"
   },
   "teacherCalendar": {
     "title": "التقويم",
@@ -830,8 +837,11 @@
     "homeworkPlaceholder": "مثال: تمارين الكتاب ص 42-45",
     "nextPlanLabel": "خطة الدرس القادم",
     "nextPlanPlaceholder": "مثال: محاولة مسائل المعادلات التربيعية التطبيقية",
-    "maxLengthLabel": "الحد الأقصى للأحرف",
-    "maxLengthPlaceholder": "500"
+    "maxLengthLabel": "الحد الأقصى للأحرف (لإنشاء AI)",
+    "maxLengthPlaceholder": "100",
+    "teacherMemoLabel": "ملاحظات المعلم (غير مرئية لأولياء الأمور)",
+    "teacherMemoPlaceholder": "اكتب ملاحظاتك وأفكارك الشخصية...",
+    "teacherMemoHint": "هذه الملاحظات مرئية للمعلم فقط"
   },
   "curriculum": {
     "card": {
