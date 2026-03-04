@@ -71,9 +71,9 @@
       "stat1Value": "95%",
       "stat1Label": "講師の手取り率",
       "stat1Description": "業界最低水準の手数料で、授業料のほとんどが先生に届きます",
-      "stat2Value": "数秒",
-      "stat2Label": "報告書の作成時間",
-      "stat2Description": "AIが授業メモから保護者向け報告書を自動生成"
+      "stat2Value": "3",
+      "stat2Label": "ステップで報告書が完成",
+      "stat2Description": "授業メモの入力からAI生成、保護者への共有まで"
     },
     "howItWorks": {
       "title": "AIレポートができるまで",
@@ -83,7 +83,7 @@
       "step1Description": "教科・理解度・気づいた点を簡単に入力するだけ",
       "step2Number": "02",
       "step2Title": "AIが報告書を生成",
-      "step2Description": "生徒情報と過去の授業記録を踏まえ、AIが丁寧な報告書を作成",
+      "step2Description": "入力されたメモを元に、AIが文章を作成",
       "step3Number": "03",
       "step3Title": "保護者に共有",
       "step3Description": "ワンクリックで保護者に公開。メッセージでフォローアップも可能"
