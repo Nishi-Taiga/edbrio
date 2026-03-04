@@ -4,6 +4,7 @@ import { Link, usePathname, useRouter } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks/use-auth'
 import { useUnreadCount } from '@/hooks/use-unread-count'
+import { useBookingReports } from '@/hooks/use-booking-reports'
 import { ChevronUp, LogOut, Mail, Settings, User, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -32,6 +33,10 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
   const t = useTranslations('sidebar')
   const role = isGuardian ? 'guardian' as const : 'teacher' as const
   const { count: unreadCount } = useUnreadCount(user?.id, role)
+  const { pendingCount: pendingReportCount } = useBookingReports(
+    !isGuardian ? user?.id : undefined,
+    'teacher'
+  )
 
   const guardianItems = [
     { href: '/guardian/dashboard', label: t('guardian.home') },
@@ -45,7 +50,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
   const teacherItems = [
     { href: '/teacher/dashboard', label: t('teacher.dashboard') },
     { href: '/teacher/reports', label: t('teacher.reports') },
-    { href: '/teacher/calendar', label: t('teacher.calendar') },
+    { href: '/teacher/calendar', label: t('teacher.calendar'), badge: pendingReportCount },
     { href: '/teacher/chat', label: t('teacher.chat'), badge: unreadCount },
     { href: '/teacher/curriculum', label: t('teacher.students') },
     { href: '/teacher/tickets', label: t('teacher.tickets') },

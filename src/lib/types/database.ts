@@ -13,17 +13,29 @@ export interface StationSelection {
 export type UserRole = 'teacher' | 'guardian' | 'student'
 export type TeacherPlan = 'free' | 'standard'
 export type BookingStatus = 'pending' | 'confirmed' | 'canceled' | 'done'
+export type BookingReportReason = 'late' | 'absent' | 'other'
+export type BookingReportStatus = 'pending' | 'approved' | 'rejected' | 'auto_approved'
 export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded'
 export type GoalStatus = 'active' | 'achieved' | 'paused'
 export type WeakPointSeverity = 'low' | 'medium' | 'high'
 export type WeakPointStatus = 'active' | 'improving' | 'resolved'
 export type StudentMood = 'good' | 'neutral' | 'tired' | 'unmotivated'
 
+export interface NotificationPreferences {
+  booking_confirmation?: boolean
+  booking_cancellation?: boolean
+  report_published?: boolean
+  new_chat_message?: boolean
+  booking_reminder?: boolean
+  ticket_purchase?: boolean
+}
+
 export interface User {
   id: string
   role: UserRole
   email: string
   name: string
+  notification_preferences?: NotificationPreferences
   created_at: string
   updated_at: string
 }
@@ -169,6 +181,20 @@ export interface Report {
   comprehension_level?: number
   tokens_used?: number
   teacher_memo?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface BookingReport {
+  id: string
+  booking_id: string
+  reporter_id: string
+  reason: BookingReportReason
+  description?: string
+  status: BookingReportStatus
+  deadline: string
+  resolved_at?: string
+  resolved_by?: string
   created_at: string
   updated_at: string
 }

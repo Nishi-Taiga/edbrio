@@ -11,11 +11,12 @@ import jaLocale from '@fullcalendar/core/locales/ja'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-import { Check, Plus, Trash2, X } from 'lucide-react'
+import { AlertTriangle, Check, Plus, Trash2, X } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useShifts } from '@/hooks/use-shifts'
 import { useAvailability } from '@/hooks/use-availability'
 import { useBookings } from '@/hooks/use-bookings'
+import { useBookingReports } from '@/hooks/use-booking-reports'
 import { ShiftForm } from '@/components/calendar/shift-form'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
@@ -48,6 +49,7 @@ export default function TeacherCalendarPage() {
   const { shifts, loading: shiftsLoading, error: shiftsError, createShift, deleteShift } = useShifts(teacherId)
   const { availability, loading: availLoading } = useAvailability(teacherId, dateRange)
   const { bookings, loading: bookingsLoading, updateBookingStatus } = useBookings(teacherId, 'teacher')
+  const { reports, resolveReport, refresh: refreshReports } = useBookingReports(teacherId, 'teacher')
 
   // Dialog state
   const [shiftFormOpen, setShiftFormOpen] = useState(false)
@@ -58,6 +60,7 @@ export default function TeacherCalendarPage() {
   // Booking detail dialog
   const [bookingDetail, setBookingDetail] = useState<BookingDetail | null>(null)
   const [isUpdatingBooking, setIsUpdatingBooking] = useState(false)
+  const [isResolvingReport, setIsResolvingReport] = useState(false)
 
   // Student name resolution
   const [studentNames, setStudentNames] = useState<Record<string, string>>({})
@@ -210,6 +213,34 @@ export default function TeacherCalendarPage() {
     }
   }
 
+  // Handle report resolve (approve/reject)
+  const handleReportResolve = async (reportId: string, action: 'approve' | 'reject') => {
+    setIsResolvingReport(true)
+    try {
+      await resolveReport(reportId, action)
+      toast.success(action === 'approve' ? t('reportApproveSuccess') : t('reportRejectSuccess'))
+      await refreshReports()
+    } catch {
+      toast.error(tc('updateFailed'))
+    } finally {
+      setIsResolvingReport(false)
+    }
+  }
+
+  // Get report for a booking
+  const getReportForBooking = useCallback((bookingId: string) => {
+    return reports.find(r => r.booking_id === bookingId)
+  }, [reports])
+
+  const reportReasonLabel = (reason: string) => {
+    switch (reason) {
+      case 'late': return t('reportReasonLate')
+      case 'absent': return t('reportReasonAbsent')
+      case 'other': return t('reportReasonOther')
+      default: return reason
+    }
+  }
+
   const loading = shiftsLoading || availLoading || bookingsLoading
 
   return (
@@ -312,25 +343,83 @@ export default function TeacherCalendarPage() {
             <DialogHeader>
               <DialogTitle>{t('bookingDetailTitle')}</DialogTitle>
             </DialogHeader>
-            {bookingDetail && (
-              <div className="space-y-3">
-                <div className="text-sm">
-                  <span className="text-slate-500 dark:text-slate-400">{t('bookingStudent', { name: bookingDetail.studentName })}</span>
+            {bookingDetail && (() => {
+              const report = getReportForBooking(bookingDetail.id)
+              return (
+                <div className="space-y-3">
+                  <div className="text-sm">
+                    <span className="text-slate-500 dark:text-slate-400">{t('bookingStudent', { name: bookingDetail.studentName })}</span>
+                  </div>
+                  <div className="text-sm text-slate-700 dark:text-slate-300">
+                    {format(bookingDetail.start, 'PPP p', { locale: ja })} - {format(bookingDetail.end, 'p', { locale: ja })}
+                  </div>
+                  <div>
+                    <span className={`inline-block rounded px-2 py-0.5 text-xs border ${
+                      bookingDetail.status === 'confirmed' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800/30' :
+                      bookingDetail.status === 'pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800/30' :
+                      'bg-gray-50 text-gray-700 border-gray-200 dark:bg-surface dark:text-slate-300 dark:border-brand-800/20'
+                    }`}>
+                      {tc('statusLabels.' + bookingDetail.status)}
+                    </span>
+                  </div>
+
+                  {/* Report section */}
+                  {report && (
+                    <div className={`rounded-lg p-3 border ${
+                      report.status === 'pending'
+                        ? 'bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800/30'
+                        : report.status === 'approved' || report.status === 'auto_approved'
+                        ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800/30'
+                        : 'bg-gray-50 border-gray-200 dark:bg-gray-800/20 dark:border-gray-700/30'
+                    }`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                        <span className="text-sm font-medium">{t('reportSection')}</span>
+                      </div>
+                      <div className="text-sm text-slate-700 dark:text-slate-300">
+                        <span className="font-medium">{reportReasonLabel(report.reason)}</span>
+                        {report.description && (
+                          <p className="mt-1 text-slate-600 dark:text-slate-400">{report.description}</p>
+                        )}
+                      </div>
+
+                      {report.status === 'pending' && (
+                        <>
+                          <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">{t('reportDeadlineNote')}</p>
+                          <div className="flex gap-2 mt-3">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleReportResolve(report.id, 'reject')}
+                              disabled={isResolvingReport}
+                            >
+                              <X className="w-3.5 h-3.5 mr-1" /> {t('reportRejectButton')}
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => handleReportResolve(report.id, 'approve')}
+                              disabled={isResolvingReport}
+                            >
+                              <Check className="w-3.5 h-3.5 mr-1" /> {t('reportApproveButton')}
+                            </Button>
+                          </div>
+                        </>
+                      )}
+                      {(report.status === 'approved' || report.status === 'auto_approved') && (
+                        <span className="inline-block mt-2 rounded px-2 py-0.5 text-xs border bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800/30">
+                          {report.status === 'auto_approved' ? t('reportStatusAutoApproved') : t('reportStatusApproved')}
+                        </span>
+                      )}
+                      {report.status === 'rejected' && (
+                        <span className="inline-block mt-2 rounded px-2 py-0.5 text-xs border bg-gray-50 text-gray-600 border-gray-200 dark:bg-gray-800/30 dark:text-gray-400 dark:border-gray-700/30">
+                          {t('reportStatusRejected')}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
-                <div className="text-sm text-slate-700 dark:text-slate-300">
-                  {format(bookingDetail.start, 'PPP p', { locale: ja })} - {format(bookingDetail.end, 'p', { locale: ja })}
-                </div>
-                <div>
-                  <span className={`inline-block rounded px-2 py-0.5 text-xs border ${
-                    bookingDetail.status === 'confirmed' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800/30' :
-                    bookingDetail.status === 'pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800/30' :
-                    'bg-gray-50 text-gray-700 border-gray-200 dark:bg-surface dark:text-slate-300 dark:border-brand-800/20'
-                  }`}>
-                    {tc('statusLabels.' + bookingDetail.status)}
-                  </span>
-                </div>
-              </div>
-            )}
+              )
+            })()}
             {bookingDetail?.status === 'pending' && (
               <DialogFooter>
                 <Button
