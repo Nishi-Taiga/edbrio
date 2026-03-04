@@ -39,6 +39,7 @@
     "confirmed": "確定",
     "pending": "確認待ち",
     "retry": "再試行",
+    "next": "次へ",
     "creating": "作成中...",
     "statusLabels": {
       "pending": "確認待ち",
@@ -71,9 +72,9 @@
       "stat1Value": "95%",
       "stat1Label": "講師の手取り率",
       "stat1Description": "業界最低水準の手数料で、授業料のほとんどが先生に届きます",
-      "stat2Value": "3",
-      "stat2Label": "ステップで報告書が完成",
-      "stat2Description": "授業メモの入力からAI生成、保護者への共有まで"
+      "stat2Value": "3ステップ",
+      "stat2Label": "報告書の作成から共有まで",
+      "stat2Description": "メモ入力→AI生成→保護者共有。手間なく完結"
     },
     "howItWorks": {
       "title": "AIレポートができるまで",
@@ -571,7 +572,29 @@
     "hideSuccess": "チケットを非公開にしました",
     "showSuccess": "チケットを公開しました",
     "deleteSuccess": "チケットを削除しました",
-    "deleteError": "チケットの削除に失敗しました"
+    "deleteError": "チケットの削除に失敗しました",
+    "grantButton": "付与",
+    "grantDialogTitle": "チケットを付与",
+    "grantDialogDescription": "生徒にチケットを付与します。この操作はオンライン決済を伴いません。授業料の徴収が必要な場合は、銀行振込や手渡しなど別途ご対応ください。",
+    "grantStudentLabel": "生徒を選択",
+    "grantStudentPlaceholder": "生徒を選択してください",
+    "grantMinutesLabel": "合計時間（分）",
+    "grantValidDaysLabel": "有効日数",
+    "grantSendNotification": "保護者に通知メールを送る",
+    "grantNoLinkedStudents": "紐付け済みの生徒がいません。生徒カルテから生徒を紐付けてください。",
+    "grantSuccess": "チケットを付与しました",
+    "grantError": "チケットの付与に失敗しました",
+    "grantConfirmTitle": "付与内容の確認",
+    "grantConfirmDescription": "以下の内容でチケットを付与します。よろしいですか？",
+    "grantConfirmTicket": "チケット",
+    "grantConfirmStudent": "生徒",
+    "grantConfirmMinutes": "合計時間",
+    "grantConfirmValidDays": "有効日数",
+    "grantConfirmNotify": "保護者通知",
+    "grantConfirmYes": "はい",
+    "grantConfirmNo": "いいえ",
+    "grantNotifyYes": "あり",
+    "grantNotifyNo": "なし"
   },
   "teacherBookings": {
     "title": "予約一覧",
