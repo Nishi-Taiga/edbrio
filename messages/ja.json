@@ -81,13 +81,13 @@
       "description": "",
       "step1Number": "01",
       "step1Title": "授業メモを入力",
-      "step1Description": "教科・理解度・気づいた点を簡単に入力するだけ",
+      "step1Description": "理解度・気づいた点を簡単に入力",
       "step2Number": "02",
       "step2Title": "AIが報告書を生成",
       "step2Description": "入力されたメモを元に、AIが文章を作成",
       "step3Number": "03",
       "step3Title": "保護者に共有",
-      "step3Description": "ワンクリックで保護者に公開。メッセージでフォローアップも可能"
+      "step3Description": "ワンクリックで保護者に公開"
     },
     "ctaBanner": {
       "title": "指導に集中できる環境を、今日から。",
