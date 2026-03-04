@@ -75,3 +75,4 @@ export const subscriptionLimiter = createRateLimiter({ windowMs: 60_000, max: 3 
 export const contactLimiter = createRateLimiter({ windowMs: 300_000, max: 3 })
 export const adminLimiter = createRateLimiter({ windowMs: 60_000, max: 60 })
 export const passwordResetLimiter = createRateLimiter({ windowMs: 300_000, max: 3 })
+export const ticketGrantLimiter = createRateLimiter({ windowMs: 60_000, max: 20 })

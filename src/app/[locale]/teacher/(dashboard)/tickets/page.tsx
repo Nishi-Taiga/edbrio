@@ -8,13 +8,16 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-import { Plus, Edit2, Trash2, Eye, EyeOff, Ticket } from 'lucide-react'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Plus, Edit2, Trash2, Eye, EyeOff, Ticket, Gift } from 'lucide-react'
 import { SkeletonProductCard } from '@/components/ui/skeleton-card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorAlert } from '@/components/ui/error-alert'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/use-auth'
+import { useStudentProfiles } from '@/hooks/use-student-profiles'
 import { LoadingButton } from '@/components/ui/loading-button'
 import { useTranslations } from 'next-intl'
 
@@ -35,6 +38,13 @@ type TicketFormData = {
   bundle_qty: string
   price_yen: string
   valid_days: string
+}
+
+type GrantFormData = {
+  studentProfileId: string
+  customMinutes: string
+  customValidDays: string
+  sendNotification: boolean
 }
 
 const emptyForm: TicketFormData = {
@@ -60,7 +70,23 @@ export default function TeacherTicketsPage() {
   const [formData, setFormData] = useState<TicketFormData>(emptyForm)
   const [saving, setSaving] = useState(false)
 
+  // Grant state
+  const [grantTarget, setGrantTarget] = useState<TicketRow | null>(null)
+  const [showGrantConfirm, setShowGrantConfirm] = useState(false)
+  const [grantForm, setGrantForm] = useState<GrantFormData>({
+    studentProfileId: '',
+    customMinutes: '',
+    customValidDays: '',
+    sendNotification: true,
+  })
+  const [granting, setGranting] = useState(false)
+
   const supabase = useMemo(() => createClient(), [])
+  const { profiles: studentProfiles } = useStudentProfiles(user?.id)
+  const linkedProfiles = useMemo(
+    () => studentProfiles.filter(p => p.student_id),
+    [studentProfiles]
+  )
 
   const fetchTickets = async () => {
     try {
@@ -201,6 +227,60 @@ export default function TeacherTicketsPage() {
     }
   }
 
+  // Grant handlers
+  const openGrant = (ticket: TicketRow) => {
+    setGrantForm({
+      studentProfileId: '',
+      customMinutes: String(ticket.minutes * ticket.bundle_qty),
+      customValidDays: String(ticket.valid_days),
+      sendNotification: true,
+    })
+    setGrantTarget(ticket)
+  }
+
+  const openGrantConfirm = () => {
+    setGrantTarget(prev => prev) // keep grantTarget open
+    setShowGrantConfirm(true)
+  }
+
+  const closeGrantConfirm = () => {
+    setShowGrantConfirm(false)
+  }
+
+  const handleGrant = async () => {
+    if (!grantTarget || !grantForm.studentProfileId) return
+    setGranting(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/teacher/tickets/grant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ticketId: grantTarget.id,
+          studentProfileId: grantForm.studentProfileId,
+          customMinutes: parseInt(grantForm.customMinutes) || undefined,
+          customValidDays: parseInt(grantForm.customValidDays) || undefined,
+          sendNotification: grantForm.sendNotification,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed')
+      setShowGrantConfirm(false)
+      setGrantTarget(null)
+      toast.success(t('grantSuccess'))
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e))
+      toast.error(t('grantError'))
+    } finally {
+      setGranting(false)
+    }
+  }
+
+  const selectedStudentName = useMemo(() => {
+    const profile = linkedProfiles.find(p => p.id === grantForm.studentProfileId)
+    return profile?.name || ''
+  }, [linkedProfiles, grantForm.studentProfileId])
+
   const updateField = (field: keyof TicketFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
@@ -314,7 +394,7 @@ export default function TeacherTicketsPage() {
                       </div>
                     )}
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Button variant="outline" size="sm" onClick={() => openEdit(ticket)}>
                       <Edit2 className="w-3.5 h-3.5 mr-1" /> {t('editButton')}
                     </Button>
@@ -324,6 +404,9 @@ export default function TeacherTicketsPage() {
                       ) : (
                         <><Eye className="w-3.5 h-3.5 mr-1" /> {t('showButton')}</>
                       )}
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => openGrant(ticket)}>
+                      <Gift className="w-3.5 h-3.5 mr-1" /> {t('grantButton')}
                     </Button>
                     <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700" onClick={() => setDeleteTarget(ticket)}>
                       <Trash2 className="w-3.5 h-3.5 mr-1" /> {t('deleteButton')}
@@ -387,6 +470,125 @@ export default function TeacherTicketsPage() {
               </Button>
               <LoadingButton variant="destructive" onClick={handleDelete} loading={saving}>
                 {tc('delete')}
+              </LoadingButton>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Grant Form Dialog */}
+        <Dialog open={!!grantTarget && !showGrantConfirm} onOpenChange={v => !v && setGrantTarget(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{t('grantDialogTitle')}</DialogTitle>
+              <DialogDescription>{t('grantDialogDescription')}</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>{t('grantStudentLabel')}</Label>
+                {linkedProfiles.length === 0 ? (
+                  <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
+                    {t('grantNoLinkedStudents')}
+                  </p>
+                ) : (
+                  <Select
+                    value={grantForm.studentProfileId}
+                    onValueChange={v => setGrantForm(prev => ({ ...prev, studentProfileId: v }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('grantStudentPlaceholder')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {linkedProfiles.map(p => (
+                        <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>{t('grantMinutesLabel')}</Label>
+                  <Input
+                    type="number"
+                    min="1"
+                    value={grantForm.customMinutes}
+                    onChange={e => setGrantForm(prev => ({ ...prev, customMinutes: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <Label>{t('grantValidDaysLabel')}</Label>
+                  <Input
+                    type="number"
+                    min="1"
+                    value={grantForm.customValidDays}
+                    onChange={e => setGrantForm(prev => ({ ...prev, customValidDays: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="grant-notify"
+                  checked={grantForm.sendNotification}
+                  onCheckedChange={v => setGrantForm(prev => ({ ...prev, sendNotification: !!v }))}
+                />
+                <Label htmlFor="grant-notify" className="text-sm font-normal">
+                  {t('grantSendNotification')}
+                </Label>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setGrantTarget(null)}>
+                {tc('cancel')}
+              </Button>
+              <Button
+                onClick={openGrantConfirm}
+                disabled={!grantForm.studentProfileId || linkedProfiles.length === 0}
+              >
+                {tc('next')}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Grant Confirmation Dialog */}
+        <Dialog open={showGrantConfirm} onOpenChange={v => { if (!v) closeGrantConfirm() }}>
+          <DialogContent className="sm:max-w-sm">
+            <DialogHeader>
+              <DialogTitle>{t('grantConfirmTitle')}</DialogTitle>
+              <DialogDescription>{t('grantConfirmDescription')}</DialogDescription>
+            </DialogHeader>
+            <table className="w-full text-sm">
+              <tbody>
+                <tr className="border-b">
+                  <td className="py-2 text-gray-500 dark:text-slate-400">{t('grantConfirmTicket')}</td>
+                  <td className="py-2 font-medium text-right">{grantTarget?.name}</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="py-2 text-gray-500 dark:text-slate-400">{t('grantConfirmStudent')}</td>
+                  <td className="py-2 font-medium text-right">{selectedStudentName}</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="py-2 text-gray-500 dark:text-slate-400">{t('grantConfirmMinutes')}</td>
+                  <td className="py-2 font-medium text-right">{grantForm.customMinutes}分</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="py-2 text-gray-500 dark:text-slate-400">{t('grantConfirmValidDays')}</td>
+                  <td className="py-2 font-medium text-right">{grantForm.customValidDays}日</td>
+                </tr>
+                <tr>
+                  <td className="py-2 text-gray-500 dark:text-slate-400">{t('grantConfirmNotify')}</td>
+                  <td className="py-2 font-medium text-right">
+                    {grantForm.sendNotification ? t('grantNotifyYes') : t('grantNotifyNo')}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <DialogFooter>
+              <Button variant="outline" onClick={closeGrantConfirm} disabled={granting}>
+                {t('grantConfirmNo')}
+              </Button>
+              <LoadingButton onClick={handleGrant} loading={granting}>
+                {t('grantConfirmYes')}
               </LoadingButton>
             </DialogFooter>
           </DialogContent>

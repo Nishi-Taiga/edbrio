@@ -262,6 +262,40 @@ export function buildTicketPurchaseEmail(params: {
   }
 }
 
+export function buildTicketGrantEmail(params: {
+  ticketName: string
+  studentName: string
+  totalMinutes: number
+  expiresAt: string
+}): { subject: string; html: string } {
+  const { ticketName, studentName, totalMinutes, expiresAt } = params
+
+  const body = `
+<p style="margin:0 0 16px;font-size:15px;color:#374151;">${studentName}さんにチケットが付与されました。</p>
+<table width="100%" cellpadding="12" cellspacing="0" style="background:#f0fdf4;border-radius:12px;margin:16px 0;">
+<tr>
+  <td style="font-size:13px;color:#6b7280;width:100px;">チケット</td>
+  <td style="font-size:15px;color:#1f2937;font-weight:600;">${ticketName}</td>
+</tr>
+<tr>
+  <td style="font-size:13px;color:#6b7280;">授業時間</td>
+  <td style="font-size:15px;color:#1f2937;font-weight:600;">${totalMinutes}分</td>
+</tr>
+<tr>
+  <td style="font-size:13px;color:#6b7280;">有効期限</td>
+  <td style="font-size:15px;color:#1f2937;font-weight:600;">${expiresAt}</td>
+</tr>
+</table>
+<p style="margin:24px 0 0;text-align:center;">
+  <a href="https://edbrio.com/login" style="display:inline-block;background:#7c3aed;color:#ffffff;padding:12px 32px;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px;">ダッシュボードを開く</a>
+</p>`
+
+  return {
+    subject: `【EdBrio】チケット付与: ${ticketName}（${studentName}）`,
+    html: wrapInLayout(body),
+  }
+}
+
 export function buildBookingReminderEmail(params: {
   teacherName: string
   studentName: string

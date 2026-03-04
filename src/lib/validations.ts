@@ -116,6 +116,16 @@ export const adminUsersQuerySchema = z.object({
   sort: z.enum(['newest', 'oldest']).default('newest'),
 })
 
+// ── /api/teacher/tickets/grant ──
+
+export const ticketGrantSchema = z.object({
+  ticketId: uuidSchema,
+  studentProfileId: uuidSchema,
+  customMinutes: z.number().int().min(1).max(99999).optional(),
+  customValidDays: z.number().int().min(1).max(3650).optional(),
+  sendNotification: z.boolean().default(true),
+})
+
 // ── /api/admin/users/[id] PATCH ──
 
 export const adminUserUpdateSchema = z
