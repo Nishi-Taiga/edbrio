@@ -425,7 +425,6 @@ export default function HomePage() {
       <section id="faq" className="py-16 sm:py-24 px-5 sm:px-6 bg-white dark:bg-slate-950">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-10 sm:mb-16" data-reveal>
-            <span className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-3 block">{t('sections.faq')}</span>
             <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white">{t('faq.title')}</h2>
           </div>
           <div className="space-y-3">
