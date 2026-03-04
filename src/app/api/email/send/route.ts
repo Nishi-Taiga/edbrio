@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { sendEmail, buildBookingConfirmationEmail, buildReportPublishedEmail, buildNewChatMessageEmail } from '@/lib/email'
+import { sendEmail, buildBookingConfirmationEmail, buildBookingCancellationEmail, buildReportPublishedEmail, buildNewChatMessageEmail, isNotificationEnabled } from '@/lib/email'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { emailLimiter } from '@/lib/rate-limit'
@@ -47,10 +47,10 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
         }
 
-        // Fetch teacher info
+        // Fetch teacher info + notification preferences
         const { data: teacher } = await supabase
           .from('users')
-          .select('email, display_name')
+          .select('email, display_name, notification_preferences')
           .eq('id', booking.teacher_id)
           .single()
 
@@ -62,15 +62,17 @@ export async function POST(req: NextRequest) {
           .limit(1)
           .single()
 
-        // Fetch guardian email
+        // Fetch guardian email + notification preferences
         let guardianEmail: string | null = null
+        let guardianPrefs: Record<string, boolean> | null = null
         if (profile?.guardian_id) {
           const { data: guardian } = await supabase
             .from('users')
-            .select('email')
+            .select('email, notification_preferences')
             .eq('id', profile.guardian_id)
             .single()
           guardianEmail = guardian?.email || null
+          guardianPrefs = guardian?.notification_preferences || null
         }
 
         const teacherName = teacher?.display_name || '講師'
@@ -82,7 +84,7 @@ export async function POST(req: NextRequest) {
         const sent: string[] = []
 
         // Send to teacher
-        if (teacher?.email) {
+        if (teacher?.email && isNotificationEnabled(teacher.notification_preferences, 'booking_confirmation')) {
           const email = buildBookingConfirmationEmail({
             teacherName, studentName, date: dateStr, startTime: startStr, endTime: endStr,
             recipientRole: 'teacher',
@@ -92,8 +94,80 @@ export async function POST(req: NextRequest) {
         }
 
         // Send to guardian
-        if (guardianEmail) {
+        if (guardianEmail && isNotificationEnabled(guardianPrefs, 'booking_confirmation')) {
           const email = buildBookingConfirmationEmail({
+            teacherName, studentName, date: dateStr, startTime: startStr, endTime: endStr,
+            recipientRole: 'guardian',
+          })
+          await sendEmail(guardianEmail, email.subject, email.html)
+          sent.push('guardian')
+        }
+
+        return NextResponse.json({ success: true, sent })
+      }
+
+      case 'booking_cancellation': {
+        const { bookingId } = data
+
+        // Fetch booking with related data
+        const { data: booking, error: bErr } = await supabase
+          .from('bookings')
+          .select('id, start_time, end_time, teacher_id, student_id')
+          .eq('id', bookingId)
+          .single()
+        if (bErr || !booking) {
+          return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
+        }
+
+        // Fetch teacher info + notification preferences
+        const { data: teacher } = await supabase
+          .from('users')
+          .select('email, display_name, notification_preferences')
+          .eq('id', booking.teacher_id)
+          .single()
+
+        // Fetch student profile to get student name and guardian
+        const { data: profile } = await supabase
+          .from('student_profiles')
+          .select('name, guardian_id')
+          .eq('student_id', booking.student_id)
+          .limit(1)
+          .single()
+
+        // Fetch guardian email + notification preferences
+        let guardianEmail: string | null = null
+        let guardianPrefs: Record<string, boolean> | null = null
+        if (profile?.guardian_id) {
+          const { data: guardian } = await supabase
+            .from('users')
+            .select('email, notification_preferences')
+            .eq('id', profile.guardian_id)
+            .single()
+          guardianEmail = guardian?.email || null
+          guardianPrefs = guardian?.notification_preferences || null
+        }
+
+        const teacherName = teacher?.display_name || '講師'
+        const studentName = profile?.name || '生徒'
+        const dateStr = format(new Date(booking.start_time), 'yyyy年M月d日(E)', { locale: ja })
+        const startStr = format(new Date(booking.start_time), 'HH:mm', { locale: ja })
+        const endStr = format(new Date(booking.end_time), 'HH:mm', { locale: ja })
+
+        const sent: string[] = []
+
+        // Send to teacher
+        if (teacher?.email && isNotificationEnabled(teacher.notification_preferences, 'booking_cancellation')) {
+          const email = buildBookingCancellationEmail({
+            teacherName, studentName, date: dateStr, startTime: startStr, endTime: endStr,
+            recipientRole: 'teacher',
+          })
+          await sendEmail(teacher.email, email.subject, email.html)
+          sent.push('teacher')
+        }
+
+        // Send to guardian
+        if (guardianEmail && isNotificationEnabled(guardianPrefs, 'booking_cancellation')) {
+          const email = buildBookingCancellationEmail({
             teacherName, studentName, date: dateStr, startTime: startStr, endTime: endStr,
             recipientRole: 'guardian',
           })
@@ -137,12 +211,17 @@ export async function POST(req: NextRequest) {
 
         const { data: guardian } = await supabase
           .from('users')
-          .select('email')
+          .select('email, notification_preferences')
           .eq('id', profile.guardian_id)
           .single()
 
         if (!guardian?.email) {
           return NextResponse.json({ success: true, sent: [], note: 'No guardian email' })
+        }
+
+        // Check notification preference
+        if (!isNotificationEnabled(guardian.notification_preferences, 'report_published')) {
+          return NextResponse.json({ success: true, sent: [], note: 'Notification disabled' })
         }
 
         const email = buildReportPublishedEmail({
@@ -192,10 +271,10 @@ export async function POST(req: NextRequest) {
           .eq('id', senderId)
           .single()
 
-        // Fetch recipient email
+        // Fetch recipient email + notification preferences
         const { data: recipient } = await supabase
           .from('users')
-          .select('email')
+          .select('email, notification_preferences')
           .eq('id', recipientId)
           .single()
 
@@ -208,6 +287,11 @@ export async function POST(req: NextRequest) {
 
         if (!recipient?.email) {
           return NextResponse.json({ success: true, sent: [], note: 'No recipient email' })
+        }
+
+        // Check notification preference
+        if (!isNotificationEnabled(recipient.notification_preferences, 'new_chat_message')) {
+          return NextResponse.json({ success: true, sent: [], note: 'Notification disabled' })
         }
 
         // Get latest message content for preview

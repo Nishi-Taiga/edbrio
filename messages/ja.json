@@ -313,7 +313,8 @@
       "bookings": "予約履歴",
       "reports": "レポート",
       "chat": "メッセージ",
-      "contact": "お問い合わせ"
+      "contact": "お問い合わせ",
+      "settings": "設定"
     },
     "userMenu": {
       "settings": "設定",
@@ -1346,5 +1347,26 @@
     "actionPlaceholder": "アクション",
     "targetTablePlaceholder": "対象テーブル",
     "json": "JSON"
+  },
+  "notificationSettings": {
+    "title": "メール通知設定",
+    "description": "受信するメール通知を設定します",
+    "booking_confirmation": "予約確認メール",
+    "booking_confirmationDesc": "授業の予約が入った際にメールで通知します",
+    "booking_cancellation": "キャンセル確認メール",
+    "booking_cancellationDesc": "授業の予約がキャンセルされた際にメールで通知します",
+    "report_published": "レポート公開メール",
+    "report_publishedDesc": "講師が授業レポートを公開した際にメールで通知します",
+    "new_chat_message": "チャットメッセージメール",
+    "new_chat_messageDesc": "新しいチャットメッセージが届いた際にメールで通知します",
+    "booking_reminder": "授業リマインダーメール",
+    "booking_reminderDesc": "授業の前日にリマインダーメールを送信します",
+    "ticket_purchase": "チケット購入完了メール",
+    "ticket_purchaseDesc": "チケットを購入した際に確認メールを送信します",
+    "saveSuccess": "通知設定を保存しました"
+  },
+  "guardianSettings": {
+    "title": "設定",
+    "description": "通知やテーマの設定を変更できます"
   }
 }

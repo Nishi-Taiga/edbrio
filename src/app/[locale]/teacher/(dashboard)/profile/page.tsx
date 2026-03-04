@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Check, Edit2, X, Sun, Moon, Monitor, Mail, Loader2, Clock, CheckCircle2, QrCode, CreditCard, AlertCircle } from 'lucide-react'
+import { Check, Edit2, X, Sun, Moon, Monitor, Mail, Bell, Loader2, Clock, CheckCircle2, QrCode, CreditCard, AlertCircle } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { getStripe } from '@/lib/stripe'
 import { toast } from 'sonner'
@@ -19,8 +19,10 @@ import { AreaSelector } from '@/components/area/area-selector'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Switch } from '@/components/ui/switch'
 import type { AreaSelection } from '@/lib/types/database'
 import type { Invite } from '@/lib/types/database'
+import type { NotificationPreferences } from '@/lib/types/database'
 
 type PublicProfile = {
   display_name?: string
@@ -68,6 +70,7 @@ function TeacherProfileContent() {
   const t = useTranslations('teacherProfile')
   const tc = useTranslations('common')
   const tInvite = useTranslations('invite')
+  const tNotif = useTranslations('notificationSettings')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [teacher, setTeacher] = useState<TeacherRow | null>(null)
@@ -79,6 +82,10 @@ function TeacherProfileContent() {
   const [isSubscriptionLoading, setIsSubscriptionLoading] = useState(false)
   const [isStripeOnboarding, setIsStripeOnboarding] = useState(false)
   const [showStripeHelpModal, setShowStripeHelpModal] = useState(false)
+
+  // Notification preferences state
+  const [notifPrefs, setNotifPrefs] = useState<NotificationPreferences>({})
+  const [notifSaving, setNotifSaving] = useState(false)
 
   // Invite parent state
   const [inviteEmail, setInviteEmail] = useState('')
@@ -178,6 +185,45 @@ function TeacherProfileContent() {
     loadInvites()
     return () => { mounted = false }
   }, [supabase])
+
+  // Load notification preferences
+  useEffect(() => {
+    let mounted = true
+    async function loadPrefs() {
+      try {
+        const res = await fetch('/api/notification-preferences')
+        if (res.ok) {
+          const data = await res.json()
+          if (mounted) setNotifPrefs(data.preferences || {})
+        }
+      } catch {
+        // Ignore - non-critical
+      }
+    }
+    loadPrefs()
+    return () => { mounted = false }
+  }, [])
+
+  const handleNotifToggle = async (key: keyof NotificationPreferences, value: boolean) => {
+    const updated = { ...notifPrefs, [key]: value }
+    setNotifPrefs(updated)
+    setNotifSaving(true)
+    try {
+      const res = await fetch('/api/notification-preferences', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated),
+      })
+      if (res.ok) {
+        toast.success(tNotif('saveSuccess'))
+      }
+    } catch {
+      // Revert on error
+      setNotifPrefs(notifPrefs)
+    } finally {
+      setNotifSaving(false)
+    }
+  }
 
   const handleInvite = async () => {
     if (inviteMethod === 'email' && !inviteEmail.trim()) return
@@ -676,6 +722,39 @@ function TeacherProfileContent() {
                     </Button>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+
+            {/* Email Notification Settings */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Bell className="w-5 h-5" />
+                  {tNotif('title')}
+                </CardTitle>
+                <CardDescription>{tNotif('description')}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {([
+                    'booking_confirmation',
+                    'booking_cancellation',
+                    'new_chat_message',
+                    'booking_reminder',
+                  ] as const).map((key) => (
+                    <div key={key} className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium">{tNotif(key)}</p>
+                        <p className="text-xs text-muted-foreground">{tNotif(`${key}Desc`)}</p>
+                      </div>
+                      <Switch
+                        checked={notifPrefs[key] !== false}
+                        onCheckedChange={(checked) => handleNotifToggle(key, checked)}
+                        disabled={notifSaving}
+                      />
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
 

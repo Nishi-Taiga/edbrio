@@ -160,6 +160,13 @@ export function useBookings(userId: string | undefined, role: 'teacher' | 'guard
                         }
                     }
                 }
+
+                // Fire-and-forget cancellation email notification
+                fetch('/api/email/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'booking_cancellation', data: { bookingId } }),
+                }).catch(console.error)
             }
 
             await fetchBookings()

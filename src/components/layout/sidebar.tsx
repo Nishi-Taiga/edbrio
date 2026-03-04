@@ -45,6 +45,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
     { href: '/guardian/bookings', label: t('guardian.bookings') },
     { href: '/guardian/reports', label: t('guardian.reports') },
     { href: '/guardian/chat', label: t('guardian.chat'), badge: unreadCount },
+    { href: '/guardian/settings', label: t('guardian.settings') },
   ]
 
   const teacherItems = [
@@ -58,7 +59,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
 
   const items = isGuardian ? guardianItems : teacherItems
 
-  const profilePath = isGuardian ? '/guardian/contact' : '/teacher/profile'
+  const profilePath = isGuardian ? '/guardian/settings' : '/teacher/profile'
   const contactPath = isGuardian ? '/guardian/contact' : '/teacher/contact'
 
   return (

@@ -313,7 +313,8 @@
       "bookings": "Booking History",
       "reports": "Reports",
       "chat": "Messages",
-      "contact": "Contact"
+      "contact": "Contact",
+      "settings": "Settings"
     },
     "userMenu": {
       "settings": "Settings",
@@ -1280,5 +1281,26 @@
     "actionPlaceholder": "Action",
     "targetTablePlaceholder": "Target Table",
     "json": "JSON"
+  },
+  "notificationSettings": {
+    "title": "Email Notification Settings",
+    "description": "Configure which email notifications you receive",
+    "booking_confirmation": "Booking Confirmation",
+    "booking_confirmationDesc": "Receive an email when a lesson is booked",
+    "booking_cancellation": "Cancellation Confirmation",
+    "booking_cancellationDesc": "Receive an email when a booking is cancelled",
+    "report_published": "Report Published",
+    "report_publishedDesc": "Receive an email when a lesson report is published",
+    "new_chat_message": "Chat Message",
+    "new_chat_messageDesc": "Receive an email when a new chat message arrives",
+    "booking_reminder": "Lesson Reminder",
+    "booking_reminderDesc": "Receive a reminder email the day before a lesson",
+    "ticket_purchase": "Ticket Purchase Confirmation",
+    "ticket_purchaseDesc": "Receive an email when a ticket is purchased",
+    "saveSuccess": "Notification settings saved"
+  },
+  "guardianSettings": {
+    "title": "Settings",
+    "description": "Manage your notification and theme settings"
   }
 }

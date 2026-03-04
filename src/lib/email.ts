@@ -182,6 +182,86 @@ export function buildNewChatMessageEmail(params: {
   }
 }
 
+export function buildBookingCancellationEmail(params: {
+  teacherName: string
+  studentName: string
+  date: string
+  startTime: string
+  endTime: string
+  recipientRole: 'teacher' | 'guardian'
+}): { subject: string; html: string } {
+  const { teacherName, studentName, date, startTime, endTime, recipientRole } = params
+
+  const greeting = recipientRole === 'teacher'
+    ? `<p style="margin:0 0 16px;font-size:15px;color:#374151;">予約がキャンセルされました。</p>`
+    : `<p style="margin:0 0 16px;font-size:15px;color:#374151;">予約をキャンセルしました。</p>`
+
+  const body = `
+${greeting}
+<table width="100%" cellpadding="12" cellspacing="0" style="background:#fef2f2;border-radius:12px;margin:16px 0;">
+<tr>
+  <td style="font-size:13px;color:#6b7280;width:100px;">生徒名</td>
+  <td style="font-size:15px;color:#1f2937;font-weight:600;">${studentName}</td>
+</tr>
+<tr>
+  <td style="font-size:13px;color:#6b7280;">講師</td>
+  <td style="font-size:15px;color:#1f2937;font-weight:600;">${teacherName}</td>
+</tr>
+<tr>
+  <td style="font-size:13px;color:#6b7280;">日時</td>
+  <td style="font-size:15px;color:#1f2937;font-weight:600;">${date} ${startTime} - ${endTime}</td>
+</tr>
+</table>
+<p style="margin:24px 0 0;text-align:center;">
+  <a href="https://edbrio.com/login" style="display:inline-block;background:#7c3aed;color:#ffffff;padding:12px 32px;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px;">ダッシュボードを開く</a>
+</p>`
+
+  return {
+    subject: `【EdBrio】予約キャンセル: ${studentName} - ${date} ${startTime}`,
+    html: wrapInLayout(body),
+  }
+}
+
+export function buildTicketPurchaseEmail(params: {
+  ticketName: string
+  totalMinutes: number
+  priceCents: number
+  expiresAt: string
+}): { subject: string; html: string } {
+  const { ticketName, totalMinutes, priceCents, expiresAt } = params
+
+  const priceYen = Math.round(priceCents).toLocaleString()
+
+  const body = `
+<p style="margin:0 0 16px;font-size:15px;color:#374151;">チケットのご購入ありがとうございます。</p>
+<table width="100%" cellpadding="12" cellspacing="0" style="background:#f0fdf4;border-radius:12px;margin:16px 0;">
+<tr>
+  <td style="font-size:13px;color:#6b7280;width:100px;">チケット</td>
+  <td style="font-size:15px;color:#1f2937;font-weight:600;">${ticketName}</td>
+</tr>
+<tr>
+  <td style="font-size:13px;color:#6b7280;">授業時間</td>
+  <td style="font-size:15px;color:#1f2937;font-weight:600;">${totalMinutes}分</td>
+</tr>
+<tr>
+  <td style="font-size:13px;color:#6b7280;">金額</td>
+  <td style="font-size:15px;color:#1f2937;font-weight:600;">¥${priceYen}</td>
+</tr>
+<tr>
+  <td style="font-size:13px;color:#6b7280;">有効期限</td>
+  <td style="font-size:15px;color:#1f2937;font-weight:600;">${expiresAt}</td>
+</tr>
+</table>
+<p style="margin:24px 0 0;text-align:center;">
+  <a href="https://edbrio.com/login" style="display:inline-block;background:#7c3aed;color:#ffffff;padding:12px 32px;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px;">ダッシュボードを開く</a>
+</p>`
+
+  return {
+    subject: `【EdBrio】チケット購入完了: ${ticketName}`,
+    html: wrapInLayout(body),
+  }
+}
+
 export function buildBookingReminderEmail(params: {
   teacherName: string
   studentName: string
@@ -220,4 +300,14 @@ ${greeting}
     subject: `【EdBrio】明日の授業リマインダー: ${studentName} - ${date} ${startTime}`,
     html: wrapInLayout(body),
   }
+}
+
+// ── Notification preference check ──
+
+export function isNotificationEnabled(
+  preferences: Record<string, boolean> | null | undefined,
+  type: string
+): boolean {
+  if (!preferences) return true
+  return preferences[type] !== false
 }

@@ -43,6 +43,12 @@ export const emailSendSchema = z.discriminatedUnion('type', [
     }),
   }),
   z.object({
+    type: z.literal('booking_cancellation'),
+    data: z.object({
+      bookingId: uuidSchema,
+    }),
+  }),
+  z.object({
     type: z.literal('report_published'),
     data: z.object({
       reportId: uuidSchema,
