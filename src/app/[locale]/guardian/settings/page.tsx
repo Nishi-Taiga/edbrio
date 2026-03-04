@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
-import { Bell, Sun, Moon, Monitor } from 'lucide-react'
+import { Bell, Sun, Moon, Monitor, FileText } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTheme } from 'next-themes'
 import { useTranslations } from 'next-intl'
@@ -130,6 +130,22 @@ export default function GuardianSettingsPage() {
                 <Monitor className="w-6 h-6 text-slate-500" />
                 <span className="text-sm font-semibold">{tTheme('themeSystem')}</span>
               </button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Cancellation Policy */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="w-5 h-5" />
+              {t('cancellationPolicyTitle')}
+            </CardTitle>
+            <CardDescription>{t('cancellationPolicyDescription')}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-line">
+              {t('cancellationPolicyContent')}
             </div>
           </CardContent>
         </Card>

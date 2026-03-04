@@ -10,7 +10,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/use-auth'
 import { useBookings } from '@/hooks/use-bookings'
 import { useBookingReports } from '@/hooks/use-booking-reports'
-import { Calendar, AlertTriangle, X } from 'lucide-react'
+import { Calendar, AlertTriangle, X, Info, ChevronDown } from 'lucide-react'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import { SkeletonList } from '@/components/ui/skeleton-card'
@@ -197,6 +197,21 @@ export default function GuardianBookingsPage() {
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{t('title')}</h1>
         {error && <ErrorAlert message={error} />}
+
+        {/* Cancellation policy info */}
+        <details className="mb-4 group bg-brand-50/50 dark:bg-brand-900/10 border border-brand-200 dark:border-brand-800/30 rounded-xl">
+          <summary className="p-3 cursor-pointer flex items-center gap-2 text-sm font-medium text-brand-700 dark:text-brand-300 list-none">
+            <Info className="w-4 h-4 shrink-0" />
+            <span>{t('cancellationPolicyTitle')}</span>
+            <ChevronDown className="w-4 h-4 ml-auto shrink-0 group-open:rotate-180 transition-transform text-brand-400" />
+          </summary>
+          <ul className="px-3 pb-3 space-y-1.5 text-sm text-brand-600 dark:text-brand-400">
+            <li className="flex items-start gap-2"><span className="mt-1.5 w-1 h-1 rounded-full bg-brand-400 shrink-0" />{t('cancellationPolicyRule1')}</li>
+            <li className="flex items-start gap-2"><span className="mt-1.5 w-1 h-1 rounded-full bg-brand-400 shrink-0" />{t('cancellationPolicyRule2')}</li>
+            <li className="flex items-start gap-2"><span className="mt-1.5 w-1 h-1 rounded-full bg-brand-400 shrink-0" />{t('cancellationPolicyRule3')}</li>
+            <li className="flex items-start gap-2"><span className="mt-1.5 w-1 h-1 rounded-full bg-brand-400 shrink-0" />{t('cancellationPolicyRule4')}</li>
+          </ul>
+        </details>
 
         {/* Status filter tabs */}
         {!loading && items.length > 0 && (

@@ -428,7 +428,7 @@ export default function HomePage() {
             <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white">{t('faq.title')}</h2>
           </div>
           <div className="space-y-3">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
               <details key={i} className="group bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700" data-reveal>
                 <summary className="p-4 sm:p-6 cursor-pointer flex items-center justify-between font-bold text-sm sm:text-base list-none text-slate-900 dark:text-white gap-2">
                   <span>{t(`faq.q${i}`)}</span>
