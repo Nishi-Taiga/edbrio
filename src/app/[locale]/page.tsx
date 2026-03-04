@@ -198,7 +198,7 @@ export default function HomePage() {
         @keyframes hero-rise{0%{opacity:0;transform:translateY(40px) scale(.96)}100%{opacity:1;transform:translateY(0) scale(1)}}
         .hero-screenshot{opacity:0}
         .revealed .hero-screenshot{animation:hero-rise .8s cubic-bezier(.22,1,.36,1) .3s forwards}
-        .carousel-card{flex:0 0 calc(100vw - 2.5rem)}
+        .carousel-card{flex:0 0 calc(100vw - 4rem);min-width:0}
         @media(min-width:640px){.carousel-card{flex:0 0 calc(50% - 12px)}}
       `}} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
@@ -214,7 +214,7 @@ export default function HomePage() {
         </div>
 
         <nav className="bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
+          <div className="max-w-7xl mx-auto px-5 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
             <div className="flex items-center gap-2.5 shrink-0">
               <Image src="/logo.svg" alt="EdBrio" width={140} height={36} className="h-8 sm:h-9 w-auto dark:hidden" priority />
               <Image src="/logo-dark.svg" alt="EdBrio" width={140} height={36} className="h-8 sm:h-9 w-auto hidden dark:block" priority />
@@ -259,7 +259,7 @@ export default function HomePage() {
       </div>
 
       {/* ── Hero (Split Layout) ── */}
-      <section className="pt-36 sm:pt-44 pb-16 sm:pb-24 px-4 sm:px-6 bg-gradient-to-b from-brand-50/50 to-white dark:from-slate-900 dark:to-slate-950">
+      <section className="pt-36 sm:pt-44 pb-16 sm:pb-24 px-5 sm:px-6 bg-gradient-to-b from-brand-50/50 to-white dark:from-slate-900 dark:to-slate-950">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <div data-reveal>
@@ -292,7 +292,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Bento Grid (Why EdBrio + Screenshots) ── */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-slate-50 dark:bg-slate-900">
+      <section className="py-16 sm:py-24 px-5 sm:px-6 bg-slate-50 dark:bg-slate-900">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 sm:mb-16" data-reveal>
             <span className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-3 block">{t('sections.whyEdBrio')}</span>
@@ -328,14 +328,13 @@ export default function HomePage() {
       </section>
 
       {/* ── Features Carousel (5 cards) ── */}
-      <section id="features" className="py-16 sm:py-24 px-4 sm:px-6 bg-white dark:bg-slate-950">
+      <section id="features" className="py-16 sm:py-24 px-5 sm:px-6 bg-white dark:bg-slate-950">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 sm:mb-16" data-reveal>
             <span className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-3 block">{t('sections.features')}</span>
             <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white mb-4">
               {t('features.sectionTitle1')}<span className="text-brand-600 dark:text-brand-400">{t('features.sectionTitle2')}</span>
             </h2>
-            <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-lg max-w-2xl mx-auto">{t('features.sectionDescription')}</p>
           </div>
 
           <div className="relative" data-reveal>
@@ -357,7 +356,7 @@ export default function HomePage() {
                 return (
                   <div
                     key={card.title}
-                    className="carousel-card snap-start bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 sm:p-6 border border-slate-100 dark:border-slate-700 flex flex-col relative"
+                    className="carousel-card snap-start bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-5 sm:p-6 border border-slate-100 dark:border-slate-700 flex flex-col relative overflow-hidden"
                   >
                     {card.badge && (
                       <span className="absolute top-4 right-4 bg-brand-50 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold">
@@ -393,27 +392,29 @@ export default function HomePage() {
       </section>
 
       {/* ── How It Works (3 Steps) ── */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-slate-50 dark:bg-slate-900">
+      <section className="py-16 sm:py-24 px-5 sm:px-6 bg-slate-50 dark:bg-slate-900">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 sm:mb-16" data-reveal>
             <span className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-3 block">{t('sections.howItWorks')}</span>
             <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white mb-4">
               {t('howItWorks.title')}
             </h2>
-            <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-lg max-w-2xl mx-auto">{t('howItWorks.description')}</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             {[
-              { num: t('howItWorks.step1Number'), title: t('howItWorks.step1Title'), desc: t('howItWorks.step1Description') },
-              { num: t('howItWorks.step2Number'), title: t('howItWorks.step2Title'), desc: t('howItWorks.step2Description') },
-              { num: t('howItWorks.step3Number'), title: t('howItWorks.step3Title'), desc: t('howItWorks.step3Description') },
+              { num: t('howItWorks.step1Number'), title: t('howItWorks.step1Title'), desc: t('howItWorks.step1Description'), screenshot: '/screenshots/13_teacher_report_new.png' },
+              { num: t('howItWorks.step2Number'), title: t('howItWorks.step2Title'), desc: t('howItWorks.step2Description'), screenshot: '/screenshots/14_teacher_reports.png' },
+              { num: t('howItWorks.step3Number'), title: t('howItWorks.step3Title'), desc: t('howItWorks.step3Description'), screenshot: '/screenshots/22_guardian_reports.png' },
             ].map((step, i) => (
               <div key={step.num} className="text-center" data-reveal data-delay={String(i + 1)}>
                 <div className="w-16 h-16 bg-brand-50 dark:bg-brand-900/30 rounded-2xl flex items-center justify-center mx-auto mb-5">
                   <span className="text-2xl font-black text-brand-600 dark:text-brand-400">{step.num}</span>
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{step.title}</h3>
-                <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">{step.desc}</p>
+                <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-4">{step.desc}</p>
+                <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+                  <img src={step.screenshot} alt={step.title} width={700} height={450} className="w-full h-auto" loading="lazy" />
+                </div>
               </div>
             ))}
           </div>
@@ -421,7 +422,7 @@ export default function HomePage() {
       </section>
 
       {/* ── FAQ ── */}
-      <section id="faq" className="py-16 sm:py-24 px-4 sm:px-6 bg-white dark:bg-slate-950">
+      <section id="faq" className="py-16 sm:py-24 px-5 sm:px-6 bg-white dark:bg-slate-950">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-10 sm:mb-16" data-reveal>
             <span className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-3 block">{t('sections.faq')}</span>
@@ -434,7 +435,7 @@ export default function HomePage() {
                   <span>{t(`faq.q${i}`)}</span>
                   <ChevronDown className="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform shrink-0" />
                 </summary>
-                <div className="px-4 sm:px-6 pb-4 sm:pb-6 text-slate-500 dark:text-slate-400 leading-relaxed text-sm">
+                <div className="px-5 sm:px-6 pb-4 sm:pb-6 text-slate-500 dark:text-slate-400 leading-relaxed text-sm">
                   {t(`faq.a${i}`)}
                 </div>
               </details>
@@ -444,7 +445,7 @@ export default function HomePage() {
       </section>
 
       {/* ── CTA Banner ── */}
-      <section className="py-8 sm:py-16 px-4 sm:px-6" data-reveal>
+      <section className="py-8 sm:py-16 px-5 sm:px-6" data-reveal>
         <div className="max-w-6xl mx-auto bg-brand-950 rounded-3xl px-8 sm:px-16 py-12 sm:py-16 text-center">
           <h2 className="text-2xl sm:text-4xl font-black text-white mb-4">
             {t('ctaBanner.title')}
@@ -464,7 +465,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Contact Form ── */}
-      <section id="contact" className="py-16 sm:py-24 px-4 sm:px-6 bg-slate-50 dark:bg-slate-900">
+      <section id="contact" className="py-16 sm:py-24 px-5 sm:px-6 bg-slate-50 dark:bg-slate-900">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-10 sm:mb-16" data-reveal>
             <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white mb-4">{t('contact.title')}</h2>
@@ -538,7 +539,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="bg-white dark:bg-slate-950 pt-12 sm:pt-24 pb-8 sm:pb-12 px-4 sm:px-6 border-t border-slate-100 dark:border-slate-800">
+      <footer className="bg-white dark:bg-slate-950 pt-12 sm:pt-24 pb-8 sm:pb-12 px-5 sm:px-6 border-t border-slate-100 dark:border-slate-800">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-8 sm:gap-12 mb-12 sm:mb-20">
           <div className="max-w-xs">
             <div className="flex items-center gap-2.5 mb-4 sm:mb-6">
