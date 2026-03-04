@@ -186,7 +186,6 @@ export default function TeacherDashboard() {
       title: t('needsReportTitle'),
       count: needsReportBookings.length,
       countLabel: t('needsReportCount', { count: needsReportBookings.length }),
-      emptyLabel: t('needsReportEmpty'),
       href: '/teacher/reports/new',
       actionLabel: t('needsReportAction'),
       color: 'text-red-600 dark:text-red-400',
@@ -199,7 +198,6 @@ export default function TeacherDashboard() {
       title: t('pendingBookingsTitle'),
       count: pendingBookings.length,
       countLabel: t('pendingBookingsCount', { count: pendingBookings.length }),
-      emptyLabel: t('pendingBookingsEmpty'),
       href: undefined,
       actionLabel: undefined,
       color: 'text-amber-600 dark:text-amber-400',
@@ -212,7 +210,6 @@ export default function TeacherDashboard() {
       title: t('issueReportsTitle'),
       count: issueReportCount,
       countLabel: t('issueReportsCount', { count: issueReportCount }),
-      emptyLabel: t('issueReportsEmpty'),
       href: '/teacher/calendar',
       actionLabel: t('issueReportsAction'),
       color: 'text-orange-600 dark:text-orange-400',
@@ -225,7 +222,6 @@ export default function TeacherDashboard() {
       title: t('unreadMessagesTitle'),
       count: unreadCount,
       countLabel: t('unreadMessagesCount', { count: unreadCount }),
-      emptyLabel: t('unreadMessagesEmpty'),
       href: '/teacher/chat',
       actionLabel: t('unreadMessagesAction'),
       color: 'text-blue-600 dark:text-blue-400',
@@ -358,33 +354,25 @@ export default function TeacherDashboard() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {taskItems.map((item) => {
+                    {taskItems.filter(item => item.count > 0).map((item) => {
                       const Icon = item.icon
-                      const isEmpty = item.count === 0
                       return (
-                        <div key={item.key} className={`rounded-lg border p-3 ${isEmpty ? 'opacity-60' : ''}`}>
+                        <div key={item.key} className="rounded-lg border p-3">
                           {/* Header */}
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <Icon className={`w-4 h-4 ${isEmpty ? 'text-muted-foreground' : item.color}`} />
-                              <span className={`text-sm font-medium ${isEmpty ? 'text-muted-foreground' : ''}`}>
+                              <Icon className={`w-4 h-4 ${item.color}`} />
+                              <span className="text-sm font-medium">
                                 {item.title}
                               </span>
                             </div>
-                            {isEmpty ? (
-                              <div className="flex items-center gap-1 text-muted-foreground">
-                                <Check className="w-3.5 h-3.5" />
-                                <span className="text-xs">{item.emptyLabel}</span>
-                              </div>
-                            ) : (
-                              <Badge variant="secondary" className={`text-xs ${item.badgeColor}`}>
-                                {item.countLabel}
-                              </Badge>
-                            )}
+                            <Badge variant="secondary" className={`text-xs ${item.badgeColor}`}>
+                              {item.countLabel}
+                            </Badge>
                           </div>
 
                           {/* Expandable content for needs-report */}
-                          {item.key === 'needsReport' && !isEmpty && (
+                          {item.key === 'needsReport' && (
                             <div className="mt-2 space-y-1.5">
                               {needsReportBookings.slice(0, 3).map((b: Booking) => (
                                 <div key={b.id} className="flex items-center justify-between text-xs text-muted-foreground pl-6">
@@ -409,7 +397,7 @@ export default function TeacherDashboard() {
                           )}
 
                           {/* Expandable content for pending bookings */}
-                          {item.key === 'pendingBookings' && !isEmpty && (
+                          {item.key === 'pendingBookings' && (
                             <div className="mt-2 space-y-2">
                               {pendingBookings.slice(0, 3).map((b: Booking) => (
                                 <div key={b.id} className="flex items-center justify-between pl-6">
@@ -449,7 +437,7 @@ export default function TeacherDashboard() {
                           )}
 
                           {/* Link action for issue reports & unread messages */}
-                          {!isEmpty && item.href && !item.expandable && (
+                          {item.href && !item.expandable && (
                             <Link href={item.href}>
                               <Button size="sm" variant="outline" className="w-full mt-2 h-7 text-xs">
                                 {item.actionLabel}
