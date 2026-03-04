@@ -10,6 +10,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/use-auth'
 import { useBookings } from '@/hooks/use-bookings'
 import { useBookingReports } from '@/hooks/use-booking-reports'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Calendar, AlertTriangle, X, Info, ChevronDown } from 'lucide-react'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
@@ -25,6 +26,7 @@ type BookingRow = {
   end_time: string
   status: 'pending' | 'confirmed' | 'canceled' | 'done'
   teacher_id: string
+  student_id: string
 }
 
 export default function GuardianBookingsPage() {
@@ -50,7 +52,9 @@ export default function GuardianBookingsPage() {
   const [error, setError] = useState<string | null>(null)
   const [items, setItems] = useState<BookingRow[]>([])
   const [teacherNames, setTeacherNames] = useState<Record<string, string>>({})
+  const [studentNames, setStudentNames] = useState<Record<string, string>>({})
   const [filter, setFilter] = useState<string>('all')
+  const [filterStudent, setFilterStudent] = useState<string>('all')
 
   // Cancel dialog state
   const [cancelTarget, setCancelTarget] = useState<BookingRow | null>(null)
@@ -84,7 +88,7 @@ export default function GuardianBookingsPage() {
       if (studentIds.length > 0) {
         const { data, error: bErr } = await supabase
           .from('bookings')
-          .select('id,start_time,end_time,status,teacher_id')
+          .select('id,start_time,end_time,status,teacher_id,student_id')
           .in('student_id', studentIds)
           .order('start_time', { ascending: false })
           .limit(100)
@@ -102,6 +106,19 @@ export default function GuardianBookingsPage() {
             const map: Record<string, string> = {}
             users.forEach((u: { id: string; name: string }) => { map[u.id] = u.name })
             setTeacherNames(map)
+          }
+        }
+
+        // Resolve student names
+        if (studentIds.length > 1) {
+          const { data: sUsers } = await supabase
+            .from('users')
+            .select('id, name')
+            .in('id', studentIds)
+          if (sUsers) {
+            const map: Record<string, string> = {}
+            sUsers.forEach((u: { id: string; name: string }) => { map[u.id] = u.name })
+            setStudentNames(map)
           }
         }
       } else {
@@ -213,22 +230,39 @@ export default function GuardianBookingsPage() {
           </ul>
         </details>
 
-        {/* Status filter tabs */}
+        {/* Filters */}
         {!loading && items.length > 0 && (
-          <div className="flex gap-1 mb-4 p-1 bg-slate-100 dark:bg-slate-800/50 rounded-lg w-fit">
-            {statusFilters.map((f) => (
-              <button
-                key={f.key}
-                onClick={() => setFilter(f.key)}
-                className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
-                  filter === f.key
-                    ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-medium'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
+          <div className="flex flex-wrap items-center gap-3 mb-4">
+            <div className="flex gap-1 p-1 bg-slate-100 dark:bg-slate-800/50 rounded-lg w-fit">
+              {statusFilters.map((f) => (
+                <button
+                  key={f.key}
+                  onClick={() => setFilter(f.key)}
+                  className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                    filter === f.key
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-medium'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+            {Object.keys(studentNames).length > 1 && (
+              <div className="w-full sm:w-48">
+                <Select value={filterStudent} onValueChange={setFilterStudent}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('filterStudent')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t('filterAllStudents')}</SelectItem>
+                    {Object.entries(studentNames).map(([id, name]) => (
+                      <SelectItem key={id} value={id}>{name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
         )}
 
@@ -244,6 +278,7 @@ export default function GuardianBookingsPage() {
         ) : (() => {
           const now = new Date()
           const filtered = items.filter(b => {
+            if (filterStudent !== 'all' && b.student_id !== filterStudent) return false
             if (filter === 'all') return true
             if (filter === 'upcoming') return (b.status === 'confirmed' || b.status === 'pending') && new Date(b.start_time) >= now
             if (filter === 'done') return b.status === 'done' || (b.status === 'confirmed' && new Date(b.end_time) < now)
@@ -259,7 +294,16 @@ export default function GuardianBookingsPage() {
               const badge = report ? reportStatusBadge(report.status) : null
               return (
                 <Card key={b.id}>
-                  <CardHeader><CardTitle className="text-sm">{t('teacherLabel', { name: teacherNames[b.teacher_id] || tc('teacher') })}</CardTitle></CardHeader>
+                  <CardHeader>
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      {t('teacherLabel', { name: teacherNames[b.teacher_id] || tc('teacher') })}
+                      {studentNames[b.student_id] && (
+                        <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                          {studentNames[b.student_id]}
+                        </span>
+                      )}
+                    </CardTitle>
+                  </CardHeader>
                   <CardContent>
                     <div className="text-sm text-gray-700 dark:text-slate-300">
                       {format(new Date(b.start_time), 'PPP p', { locale: ja })} - {format(new Date(b.end_time), 'p', { locale: ja })}

@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { AlertTriangle, ShoppingCart } from 'lucide-react'
 import { format, differenceInDays } from 'date-fns'
 import { ja } from 'date-fns/locale'
@@ -33,6 +34,7 @@ type TicketRow = {
 type TicketBalanceRow = {
   id: string
   ticket_id: string
+  student_id: string
   remaining_minutes: number
   purchased_at: string | null
   expires_at: string | null
@@ -51,6 +53,8 @@ export default function GuardianTickets() {
   const [error, setError] = useState<string | null>(null)
   const [teacherNames, setTeacherNames] = useState<Record<string, string>>({})
   const [ticketNames, setTicketNames] = useState<Record<string, string>>({})
+  const [studentNames, setStudentNames] = useState<Record<string, string>>({})
+  const [filterStudent, setFilterStudent] = useState<string>('all')
 
   const supabase = useMemo(() => createClient(), [])
 
@@ -98,11 +102,24 @@ export default function GuardianTickets() {
           if (studentIds.length > 0) {
             const { data: tb, error: bErr } = await supabase
               .from('ticket_balances')
-              .select('id,ticket_id,remaining_minutes,purchased_at,expires_at')
+              .select('id,ticket_id,student_id,remaining_minutes,purchased_at,expires_at')
               .in('student_id', studentIds)
               .order('expires_at', { ascending: true })
             if (bErr) throw bErr
             if (mounted) setBalances(tb || [])
+
+            // Resolve student names
+            if (studentIds.length > 1) {
+              const { data: sUsers } = await supabase
+                .from('users')
+                .select('id, name')
+                .in('id', studentIds)
+              if (mounted && sUsers) {
+                const sMap: Record<string, string> = {}
+                sUsers.forEach((u: { id: string; name: string }) => { sMap[u.id] = u.name })
+                setStudentNames(sMap)
+              }
+            }
 
             // Resolve ticket names for balances
             const ticketIds = [...new Set((tb || []).map(b => b.ticket_id))]
@@ -215,8 +232,27 @@ export default function GuardianTickets() {
         {/* Ticket Balances */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>{t('balanceTitle')}</CardTitle>
-            <CardDescription>{t('balanceDesc')}</CardDescription>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <CardTitle>{t('balanceTitle')}</CardTitle>
+                <CardDescription>{t('balanceDesc')}</CardDescription>
+              </div>
+              {Object.keys(studentNames).length > 1 && (
+                <div className="w-full sm:w-48">
+                  <Select value={filterStudent} onValueChange={setFilterStudent}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('filterStudent')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{t('filterAllStudents')}</SelectItem>
+                      {Object.entries(studentNames).map(([id, name]) => (
+                        <SelectItem key={id} value={id}>{name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             {balances.length === 0 ? (
@@ -225,10 +261,15 @@ export default function GuardianTickets() {
                 title={t('emptyBalance')}
                 description={t('emptyBalanceDescription')}
               />
-            ) : (
+            ) : (() => {
+              const filteredBalances = filterStudent === 'all' ? balances : balances.filter(b => b.student_id === filterStudent)
+              return filteredBalances.length === 0 ? (
+                <div className="text-center py-8 text-slate-500 dark:text-slate-400 text-sm">{t('noFilterResults')}</div>
+              ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
+                    {Object.keys(studentNames).length > 1 && <TableHead>{t('tableStudent')}</TableHead>}
                     <TableHead>{t('tableTicketName')}</TableHead>
                     <TableHead>{t('tableRemaining')}</TableHead>
                     <TableHead>{t('tablePurchaseDate')}</TableHead>
@@ -236,11 +277,14 @@ export default function GuardianTickets() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {balances.map((b) => {
+                  {filteredBalances.map((b) => {
                     const daysLeft = b.expires_at ? differenceInDays(new Date(b.expires_at), new Date()) : null
                     const isExpiringSoon = daysLeft !== null && daysLeft >= 0 && daysLeft <= 7
                     return (
                     <TableRow key={b.id} className={isExpiringSoon ? 'bg-amber-50/50 dark:bg-amber-900/10' : ''}>
+                      {Object.keys(studentNames).length > 1 && (
+                        <TableCell className="font-medium">{studentNames[b.student_id] || '-'}</TableCell>
+                      )}
                       <TableCell>{ticketNames[b.ticket_id] || b.ticket_id}</TableCell>
                       <TableCell>{b.remaining_minutes}{tc('minutes')}</TableCell>
                       <TableCell>{b.purchased_at ? format(new Date(b.purchased_at), 'PPP', { locale: ja }) : '-'}</TableCell>
@@ -260,7 +304,8 @@ export default function GuardianTickets() {
                   })}
                 </TableBody>
               </Table>
-            )}
+              )
+            })()}
           </CardContent>
         </Card>
 

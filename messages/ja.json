@@ -804,7 +804,9 @@
     "cancellationPolicyRule1": "授業開始の2時間前までキャンセル可能",
     "cancellationPolicyRule2": "キャンセル時はチケット（授業分数）が全額自動返却されます",
     "cancellationPolicyRule3": "講師の遅刻・欠勤は授業後に「問題を報告」から報告できます",
-    "cancellationPolicyRule4": "報告後3日以内に講師が対応しない場合、チケットは自動返却されます"
+    "cancellationPolicyRule4": "報告後3日以内に講師が対応しない場合、チケットは自動返却されます",
+    "filterStudent": "生徒で絞り込み",
+    "filterAllStudents": "すべての生徒"
   },
   "guardianBooking": {
     "title": "予約",
@@ -848,7 +850,11 @@
     "purchaseConfirmTitle": "チケットの購入確認",
     "priceLabel": "価格: {price}",
     "durationLabel": "時間: {minutes}分 × {qty}回",
-    "proceedPurchase": "購入に進む"
+    "proceedPurchase": "購入に進む",
+    "tableStudent": "生徒",
+    "filterStudent": "生徒で絞り込み",
+    "filterAllStudents": "すべての生徒",
+    "noFilterResults": "該当するチケットはありません"
   },
   "guardianContact": {
     "title": "お問い合わせ",

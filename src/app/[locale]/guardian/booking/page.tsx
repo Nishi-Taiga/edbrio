@@ -50,6 +50,7 @@ export default function BookingPage() {
   const [teachers, setTeachers] = useState<TeacherInfo[]>([])
   const [avail, setAvail] = useState<AvailabilityRow[]>([])
   const [tickets, setTickets] = useState<TicketBalanceRow[]>([])
+  const [studentNames, setStudentNames] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -112,6 +113,19 @@ export default function BookingPage() {
             .order('expires_at', { ascending: true })
           if (tbErr) throw tbErr
           if (mounted) setTickets(tb || [])
+
+          // Resolve student names (only if multiple students)
+          if (studentIds.length > 1) {
+            const { data: sUsers } = await supabase
+              .from('users')
+              .select('id, name')
+              .in('id', studentIds)
+            if (mounted && sUsers) {
+              const sMap: Record<string, string> = {}
+              sUsers.forEach((u: { id: string; name: string }) => { sMap[u.id] = u.name })
+              setStudentNames(sMap)
+            }
+          }
         }
       } catch (e: unknown) {
         if (mounted) setError(e instanceof Error ? e.message : String(e))
@@ -345,6 +359,7 @@ export default function BookingPage() {
                     <SelectContent>
                       {tickets.map(tk => (
                         <SelectItem key={tk.id} value={tk.id}>
+                          {studentNames[tk.student_id] && `${studentNames[tk.student_id]} — `}
                           {t('remainingMinutes', { minutes: tk.remaining_minutes })}
                           {tk.expires_at && ` ${t('expiryDate', { date: format(new Date(tk.expires_at), 'M/d', { locale: ja }) })}`}
                         </SelectItem>
