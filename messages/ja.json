@@ -1396,6 +1396,8 @@
   "guardianSettings": {
     "title": "設定",
     "description": "通知やテーマの設定を変更できます",
+    "languageTitle": "言語",
+    "languageDescription": "表示言語を切り替えます",
     "cancellationPolicyTitle": "キャンセルポリシー",
     "cancellationPolicyDescription": "予約のキャンセルおよび問題報告に関するルール",
     "cancellationPolicyContent": "授業開始の2時間前まで無料でキャンセルでき、チケット（授業分数）は全額自動返却されます。キャンセル後は先生の空き枠も自動で復元されます。\n\n講師の遅刻・欠勤があった場合は、予約履歴ページの「問題を報告」ボタンから報告できます。報告後3日以内に講師が対応しない場合、チケットは自動的に返却されます。\n\nキャンセル・報告時には双方にメール通知が送信されます（通知設定でオフにすることも可能です）。"

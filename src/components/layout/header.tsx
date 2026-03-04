@@ -70,18 +70,18 @@ export function Header({ showMenuButton }: HeaderProps) {
         </div>
 
         <div className="flex items-center space-x-3">
-          <LanguageSwitcher />
-          {user ? (
-            <></>
-          ) : (
-            <div className="flex space-x-2">
-              <Link href="/login">
-                <Button variant="outline" size="sm">{t('login')}</Button>
-              </Link>
-              <Link href="/login">
-                <Button size="sm">{t('freeRegister')}</Button>
-              </Link>
-            </div>
+          {!user && (
+            <>
+              <LanguageSwitcher />
+              <div className="flex space-x-2">
+                <Link href="/login">
+                  <Button variant="outline" size="sm">{t('login')}</Button>
+                </Link>
+                <Link href="/login">
+                  <Button size="sm">{t('freeRegister')}</Button>
+                </Link>
+              </div>
+            </>
           )}
         </div>
       </div>

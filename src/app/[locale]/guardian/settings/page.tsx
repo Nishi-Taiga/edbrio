@@ -4,16 +4,38 @@ import { useEffect, useState } from 'react'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
-import { Bell, Sun, Moon, Monitor, FileText } from 'lucide-react'
+import { Bell, Sun, Moon, Monitor, FileText, Globe } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTheme } from 'next-themes'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
+import { usePathname, useRouter } from '@/i18n/navigation'
+import { routing } from '@/i18n/routing'
 import type { NotificationPreferences } from '@/lib/types/database'
+
+const localeLabels: Record<string, string> = {
+  ja: '日本語',
+  en: 'English',
+  fr: 'Français',
+  es: 'Español',
+  it: 'Italiano',
+  sv: 'Svenska',
+  ru: 'Русский',
+  zh: '中文',
+  ko: '한국어',
+  ar: 'العربية',
+  pt: 'Português',
+  de: 'Deutsch',
+  hi: 'हिन्दी',
+  'zh-TW': '繁體中文',
+}
 
 export default function GuardianSettingsPage() {
   const t = useTranslations('guardianSettings')
   const tNotif = useTranslations('notificationSettings')
   const tTheme = useTranslations('teacherProfile')
+  const locale = useLocale()
+  const router = useRouter()
+  const pathname = usePathname()
 
   const { theme, setTheme } = useTheme()
 
@@ -130,6 +152,37 @@ export default function GuardianSettingsPage() {
                 <Monitor className="w-6 h-6 text-slate-500" />
                 <span className="text-sm font-semibold">{tTheme('themeSystem')}</span>
               </button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Language Settings */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Globe className="w-5 h-5" />
+              {t('languageTitle')}
+            </CardTitle>
+            <CardDescription>{t('languageDescription')}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="relative inline-flex items-center">
+              <Globe className="absolute left-3 w-4 h-4 text-slate-400 pointer-events-none" />
+              <select
+                value={locale}
+                onChange={(e) => router.replace(pathname, { locale: e.target.value })}
+                className="appearance-none bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-600 rounded-lg pl-9 pr-8 py-2 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition focus:outline-none focus:ring-2 focus:ring-brand-500"
+                aria-label="Language"
+              >
+                {routing.locales.map((loc) => (
+                  <option key={loc} value={loc}>
+                    {localeLabels[loc]}
+                  </option>
+                ))}
+              </select>
+              <svg className="absolute right-2 w-3 h-3 text-slate-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
             </div>
           </CardContent>
         </Card>
