@@ -263,8 +263,8 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <div data-reveal>
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] mb-6">
-                <span className="text-slate-900 dark:text-white">{t('hero.title1')}</span><br />
+              <h1 className="text-3xl sm:text-5xl lg:text-[3rem] font-black tracking-tight leading-[1.1] mb-6">
+                <span className="text-slate-900 dark:text-white whitespace-nowrap">{t('hero.title1')}</span><br />
                 <span className="text-brand-600 dark:text-brand-400">{t('hero.title2')}</span>
               </h1>
               <p className="text-slate-500 dark:text-slate-400 text-base sm:text-lg leading-relaxed mb-8 max-w-lg">
