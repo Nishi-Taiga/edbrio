@@ -19,10 +19,10 @@ export function UpcomingLessons({ upcomingLessons, studentNames, loading }: Upco
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 animate-pulse space-y-3">
-        <div className="h-4 bg-gray-100 rounded w-28" />
+      <div className="rounded-2xl border border-gray-200 dark:border-[#2E2840] bg-white dark:bg-[#1E1A2B] p-6 animate-pulse space-y-3">
+        <div className="h-4 bg-gray-100 dark:bg-[#282237] rounded w-28" />
         {[1, 2, 3].map(i => (
-          <div key={i} className="h-10 bg-gray-100 rounded" />
+          <div key={i} className="h-10 bg-gray-100 dark:bg-[#282237] rounded" />
         ))}
       </div>
     )
@@ -39,19 +39,19 @@ export function UpcomingLessons({ upcomingLessons, studentNames, loading }: Upco
     switch (status) {
       case 'confirmed':
         return (
-          <span className="text-[11px] font-bold text-[#3B82F6] bg-[#EFF6FF] rounded-md px-2 py-0.5">
+          <span className="text-[11px] font-bold text-[#3B82F6] bg-[#EFF6FF] dark:bg-[#1E2A40] rounded-md px-2 py-0.5">
             {t('statusConfirmed') || '予約'}
           </span>
         )
       case 'done':
         return (
-          <span className="text-[11px] font-bold text-[#10B981] bg-[#ECFDF5] rounded-md px-2 py-0.5">
+          <span className="text-[11px] font-bold text-[#10B981] bg-[#ECFDF5] dark:bg-[#1A2E28] rounded-md px-2 py-0.5">
             {t('statusDone') || '完了'}
           </span>
         )
       case 'pending':
         return (
-          <span className="text-[11px] font-bold text-[#EF4444] bg-[#FEF2F2] rounded-md px-2 py-0.5">
+          <span className="text-[11px] font-bold text-[#EF4444] bg-[#FEF2F2] dark:bg-[#2E1A1A] rounded-md px-2 py-0.5">
             {t('statusPending') || '未提出'}
           </span>
         )
@@ -61,13 +61,13 @@ export function UpcomingLessons({ upcomingLessons, studentNames, loading }: Upco
   }
 
   return (
-    <div className="h-full rounded-2xl border border-gray-200 bg-white p-6 flex flex-col gap-3">
-      <h3 className="text-xs font-bold text-gray-500 tracking-widest uppercase">{t('upcomingLessonsTitle')}</h3>
+    <div className="h-full rounded-2xl border border-gray-200 dark:border-[#2E2840] bg-white dark:bg-[#1E1A2B] p-6 flex flex-col gap-3">
+      <h3 className="text-xs font-bold text-gray-500 dark:text-[#6D5A8A] tracking-widest uppercase">{t('upcomingLessonsTitle')}</h3>
 
       {upcomingLessons.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-6 text-center flex-1">
-          <Calendar className="w-8 h-8 text-gray-300 mb-2" />
-          <p className="text-sm text-gray-400">{t('upcomingLessonsEmpty')}</p>
+          <Calendar className="w-8 h-8 text-gray-300 dark:text-[#2E2840] mb-2" />
+          <p className="text-sm text-gray-400 dark:text-[#6D5A8A]">{t('upcomingLessonsEmpty')}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-0 flex-1">
@@ -82,16 +82,16 @@ export function UpcomingLessons({ upcomingLessons, studentNames, loading }: Upco
                   <div className="flex items-center gap-2.5">
                     <span
                       className={`text-sm font-bold w-10 shrink-0 ${
-                        isTimeOnly ? 'text-[#7C3AED]' : 'text-gray-400'
+                        isTimeOnly ? 'text-[#7C3AED] dark:text-[#A78BFA]' : 'text-gray-400 dark:text-[#6D5A8A]'
                       }`}
                     >
                       {timeLabel}
                     </span>
                     <div className="flex flex-col gap-0.5">
-                      <span className="text-sm font-bold text-gray-800">
+                      <span className="text-sm font-bold text-gray-800 dark:text-[#E8E4F0]">
                         {studentNames[b.student_id] || tc('student')}
                       </span>
-                      <span className="text-[11px] text-gray-500">
+                      <span className="text-[11px] text-gray-500 dark:text-[#6D5A8A]">
                         {isTimeOnly
                           ? format(startDate, 'HH:mm', { locale: ja })
                           : format(startDate, 'HH:mm', { locale: ja })}
@@ -101,7 +101,7 @@ export function UpcomingLessons({ upcomingLessons, studentNames, loading }: Upco
                   {getStatusBadge(b.status)}
                 </div>
                 {i < upcomingLessons.length - 1 && (
-                  <div className="h-px bg-[#EDE8F5]" />
+                  <div className="h-px bg-[#EDE8F5] dark:bg-[#282237]" />
                 )}
               </div>
             )
@@ -110,7 +110,7 @@ export function UpcomingLessons({ upcomingLessons, studentNames, loading }: Upco
           {/* More link */}
           <Link
             href="/teacher/calendar"
-            className="flex items-center justify-center gap-1 py-2 mt-auto text-[#7C3AED] text-xs font-semibold hover:opacity-80 transition-opacity"
+            className="flex items-center justify-center gap-1 py-2 mt-auto text-[#7C3AED] dark:text-[#A78BFA] text-xs font-semibold hover:opacity-80 transition-opacity"
           >
             {t('upcomingLessonsViewAll') || 'もっと見る'}
             <ArrowRight className="w-3.5 h-3.5" />

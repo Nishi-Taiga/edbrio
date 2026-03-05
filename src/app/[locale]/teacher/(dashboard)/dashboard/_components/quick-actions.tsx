@@ -13,34 +13,34 @@ export function QuickActions() {
       label: t('quickActionAddSlot'),
       href: '/teacher/calendar' as const,
       iconColor: 'text-[#7C3AED]',
-      bg: 'bg-[#EDE8F5]',
+      bg: 'bg-[#EDE8F5] dark:bg-[#282237]',
     },
     {
       icon: FileText,
       label: t('quickActionWriteReport'),
       href: '/teacher/reports/new' as const,
       iconColor: 'text-[#EF4444]',
-      bg: 'bg-[#FEF2F2]',
+      bg: 'bg-[#FEF2F2] dark:bg-[#2E1A1A]',
     },
     {
       icon: UserPlus,
       label: t('quickActionInviteStudent'),
       href: '/teacher/profile' as const,
       iconColor: 'text-[#10B981]',
-      bg: 'bg-[#ECFDF5]',
+      bg: 'bg-[#ECFDF5] dark:bg-[#1A2E28]',
     },
     {
       icon: MessageCircle,
       label: t('quickActionOpenChat'),
       href: '/teacher/chat' as const,
       iconColor: 'text-[#3B82F6]',
-      bg: 'bg-[#EFF6FF]',
+      bg: 'bg-[#EFF6FF] dark:bg-[#1E2A40]',
     },
   ]
 
   return (
-    <div className="h-full rounded-2xl border border-gray-200 bg-white p-6 flex flex-col gap-4">
-      <h3 className="text-xs font-bold text-gray-500 tracking-widest uppercase">{t('quickActionsTitle')}</h3>
+    <div className="h-full rounded-2xl border border-gray-200 dark:border-[#2E2840] bg-white dark:bg-[#1E1A2B] p-6 flex flex-col gap-4">
+      <h3 className="text-xs font-bold text-gray-500 dark:text-[#6D5A8A] tracking-widest uppercase">{t('quickActionsTitle')}</h3>
 
       <div className="grid grid-cols-2 gap-3 flex-1">
         {actions.map((action) => {

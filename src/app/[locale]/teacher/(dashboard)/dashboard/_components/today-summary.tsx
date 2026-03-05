@@ -28,7 +28,7 @@ export function TodaySummary({
 
   if (loading) {
     return (
-      <div className="rounded-2xl bg-[#2D1B4E] p-5 sm:p-6 animate-pulse h-[120px]" />
+      <div className="rounded-2xl bg-[#2D1B4E] dark:bg-[#0F0D18] p-5 sm:p-6 animate-pulse h-[120px]" />
     )
   }
 
@@ -47,7 +47,7 @@ export function TodaySummary({
   const incomeFormatted = `\u00a5${Math.round(todayEstimatedIncome).toLocaleString('ja-JP')}`
 
   return (
-    <div className="relative rounded-2xl bg-[#2D1B4E] overflow-hidden" style={{ height: 120 }}>
+    <div className="relative rounded-2xl bg-[#2D1B4E] dark:bg-[#0F0D18] overflow-hidden" style={{ height: 120 }}>
       {/* Decorative blurred ellipses */}
       <div className="absolute w-[200px] h-[200px] rounded-full bg-white/[0.03] -left-10 -top-[60px] pointer-events-none" />
       <div className="absolute w-[120px] h-[120px] rounded-full bg-white/[0.02] left-20 top-[30px] pointer-events-none" />

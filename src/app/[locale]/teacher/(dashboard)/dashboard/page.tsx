@@ -257,7 +257,7 @@ export default function TeacherDashboard() {
 
   return (
     <ProtectedRoute allowedRoles={['teacher']}>
-      <div className="px-5 sm:px-7 py-6 space-y-4 bg-[#F3F4F6] min-h-screen">
+      <div className="px-5 sm:px-7 py-6 space-y-4 bg-[#F3F4F6] dark:bg-[#13111C] min-h-screen">
 
         {/* ── Setup Banner (conditional) ── */}
         {setupComplete === false && (
@@ -279,9 +279,9 @@ export default function TeacherDashboard() {
         <div className="flex flex-col lg:flex-row gap-5" style={{ minHeight: 560 }}>
           {/* Calendar — appears second on mobile, first on desktop */}
           <div className="flex-1 min-w-0 order-2 lg:order-1">
-            <div className="h-full rounded-2xl border border-gray-200 bg-white p-6">
+            <div className="h-full rounded-2xl border border-gray-200 dark:border-[#2E2840] bg-white dark:bg-[#1E1A2B] p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-extrabold text-gray-800">{t('calendarTitle')}</h2>
+                <h2 className="text-lg font-extrabold text-gray-800 dark:text-[#E8E4F0]">{t('calendarTitle')}</h2>
               </div>
               {loading ? (
                 <div className="flex items-center justify-center py-20">
