@@ -66,7 +66,7 @@ export function MobileTasksCard({
                         {t('needsReportTitle')}
                       </span>
                       <span className="text-[11px] font-bold text-[#EF4444] bg-[#FEF2F2] dark:bg-[#2E1A1A] rounded-lg px-1.5 py-0.5">
-                        {needsReportBookings.length}件
+                        {t('countUnit', { count: needsReportBookings.length })}
                       </span>
                     </div>
                     <p className="text-xs text-[#6B7280] dark:text-[#6D5A8A]">
@@ -92,11 +92,11 @@ export function MobileTasksCard({
                           {t('pendingBookingsTitle')}
                         </span>
                         <span className="text-[11px] font-bold text-[#F59E0B] bg-[#FFFBEB] dark:bg-[#4A3D1A] rounded-lg px-1.5 py-0.5">
-                          {pendingBookings.length}件
+                          {t('countUnit', { count: pendingBookings.length })}
                         </span>
                       </div>
                       <p className="text-xs text-[#6B7280] dark:text-[#6D5A8A] truncate">
-                        {studentNames[pendingBookings[0]?.student_id] || ''}さんの予約を確認
+                        {t('pendingConfirmDesc', { name: studentNames[pendingBookings[0]?.student_id] || '' })}
                       </p>
                     </div>
                   </div>
@@ -134,7 +134,7 @@ export function MobileTasksCard({
                         {t('unreadMessagesTitle')}
                       </span>
                       <span className="text-[11px] font-bold text-[#3B82F6] bg-[#EFF6FF] dark:bg-[#1E2A40] rounded-lg px-1.5 py-0.5">
-                        {unreadCount}件
+                        {t('countUnit', { count: unreadCount })}
                       </span>
                     </div>
                     <p className="text-xs text-[#6B7280] dark:text-[#6D5A8A]">

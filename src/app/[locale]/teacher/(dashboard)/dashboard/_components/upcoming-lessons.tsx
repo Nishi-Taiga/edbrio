@@ -31,7 +31,7 @@ export function UpcomingLessons({ upcomingLessons, studentNames, loading }: Upco
   const getTimeLabel = (startTime: string) => {
     const d = new Date(startTime)
     if (isToday(d)) return format(d, 'HH:mm')
-    if (isTomorrow(d)) return '明日'
+    if (isTomorrow(d)) return t('tomorrow')
     return format(d, 'M/d', { locale: ja })
   }
 
@@ -40,19 +40,19 @@ export function UpcomingLessons({ upcomingLessons, studentNames, loading }: Upco
       case 'confirmed':
         return (
           <span className="text-[11px] font-bold text-[#3B82F6] bg-[#EFF6FF] dark:bg-[#1E2A40] rounded-md px-2 py-0.5">
-            {t('statusConfirmed') || '予約'}
+            {t('statusConfirmed')}
           </span>
         )
       case 'done':
         return (
           <span className="text-[11px] font-bold text-[#10B981] bg-[#ECFDF5] dark:bg-[#1A2E28] rounded-md px-2 py-0.5">
-            {t('statusDone') || '完了'}
+            {t('statusDone')}
           </span>
         )
       case 'pending':
         return (
           <span className="text-[11px] font-bold text-[#EF4444] bg-[#FEF2F2] dark:bg-[#2E1A1A] rounded-md px-2 py-0.5">
-            {t('statusPending') || '未提出'}
+            {t('statusPending')}
           </span>
         )
       default:
@@ -112,7 +112,7 @@ export function UpcomingLessons({ upcomingLessons, studentNames, loading }: Upco
             href="/teacher/calendar"
             className="flex items-center justify-center gap-1 py-2 mt-auto text-[#7C3AED] dark:text-[#A78BFA] text-xs font-semibold hover:opacity-80 transition-opacity"
           >
-            {t('upcomingLessonsViewAll') || 'もっと見る'}
+            {t('upcomingLessonsViewAll')}
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>

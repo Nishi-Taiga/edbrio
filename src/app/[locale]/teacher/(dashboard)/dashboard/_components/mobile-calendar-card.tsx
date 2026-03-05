@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { startOfWeek, addDays, addWeeks, subWeeks, isSameDay, isToday, format } from 'date-fns'
 
-const WEEKDAY_LABELS = ['月', '火', '水', '木', '金', '土', '日']
+const WEEKDAY_KEYS = ['weekdayMon', 'weekdayTue', 'weekdayWed', 'weekdayThu', 'weekdayFri', 'weekdaySat', 'weekdaySun'] as const
 
 interface Props {
   bookings: Booking[]
@@ -87,7 +87,7 @@ export function MobileCalendarCard({ bookings, reportedBookingIds, studentNames,
             <ChevronLeft className="w-4 h-4 text-[#6B7280] dark:text-[#6D5A8A]" />
           </button>
           <button onClick={goToday} className="rounded-lg bg-[#EDE8F5] dark:bg-[#282237] px-3 py-1.5 text-xs font-semibold text-[#7C3AED] dark:text-[#A78BFA]">
-            今日
+            {t('calendarToday')}
           </button>
           <button onClick={goNextWeek} className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#E5E0D8] dark:border-[#2E2840]">
             <ChevronRight className="w-4 h-4 text-[#6B7280] dark:text-[#6D5A8A]" />
@@ -131,7 +131,7 @@ export function MobileCalendarCard({ bookings, reportedBookingIds, studentNames,
               onClick={() => setSelectedDate(day)}
               className={`flex flex-col items-center justify-center gap-1 w-11 h-14 rounded-xl transition-colors ${wrapClass}`}
             >
-              <span className={`text-[11px] font-medium ${dayColor}`}>{WEEKDAY_LABELS[i]}</span>
+              <span className={`text-[11px] font-medium ${dayColor}`}>{t(WEEKDAY_KEYS[i])}</span>
               <span className={`${dateFontClass} ${dateColor}`}>{format(day, 'd')}</span>
             </button>
           )

@@ -79,7 +79,7 @@ export function TodaySummary({
             <span className="text-[#D4BEE4] dark:text-[#9CA3AF] text-[10px] font-medium tracking-wider uppercase">{t('nextLessonLabel') || '次のレッスン'}</span>
             <span className="text-white text-lg sm:text-[28px] font-bold leading-tight mt-0.5">
               {nextLesson
-                ? `${format(new Date(nextLesson.start_time), 'HH:mm')}〜 ${studentNames[nextLesson.student_id] || tc('student')}`
+                ? t('nextLessonFormat', { time: format(new Date(nextLesson.start_time), 'HH:mm'), name: studentNames[nextLesson.student_id] || tc('student') })
                 : t('noNextLesson')}
             </span>
           </div>

@@ -96,30 +96,30 @@ export function MobileStatsCard({ thisMonthDone, thisMonthTotal, thisMonthIncome
             <div className="flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 text-[#7C3AED] dark:text-[#A78BFA] shrink-0" />
               <span className="text-sm font-semibold text-[#1E1E2E] dark:text-[#E8E4F0]">
-                {thisMonthDone} / {thisMonthTotal} コマ完了
+                {t('lessonsCompleted', { done: thisMonthDone, total: thisMonthTotal })}
               </span>
             </div>
             <div className="flex items-center gap-1.5">
               <Banknote className="w-4 h-4 text-[#7C3AED] dark:text-[#A78BFA] shrink-0" />
               <span className="text-sm font-semibold text-[#1E1E2E] dark:text-[#E8E4F0]">
-                {incomeFormatted} 確定
+                {t('incomeConfirmed', { amount: incomeFormatted })}
               </span>
             </div>
             <div className="flex items-center gap-1">
               {incomeDelta > 0 ? (
                 <>
                   <TrendingUp className="w-3.5 h-3.5 text-[#10B981] shrink-0" />
-                  <span className="text-xs font-semibold text-[#10B981]">前月比 +{incomePercent}%</span>
+                  <span className="text-xs font-semibold text-[#10B981]">{t('momPositive', { percent: incomePercent })}</span>
                 </>
               ) : incomeDelta < 0 ? (
                 <>
                   <TrendingDown className="w-3.5 h-3.5 text-[#EF4444] shrink-0" />
-                  <span className="text-xs font-semibold text-[#EF4444]">前月比 {incomePercent}%</span>
+                  <span className="text-xs font-semibold text-[#EF4444]">{t('momNegative', { percent: incomePercent })}</span>
                 </>
               ) : (
                 <>
                   <Minus className="w-3.5 h-3.5 text-[#6B7280] dark:text-[#6D5A8A] shrink-0" />
-                  <span className="text-xs font-semibold text-[#6B7280] dark:text-[#6D5A8A]">前月比 ±0%</span>
+                  <span className="text-xs font-semibold text-[#6B7280] dark:text-[#6D5A8A]">{t('momFlat')}</span>
                 </>
               )}
             </div>

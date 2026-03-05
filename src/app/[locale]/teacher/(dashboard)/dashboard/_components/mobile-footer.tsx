@@ -2,18 +2,21 @@
 
 import { Link } from '@/i18n/navigation'
 import { Home, FileText, Calendar, MessageCircle, LayoutGrid } from 'lucide-react'
-
-const tabs = [
-  { icon: Home, label: 'ホーム', href: '/teacher/dashboard' as const, active: true },
-  { icon: FileText, label: 'レポート', href: '/teacher/reports' as const, active: false },
-] as const
-
-const tabsRight = [
-  { icon: Calendar, label: 'シフト', href: '/teacher/calendar' as const, active: false },
-  { icon: MessageCircle, label: 'チャット', href: '/teacher/chat' as const, active: false },
-] as const
+import { useTranslations } from 'next-intl'
 
 export function MobileFooter() {
+  const t = useTranslations('teacherDashboard')
+
+  const tabs = [
+    { icon: Home, label: t('footerHome'), href: '/teacher/dashboard' as const, active: true },
+    { icon: FileText, label: t('footerReports'), href: '/teacher/reports' as const, active: false },
+  ]
+
+  const tabsRight = [
+    { icon: Calendar, label: t('footerCalendar'), href: '/teacher/calendar' as const, active: false },
+    { icon: MessageCircle, label: t('footerChat'), href: '/teacher/chat' as const, active: false },
+  ]
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden">
       {/* Footer bar */}
@@ -28,7 +31,7 @@ export function MobileFooter() {
           const Icon = tab.icon
           return (
             <Link
-              key={tab.label}
+              key={tab.href}
               href={tab.href}
               className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full rounded-xl
                 ${tab.active ? 'bg-[#EDE8F5] dark:bg-[#282237]' : ''}`}
@@ -49,7 +52,7 @@ export function MobileFooter() {
           const Icon = tab.icon
           return (
             <Link
-              key={tab.label}
+              key={tab.href}
               href={tab.href}
               className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full rounded-lg
                 ${tab.active ? 'bg-[#EDE8F5] dark:bg-[#282237]' : ''}`}

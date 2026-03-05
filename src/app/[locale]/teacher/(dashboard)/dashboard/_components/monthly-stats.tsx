@@ -86,7 +86,7 @@ export function MonthlyStats({
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-[30px] font-black text-[#2D1B4E] dark:text-[#E8E4F0]">{completionPercent}%</span>
             {remaining > 0 && (
-              <span className="text-[10px] font-semibold text-[#7C3AED] dark:text-[#A78BFA]">あと{remaining}コマ!</span>
+              <span className="text-[10px] font-semibold text-[#7C3AED] dark:text-[#A78BFA]">{t('remainingLessons', { count: remaining })}</span>
             )}
           </div>
         </div>
@@ -97,7 +97,7 @@ export function MonthlyStats({
         <CheckCircle className="w-[18px] h-[18px] text-[#7C3AED] dark:text-[#A78BFA]" />
         <div className="flex items-end gap-1">
           <span className="text-[28px] font-black text-[#2D1B4E] dark:text-[#E8E4F0] leading-none">{thisMonthDone}</span>
-          <span className="text-[13px] font-medium text-gray-500 dark:text-[#6D5A8A] mb-0.5">/ {thisMonthTotal} コマ完了</span>
+          <span className="text-[13px] font-medium text-gray-500 dark:text-[#6D5A8A] mb-0.5">{t('completedSlashTotal', { total: thisMonthTotal })}</span>
         </div>
       </div>
 
@@ -109,17 +109,17 @@ export function MonthlyStats({
           {incomeDelta > 0 ? (
             <>
               <TrendingUp className="w-4 h-4 text-[#10B981]" />
-              <span className="text-xs font-semibold text-[#10B981]">前月比 +{incomePercent}%</span>
+              <span className="text-xs font-semibold text-[#10B981]">{t('momPositive', { percent: incomePercent })}</span>
             </>
           ) : incomeDelta < 0 ? (
             <>
               <TrendingDown className="w-4 h-4 text-[#EF4444]" />
-              <span className="text-xs font-semibold text-[#EF4444]">前月比 {incomePercent}%</span>
+              <span className="text-xs font-semibold text-[#EF4444]">{t('momNegative', { percent: incomePercent })}</span>
             </>
           ) : (
             <>
               <Minus className="w-4 h-4 text-gray-400 dark:text-[#6D5A8A]" />
-              <span className="text-xs font-semibold text-gray-400 dark:text-[#6D5A8A]">前月比 ±0%</span>
+              <span className="text-xs font-semibold text-gray-400 dark:text-[#6D5A8A]">{t('momFlat')}</span>
             </>
           )}
         </div>

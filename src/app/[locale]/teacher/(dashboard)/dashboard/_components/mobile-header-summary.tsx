@@ -23,7 +23,7 @@ export function MobileHeaderSummary({ nextLesson, studentNames, loading }: Props
   }
 
   const nextText = nextLesson
-    ? `${format(new Date(nextLesson.start_time), 'HH:mm')}〜 ${studentNames[nextLesson.student_id] || ''}`
+    ? t('nextLessonFormat', { time: format(new Date(nextLesson.start_time), 'HH:mm'), name: studentNames[nextLesson.student_id] || '' })
     : t('noNextLesson')
 
   return (
