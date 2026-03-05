@@ -287,7 +287,7 @@ export default function HomePage() {
                 </picture>
               </div>
               {/* Mobile phone overlay */}
-              <div className="hero-screenshot absolute -bottom-6 -right-4 sm:-bottom-8 sm:-right-6 w-[90px] sm:w-[130px] rounded-xl sm:rounded-2xl overflow-hidden border-2 sm:border-[3px] border-slate-200 dark:border-slate-700 shadow-2xl bg-white dark:bg-slate-900">
+              <div className="hero-screenshot absolute -bottom-6 right-3 sm:-bottom-8 sm:right-4 w-[90px] sm:w-[130px] rounded-xl sm:rounded-2xl overflow-hidden border-2 sm:border-[3px] border-slate-200 dark:border-slate-700 shadow-2xl bg-white dark:bg-slate-900">
                 <picture>
                   <source srcSet="/screenshots/10_teacher_dashboard_mobile-dark.png" media="(prefers-color-scheme: dark)" />
                   <img src="/screenshots/10_teacher_dashboard_mobile.png" alt={t('screenshots.teacherAlt')} width={390} height={844} className="w-full h-auto" loading="eager" />
