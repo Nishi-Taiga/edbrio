@@ -8,16 +8,16 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {/* Desktop sidebar with slide animation */}
+      {/* Desktop sidebar with width animation */}
       <div
-        className={`hidden lg:block fixed top-16 bottom-0 left-0 w-64 border-r bg-background/80 dark:bg-brand-950/80 dark:border-brand-800/30 backdrop-blur transition-transform duration-300 ease-in-out z-30 ${
-          desktopOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`hidden lg:block fixed top-16 bottom-0 left-0 border-r bg-background/80 dark:bg-brand-950/80 dark:border-brand-800/30 backdrop-blur transition-all duration-300 ease-in-out z-30 ${
+          desktopOpen ? 'w-64' : 'w-16'
         }`}
       >
-        <Sidebar />
+        <Sidebar collapsed={!desktopOpen} />
       </div>
       {/* Content with animated offset */}
-      <div className={`transition-all duration-300 ease-in-out ${desktopOpen ? 'lg:pl-64' : 'lg:pl-0'}`}>
+      <div className={`transition-all duration-300 ease-in-out ${desktopOpen ? 'lg:pl-64' : 'lg:pl-16'}`}>
         {children}
       </div>
     </>
