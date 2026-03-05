@@ -22,6 +22,13 @@ import { MonthlyStats } from './_components/monthly-stats'
 import { UpcomingLessons } from './_components/upcoming-lessons'
 import { QuickActions } from './_components/quick-actions'
 
+// Mobile components
+import { MobileHeaderSummary } from './_components/mobile-header-summary'
+import { MobileCalendarCard } from './_components/mobile-calendar-card'
+import { MobileTasksCard } from './_components/mobile-tasks-card'
+import { MobileStatsCard } from './_components/mobile-stats-card'
+import { MobileFooter } from './_components/mobile-footer'
+
 export default function TeacherDashboard() {
   const t = useTranslations('teacherDashboard')
   const tc = useTranslations('common')
@@ -257,7 +264,51 @@ export default function TeacherDashboard() {
 
   return (
     <ProtectedRoute allowedRoles={['teacher']}>
-      <div className="px-5 sm:px-7 py-6 space-y-4 bg-[#F3F4F6] dark:bg-[#13111C] min-h-screen">
+
+      {/* ════════ Mobile Dashboard (< lg) ════════ */}
+      <div className="lg:hidden bg-[#F9F6F2] dark:bg-[#13111C] min-h-screen">
+        <div className="px-4 py-4 space-y-4 pb-24">
+          {setupComplete === false && (
+            <SetupBanner missingItems={missingItems} totalItems={4} />
+          )}
+
+          <MobileHeaderSummary
+            nextLesson={nextLesson}
+            studentNames={studentNames}
+            loading={loading}
+          />
+
+          <MobileCalendarCard
+            bookings={bookings}
+            reportedBookingIds={reportedBookingIds}
+            studentNames={studentNames}
+            loading={loading}
+          />
+
+          <MobileTasksCard
+            loading={loading}
+            needsReportBookings={needsReportBookings}
+            pendingBookings={pendingBookings}
+            unreadCount={unreadCount}
+            studentNames={studentNames}
+            isUpdating={isUpdating}
+            onStatusUpdate={handleStatusUpdate}
+          />
+
+          <MobileStatsCard
+            thisMonthDone={thisMonthDone}
+            thisMonthTotal={thisMonthBookings.length}
+            thisMonthIncome={thisMonthIncome}
+            lastMonthIncome={lastMonthIncome}
+            loading={loading}
+          />
+        </div>
+
+        <MobileFooter />
+      </div>
+
+      {/* ════════ Desktop Dashboard (>= lg) ════════ */}
+      <div className="hidden lg:block px-5 sm:px-7 py-6 space-y-4 bg-[#F3F4F6] dark:bg-[#13111C] min-h-screen">
 
         {/* ── Setup Banner (conditional) ── */}
         {setupComplete === false && (
@@ -277,7 +328,6 @@ export default function TeacherDashboard() {
 
         {/* ── Calendar (flex) + Task Panel (fixed width) ── */}
         <div className="flex flex-col lg:flex-row gap-5" style={{ minHeight: 560 }}>
-          {/* Calendar — appears second on mobile, first on desktop */}
           <div className="flex-1 min-w-0 order-2 lg:order-1">
             <div className="h-full rounded-2xl border border-gray-200 dark:border-[#2E2840] bg-white dark:bg-[#1E1A2B] p-6">
               {loading ? (
@@ -301,7 +351,6 @@ export default function TeacherDashboard() {
             </div>
           </div>
 
-          {/* Task Panel — appears first on mobile, second on desktop */}
           <div className="w-full lg:w-[380px] shrink-0 order-1 lg:order-2">
             <TaskPanel
               loading={loading}
