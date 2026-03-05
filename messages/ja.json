@@ -275,6 +275,8 @@
     "confirmationEmailSent": "確認メールを送信しました。メールを確認してアカウントを有効化してください。",
     "noAccountLink": "アカウントをお持ちでない方はこちら",
     "hasAccountLink": "既にアカウントをお持ちの方はこちら",
+    "googleSignIn": "Googleで続ける",
+    "orDivider": "または",
     "forgotPasswordLink": "パスワードを忘れた方",
     "forgotPassword": {
       "title": "パスワードをリセット",

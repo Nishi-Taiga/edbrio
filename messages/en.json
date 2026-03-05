@@ -274,6 +274,8 @@
     "confirmationEmailSent": "A confirmation email has been sent. Please check your email to activate your account.",
     "noAccountLink": "Don't have an account? Sign up here",
     "hasAccountLink": "Already have an account? Log in here",
+    "googleSignIn": "Continue with Google",
+    "orDivider": "or",
     "forgotPasswordLink": "Forgot your password?",
     "forgotPassword": {
       "title": "Reset Password",
