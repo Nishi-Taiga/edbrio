@@ -1,12 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState, useCallback } from 'react'
-import FullCalendar from '@fullcalendar/react'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import interactionPlugin from '@fullcalendar/interaction'
-import type { EventClickArg, EventInput } from '@fullcalendar/core'
-import jaLocale from '@fullcalendar/core/locales/ja'
+import { useEffect, useMemo, useState } from 'react'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -18,6 +12,7 @@ import { useBookings } from '@/hooks/use-bookings'
 import { useReports } from '@/hooks/use-reports'
 import { useUnreadCount } from '@/hooks/use-unread-count'
 import { useBookingReports } from '@/hooks/use-booking-reports'
+import { TeacherDashboardCalendar, type CalendarEvent } from '@/components/dashboard/teacher-calendar'
 import { createClient } from '@/lib/supabase/client'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
@@ -26,13 +21,11 @@ import { SkeletonList } from '@/components/ui/skeleton-card'
 import { useTranslations } from 'next-intl'
 import { getMissingSetupItems } from '@/lib/teacher-setup'
 import { toast } from 'sonner'
-import { useRouter } from '@/i18n/navigation'
 
 export default function TeacherDashboard() {
   const t = useTranslations('teacherDashboard')
   const tp = useTranslations('teacherProfile')
   const tc = useTranslations('common')
-  const router = useRouter()
   const { user, dbUser, loading: authLoading } = useAuth()
   const { bookings, loading: bookingsLoading, updateBookingStatus } = useBookings(user?.id, 'teacher')
   const { reports, loading: reportsLoading } = useReports(user?.id, 'teacher')
@@ -117,8 +110,8 @@ export default function TeacherDashboard() {
     [bookings, reportedBookingIds]
   )
 
-  // FullCalendar events — color-coded
-  const calendarEvents: EventInput[] = useMemo(() => {
+  // Calendar events — color-coded
+  const calendarEvents: CalendarEvent[] = useMemo(() => {
     return bookings
       .filter((b: Booking) => b.status !== 'canceled')
       .map((b: Booking) => {
@@ -126,39 +119,20 @@ export default function TeacherDashboard() {
         const isDone = b.status === 'done'
         const hasReport = reportedBookingIds.has(b.id)
 
-        let bgColor: string
-        let borderColor: string
-        if (isDone && hasReport) {
-          // Completed (green)
-          bgColor = '#10b981'
-          borderColor = '#059669'
-        } else if (isDone && !hasReport) {
-          // Needs report (red)
-          bgColor = '#ef4444'
-          borderColor = '#dc2626'
-        } else {
-          // Booked / pending (blue)
-          bgColor = '#3b82f6'
-          borderColor = '#2563eb'
-        }
+        let color: 'blue' | 'red' | 'green'
+        if (isDone && hasReport) color = 'green'
+        else if (isDone) color = 'red'
+        else color = 'blue'
 
         return {
-          id: `booking:${b.id}`,
-          title: name || tc('statusLabels.' + b.status),
-          start: b.start_time,
-          end: b.end_time,
-          backgroundColor: bgColor,
-          borderColor,
-          textColor: '#ffffff',
-          extendedProps: { bookingId: b.id },
+          id: b.id,
+          title: name || tc('student'),
+          start: new Date(b.start_time),
+          end: new Date(b.end_time),
+          color,
         }
       })
   }, [bookings, studentNames, reportedBookingIds, tc])
-
-  // Navigate to calendar on event click
-  const handleEventClick = useCallback((info: EventClickArg) => {
-    router.push('/teacher/calendar')
-  }, [router])
 
   const handleStatusUpdate = async (id: string, status: 'confirmed' | 'canceled') => {
     setIsUpdating(id)
@@ -289,21 +263,6 @@ export default function TeacherDashboard() {
                     <Button variant="ghost" size="sm">{t('calendarManagement')}</Button>
                   </Link>
                 </div>
-                {/* Legend */}
-                <div className="flex flex-wrap gap-4 text-xs mt-2">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#3b82f6]" />
-                    <span className="text-muted-foreground">{t('calendarLegendBooked')}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#ef4444]" />
-                    <span className="text-muted-foreground">{t('calendarLegendNeedsReport')}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#10b981]" />
-                    <span className="text-muted-foreground">{t('calendarLegendDone')}</span>
-                  </div>
-                </div>
               </CardHeader>
               <CardContent className="pt-0">
                 {loading ? (
@@ -311,28 +270,17 @@ export default function TeacherDashboard() {
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600" />
                   </div>
                 ) : (
-                  <div className="fc-wrapper">
-                    <FullCalendar
-                      plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
-                      initialView="timeGridWeek"
-                      locale={jaLocale}
-                      headerToolbar={{
-                        left: 'prev,next today',
-                        center: 'title',
-                        right: 'timeGridWeek,dayGridMonth',
-                      }}
-                      events={calendarEvents}
-                      eventClick={handleEventClick}
-                      height="auto"
-                      slotMinTime="06:00:00"
-                      slotMaxTime="23:00:00"
-                      allDaySlot={false}
-                      nowIndicator={true}
-                      selectable={false}
-                      editable={false}
-                      eventDisplay="block"
-                    />
-                  </div>
+                  <TeacherDashboardCalendar
+                    events={calendarEvents}
+                    labels={{
+                      weekView: t('calendarWeekView'),
+                      monthView: t('calendarMonthView'),
+                      booked: t('calendarLegendBooked'),
+                      needsReport: t('calendarLegendNeedsReport'),
+                      done: t('calendarLegendDone'),
+                      noEvents: t('calendarNoEvents'),
+                    }}
+                  />
                 )}
               </CardContent>
             </Card>
