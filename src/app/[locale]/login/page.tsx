@@ -1,11 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { AuthForm } from '@/components/auth/auth-form'
 import { EdBrioLogo } from '@/components/ui/edbrio-logo'
 
 export default function LoginPage() {
-  const [mode, setMode] = useState<'login' | 'signup'>('login')
+  const searchParams = useSearchParams()
+  const initialMode = searchParams.get('mode') === 'signup' ? 'signup' : 'login'
+  const [mode, setMode] = useState<'login' | 'signup'>(initialMode)
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-surface py-12 px-4 sm:px-6 lg:px-8">

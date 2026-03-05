@@ -228,7 +228,7 @@ export default function HomePage() {
             <div className="flex items-center gap-3 shrink-0">
               <LanguageSwitcher className="hidden md:inline-flex" />
               <Link href="/login" className="hidden md:block text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition whitespace-nowrap">{t('nav.login')}</Link>
-              <Link href="/login" className="bg-brand-600 hover:bg-brand-700 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap">
+              <Link href={{ pathname: '/login', query: { mode: 'signup' } }} className="bg-brand-600 hover:bg-brand-700 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap">
                 {t('nav.getStartedFree')}
               </Link>
               <button
@@ -271,7 +271,7 @@ export default function HomePage() {
                 {t('hero.description')}
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
-                <Link href="/login" className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 rounded-2xl font-bold text-base transition flex items-center justify-center gap-2">
+                <Link href={{ pathname: '/login', query: { mode: 'signup' } }} className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 rounded-2xl font-bold text-base transition flex items-center justify-center gap-2">
                   {t('hero.ctaStart')} <ArrowRight className="w-5 h-5" />
                 </Link>
                 <a href="#features" className="border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 px-8 py-4 rounded-2xl font-bold text-base transition text-center">
@@ -468,7 +468,7 @@ export default function HomePage() {
             {t('ctaBanner.description')}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link href="/login" className="bg-white text-brand-600 px-8 py-4 rounded-2xl font-bold text-sm sm:text-base transition hover:bg-brand-50 flex items-center gap-2">
+            <Link href={{ pathname: '/login', query: { mode: 'signup' } }} className="bg-white text-brand-600 px-8 py-4 rounded-2xl font-bold text-sm sm:text-base transition hover:bg-brand-50 flex items-center gap-2">
               {t('ctaBanner.ctaPrimary')} <ArrowRight className="w-5 h-5" />
             </Link>
             <Link href="/pricing" className="border border-white/30 text-white px-8 py-4 rounded-2xl font-bold text-sm sm:text-base transition hover:bg-white/10 text-center">

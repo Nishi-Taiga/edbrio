@@ -72,7 +72,7 @@ export default function PricingPage() {
               <ArrowLeft className="w-4 h-4" />
               {t('nav.features')}
             </Link>
-            <Link href="/login" className="bg-brand-600 hover:bg-brand-700 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap">
+            <Link href={{ pathname: '/login', query: { mode: 'signup' } }} className="bg-brand-600 hover:bg-brand-700 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition whitespace-nowrap">
               {t('nav.getStartedFree')}
             </Link>
           </div>
@@ -106,7 +106,7 @@ export default function PricingPage() {
                   ))}
                 </ul>
               </div>
-              <Link href="/login" className="w-full py-4 rounded-2xl bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white font-bold text-center hover:bg-slate-200 dark:hover:bg-slate-600 transition block text-sm">
+              <Link href={{ pathname: '/login', query: { mode: 'signup' } }} className="w-full py-4 rounded-2xl bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white font-bold text-center hover:bg-slate-200 dark:hover:bg-slate-600 transition block text-sm">
                 {t('pricing.freeCta')}
               </Link>
             </div>
@@ -128,7 +128,7 @@ export default function PricingPage() {
                   ))}
                 </ul>
               </div>
-              <Link href="/login" className="w-full py-4 rounded-2xl bg-white text-brand-600 font-bold text-center hover:bg-brand-50 transition block text-sm">
+              <Link href={{ pathname: '/login', query: { mode: 'signup' } }} className="w-full py-4 rounded-2xl bg-white text-brand-600 font-bold text-center hover:bg-brand-50 transition block text-sm">
                 {t('pricing.standardCta')}
               </Link>
             </div>
@@ -236,7 +236,7 @@ export default function PricingPage() {
             {t('ctaBanner.description')}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link href="/login" className="bg-white text-brand-600 px-8 py-4 rounded-2xl font-bold text-sm sm:text-base transition hover:bg-brand-50 flex items-center gap-2">
+            <Link href={{ pathname: '/login', query: { mode: 'signup' } }} className="bg-white text-brand-600 px-8 py-4 rounded-2xl font-bold text-sm sm:text-base transition hover:bg-brand-50 flex items-center gap-2">
               {t('ctaBanner.ctaPrimary')} <ArrowRight className="w-5 h-5" />
             </Link>
             <Link href="/#features" className="border border-white/30 text-white px-8 py-4 rounded-2xl font-bold text-sm sm:text-base transition hover:bg-white/10 text-center">

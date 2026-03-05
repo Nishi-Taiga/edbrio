@@ -77,7 +77,7 @@ export function Header({ showMenuButton }: HeaderProps) {
                 <Link href="/login">
                   <Button variant="outline" size="sm">{t('login')}</Button>
                 </Link>
-                <Link href="/login">
+                <Link href={{ pathname: '/login', query: { mode: 'signup' } }}>
                   <Button size="sm">{t('freeRegister')}</Button>
                 </Link>
               </div>
