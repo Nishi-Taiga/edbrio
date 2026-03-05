@@ -11,6 +11,7 @@ import {
   Home, CalendarPlus, CalendarCheck,
   type LucideIcon,
 } from 'lucide-react'
+import { useSidebar } from './sidebar-context'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -35,6 +36,7 @@ interface SidebarProps {
 export function Sidebar({ mobile, collapsed, onClose }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const { toggleDesktop } = useSidebar()
   const isGuardian = pathname?.startsWith('/guardian')
   const { user, dbUser, signOut } = useAuth()
   const t = useTranslations('sidebar')
@@ -87,7 +89,14 @@ export function Sidebar({ mobile, collapsed, onClose }: SidebarProps) {
               <li key={it.href}>
                 <Link
                   href={it.href}
-                  onClick={onClose}
+                  onClick={(e) => {
+                    if (collapsed && !mobile) {
+                      e.preventDefault()
+                      toggleDesktop()
+                    } else {
+                      onClose?.()
+                    }
+                  }}
                   title={collapsed ? it.label : undefined}
                   className={classNames(
                     'flex items-center rounded-lg text-sm transition-colors relative',

@@ -38,7 +38,7 @@ export function TaskPanel({
 
   return (
     <div
-      className="h-full rounded-2xl border border-[#D4BEE4] dark:border-[#2E2840] p-6 flex flex-col gap-4 overflow-hidden"
+      className="h-full rounded-2xl border border-[#D4BEE4] dark:border-[#6D5A8A] p-6 flex flex-col gap-4 overflow-hidden"
       style={{
         background: 'var(--task-panel-bg)',
       }}
@@ -119,7 +119,7 @@ export function TaskPanel({
             className={`flex rounded-xl border px-4 py-3.5 items-center gap-3 ${
               issueReportCount > 0
                 ? 'border-[#FED7AA] dark:border-[#4A3D1A] bg-white dark:bg-[#1E1A2B]'
-                : 'border-[#E5E0D8] dark:border-[#2E2840] bg-[#F9F6F2] dark:bg-[#1E1A2B] opacity-60'
+                : 'border-[#E5E0D8] dark:border-[#2E2840] bg-[#F9F6F2] dark:bg-[#13111C] opacity-60'
             }`}
           >
             <Flag className={`w-5 h-5 shrink-0 ${issueReportCount > 0 ? 'text-orange-500' : 'text-gray-400 dark:text-[#6D5A8A]'}`} />

@@ -1,10 +1,8 @@
 "use client"
 
 import { useState, useEffect, useMemo, useRef } from 'react'
-import { format, isSameDay } from 'date-fns'
+import { format, isSameDay, startOfWeek, addDays, addMonths } from 'date-fns'
 import { ja } from 'date-fns/locale'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 export type CalendarEvent = {
@@ -17,6 +15,7 @@ export type CalendarEvent = {
 
 interface Props {
   events: CalendarEvent[]
+  title: string
   labels: {
     weekView: string
     monthView: string
@@ -27,26 +26,33 @@ interface Props {
   }
 }
 
-const DAY_NAMES = ['日', '月', '火', '水', '木', '金', '土']
+const DAY_NAMES = ['月', '火', '水', '木', '金', '土', '日']
 
-const DOT_COLOR: Record<string, string> = {
-  blue: 'bg-blue-500',
-  red: 'bg-red-500',
-  green: 'bg-emerald-500',
+const ACCENT_COLOR: Record<string, string> = {
+  blue: 'bg-[#3B82F6]',
+  red: 'bg-[#EF4444]',
+  green: 'bg-[#10B981]',
 }
 
-const EVENT_LIGHT_BG: Record<string, string> = {
-  blue: 'bg-blue-50 border-blue-200 dark:bg-blue-950/40 dark:border-blue-800/40',
-  red: 'bg-red-50 border-red-200 dark:bg-red-950/40 dark:border-red-800/40',
-  green: 'bg-emerald-50 border-emerald-200 dark:bg-emerald-950/40 dark:border-emerald-800/40',
+const SUBJECT_COLOR: Record<string, string> = {
+  blue: 'text-[#3B82F6]',
+  red: 'text-[#EF4444]',
+  green: 'text-[#10B981]',
 }
 
-/** Build weeks (Sun–Sat rows) for a month. No extra trailing week. */
+const HOUR_H = 31
+const START_H = 9
+const END_H = 22
+const HOURS = Array.from({ length: END_H - START_H + 1 }, (_, i) => START_H + i)
+const TIME_COL = 36
+
+function getMonday(date: Date): Date {
+  return startOfWeek(date, { weekStartsOn: 1 })
+}
+
 function getMonthWeeks(year: number, month: number): Date[][] {
   const lastDay = new Date(year, month + 1, 0)
-  const cur = new Date(year, month, 1)
-  cur.setDate(cur.getDate() - cur.getDay()) // back to Sunday
-
+  const cur = getMonday(new Date(year, month, 1))
   const weeks: Date[][] = []
   while (true) {
     const week: Date[] = []
@@ -60,137 +66,151 @@ function getMonthWeeks(year: number, month: number): Date[][] {
   return weeks
 }
 
-export function TeacherDashboardCalendar({ events, labels }: Props) {
-  const [view, setView] = useState<'week' | 'month'>('week')
-  const [selectedDate, setSelectedDate] = useState(() => new Date())
-  const [currentMonth, setCurrentMonth] = useState(() => new Date())
-  const timelineRef = useRef<HTMLDivElement>(null)
-
-  const today = useMemo(() => {
-    const d = new Date()
-    d.setHours(0, 0, 0, 0)
-    return d
-  }, [])
-
-  const eventsByDate = useMemo(() => {
-    const map = new Map<string, CalendarEvent[]>()
-    for (const e of events) {
-      const k = format(e.start, 'yyyy-MM-dd')
-      if (!map.has(k)) map.set(k, [])
-      map.get(k)!.push(e)
-    }
-    return map
-  }, [events])
-
+/* ── Compact mini month calendar ── */
+function MiniCal({
+  month,
+  today,
+  onSelectDate,
+}: {
+  month: Date
+  today: Date
+  onSelectDate: (d: Date) => void
+}) {
   const weeks = useMemo(
-    () => getMonthWeeks(currentMonth.getFullYear(), currentMonth.getMonth()),
-    [currentMonth],
+    () => getMonthWeeks(month.getFullYear(), month.getMonth()),
+    [month],
   )
 
-  const selectedDayEvents = useMemo(() => {
-    const k = format(selectedDate, 'yyyy-MM-dd')
-    return (eventsByDate.get(k) || []).sort(
-      (a, b) => a.start.getTime() - b.start.getTime(),
-    )
-  }, [selectedDate, eventsByDate])
-
-  // Scroll day timeline to 10:00
-  useEffect(() => {
-    if (timelineRef.current && view === 'week') {
-      timelineRef.current.scrollTop = 4 * 40 // (10 − 6) × 40 px
-    }
-  }, [selectedDate, view])
-
-  const prevMonth = () =>
-    setCurrentMonth((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1))
-  const nextMonth = () =>
-    setCurrentMonth((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1))
-
-  /** Unique event-color flags for a date */
-  const dotsFor = (date: Date) => {
-    const evts = eventsByDate.get(format(date, 'yyyy-MM-dd'))
-    if (!evts) return null
-    const s = new Set(evts.map((e) => e.color))
-    return { blue: s.has('blue'), red: s.has('red'), green: s.has('green') }
-  }
-
-  /* ── Shared day-name header ── */
-  const dayNameRow = (extraCls?: string) => (
-    <div className={cn('grid grid-cols-7', extraCls)}>
-      {DAY_NAMES.map((name, i) => (
-        <div
-          key={name}
-          className={cn(
-            'text-center text-[11px] font-medium py-1.5',
-            i === 0 && 'text-red-500',
-            i === 6 && 'text-blue-500',
-            i > 0 && i < 6 && 'text-muted-foreground',
-          )}
-        >
-          {name}
+  return (
+    <div className="flex flex-col gap-[6px] px-1 py-2">
+      <span className="text-[11px] font-semibold text-center text-gray-800 dark:text-[#E8E4F0]">
+        {format(month, 'M月 yyyy', { locale: ja })}
+      </span>
+      <div className="flex justify-between w-[92px] mx-auto">
+        {DAY_NAMES.map((n, i) => (
+          <span
+            key={n}
+            className={cn(
+              'text-[9px] font-medium w-[13px] text-center',
+              i === 5 && 'text-[#3B82F6]',
+              i === 6 && 'text-[#EF4444]',
+              i < 5 && 'text-gray-400 dark:text-[#6D5A8A]',
+            )}
+          >
+            {n}
+          </span>
+        ))}
+      </div>
+      {weeks.map((week, wi) => (
+        <div key={wi} className="flex justify-between w-[92px] mx-auto">
+          {week.map((day, di) => {
+            const inMonth = day.getMonth() === month.getMonth()
+            const isTd = isSameDay(day, today)
+            return (
+              <button
+                key={di}
+                onClick={() => inMonth && onSelectDate(day)}
+                className="w-[13px] h-[13px] flex items-center justify-center relative"
+              >
+                {isTd && (
+                  <span className="absolute w-[14px] h-[14px] rounded-full bg-[#2D1B4E] dark:bg-[#A78BFA]" />
+                )}
+                <span
+                  className={cn(
+                    'relative text-[9px] leading-none',
+                    !inMonth && 'invisible',
+                    isTd && 'text-white font-bold',
+                    !isTd && di === 5 && 'text-[#3B82F6]',
+                    !isTd && di === 6 && 'text-[#EF4444]',
+                    !isTd && di < 5 && 'text-gray-500 dark:text-[#6D5A8A]',
+                  )}
+                >
+                  {day.getDate()}
+                </span>
+              </button>
+            )
+          })}
         </div>
       ))}
     </div>
   )
+}
 
-  /* ── Shared dot indicators ── */
-  const dotsIndicator = (
-    dots: { blue: boolean; red: boolean; green: boolean },
-    size: string,
-  ) => (
-    <div className="flex gap-[3px] mt-0.5">
-      {dots.blue && (
-        <span className={cn('rounded-full bg-blue-500', size)} />
-      )}
-      {dots.red && (
-        <span className={cn('rounded-full bg-red-500', size)} />
-      )}
-      {dots.green && (
-        <span className={cn('rounded-full bg-emerald-500', size)} />
-      )}
-    </div>
+export function TeacherDashboardCalendar({ events, title, labels }: Props) {
+  const [view, setView] = useState<'week' | 'month'>('week')
+  const [currentDate, setCurrentDate] = useState(() => new Date())
+  const gridRef = useRef<HTMLDivElement>(null)
+
+  const today = useMemo(() => {
+    const d = new Date(); d.setHours(0, 0, 0, 0); return d
+  }, [])
+
+  const weekStart = useMemo(() => getMonday(currentDate), [currentDate])
+  const weekDays = useMemo(
+    () => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)),
+    [weekStart],
   )
 
-  /* ── Timeline constants ── */
-  const HOUR_H = 40
-  const START_H = 6
-  const END_H = 22
-  const HOURS = Array.from({ length: END_H - START_H + 1 }, (_, i) => START_H + i)
+  const curMonth = useMemo(
+    () => new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
+    [currentDate],
+  )
+  const nxtMonth = useMemo(() => addMonths(curMonth, 1), [curMonth])
+
+  const eventsByDate = useMemo(() => {
+    const m = new Map<string, CalendarEvent[]>()
+    for (const e of events) {
+      const k = format(e.start, 'yyyy-MM-dd')
+      if (!m.has(k)) m.set(k, [])
+      m.get(k)!.push(e)
+    }
+    return m
+  }, [events])
+
+  const monthWeeks = useMemo(
+    () => getMonthWeeks(curMonth.getFullYear(), curMonth.getMonth()),
+    [curMonth],
+  )
+
+  // Scroll to ~10:00 on mount / week change
+  useEffect(() => {
+    if (gridRef.current && view === 'week') {
+      gridRef.current.scrollTop = (10 - START_H) * HOUR_H
+    }
+  }, [view, weekStart])
+
+  const eventsForDay = (day: Date) => {
+    const k = format(day, 'yyyy-MM-dd')
+    return (eventsByDate.get(k) || []).sort((a, b) => a.start.getTime() - b.start.getTime())
+  }
+
+  const dotsFor = (d: Date) => {
+    const e = eventsByDate.get(format(d, 'yyyy-MM-dd'))
+    if (!e) return null
+    const s = new Set(e.map(x => x.color))
+    return { blue: s.has('blue'), red: s.has('red'), green: s.has('green') }
+  }
+
+  const colLeft = (i: number) =>
+    `calc(${TIME_COL}px + (100% - ${TIME_COL}px) / 7 * ${i})`
+  const colWidth = `calc((100% - ${TIME_COL}px) / 7)`
 
   return (
-    <div>
-      {/* ── Header: month nav + view toggle ── */}
+    <div className="flex flex-col h-full">
+      {/* Header: title + tabs */}
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7"
-            onClick={prevMonth}
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
-          <span className="text-sm font-semibold min-w-[100px] text-center">
-            {format(currentMonth, 'yyyy年M月', { locale: ja })}
-          </span>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7"
-            onClick={nextMonth}
-          >
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-        </div>
-        <div className="hidden md:flex rounded-lg border overflow-hidden text-xs">
-          {(['week', 'month'] as const).map((v) => (
+        <h2 className="text-lg font-extrabold text-gray-800 dark:text-[#E8E4F0]">{title}</h2>
+        <div className="flex rounded-lg overflow-hidden border border-[#D4BEE4] dark:border-[#6D5A8A]">
+          {(['week', 'month'] as const).map(v => (
             <button
               key={v}
-              className={cn(
-                'px-3 py-1.5 font-medium transition-colors',
-                view === v ? 'bg-brand-600 text-white' : 'hover:bg-muted',
-              )}
               onClick={() => setView(v)}
+              className={cn(
+                'px-4 py-[7px] text-[13px] font-medium transition-colors',
+                view === v
+                  ? 'bg-[#2D1B4E] dark:bg-[#282237] text-white dark:text-[#E8E4F0]'
+                  : 'bg-white dark:bg-[#1E1A2B] text-gray-400 dark:text-[#9CA3AF]',
+              )}
             >
               {v === 'week' ? labels.weekView : labels.monthView}
             </button>
@@ -198,176 +218,218 @@ export function TeacherDashboardCalendar({ events, labels }: Props) {
         </div>
       </div>
 
-      {/* ── Legend ── */}
-      <div className="flex flex-wrap gap-3 text-xs mb-3">
+      {/* Legend */}
+      <div className="flex gap-4 text-xs mb-3">
         {[
           { cls: 'bg-blue-500', label: labels.booked },
-          { cls: 'bg-red-500', label: labels.needsReport },
           { cls: 'bg-emerald-500', label: labels.done },
-        ].map((l) => (
+          { cls: 'bg-red-500', label: labels.needsReport },
+        ].map(l => (
           <span key={l.label} className="flex items-center gap-1.5">
             <span className={cn('w-2 h-2 rounded-full', l.cls)} />
-            <span className="text-muted-foreground">{l.label}</span>
+            <span className="text-gray-400 dark:text-[#6D5A8A]">{l.label}</span>
           </span>
         ))}
       </div>
 
       {/* ═══ WEEK VIEW ═══ */}
       {view === 'week' ? (
-        <>
-          {/* Mini month calendar */}
-          <div className="rounded-lg bg-muted/30 dark:bg-muted/10 p-2 mb-3">
-            {dayNameRow()}
-            {weeks.map((week, wi) => (
-              <div key={wi} className="grid grid-cols-7">
+        <div className="flex gap-3 flex-1 min-h-0">
+          {/* Mini calendars — hidden on smaller screens */}
+          <div className="hidden lg:flex flex-col gap-3 w-[100px] shrink-0">
+            <MiniCal month={curMonth} today={today} onSelectDate={d => setCurrentDate(d)} />
+            <MiniCal month={nxtMonth} today={today} onSelectDate={d => setCurrentDate(d)} />
+          </div>
+          <div className="hidden lg:block w-px shrink-0 bg-[#D4BEE4] dark:bg-[#2E2840]" />
+
+          {/* Grid area */}
+          <div className="flex-1 min-w-0 flex flex-col">
+            {/* Day headers */}
+            <div className="flex" style={{ paddingLeft: TIME_COL }}>
+              {weekDays.map((day, i) => {
+                const isTd = isSameDay(day, today)
+                return (
+                  <div
+                    key={i}
+                    className={cn(
+                      'flex-1 flex flex-col items-center gap-0.5 py-1',
+                      isTd && 'bg-[#EDE8F5] dark:bg-[#A78BFA]/[0.15] rounded-t-md',
+                    )}
+                  >
+                    <span className={cn(
+                      'text-[10px] font-medium',
+                      isTd && 'text-[#2D1B4E] dark:text-[#A78BFA] font-semibold',
+                      !isTd && i === 5 && 'text-[#3B82F6]',
+                      !isTd && i === 6 && 'text-[#EF4444]',
+                      !isTd && i < 5 && 'text-gray-400 dark:text-[#6D5A8A]',
+                    )}>
+                      {DAY_NAMES[i]}
+                    </span>
+                    {isTd ? (
+                      <span className="w-[15px] h-[15px] rounded-full bg-[#2D1B4E] dark:bg-[#A78BFA] text-white text-[11px] font-bold flex items-center justify-center leading-none">
+                        {day.getDate()}
+                      </span>
+                    ) : (
+                      <span className={cn(
+                        'text-xs font-semibold',
+                        i === 5 && 'text-[#3B82F6]',
+                        i === 6 && 'text-[#EF4444]',
+                        i < 5 && 'text-gray-600 dark:text-[#9CA3AF]',
+                      )}>
+                        {day.getDate()}
+                      </span>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Scrollable time grid */}
+            <div
+              ref={gridRef}
+              className="flex-1 overflow-y-auto overflow-x-hidden relative min-h-0"
+            >
+              <div className="relative" style={{ height: (END_H - START_H + 1) * HOUR_H }}>
+                {/* Today column background */}
+                {weekDays.map((day, i) =>
+                  isSameDay(day, today) ? (
+                    <div
+                      key={`tc${i}`}
+                      className="absolute top-0 bottom-0 bg-[#EDE8F5]/70 dark:bg-[#A78BFA]/[0.12] rounded-b-md pointer-events-none"
+                      style={{ left: colLeft(i), width: colWidth }}
+                    />
+                  ) : null,
+                )}
+
+                {/* Vertical column separators */}
+                {Array.from({ length: 7 }, (_, i) => (
+                  <div
+                    key={`vs${i}`}
+                    className="absolute top-0 bottom-0 w-px bg-[#D4BEE4]/50 dark:bg-[#6D5A8A]/30 pointer-events-none"
+                    style={{ left: i === 0 ? `${TIME_COL}px` : colLeft(i) }}
+                  />
+                ))}
+
+                {/* Hour rows */}
+                {HOURS.map((h, idx) => (
+                  <div key={h} className="absolute left-0 right-0" style={{ top: idx * HOUR_H }}>
+                    <span className="absolute text-[9px] font-medium text-gray-400 dark:text-[#6D5A8A] w-7 text-right -top-1.5 left-0">
+                      {h}
+                    </span>
+                    <div
+                      className="absolute border-t border-[#D4BEE4] dark:border-[#6D5A8A]"
+                      style={{ left: TIME_COL, right: 0 }}
+                    />
+                  </div>
+                ))}
+
+                {/* Event cards */}
+                {weekDays.map((day, di) =>
+                  eventsForDay(day).map(ev => {
+                    const sH = ev.start.getHours() + ev.start.getMinutes() / 60
+                    const eH = ev.end.getHours() + ev.end.getMinutes() / 60
+                    const top = Math.max(0, (sH - START_H) * HOUR_H)
+                    const height = Math.max(24, (eH - sH) * HOUR_H)
+                    return (
+                      <div
+                        key={ev.id}
+                        className="absolute rounded-md bg-white dark:bg-[#1E1A2B] border border-[#D4BEE4] dark:border-[#6D5A8A] shadow-sm overflow-hidden z-10"
+                        style={{
+                          top,
+                          height,
+                          left: `calc(${TIME_COL}px + (100% - ${TIME_COL}px) / 7 * ${di} + 2px)`,
+                          width: `calc((100% - ${TIME_COL}px) / 7 - 4px)`,
+                        }}
+                      >
+                        <div className={cn('absolute left-[3px] top-[4px] bottom-[4px] w-[3px] rounded-sm', ACCENT_COLOR[ev.color])} />
+                        <div className="pl-[10px] pt-[3px]">
+                          <div className="text-[10px] font-semibold text-gray-800 dark:text-[#E8E4F0] truncate">
+                            {ev.title}
+                          </div>
+                          <div className={cn('text-[9px]', SUBJECT_COLOR[ev.color])}>
+                            {format(ev.start, 'H:mm')}–{format(ev.end, 'H:mm')}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  }),
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* ═══ MONTH VIEW ═══ */
+        <div className="flex-1">
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <button
+              className="text-lg text-gray-400 dark:text-[#6D5A8A] hover:text-gray-600 dark:hover:text-[#A78BFA]"
+              onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))}
+            >
+              ‹
+            </button>
+            <span className="text-sm font-semibold text-gray-800 dark:text-[#E8E4F0] min-w-[100px] text-center">
+              {format(curMonth, 'yyyy年M月', { locale: ja })}
+            </span>
+            <button
+              className="text-lg text-gray-400 dark:text-[#6D5A8A] hover:text-gray-600 dark:hover:text-[#A78BFA]"
+              onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))}
+            >
+              ›
+            </button>
+          </div>
+
+          <div className="rounded-lg overflow-hidden border border-[#D4BEE4]/30 dark:border-[#2E2840]">
+            <div className="grid grid-cols-7 bg-gray-50/50 dark:bg-[#282237]/50">
+              {DAY_NAMES.map((n, i) => (
+                <div key={n} className={cn(
+                  'text-center text-[11px] font-medium py-1.5',
+                  i === 5 && 'text-[#3B82F6]',
+                  i === 6 && 'text-[#EF4444]',
+                  i < 5 && 'text-gray-400 dark:text-[#6D5A8A]',
+                )}>
+                  {n}
+                </div>
+              ))}
+            </div>
+            {monthWeeks.map((week, wi) => (
+              <div key={wi} className="grid grid-cols-7 border-t border-[#D4BEE4]/30 dark:border-[#2E2840]">
                 {week.map((day, di) => {
-                  const inMonth =
-                    day.getMonth() === currentMonth.getMonth()
-                  const isToday = isSameDay(day, today)
-                  const isSelected = isSameDay(day, selectedDate)
+                  const inMonth = day.getMonth() === curMonth.getMonth()
+                  const isTd = isSameDay(day, today)
                   const dots = dotsFor(day)
                   return (
                     <button
                       key={di}
-                      onClick={() => setSelectedDate(new Date(day))}
+                      onClick={() => { setCurrentDate(day); setView('week') }}
                       className={cn(
-                        'flex flex-col items-center py-1 rounded transition-colors',
+                        'flex flex-col items-center py-2 min-h-[52px] transition-colors hover:bg-gray-50 dark:hover:bg-[#282237]/50',
                         !inMonth && 'opacity-30',
-                        isSelected && !isToday && 'bg-brand-100 dark:bg-brand-900/40',
+                        di < 6 && 'border-r border-[#D4BEE4]/30 dark:border-[#2E2840]',
                       )}
                     >
-                      <span
-                        className={cn(
-                          'w-6 h-6 flex items-center justify-center rounded-full text-xs',
-                          isToday && 'bg-brand-600 text-white font-bold',
-                          !isToday && di === 0 && 'text-red-500',
-                          !isToday && di === 6 && 'text-blue-500',
-                        )}
-                      >
+                      <span className={cn(
+                        'w-7 h-7 flex items-center justify-center rounded-full text-sm',
+                        isTd && 'bg-[#2D1B4E] dark:bg-[#A78BFA] text-white font-bold',
+                        !isTd && di === 5 && 'text-[#3B82F6]',
+                        !isTd && di === 6 && 'text-[#EF4444]',
+                        !isTd && di < 5 && 'text-gray-600 dark:text-[#9CA3AF]',
+                      )}>
                         {day.getDate()}
                       </span>
-                      {inMonth && dots && dotsIndicator(dots, 'w-1 h-1')}
+                      {inMonth && dots && (
+                        <div className="flex gap-[3px] mt-0.5">
+                          {dots.blue && <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />}
+                          {dots.green && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />}
+                          {dots.red && <span className="w-1.5 h-1.5 rounded-full bg-red-500" />}
+                        </div>
+                      )}
                     </button>
                   )
                 })}
               </div>
             ))}
           </div>
-
-          {/* Selected day header */}
-          <h3 className="text-xs font-medium text-muted-foreground mb-2">
-            {format(selectedDate, 'M月d日（E）', { locale: ja })}
-          </h3>
-
-          {/* Day timeline */}
-          {selectedDayEvents.length === 0 ? (
-            <p className="text-xs text-muted-foreground text-center py-6">
-              {labels.noEvents}
-            </p>
-          ) : (
-            <div
-              ref={timelineRef}
-              className="overflow-y-auto rounded-lg bg-muted/30 dark:bg-muted/10"
-              style={{ maxHeight: 10 * HOUR_H }}
-            >
-              <div
-                className="relative"
-                style={{ height: (END_H - START_H) * HOUR_H }}
-              >
-                {/* Hour markers */}
-                {HOURS.map((h) => (
-                  <div
-                    key={h}
-                    className="absolute left-0 right-0 border-t border-muted/40"
-                    style={{ top: (h - START_H) * HOUR_H }}
-                  >
-                    <span className="text-[10px] text-muted-foreground/60 px-2 leading-none">
-                      {h}:00
-                    </span>
-                  </div>
-                ))}
-                {/* Events */}
-                {selectedDayEvents.map((ev) => {
-                  const sH =
-                    ev.start.getHours() + ev.start.getMinutes() / 60
-                  const eH =
-                    ev.end.getHours() + ev.end.getMinutes() / 60
-                  const top = Math.max(0, (sH - START_H) * HOUR_H)
-                  const height = Math.max(24, (eH - sH) * HOUR_H)
-                  return (
-                    <div
-                      key={ev.id}
-                      className={cn(
-                        'absolute left-10 right-2 rounded-md border px-2 py-1',
-                        EVENT_LIGHT_BG[ev.color],
-                      )}
-                      style={{ top, height }}
-                    >
-                      <div className="flex items-center gap-1.5">
-                        <span
-                          className={cn(
-                            'w-2 h-2 rounded-full shrink-0',
-                            DOT_COLOR[ev.color],
-                          )}
-                        />
-                        <span className="text-xs font-medium truncate">
-                          {ev.title}
-                        </span>
-                      </div>
-                      <span className="text-[10px] text-muted-foreground ml-3.5">
-                        {format(ev.start, 'H:mm')} – {format(ev.end, 'H:mm')}
-                      </span>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-        </>
-      ) : (
-        /* ═══ MONTH VIEW ═══ */
-        <div className="rounded-lg overflow-hidden border border-muted/30">
-          {dayNameRow('bg-muted/50 dark:bg-muted/20')}
-          {weeks.map((week, wi) => (
-            <div
-              key={wi}
-              className="grid grid-cols-7 border-t border-muted/30"
-            >
-              {week.map((day, di) => {
-                const inMonth =
-                  day.getMonth() === currentMonth.getMonth()
-                const isToday = isSameDay(day, today)
-                const dots = dotsFor(day)
-                return (
-                  <button
-                    key={di}
-                    onClick={() => {
-                      setSelectedDate(new Date(day))
-                      setView('week')
-                    }}
-                    className={cn(
-                      'flex flex-col items-center py-2 min-h-[52px] transition-colors',
-                      'bg-background/50 dark:bg-muted/5 hover:bg-muted/30',
-                      !inMonth && 'opacity-30',
-                      di < 6 && 'border-r border-muted/30',
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        'w-7 h-7 flex items-center justify-center rounded-full text-sm',
-                        isToday && 'bg-brand-600 text-white font-bold',
-                        !isToday && di === 0 && 'text-red-500',
-                        !isToday && di === 6 && 'text-blue-500',
-                      )}
-                    >
-                      {day.getDate()}
-                    </span>
-                    {inMonth && dots && dotsIndicator(dots, 'w-1.5 h-1.5')}
-                  </button>
-                )
-              })}
-            </div>
-          ))}
         </div>
       )}
     </div>

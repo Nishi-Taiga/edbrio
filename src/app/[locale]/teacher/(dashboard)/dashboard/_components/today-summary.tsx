@@ -28,7 +28,7 @@ export function TodaySummary({
 
   if (loading) {
     return (
-      <div className="rounded-2xl bg-[#2D1B4E] dark:bg-[#0F0D18] p-5 sm:p-6 animate-pulse h-[120px]" />
+      <div className="rounded-2xl bg-[#2D1B4E] dark:bg-[#1E1A2B] p-5 sm:p-6 animate-pulse h-[120px]" />
     )
   }
 
@@ -47,7 +47,7 @@ export function TodaySummary({
   const incomeFormatted = `\u00a5${Math.round(todayEstimatedIncome).toLocaleString('ja-JP')}`
 
   return (
-    <div className="relative rounded-2xl bg-[#2D1B4E] dark:bg-[#0F0D18] overflow-hidden" style={{ height: 120 }}>
+    <div className="relative rounded-2xl bg-[#2D1B4E] dark:bg-[#1E1A2B] overflow-hidden" style={{ height: 120 }}>
       {/* Decorative blurred ellipses */}
       <div className="absolute w-[200px] h-[200px] rounded-full bg-white/[0.03] -left-10 -top-[60px] pointer-events-none" />
       <div className="absolute w-[120px] h-[120px] rounded-full bg-white/[0.02] left-20 top-[30px] pointer-events-none" />
@@ -57,15 +57,15 @@ export function TodaySummary({
       <div className="relative h-full flex items-center justify-between px-6 sm:px-9">
         {/* Left: Greeting */}
         <div className="flex flex-col gap-0.5 shrink-0">
-          <span className="text-[#D4BEE4] text-xs sm:text-sm">{greetPrefix}</span>
-          <span className="text-white text-xl sm:text-[30px] font-extrabold leading-tight">{greetName}</span>
+          <span className="text-[#D4BEE4] dark:text-[#9CA3AF] text-xs sm:text-sm">{greetPrefix}</span>
+          <span className="text-white dark:text-[#E8E4F0] text-xl sm:text-[30px] font-extrabold leading-tight">{greetName}</span>
         </div>
 
         {/* Right: Stat cards */}
         <div className="flex gap-3 sm:gap-4">
           {/* Today's lessons */}
           <div className="bg-white/[0.07] rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 flex flex-col justify-center shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
-            <span className="text-[#D4BEE4] text-[10px] font-medium tracking-wider uppercase">{t('todayLessons')}</span>
+            <span className="text-[#D4BEE4] dark:text-[#9CA3AF] text-[10px] font-medium tracking-wider uppercase">{t('todayLessons')}</span>
             <div className="flex items-end gap-1 mt-0.5">
               <span className="text-white text-2xl sm:text-[32px] font-black leading-none">
                 {completedTodayCount} / {todayCount}
@@ -76,7 +76,7 @@ export function TodaySummary({
 
           {/* Next lesson */}
           <div className="hidden sm:flex bg-white/[0.07] rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 flex-col justify-center shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
-            <span className="text-[#D4BEE4] text-[10px] font-medium tracking-wider uppercase">{t('nextLessonLabel') || '次のレッスン'}</span>
+            <span className="text-[#D4BEE4] dark:text-[#9CA3AF] text-[10px] font-medium tracking-wider uppercase">{t('nextLessonLabel') || '次のレッスン'}</span>
             <span className="text-white text-lg sm:text-[28px] font-bold leading-tight mt-0.5">
               {nextLesson
                 ? `${format(new Date(nextLesson.start_time), 'HH:mm')}〜 ${studentNames[nextLesson.student_id] || tc('student')}`
@@ -87,7 +87,7 @@ export function TodaySummary({
           {/* Today's income */}
           {todayEstimatedIncome > 0 && (
             <div className="hidden md:flex bg-white/[0.07] rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 flex-col justify-center shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
-              <span className="text-[#D4BEE4] text-[10px] font-medium tracking-wider uppercase">{t('todayEstimatedIncome')}</span>
+              <span className="text-[#D4BEE4] dark:text-[#9CA3AF] text-[10px] font-medium tracking-wider uppercase">{t('todayEstimatedIncome')}</span>
               <span className="text-white text-2xl sm:text-[32px] font-black leading-none mt-0.5">{incomeFormatted}</span>
             </div>
           )}

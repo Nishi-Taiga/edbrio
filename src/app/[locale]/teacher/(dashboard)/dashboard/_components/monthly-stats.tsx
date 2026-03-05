@@ -53,7 +53,7 @@ export function MonthlyStats({
 
   return (
     <div className="h-full rounded-2xl border border-gray-200 dark:border-[#2E2840] bg-white dark:bg-[#1E1A2B] p-6 flex flex-col gap-2">
-      <h3 className="text-xs font-bold text-gray-500 dark:text-[#6D5A8A] tracking-widest uppercase">{t('monthlyStatsTitle')}</h3>
+      <h3 className="text-xs font-bold text-gray-500 dark:text-[#9CA3AF] tracking-widest uppercase">{t('monthlyStatsTitle')}</h3>
 
       {/* Progress ring */}
       <div className="flex justify-center py-2">

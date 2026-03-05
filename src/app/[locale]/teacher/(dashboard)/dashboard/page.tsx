@@ -280,9 +280,6 @@ export default function TeacherDashboard() {
           {/* Calendar — appears second on mobile, first on desktop */}
           <div className="flex-1 min-w-0 order-2 lg:order-1">
             <div className="h-full rounded-2xl border border-gray-200 dark:border-[#2E2840] bg-white dark:bg-[#1E1A2B] p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-extrabold text-gray-800 dark:text-[#E8E4F0]">{t('calendarTitle')}</h2>
-              </div>
               {loading ? (
                 <div className="flex items-center justify-center py-20">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#7C3AED]" />
@@ -290,6 +287,7 @@ export default function TeacherDashboard() {
               ) : (
                 <TeacherDashboardCalendar
                   events={calendarEvents}
+                  title={t('calendarTitle')}
                   labels={{
                     weekView: t('calendarWeekView'),
                     monthView: t('calendarMonthView'),
