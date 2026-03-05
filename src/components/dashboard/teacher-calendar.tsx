@@ -182,7 +182,7 @@ export function TeacherDashboardCalendar({ events, labels }: Props) {
             <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
-        <div className="flex rounded-lg border overflow-hidden text-xs">
+        <div className="hidden md:flex rounded-lg border overflow-hidden text-xs">
           {(['week', 'month'] as const).map((v) => (
             <button
               key={v}

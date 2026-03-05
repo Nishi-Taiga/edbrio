@@ -3,10 +3,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Link } from '@/i18n/navigation'
-import { AlertTriangle, Calendar, Check, CheckCircle2, FileText, MessageCircle, X } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useBookings } from '@/hooks/use-bookings'
 import { useReports } from '@/hooks/use-reports'
@@ -14,17 +12,20 @@ import { useUnreadCount } from '@/hooks/use-unread-count'
 import { useBookingReports } from '@/hooks/use-booking-reports'
 import { TeacherDashboardCalendar, type CalendarEvent } from '@/components/dashboard/teacher-calendar'
 import { createClient } from '@/lib/supabase/client'
-import { format } from 'date-fns'
-import { ja } from 'date-fns/locale'
 import { Booking, Report } from '@/lib/types/database'
-import { SkeletonList } from '@/components/ui/skeleton-card'
 import { useTranslations } from 'next-intl'
 import { getMissingSetupItems } from '@/lib/teacher-setup'
 import { toast } from 'sonner'
 
+import { TodaySummary } from './_components/today-summary'
+import { SetupBanner } from './_components/setup-banner'
+import { TaskPanel } from './_components/task-panel'
+import { MonthlyStats } from './_components/monthly-stats'
+import { UpcomingLessons } from './_components/upcoming-lessons'
+import { QuickActions } from './_components/quick-actions'
+
 export default function TeacherDashboard() {
   const t = useTranslations('teacherDashboard')
-  const tp = useTranslations('teacherProfile')
   const tc = useTranslations('common')
   const { user, dbUser, loading: authLoading } = useAuth()
   const { bookings, loading: bookingsLoading, updateBookingStatus } = useBookings(user?.id, 'teacher')
@@ -36,6 +37,7 @@ export default function TeacherDashboard() {
   const [missingItems, setMissingItems] = useState<string[]>([])
   const [studentNames, setStudentNames] = useState<Record<string, string>>({})
   const [isUpdating, setIsUpdating] = useState<string | null>(null)
+  const [ticketPriceMap, setTicketPriceMap] = useState<Record<string, number>>({})
 
   const supabase = useMemo(() => createClient(), [])
 
@@ -82,24 +84,71 @@ export default function TeacherDashboard() {
       })
   }, [bookings, supabase])
 
-  // Derived data
-  const todayCount = useMemo(() => {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    return bookings.filter((b: Booking) => {
+  // Fetch ticket pricing for income calculation
+  useEffect(() => {
+    if (bookings.length === 0) return
+    const balanceIds = [...new Set(
+      bookings
+        .filter((b: Booking) => b.ticket_balance_id)
+        .map((b: Booking) => b.ticket_balance_id!)
+    )]
+    if (balanceIds.length === 0) return
+
+    supabase
+      .from('ticket_balances')
+      .select('id, tickets(price_cents, bundle_qty)')
+      .in('id', balanceIds)
+      .then(({ data }) => {
+        if (data) {
+          const map: Record<string, number> = {}
+          for (const tb of data) {
+            const ticket = tb.tickets as unknown as { price_cents: number; bundle_qty: number } | null
+            if (ticket && ticket.bundle_qty > 0) {
+              map[tb.id] = ticket.price_cents / ticket.bundle_qty / 100
+            }
+          }
+          setTicketPriceMap(map)
+        }
+      })
+  }, [bookings, supabase])
+
+  // ── Derived data ──
+
+  const now = useMemo(() => new Date(), [])
+  const todayStart = useMemo(() => {
+    const d = new Date(now); d.setHours(0, 0, 0, 0); return d
+  }, [now])
+  const todayEnd = useMemo(() => {
+    const d = new Date(todayStart); d.setDate(d.getDate() + 1); return d
+  }, [todayStart])
+
+  const todayBookings = useMemo(() =>
+    bookings.filter((b: Booking) => {
       const start = new Date(b.start_time)
-      return start >= today && start < tomorrow && b.status !== 'canceled'
-    }).length
-  }, [bookings])
+      return start >= todayStart && start < todayEnd && b.status !== 'canceled'
+    }),
+    [bookings, todayStart, todayEnd]
+  )
+
+  const todayCount = todayBookings.length
+
+  const completedTodayCount = useMemo(() =>
+    todayBookings.filter((b: Booking) => b.status === 'done').length,
+    [todayBookings]
+  )
+
+  const nextLesson = useMemo(() =>
+    bookings
+      .filter((b: Booking) => b.status === 'confirmed' && new Date(b.start_time) > now)
+      .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())[0] ?? null,
+    [bookings, now]
+  )
 
   const pendingBookings = useMemo(() =>
     bookings.filter((b: Booking) => b.status === 'pending'),
     [bookings]
   )
 
-  // Reports that are missing: bookings with status 'done' and no matching report
   const reportedBookingIds = useMemo(() =>
     new Set(reports.filter((r: Report) => r.booking_id).map((r: Report) => r.booking_id)),
     [reports]
@@ -110,20 +159,17 @@ export default function TeacherDashboard() {
     [bookings, reportedBookingIds]
   )
 
-  // Calendar events — color-coded
-  const calendarEvents: CalendarEvent[] = useMemo(() => {
-    return bookings
+  const calendarEvents: CalendarEvent[] = useMemo(() =>
+    bookings
       .filter((b: Booking) => b.status !== 'canceled')
       .map((b: Booking) => {
         const name = studentNames[b.student_id] || ''
         const isDone = b.status === 'done'
         const hasReport = reportedBookingIds.has(b.id)
-
         let color: 'blue' | 'red' | 'green'
         if (isDone && hasReport) color = 'green'
         else if (isDone) color = 'red'
         else color = 'blue'
-
         return {
           id: b.id,
           title: name || tc('student'),
@@ -131,8 +177,66 @@ export default function TeacherDashboard() {
           end: new Date(b.end_time),
           color,
         }
-      })
-  }, [bookings, studentNames, reportedBookingIds, tc])
+      }),
+    [bookings, studentNames, reportedBookingIds, tc]
+  )
+
+  // Income calculations
+  const calcIncome = (filteredBookings: Booking[]) =>
+    filteredBookings
+      .filter((b: Booking) => (b.status === 'confirmed' || b.status === 'done') && b.ticket_balance_id)
+      .reduce((sum, b) => sum + (ticketPriceMap[b.ticket_balance_id!] || 0), 0)
+
+  const todayEstimatedIncome = useMemo(
+    () => calcIncome(todayBookings),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [todayBookings, ticketPriceMap]
+  )
+
+  const thisMonthBookings = useMemo(() =>
+    bookings.filter((b: Booking) => {
+      const d = new Date(b.start_time)
+      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && b.status !== 'canceled'
+    }),
+    [bookings, now]
+  )
+
+  const lastMonthBookings = useMemo(() => {
+    const lm = now.getMonth() === 0 ? 11 : now.getMonth() - 1
+    const ly = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear()
+    return bookings.filter((b: Booking) => {
+      const d = new Date(b.start_time)
+      return d.getFullYear() === ly && d.getMonth() === lm && b.status !== 'canceled'
+    })
+  }, [bookings, now])
+
+  const thisMonthIncome = useMemo(
+    () => calcIncome(thisMonthBookings),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [thisMonthBookings, ticketPriceMap]
+  )
+  const lastMonthIncome = useMemo(
+    () => calcIncome(lastMonthBookings),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [lastMonthBookings, ticketPriceMap]
+  )
+
+  const thisMonthDone = useMemo(() =>
+    thisMonthBookings.filter((b: Booking) => b.status === 'done').length,
+    [thisMonthBookings]
+  )
+
+  const upcomingLessons = useMemo(() =>
+    bookings
+      .filter((b: Booking) =>
+        (b.status === 'confirmed' || b.status === 'pending') && new Date(b.start_time) > now
+      )
+      .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())
+      .slice(0, 5),
+    [bookings, now]
+  )
+
+  // ── Handlers ──
 
   const handleStatusUpdate = async (id: string, status: 'confirmed' | 'canceled') => {
     setIsUpdating(id)
@@ -149,113 +253,49 @@ export default function TeacherDashboard() {
   // Time-based greeting
   const hour = new Date().getHours()
   const greeting = hour < 12 ? t('greetingMorning') : hour < 18 ? t('greetingAfternoon') : t('greetingEvening')
+  const greetingText = t('greeting', { name: dbUser?.name || '', greeting })
 
   const loading = authLoading || bookingsLoading || reportsLoading
 
-  // Task items config
-  const taskItems = [
-    {
-      key: 'needsReport',
-      icon: FileText,
-      title: t('needsReportTitle'),
-      count: needsReportBookings.length,
-      countLabel: t('needsReportCount', { count: needsReportBookings.length }),
-      href: '/teacher/reports/new',
-      actionLabel: t('needsReportAction'),
-      color: 'text-red-600 dark:text-red-400',
-      badgeColor: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400',
-      expandable: true,
-    },
-    {
-      key: 'pendingBookings',
-      icon: Calendar,
-      title: t('pendingBookingsTitle'),
-      count: pendingBookings.length,
-      countLabel: t('pendingBookingsCount', { count: pendingBookings.length }),
-      href: undefined,
-      actionLabel: undefined,
-      color: 'text-amber-600 dark:text-amber-400',
-      badgeColor: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400',
-      expandable: true,
-    },
-    {
-      key: 'issueReports',
-      icon: AlertTriangle,
-      title: t('issueReportsTitle'),
-      count: issueReportCount,
-      countLabel: t('issueReportsCount', { count: issueReportCount }),
-      href: '/teacher/calendar',
-      actionLabel: t('issueReportsAction'),
-      color: 'text-orange-600 dark:text-orange-400',
-      badgeColor: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400',
-      expandable: false,
-    },
-    {
-      key: 'unreadMessages',
-      icon: MessageCircle,
-      title: t('unreadMessagesTitle'),
-      count: unreadCount,
-      countLabel: t('unreadMessagesCount', { count: unreadCount }),
-      href: '/teacher/chat',
-      actionLabel: t('unreadMessagesAction'),
-      color: 'text-blue-600 dark:text-blue-400',
-      badgeColor: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400',
-      expandable: false,
-    },
-  ]
-
-  const allTasksDone = taskItems.every(item => item.count === 0)
-
   return (
     <ProtectedRoute allowedRoles={['teacher']}>
-      <div className="container mx-auto px-4 py-6 sm:py-8">
+      <div className="container mx-auto px-4 py-6 sm:py-8 space-y-6">
 
-        {/* ── Welcome Header ── */}
-        <div className="relative rounded-2xl bg-gradient-to-r from-brand-600 to-brand-500 dark:from-brand-900 dark:to-brand-800 p-6 sm:p-8 mb-6 overflow-hidden">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
-          <div className="absolute bottom-0 left-1/3 w-56 h-28 bg-accent-400/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="relative">
-            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">
-              {t('greeting', { name: dbUser?.name || '', greeting })}
-            </h1>
-            <p className="text-brand-100 dark:text-brand-300 text-sm sm:text-base">
-              {todayCount > 0
-                ? t('todaySummary', { count: todayCount })
-                : t('noLessonsTodaySummary')}
-            </p>
-          </div>
-        </div>
-
-        {/* ── Setup Banner ── */}
+        {/* ── Setup Banner (conditional) ── */}
         {setupComplete === false && (
-          <Card className="mb-6 border-amber-200 bg-amber-50 dark:border-amber-800/30 dark:bg-amber-900/10">
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
-                <div className="flex-1">
-                  <p className="font-medium text-amber-800 dark:text-amber-300">{t('initialSetupIncomplete')}</p>
-                  <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
-                    {missingItems.length > 0
-                      ? t('initialSetupDescriptionDynamic', { items: missingItems.map(k => tp(k)).join('・') })
-                      : t('initialSetupDescription')}
-                  </p>
-                  <Link href="/teacher/setup">
-                    <Button size="sm" variant="outline" className="mt-3 border-amber-300 text-amber-700 hover:bg-amber-100 dark:border-amber-700 dark:text-amber-300 dark:hover:bg-amber-900/30">
-                      {t('goToSetup')}
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <SetupBanner missingItems={missingItems} totalItems={4} />
         )}
 
-        {/* ── Main Content: Calendar + Tasks ── */}
-        <div className="grid lg:grid-cols-5 gap-6">
+        {/* ── Today's Summary (full width) ── */}
+        <TodaySummary
+          greeting={greetingText}
+          todayCount={todayCount}
+          completedTodayCount={completedTodayCount}
+          nextLesson={nextLesson}
+          studentNames={studentNames}
+          todayEstimatedIncome={todayEstimatedIncome}
+          loading={loading}
+        />
 
-          {/* Calendar */}
-          <div className="lg:col-span-3">
-            <Card>
+        {/* ── Calendar (2/3) + Task Panel (1/3) ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Task Panel — appears first on mobile, second on desktop */}
+          <div className="lg:col-span-1 lg:order-2">
+            <TaskPanel
+              loading={loading}
+              needsReportBookings={needsReportBookings}
+              pendingBookings={pendingBookings}
+              issueReportCount={issueReportCount}
+              unreadCount={unreadCount}
+              studentNames={studentNames}
+              isUpdating={isUpdating}
+              onStatusUpdate={handleStatusUpdate}
+            />
+          </div>
+
+          {/* Calendar — appears second on mobile, first on desktop */}
+          <div className="lg:col-span-2 lg:order-1">
+            <Card className="h-full">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle>{t('calendarTitle')}</CardTitle>
@@ -285,122 +325,29 @@ export default function TeacherDashboard() {
               </CardContent>
             </Card>
           </div>
+        </div>
 
-          {/* Tasks */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle>{t('tasksTitle')}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <SkeletonList count={4} />
-                ) : allTasksDone ? (
-                  <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <CheckCircle2 className="w-10 h-10 text-green-500 mb-3" />
-                    <p className="text-sm text-muted-foreground">{t('tasksAllDone')}</p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {taskItems.filter(item => item.count > 0).map((item) => {
-                      const Icon = item.icon
-                      return (
-                        <div key={item.key} className="rounded-lg border p-3">
-                          {/* Header */}
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <Icon className={`w-4 h-4 ${item.color}`} />
-                              <span className="text-sm font-medium">
-                                {item.title}
-                              </span>
-                            </div>
-                            <Badge variant="secondary" className={`text-xs ${item.badgeColor}`}>
-                              {item.countLabel}
-                            </Badge>
-                          </div>
-
-                          {/* Expandable content for needs-report */}
-                          {item.key === 'needsReport' && (
-                            <div className="mt-2 space-y-1.5">
-                              {needsReportBookings.slice(0, 3).map((b: Booking) => (
-                                <div key={b.id} className="flex items-center justify-between text-xs text-muted-foreground pl-6">
-                                  <span>
-                                    {studentNames[b.student_id] || tc('student')}
-                                    <span className="mx-1">·</span>
-                                    {format(new Date(b.start_time), 'M/d p', { locale: ja })}
-                                  </span>
-                                </div>
-                              ))}
-                              {needsReportBookings.length > 3 && (
-                                <p className="text-xs text-muted-foreground pl-6">
-                                  +{needsReportBookings.length - 3}件
-                                </p>
-                              )}
-                              <Link href="/teacher/reports/new">
-                                <Button size="sm" variant="outline" className="w-full mt-2 h-7 text-xs">
-                                  {item.actionLabel}
-                                </Button>
-                              </Link>
-                            </div>
-                          )}
-
-                          {/* Expandable content for pending bookings */}
-                          {item.key === 'pendingBookings' && (
-                            <div className="mt-2 space-y-2">
-                              {pendingBookings.slice(0, 3).map((b: Booking) => (
-                                <div key={b.id} className="flex items-center justify-between pl-6">
-                                  <div className="text-xs text-muted-foreground">
-                                    <span>{studentNames[b.student_id] || tc('student')}</span>
-                                    <span className="mx-1">·</span>
-                                    <span>{format(new Date(b.start_time), 'M/d p', { locale: ja })}</span>
-                                  </div>
-                                  <div className="flex gap-1">
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                                      onClick={() => handleStatusUpdate(b.id, 'canceled')}
-                                      disabled={isUpdating === b.id}
-                                    >
-                                      <X className="w-3.5 h-3.5" />
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      className="h-6 w-6 p-0 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20"
-                                      onClick={() => handleStatusUpdate(b.id, 'confirmed')}
-                                      disabled={isUpdating === b.id}
-                                    >
-                                      <Check className="w-3.5 h-3.5" />
-                                    </Button>
-                                  </div>
-                                </div>
-                              ))}
-                              {pendingBookings.length > 3 && (
-                                <p className="text-xs text-muted-foreground pl-6">
-                                  +{pendingBookings.length - 3}件
-                                </p>
-                              )}
-                            </div>
-                          )}
-
-                          {/* Link action for issue reports & unread messages */}
-                          {item.href && !item.expandable && (
-                            <Link href={item.href}>
-                              <Button size="sm" variant="outline" className="w-full mt-2 h-7 text-xs">
-                                {item.actionLabel}
-                              </Button>
-                            </Link>
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+        {/* ── Bottom Row: Monthly Stats + Upcoming Lessons + Quick Actions ── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <MonthlyStats
+            thisMonthDone={thisMonthDone}
+            thisMonthTotal={thisMonthBookings.length}
+            lastMonthDone={lastMonthBookings.filter((b: Booking) => b.status === 'done').length}
+            lastMonthTotal={lastMonthBookings.length}
+            thisMonthIncome={thisMonthIncome}
+            lastMonthIncome={lastMonthIncome}
+            loading={loading}
+          />
+          <UpcomingLessons
+            upcomingLessons={upcomingLessons}
+            studentNames={studentNames}
+            loading={loading}
+          />
+          <div className="md:col-span-2 lg:col-span-1">
+            <QuickActions />
           </div>
         </div>
+
       </div>
     </ProtectedRoute>
   )
