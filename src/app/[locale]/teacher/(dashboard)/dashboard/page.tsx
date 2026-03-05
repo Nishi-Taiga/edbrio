@@ -2,32 +2,28 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { ProtectedRoute } from '@/components/layout/protected-route'
-import { Link } from '@/i18n/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { useBookings } from '@/hooks/use-bookings'
 import { useReports } from '@/hooks/use-reports'
 import { useUnreadCount } from '@/hooks/use-unread-count'
 import { useBookingReports } from '@/hooks/use-booking-reports'
-import { TeacherDashboardCalendar, type CalendarEvent } from '@/components/dashboard/teacher-calendar'
+import { type CalendarEvent } from '@/components/dashboard/teacher-calendar'
 import { createClient } from '@/lib/supabase/client'
 import { Booking, Report } from '@/lib/types/database'
 import { useTranslations } from 'next-intl'
 import { getMissingSetupItems } from '@/lib/teacher-setup'
 import { toast } from 'sonner'
 
-import { TodaySummary } from './_components/today-summary'
 import { SetupBanner } from './_components/setup-banner'
-import { TaskPanel } from './_components/task-panel'
-import { MonthlyStats } from './_components/monthly-stats'
 import { UpcomingLessons } from './_components/upcoming-lessons'
 import { QuickActions } from './_components/quick-actions'
-
-// Mobile components
-import { MobileHeaderSummary } from './_components/mobile-header-summary'
-import { MobileCalendarCard } from './_components/mobile-calendar-card'
-import { MobileTasksCard } from './_components/mobile-tasks-card'
-import { MobileStatsCard } from './_components/mobile-stats-card'
 import { MobileFooter } from './_components/mobile-footer'
+
+// Responsive components (unified mobile + desktop)
+import { ResponsiveSummary } from './_components/responsive-summary'
+import { ResponsiveCalendar } from './_components/responsive-calendar'
+import { ResponsiveTasks } from './_components/responsive-tasks'
+import { ResponsiveStats } from './_components/responsive-stats'
 
 export default function TeacherDashboard() {
   const t = useTranslations('teacherDashboard')
@@ -264,59 +260,15 @@ export default function TeacherDashboard() {
 
   return (
     <ProtectedRoute allowedRoles={['teacher']}>
-
-      {/* ════════ Mobile Dashboard (< md) ════════ */}
-      <div className="md:hidden bg-[#F9F6F2] dark:bg-[#13111C] min-h-screen">
-        <div className="px-4 py-4 space-y-4 pb-24">
-          {setupComplete === false && (
-            <SetupBanner missingItems={missingItems} totalItems={4} />
-          )}
-
-          <MobileHeaderSummary
-            nextLesson={nextLesson}
-            studentNames={studentNames}
-            loading={loading}
-          />
-
-          <MobileCalendarCard
-            bookings={bookings}
-            reportedBookingIds={reportedBookingIds}
-            studentNames={studentNames}
-            loading={loading}
-          />
-
-          <MobileTasksCard
-            loading={loading}
-            needsReportBookings={needsReportBookings}
-            pendingBookings={pendingBookings}
-            unreadCount={unreadCount}
-            studentNames={studentNames}
-            isUpdating={isUpdating}
-            onStatusUpdate={handleStatusUpdate}
-          />
-
-          <MobileStatsCard
-            thisMonthDone={thisMonthDone}
-            thisMonthTotal={thisMonthBookings.length}
-            thisMonthIncome={thisMonthIncome}
-            lastMonthIncome={lastMonthIncome}
-            loading={loading}
-          />
-        </div>
-
-        <MobileFooter />
-      </div>
-
-      {/* ════════ Desktop Dashboard (>= md) ════════ */}
-      <div className="hidden md:block px-5 sm:px-7 py-6 space-y-4 bg-[#F3F4F6] dark:bg-[#13111C] min-h-screen">
+      <div className="bg-[#F9F6F2] md:bg-[#F3F4F6] dark:bg-[#13111C] min-h-screen px-4 md:px-5 lg:px-7 py-4 md:py-6 space-y-4 pb-24 md:pb-6">
 
         {/* ── Setup Banner (conditional) ── */}
         {setupComplete === false && (
           <SetupBanner missingItems={missingItems} totalItems={4} />
         )}
 
-        {/* ── Today's Summary (full width) ── */}
-        <TodaySummary
+        {/* ── Summary (full width, responsive) ── */}
+        <ResponsiveSummary
           greeting={greetingText}
           todayCount={todayCount}
           completedTodayCount={completedTodayCount}
@@ -326,33 +278,19 @@ export default function TeacherDashboard() {
           loading={loading}
         />
 
-        {/* ── Calendar (flex) + Task Panel (fixed width) ── */}
-        <div className="flex flex-col lg:flex-row gap-5" style={{ minHeight: 560 }}>
+        {/* ── Calendar + Tasks ── */}
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-5" style={{ minHeight: 560 }}>
           <div className="flex-1 min-w-0 order-2 lg:order-1">
-            <div className="h-full rounded-2xl border border-gray-200 dark:border-[#2E2840] bg-white dark:bg-[#1E1A2B] p-6">
-              {loading ? (
-                <div className="flex items-center justify-center py-20">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#7C3AED]" />
-                </div>
-              ) : (
-                <TeacherDashboardCalendar
-                  events={calendarEvents}
-                  title={t('calendarTitle')}
-                  labels={{
-                    weekView: t('calendarWeekView'),
-                    monthView: t('calendarMonthView'),
-                    booked: t('calendarLegendBooked'),
-                    needsReport: t('calendarLegendNeedsReport'),
-                    done: t('calendarLegendDone'),
-                    noEvents: t('calendarNoEvents'),
-                  }}
-                />
-              )}
-            </div>
+            <ResponsiveCalendar
+              calendarEvents={calendarEvents}
+              loading={loading}
+              bookings={bookings}
+              reportedBookingIds={reportedBookingIds}
+              studentNames={studentNames}
+            />
           </div>
-
           <div className="w-full lg:w-[380px] shrink-0 order-1 lg:order-2">
-            <TaskPanel
+            <ResponsiveTasks
               loading={loading}
               needsReportBookings={needsReportBookings}
               pendingBookings={pendingBookings}
@@ -366,9 +304,9 @@ export default function TeacherDashboard() {
         </div>
 
         {/* ── Bottom Row: Monthly Stats + Upcoming Lessons + Quick Actions ── */}
-        <div className="flex flex-col md:flex-row gap-5" style={{ minHeight: 320 }}>
+        <div className="flex flex-col md:flex-row gap-4 md:gap-5" style={{ minHeight: 320 }}>
           <div className="flex-1 min-w-0">
-            <MonthlyStats
+            <ResponsiveStats
               thisMonthDone={thisMonthDone}
               thisMonthTotal={thisMonthBookings.length}
               lastMonthDone={lastMonthBookings.filter((b: Booking) => b.status === 'done').length}
@@ -389,8 +327,10 @@ export default function TeacherDashboard() {
             <QuickActions />
           </div>
         </div>
-
       </div>
+
+      {/* Mobile bottom navigation */}
+      <MobileFooter />
     </ProtectedRoute>
   )
 }

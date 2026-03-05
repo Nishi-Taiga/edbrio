@@ -18,7 +18,7 @@ export function MobileFooter() {
   ]
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden">
+    <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden">
       {/* Footer bar */}
       <div
         className="relative h-16 flex items-center justify-around px-2 py-1.5
