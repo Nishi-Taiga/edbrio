@@ -5,7 +5,8 @@ import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks/use-auth'
 import { useUnreadCount } from '@/hooks/use-unread-count'
 import { useBookingReports } from '@/hooks/use-booking-reports'
-import { ChevronUp, LogOut, Mail, Settings, User, X } from 'lucide-react'
+import { ChevronUp, LogOut, Mail, Settings, X } from 'lucide-react'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -106,7 +107,12 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
               <DropdownMenuTrigger asChild>
                 <button className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800/50 transition-colors">
                   <div className="flex items-center gap-2 min-w-0">
-                    <User className="w-4 h-4 shrink-0" />
+                    <Avatar className="w-6 h-6 shrink-0">
+                      {dbUser?.avatar_url && <AvatarImage src={dbUser.avatar_url} alt="" />}
+                      <AvatarFallback className="text-[10px] bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300">
+                        {(dbUser?.name || user.email)?.[0]?.toUpperCase() || '?'}
+                      </AvatarFallback>
+                    </Avatar>
                     <span className="font-medium truncate">{dbUser?.name || user.email}</span>
                   </div>
                   <ChevronUp className="w-4 h-4 shrink-0 text-gray-400" />

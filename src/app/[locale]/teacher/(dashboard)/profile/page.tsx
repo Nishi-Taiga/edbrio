@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Check, Edit2, X, Sun, Moon, Monitor, Mail, Bell, Loader2, Clock, CheckCircle2, QrCode, CreditCard, AlertCircle } from 'lucide-react'
+import { Check, Edit2, X, Sun, Moon, Monitor, Mail, Bell, Loader2, Clock, CheckCircle2, QrCode, CreditCard, AlertCircle, Camera } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { getStripe } from '@/lib/stripe'
 import { toast } from 'sonner'
@@ -23,6 +23,8 @@ import { Switch } from '@/components/ui/switch'
 import type { AreaSelection } from '@/lib/types/database'
 import type { Invite } from '@/lib/types/database'
 import type { NotificationPreferences } from '@/lib/types/database'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { useAuth } from '@/hooks/use-auth'
 
 type PublicProfile = {
   display_name?: string
@@ -82,6 +84,11 @@ function TeacherProfileContent() {
   const [isSubscriptionLoading, setIsSubscriptionLoading] = useState(false)
   const [isStripeOnboarding, setIsStripeOnboarding] = useState(false)
   const [showStripeHelpModal, setShowStripeHelpModal] = useState(false)
+
+  // Avatar state
+  const { dbUser, refreshDbUser } = useAuth()
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
 
   // Notification preferences state
   const [notifPrefs, setNotifPrefs] = useState<NotificationPreferences>({})
@@ -225,6 +232,21 @@ function TeacherProfileContent() {
     }
   }
 
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error(t('avatarTooLarge'))
+      return
+    }
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      toast.error(t('avatarInvalidFormat'))
+      return
+    }
+    setAvatarFile(file)
+    setAvatarPreview(URL.createObjectURL(file))
+  }
+
   const handleInvite = async () => {
     if (inviteMethod === 'email' && !inviteEmail.trim()) return
     setInviteSending(true)
@@ -273,6 +295,26 @@ function TeacherProfileContent() {
     if (!teacher) return
     setIsSubmitting(true)
     try {
+      // Upload avatar if changed
+      if (avatarFile) {
+        const ext = avatarFile.name.split('.').pop() || 'jpg'
+        const path = `${teacher.id}/${crypto.randomUUID()}.${ext}`
+        const { error: upErr } = await supabase.storage
+          .from('avatars')
+          .upload(path, avatarFile, { contentType: avatarFile.type })
+        if (upErr) throw upErr
+
+        const { data: urlData } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(path)
+
+        const { error: avatarDbErr } = await supabase
+          .from('users')
+          .update({ avatar_url: urlData.publicUrl, updated_at: new Date().toISOString() })
+          .eq('id', teacher.id)
+        if (avatarDbErr) throw avatarDbErr
+      }
+
       const setupComplete = isInitialSetupComplete(editedSubjects, editedGrades, editedProfile)
 
       const { error } = await supabase
@@ -294,6 +336,11 @@ function TeacherProfileContent() {
         public_profile: editedProfile,
         is_onboarding_complete: setupComplete,
       })
+      if (avatarFile) {
+        setAvatarFile(null)
+        setAvatarPreview(null)
+        refreshDbUser()
+      }
       setIsEditing(false)
       toast.success(t('saveSuccess'))
     } catch (err: unknown) {
@@ -380,6 +427,40 @@ function TeacherProfileContent() {
                   <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting ? tc('saving') : <><Check className="w-4 h-4 mr-1" /> {tc('save')}</>}
                   </Button>
+                </div>
+
+                {/* Avatar upload */}
+                <div className="flex flex-col items-center gap-2">
+                  <label className="block text-sm font-medium">{t('avatarLabel')}</label>
+                  <div className="relative group cursor-pointer">
+                    <Avatar className="w-24 h-24">
+                      {(avatarPreview || dbUser?.avatar_url) && (
+                        <AvatarImage src={avatarPreview || dbUser?.avatar_url} alt={t('avatarAlt')} />
+                      )}
+                      <AvatarFallback className="text-2xl bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300">
+                        {editedProfile.display_name?.[0]?.toUpperCase() || '?'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Camera className="w-6 h-6 text-white" />
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      onChange={handleAvatarChange}
+                    />
+                  </div>
+                  {avatarPreview && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => { setAvatarFile(null); setAvatarPreview(null) }}
+                    >
+                      {tc('cancel')}
+                    </Button>
+                  )}
                 </div>
 
                 <div>
@@ -583,6 +664,14 @@ function TeacherProfileContent() {
                 </Button>
               </CardHeader>
               <CardContent>
+                <div className="flex justify-center mb-6">
+                  <Avatar className="w-24 h-24">
+                    {dbUser?.avatar_url && <AvatarImage src={dbUser.avatar_url} alt={t('avatarAlt')} />}
+                    <AvatarFallback className="text-2xl bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300">
+                      {teacher.public_profile?.display_name?.[0]?.toUpperCase() || '?'}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
                 <div className="text-gray-700 dark:text-slate-300 space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>

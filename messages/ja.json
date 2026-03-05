@@ -624,6 +624,10 @@
   },
   "teacherProfile": {
     "profileNotFound": "プロフィールが見つかりません。",
+    "avatarLabel": "プロフィール画像",
+    "avatarAlt": "プロフィール画像",
+    "avatarTooLarge": "画像サイズは2MB以下にしてください",
+    "avatarInvalidFormat": "JPEG、PNG、WebP形式の画像を選択してください",
     "profileEditTitle": "プロフィール編集",
     "profileTitle": "プロフィール",
     "profileDescription": "公開プロフィールの設定",
