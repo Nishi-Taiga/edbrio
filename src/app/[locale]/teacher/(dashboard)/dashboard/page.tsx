@@ -265,8 +265,8 @@ export default function TeacherDashboard() {
   return (
     <ProtectedRoute allowedRoles={['teacher']}>
 
-      {/* ════════ Mobile Dashboard (< lg) ════════ */}
-      <div className="lg:hidden bg-[#F9F6F2] dark:bg-[#13111C] min-h-screen">
+      {/* ════════ Mobile Dashboard (< md) ════════ */}
+      <div className="md:hidden bg-[#F9F6F2] dark:bg-[#13111C] min-h-screen">
         <div className="px-4 py-4 space-y-4 pb-24">
           {setupComplete === false && (
             <SetupBanner missingItems={missingItems} totalItems={4} />
@@ -307,8 +307,8 @@ export default function TeacherDashboard() {
         <MobileFooter />
       </div>
 
-      {/* ════════ Desktop Dashboard (>= lg) ════════ */}
-      <div className="hidden lg:block px-5 sm:px-7 py-6 space-y-4 bg-[#F3F4F6] dark:bg-[#13111C] min-h-screen">
+      {/* ════════ Desktop Dashboard (>= md) ════════ */}
+      <div className="hidden md:block px-5 sm:px-7 py-6 space-y-4 bg-[#F3F4F6] dark:bg-[#13111C] min-h-screen">
 
         {/* ── Setup Banner (conditional) ── */}
         {setupComplete === false && (
