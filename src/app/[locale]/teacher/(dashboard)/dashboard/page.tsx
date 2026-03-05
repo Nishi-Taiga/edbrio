@@ -2,8 +2,6 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { ProtectedRoute } from '@/components/layout/protected-route'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Link } from '@/i18n/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { useBookings } from '@/hooks/use-bookings'
@@ -259,7 +257,7 @@ export default function TeacherDashboard() {
 
   return (
     <ProtectedRoute allowedRoles={['teacher']}>
-      <div className="container mx-auto px-4 py-6 sm:py-8 space-y-6">
+      <div className="px-5 sm:px-7 py-6 space-y-4 bg-[#F3F4F6] min-h-screen">
 
         {/* ── Setup Banner (conditional) ── */}
         {setupComplete === false && (
@@ -277,10 +275,36 @@ export default function TeacherDashboard() {
           loading={loading}
         />
 
-        {/* ── Calendar (2/3) + Task Panel (1/3) ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* ── Calendar (flex) + Task Panel (fixed width) ── */}
+        <div className="flex flex-col lg:flex-row gap-5" style={{ minHeight: 560 }}>
+          {/* Calendar — appears second on mobile, first on desktop */}
+          <div className="flex-1 min-w-0 order-2 lg:order-1">
+            <div className="h-full rounded-2xl border border-gray-200 bg-white p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-extrabold text-gray-800">{t('calendarTitle')}</h2>
+              </div>
+              {loading ? (
+                <div className="flex items-center justify-center py-20">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#7C3AED]" />
+                </div>
+              ) : (
+                <TeacherDashboardCalendar
+                  events={calendarEvents}
+                  labels={{
+                    weekView: t('calendarWeekView'),
+                    monthView: t('calendarMonthView'),
+                    booked: t('calendarLegendBooked'),
+                    needsReport: t('calendarLegendNeedsReport'),
+                    done: t('calendarLegendDone'),
+                    noEvents: t('calendarNoEvents'),
+                  }}
+                />
+              )}
+            </div>
+          </div>
+
           {/* Task Panel — appears first on mobile, second on desktop */}
-          <div className="lg:col-span-1 lg:order-2">
+          <div className="w-full lg:w-[380px] shrink-0 order-1 lg:order-2">
             <TaskPanel
               loading={loading}
               needsReportBookings={needsReportBookings}
@@ -292,58 +316,29 @@ export default function TeacherDashboard() {
               onStatusUpdate={handleStatusUpdate}
             />
           </div>
-
-          {/* Calendar — appears second on mobile, first on desktop */}
-          <div className="lg:col-span-2 lg:order-1">
-            <Card className="h-full">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle>{t('calendarTitle')}</CardTitle>
-                  <Link href="/teacher/calendar">
-                    <Button variant="ghost" size="sm">{t('calendarManagement')}</Button>
-                  </Link>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                {loading ? (
-                  <div className="flex items-center justify-center py-20">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600" />
-                  </div>
-                ) : (
-                  <TeacherDashboardCalendar
-                    events={calendarEvents}
-                    labels={{
-                      weekView: t('calendarWeekView'),
-                      monthView: t('calendarMonthView'),
-                      booked: t('calendarLegendBooked'),
-                      needsReport: t('calendarLegendNeedsReport'),
-                      done: t('calendarLegendDone'),
-                      noEvents: t('calendarNoEvents'),
-                    }}
-                  />
-                )}
-              </CardContent>
-            </Card>
-          </div>
         </div>
 
         {/* ── Bottom Row: Monthly Stats + Upcoming Lessons + Quick Actions ── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <MonthlyStats
-            thisMonthDone={thisMonthDone}
-            thisMonthTotal={thisMonthBookings.length}
-            lastMonthDone={lastMonthBookings.filter((b: Booking) => b.status === 'done').length}
-            lastMonthTotal={lastMonthBookings.length}
-            thisMonthIncome={thisMonthIncome}
-            lastMonthIncome={lastMonthIncome}
-            loading={loading}
-          />
-          <UpcomingLessons
-            upcomingLessons={upcomingLessons}
-            studentNames={studentNames}
-            loading={loading}
-          />
-          <div className="md:col-span-2 lg:col-span-1">
+        <div className="flex flex-col md:flex-row gap-5" style={{ minHeight: 320 }}>
+          <div className="flex-1 min-w-0">
+            <MonthlyStats
+              thisMonthDone={thisMonthDone}
+              thisMonthTotal={thisMonthBookings.length}
+              lastMonthDone={lastMonthBookings.filter((b: Booking) => b.status === 'done').length}
+              lastMonthTotal={lastMonthBookings.length}
+              thisMonthIncome={thisMonthIncome}
+              lastMonthIncome={lastMonthIncome}
+              loading={loading}
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <UpcomingLessons
+              upcomingLessons={upcomingLessons}
+              studentNames={studentNames}
+              loading={loading}
+            />
+          </div>
+          <div className="w-full md:w-[380px] shrink-0">
             <QuickActions />
           </div>
         </div>

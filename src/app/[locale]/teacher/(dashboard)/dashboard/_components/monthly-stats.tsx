@@ -1,7 +1,6 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { TrendingUp, TrendingDown, Minus, CheckCircle } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 interface MonthlyStatsProps {
@@ -27,91 +26,104 @@ export function MonthlyStats({
 
   if (loading) {
     return (
-      <Card>
-        <CardContent className="p-6 animate-pulse space-y-4">
-          <div className="h-4 bg-muted rounded w-24" />
-          <div className="h-16 bg-muted rounded-full w-16 mx-auto" />
-          <div className="h-4 bg-muted rounded w-32" />
-        </CardContent>
-      </Card>
+      <div className="rounded-2xl border border-gray-200 bg-white p-6 animate-pulse space-y-4">
+        <div className="h-4 bg-gray-100 rounded w-24" />
+        <div className="h-[120px] bg-gray-100 rounded" />
+        <div className="h-4 bg-gray-100 rounded w-32" />
+      </div>
     )
   }
 
   const completionRate = thisMonthTotal > 0 ? thisMonthDone / thisMonthTotal : 0
-  const circumference = 2 * Math.PI * 28
+  const completionPercent = Math.round(completionRate * 100)
+  const remaining = thisMonthTotal - thisMonthDone
+
+  // SVG progress ring (purple gradient like Pencil design)
+  const size = 120
+  const strokeWidth = 12
+  const radius = (size - strokeWidth) / 2
+  const circumference = 2 * Math.PI * radius
   const strokeDashoffset = circumference * (1 - completionRate)
 
   const incomeDelta = thisMonthIncome - lastMonthIncome
+  const incomePercent = lastMonthIncome > 0
+    ? Math.round(((thisMonthIncome - lastMonthIncome) / lastMonthIncome) * 100)
+    : 0
   const incomeFormatted = `\u00a5${Math.round(thisMonthIncome).toLocaleString('ja-JP')}`
-  const deltaFormatted = incomeDelta >= 0
-    ? `+\u00a5${Math.round(incomeDelta).toLocaleString('ja-JP')}`
-    : `-\u00a5${Math.round(Math.abs(incomeDelta)).toLocaleString('ja-JP')}`
 
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base">{t('monthlyStatsTitle')}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-5">
-        {/* Completion rate with progress ring */}
-        <div className="flex items-center gap-4">
-          <svg viewBox="0 0 72 72" className="w-16 h-16 shrink-0">
+    <div className="h-full rounded-2xl border border-gray-200 bg-white p-6 flex flex-col gap-2">
+      <h3 className="text-xs font-bold text-gray-500 tracking-widest uppercase">{t('monthlyStatsTitle')}</h3>
+
+      {/* Progress ring */}
+      <div className="flex justify-center py-2">
+        <div className="relative" style={{ width: size, height: size }}>
+          {/* Background ring */}
+          <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full">
             <circle
-              cx="36" cy="36" r="28"
-              fill="none" strokeWidth="7"
-              className="stroke-muted"
+              cx={size / 2} cy={size / 2} r={radius}
+              fill="none" strokeWidth={strokeWidth}
+              stroke="#EDE8F5"
             />
             <circle
-              cx="36" cy="36" r="28"
-              fill="none" strokeWidth="7"
-              stroke="#10B981"
+              cx={size / 2} cy={size / 2} r={radius}
+              fill="none" strokeWidth={strokeWidth}
+              stroke="url(#purpleGradient)"
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
               style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
             />
-            <text
-              x="36" y="40"
-              textAnchor="middle"
-              className="fill-foreground font-bold"
-              fontSize="14"
-            >
-              {Math.round(completionRate * 100)}%
-            </text>
+            <defs>
+              <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#2D1B4E" />
+                <stop offset="40%" stopColor="#7C3AED" />
+                <stop offset="100%" stopColor="#D4BEE4" />
+              </linearGradient>
+            </defs>
           </svg>
-          <div>
-            <p className="text-sm text-muted-foreground">{t('completionRate')}</p>
-            <p className="text-lg font-semibold">
-              {t('monthlyCompletedCount', { done: thisMonthDone, total: thisMonthTotal })}
-            </p>
-          </div>
-        </div>
-
-        {/* Monthly income */}
-        <div className="border-t pt-4">
-          <p className="text-sm text-muted-foreground mb-1">{t('monthlyIncome')}</p>
-          <p className="text-xl font-bold">{incomeFormatted}</p>
-          <div className="flex items-center gap-1.5 mt-1">
-            <span className="text-xs text-muted-foreground">{t('monthlyIncomeDelta')}</span>
-            {incomeDelta > 0 ? (
-              <span className="flex items-center gap-0.5 text-xs text-green-600 dark:text-green-400">
-                <TrendingUp className="w-3 h-3" />
-                {deltaFormatted}
-              </span>
-            ) : incomeDelta < 0 ? (
-              <span className="flex items-center gap-0.5 text-xs text-red-600 dark:text-red-400">
-                <TrendingDown className="w-3 h-3" />
-                {deltaFormatted}
-              </span>
-            ) : (
-              <span className="flex items-center gap-0.5 text-xs text-muted-foreground">
-                <Minus className="w-3 h-3" />
-                ±¥0
-              </span>
+          {/* Center text */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-[30px] font-black text-[#2D1B4E]">{completionPercent}%</span>
+            {remaining > 0 && (
+              <span className="text-[10px] font-semibold text-[#7C3AED]">あと{remaining}コマ!</span>
             )}
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Lesson count */}
+      <div className="flex items-center justify-center gap-2">
+        <CheckCircle className="w-[18px] h-[18px] text-[#7C3AED]" />
+        <div className="flex items-end gap-1">
+          <span className="text-[28px] font-black text-[#2D1B4E] leading-none">{thisMonthDone}</span>
+          <span className="text-[13px] font-medium text-gray-500 mb-0.5">/ {thisMonthTotal} コマ完了</span>
+        </div>
+      </div>
+
+      {/* Income section */}
+      <div className="flex flex-col items-center gap-1 mt-2">
+        <span className="text-[28px] font-black text-gray-800 leading-none">{incomeFormatted}</span>
+        <span className="text-[11px] text-gray-400">{t('monthlyIncome')}</span>
+        <div className="flex items-center gap-1">
+          {incomeDelta > 0 ? (
+            <>
+              <TrendingUp className="w-4 h-4 text-[#10B981]" />
+              <span className="text-xs font-semibold text-[#10B981]">前月比 +{incomePercent}%</span>
+            </>
+          ) : incomeDelta < 0 ? (
+            <>
+              <TrendingDown className="w-4 h-4 text-[#EF4444]" />
+              <span className="text-xs font-semibold text-[#EF4444]">前月比 {incomePercent}%</span>
+            </>
+          ) : (
+            <>
+              <Minus className="w-4 h-4 text-gray-400" />
+              <span className="text-xs font-semibold text-gray-400">前月比 ±0%</span>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
   )
 }

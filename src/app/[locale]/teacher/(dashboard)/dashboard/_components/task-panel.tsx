@@ -1,15 +1,11 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Link } from '@/i18n/navigation'
-import { AlertTriangle, Calendar, Check, CheckCircle2, FileText, MessageCircle, X } from 'lucide-react'
+import { CheckCircle2, FileText, Clock, Flag, Mail } from 'lucide-react'
 import { Booking } from '@/lib/types/database'
 import { SkeletonList } from '@/components/ui/skeleton-card'
 import { useTranslations } from 'next-intl'
-import { format } from 'date-fns'
-import { ja } from 'date-fns/locale'
 
 interface TaskPanelProps {
   loading: boolean
@@ -33,166 +29,150 @@ export function TaskPanel({
   onStatusUpdate,
 }: TaskPanelProps) {
   const t = useTranslations('teacherDashboard')
-  const tc = useTranslations('common')
 
-  const taskItems = [
-    {
-      key: 'needsReport',
-      icon: FileText,
-      title: t('needsReportTitle'),
-      count: needsReportBookings.length,
-      countLabel: t('needsReportCount', { count: needsReportBookings.length }),
-      href: '/teacher/reports/new',
-      actionLabel: t('needsReportAction'),
-      color: 'text-red-600 dark:text-red-400',
-      badgeColor: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400',
-      expandable: true,
-    },
-    {
-      key: 'pendingBookings',
-      icon: Calendar,
-      title: t('pendingBookingsTitle'),
-      count: pendingBookings.length,
-      countLabel: t('pendingBookingsCount', { count: pendingBookings.length }),
-      href: undefined,
-      actionLabel: undefined,
-      color: 'text-amber-600 dark:text-amber-400',
-      badgeColor: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400',
-      expandable: true,
-    },
-    {
-      key: 'issueReports',
-      icon: AlertTriangle,
-      title: t('issueReportsTitle'),
-      count: issueReportCount,
-      countLabel: t('issueReportsCount', { count: issueReportCount }),
-      href: '/teacher/calendar',
-      actionLabel: t('issueReportsAction'),
-      color: 'text-orange-600 dark:text-orange-400',
-      badgeColor: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400',
-      expandable: false,
-    },
-    {
-      key: 'unreadMessages',
-      icon: MessageCircle,
-      title: t('unreadMessagesTitle'),
-      count: unreadCount,
-      countLabel: t('unreadMessagesCount', { count: unreadCount }),
-      href: '/teacher/chat',
-      actionLabel: t('unreadMessagesAction'),
-      color: 'text-blue-600 dark:text-blue-400',
-      badgeColor: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400',
-      expandable: false,
-    },
-  ]
-
-  const allTasksDone = taskItems.every(item => item.count === 0)
+  const allTasksDone =
+    needsReportBookings.length === 0 &&
+    pendingBookings.length === 0 &&
+    issueReportCount === 0 &&
+    unreadCount === 0
 
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-3">
-        <CardTitle>{t('tasksTitle')}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {loading ? (
-          <SkeletonList count={4} />
-        ) : allTasksDone ? (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <CheckCircle2 className="w-10 h-10 text-green-500 mb-3" />
-            <p className="text-sm text-muted-foreground">{t('tasksAllDone')}</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {taskItems.filter(item => item.count > 0).map((item) => {
-              const Icon = item.icon
-              return (
-                <div key={item.key} className="rounded-lg border p-3">
-                  <div className="flex items-center justify-between">
+    <div
+      className="h-full rounded-2xl border border-[#D4BEE4] p-6 flex flex-col gap-4 overflow-hidden"
+      style={{
+        background: 'linear-gradient(180deg, #EDE8F5 0%, #FFFFFF 100%)',
+      }}
+    >
+      <h2 className="text-lg font-extrabold text-gray-800">{t('tasksTitle')}</h2>
+
+      {loading ? (
+        <SkeletonList count={4} />
+      ) : allTasksDone ? (
+        <div className="flex flex-col items-center justify-center py-8 text-center flex-1">
+          <CheckCircle2 className="w-10 h-10 text-green-500 mb-3" />
+          <p className="text-sm text-gray-500">{t('tasksAllDone')}</p>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-4 flex-1">
+          {/* Task: Reports */}
+          {needsReportBookings.length > 0 && (
+            <Link href="/teacher/reports/new" className="block">
+              <div className="flex rounded-xl border border-[#FEE2E2] bg-white overflow-hidden">
+                <div className="w-1 shrink-0 bg-[#EF4444]" />
+                <div className="flex items-center gap-3 px-3 py-2.5 flex-1 min-w-0">
+                  <FileText className="w-5 h-5 text-[#EF4444] shrink-0" />
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <Icon className={`w-4 h-4 ${item.color}`} />
-                      <span className="text-sm font-medium">{item.title}</span>
+                      <span className="text-sm font-semibold text-gray-800">{t('needsReportTitle')}</span>
+                      <Badge className="bg-[#EF4444] hover:bg-[#EF4444] text-white text-[10px] px-1.5 py-0 min-w-[18px] h-[18px] rounded-full">
+                        {needsReportBookings.length}
+                      </Badge>
                     </div>
-                    <Badge variant="secondary" className={`text-xs ${item.badgeColor}`}>
-                      {item.countLabel}
+                    <p className="text-[11px] text-gray-500 truncate">{t('needsReportDesc') || '期限切れのレポートがあります'}</p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          )}
+
+          {/* Task: Pending Approvals */}
+          {pendingBookings.length > 0 && (
+            <div className="flex rounded-xl border border-[#FEF3C7] bg-white overflow-hidden">
+              <div className="w-1 shrink-0 bg-[#F59E0B]" />
+              <div className="flex items-center gap-3 px-3 py-2 flex-1 min-w-0">
+                <Clock className="w-5 h-5 text-[#F59E0B] shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-gray-800">{t('pendingBookingsTitle')}</span>
+                    <Badge className="bg-[#F59E0B] hover:bg-[#F59E0B] text-white text-[10px] px-1.5 py-0 min-w-[18px] h-[18px] rounded-full">
+                      {pendingBookings.length}
                     </Badge>
                   </div>
-
-                  {item.key === 'needsReport' && (
-                    <div className="mt-2 space-y-1.5">
-                      {needsReportBookings.slice(0, 3).map((b: Booking) => (
-                        <div key={b.id} className="flex items-center justify-between text-xs text-muted-foreground pl-6">
-                          <span>
-                            {studentNames[b.student_id] || tc('student')}
-                            <span className="mx-1">·</span>
-                            {format(new Date(b.start_time), 'M/d p', { locale: ja })}
-                          </span>
-                        </div>
-                      ))}
-                      {needsReportBookings.length > 3 && (
-                        <p className="text-xs text-muted-foreground pl-6">
-                          +{needsReportBookings.length - 3}件
-                        </p>
-                      )}
-                      <Link href="/teacher/reports/new">
-                        <Button size="sm" variant="outline" className="w-full mt-2 h-7 text-xs">
-                          {item.actionLabel}
-                        </Button>
-                      </Link>
-                    </div>
-                  )}
-
-                  {item.key === 'pendingBookings' && (
-                    <div className="mt-2 space-y-2">
-                      {pendingBookings.slice(0, 3).map((b: Booking) => (
-                        <div key={b.id} className="flex items-center justify-between pl-6">
-                          <div className="text-xs text-muted-foreground">
-                            <span>{studentNames[b.student_id] || tc('student')}</span>
-                            <span className="mx-1">·</span>
-                            <span>{format(new Date(b.start_time), 'M/d p', { locale: ja })}</span>
-                          </div>
-                          <div className="flex gap-1">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                              onClick={() => onStatusUpdate(b.id, 'canceled')}
-                              disabled={isUpdating === b.id}
-                            >
-                              <X className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-6 w-6 p-0 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20"
-                              onClick={() => onStatusUpdate(b.id, 'confirmed')}
-                              disabled={isUpdating === b.id}
-                            >
-                              <Check className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                      {pendingBookings.length > 3 && (
-                        <p className="text-xs text-muted-foreground pl-6">
-                          +{pendingBookings.length - 3}件
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  {item.href && !item.expandable && (
-                    <Link href={item.href}>
-                      <Button size="sm" variant="outline" className="w-full mt-2 h-7 text-xs">
-                        {item.actionLabel}
-                      </Button>
-                    </Link>
-                  )}
+                  <p className="text-[10px] text-gray-500 truncate">{t('pendingBookingsDesc') || '新しい予約リクエストがあります'}</p>
                 </div>
-              )
-            })}
+              </div>
+              <div className="flex items-center gap-1.5 px-3 shrink-0">
+                <button
+                  className="rounded-lg bg-[#10B981] text-white text-[11px] font-semibold px-2.5 py-1.5 hover:opacity-90 transition-opacity disabled:opacity-50"
+                  onClick={() => pendingBookings[0] && onStatusUpdate(pendingBookings[0].id, 'confirmed')}
+                  disabled={isUpdating === pendingBookings[0]?.id}
+                >
+                  {t('approveButton') || '承認'}
+                </button>
+                <button
+                  className="rounded-lg border border-gray-200 text-gray-500 text-[11px] font-semibold px-2.5 py-1.5 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                  onClick={() => pendingBookings[0] && onStatusUpdate(pendingBookings[0].id, 'canceled')}
+                  disabled={isUpdating === pendingBookings[0]?.id}
+                >
+                  {t('rejectButton') || '拒否'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Task: Issues */}
+          <div
+            className={`flex rounded-xl border px-4 py-3.5 items-center gap-3 ${
+              issueReportCount > 0
+                ? 'border-[#FED7AA] bg-white'
+                : 'border-[#E5E0D8] bg-[#F9F6F2] opacity-60'
+            }`}
+          >
+            <Flag className={`w-5 h-5 shrink-0 ${issueReportCount > 0 ? 'text-orange-500' : 'text-gray-400'}`} />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-gray-800">{t('issueReportsTitle')}</span>
+                <Badge
+                  className={`text-[10px] px-1.5 py-0 min-w-[18px] h-[18px] rounded-full ${
+                    issueReportCount > 0
+                      ? 'bg-orange-500 hover:bg-orange-500 text-white'
+                      : 'bg-gray-300 hover:bg-gray-300 text-gray-600'
+                  }`}
+                >
+                  {issueReportCount}
+                </Badge>
+              </div>
+              <p className="text-[11px] text-gray-400">
+                {issueReportCount > 0
+                  ? (t('issueReportsDesc') || '問題報告があります')
+                  : (t('issueReportsNone') || '問題報告はありません')}
+              </p>
+            </div>
           </div>
-        )}
-      </CardContent>
-    </Card>
+
+          {/* Task: Unread Messages */}
+          {unreadCount > 0 ? (
+            <Link href="/teacher/chat" className="block">
+              <div className="flex rounded-xl border border-[#DBEAFE] bg-white overflow-hidden">
+                <div className="w-1 shrink-0 bg-[#3B82F6]" />
+                <div className="flex items-center gap-3 px-3 py-2.5 flex-1 min-w-0">
+                  <Mail className="w-5 h-5 text-[#3B82F6] shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-gray-800">{t('unreadMessagesTitle')}</span>
+                      <Badge className="bg-[#3B82F6] hover:bg-[#3B82F6] text-white text-[10px] px-1.5 py-0 min-w-[18px] h-[18px] rounded-full">
+                        {unreadCount}
+                      </Badge>
+                    </div>
+                    <p className="text-[11px] text-gray-500 truncate">{t('unreadMessagesDesc') || '生徒からのメッセージがあります'}</p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ) : (
+            <div className="flex rounded-xl border border-[#E5E0D8] bg-[#F9F6F2] px-4 py-3.5 items-center gap-3 opacity-60">
+              <Mail className="w-5 h-5 text-gray-400 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-gray-800">{t('unreadMessagesTitle')}</span>
+                  <Badge className="bg-gray-300 hover:bg-gray-300 text-gray-600 text-[10px] px-1.5 py-0 min-w-[18px] h-[18px] rounded-full">0</Badge>
+                </div>
+                <p className="text-[11px] text-gray-400">{t('unreadMessagesNone') || '未読メッセージはありません'}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   )
 }
