@@ -279,11 +279,18 @@ export default function HomePage() {
                 </a>
               </div>
             </div>
-            <div data-reveal data-delay="2">
+            <div data-reveal data-delay="2" className="relative">
               <div className="hero-screenshot rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-2xl shadow-brand-600/10 dark:shadow-brand-400/5">
                 <picture>
                   <source srcSet="/screenshots/10_teacher_dashboard-dark.png" media="(prefers-color-scheme: dark)" />
                   <img src="/screenshots/10_teacher_dashboard.png" alt={t('screenshots.teacherAlt')} width={1400} height={900} className="w-full h-auto" loading="eager" />
+                </picture>
+              </div>
+              {/* Mobile phone overlay */}
+              <div className="hero-screenshot absolute -bottom-6 -right-4 sm:-bottom-8 sm:-right-6 w-[90px] sm:w-[130px] rounded-xl sm:rounded-2xl overflow-hidden border-2 sm:border-[3px] border-slate-200 dark:border-slate-700 shadow-2xl bg-white dark:bg-slate-900">
+                <picture>
+                  <source srcSet="/screenshots/10_teacher_dashboard_mobile-dark.png" media="(prefers-color-scheme: dark)" />
+                  <img src="/screenshots/10_teacher_dashboard_mobile.png" alt={t('screenshots.teacherAlt')} width={390} height={844} className="w-full h-auto" loading="eager" />
                 </picture>
               </div>
             </div>
@@ -306,11 +313,19 @@ export default function HomePage() {
               <div className="text-lg font-bold text-slate-900 dark:text-white mb-1">{t('stats.stat1Label')}</div>
               <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">{t('stats.stat1Description')}</p>
             </div>
-            <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700" data-reveal data-delay="1">
-              <picture>
-                <source srcSet="/screenshots/10_teacher_dashboard-dark.png" media="(prefers-color-scheme: dark)" />
-                <img src="/screenshots/10_teacher_dashboard.png" alt={t('screenshots.teacherAlt')} width={1400} height={900} className="w-full h-auto" loading="lazy" />
-              </picture>
+            <div className="relative rounded-2xl overflow-visible" data-reveal data-delay="1">
+              <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
+                <picture>
+                  <source srcSet="/screenshots/10_teacher_dashboard-dark.png" media="(prefers-color-scheme: dark)" />
+                  <img src="/screenshots/10_teacher_dashboard.png" alt={t('screenshots.teacherAlt')} width={1400} height={900} className="w-full h-auto" loading="lazy" />
+                </picture>
+              </div>
+              <div className="absolute -bottom-4 -right-3 sm:-bottom-6 sm:-right-4 w-[80px] sm:w-[110px] rounded-lg sm:rounded-xl overflow-hidden border-2 border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-900">
+                <picture>
+                  <source srcSet="/screenshots/10_teacher_dashboard_mobile-dark.png" media="(prefers-color-scheme: dark)" />
+                  <img src="/screenshots/10_teacher_dashboard_mobile.png" alt={t('screenshots.teacherAlt')} width={390} height={844} className="w-full h-auto" loading="lazy" />
+                </picture>
+              </div>
             </div>
             <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700" data-reveal data-delay="2">
               <picture>
