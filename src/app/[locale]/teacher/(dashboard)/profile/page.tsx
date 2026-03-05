@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Check, Edit2, X, Sun, Moon, Monitor, Mail, Bell, Loader2, Clock, CheckCircle2, QrCode, CreditCard, AlertCircle, Camera } from 'lucide-react'
+import { Check, Edit2, X, Sun, Moon, Monitor, Mail, Bell, Loader2, Clock, CheckCircle2, QrCode, CreditCard, AlertCircle, AlertTriangle, Camera } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { getStripe } from '@/lib/stripe'
 import { toast } from 'sonner'
@@ -86,7 +86,7 @@ function TeacherProfileContent() {
   const [showStripeHelpModal, setShowStripeHelpModal] = useState(false)
 
   // Avatar state
-  const { dbUser, refreshDbUser } = useAuth()
+  const { dbUser, refreshDbUser, signOut } = useAuth()
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
 
@@ -101,6 +101,8 @@ function TeacherProfileContent() {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
   const [inviteList, setInviteList] = useState<Pick<Invite, 'id' | 'email' | 'method' | 'used' | 'accepted_at' | 'created_at'>[]>([])
   const [inviteListLoading, setInviteListLoading] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   const SUBJECT_OPTIONS = [
     t('subjectOptions.japanese'), t('subjectOptions.arithmetic'), t('subjectOptions.math'), t('subjectOptions.english'), t('subjectOptions.science'), t('subjectOptions.socialStudies'),
@@ -400,6 +402,24 @@ function TeacherProfileContent() {
       setError(err instanceof Error ? err.message : t('portalError'))
     } finally {
       setIsSubscriptionLoading(false)
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true)
+    try {
+      const res = await fetch('/api/account/delete', { method: 'DELETE' })
+      if (!res.ok) {
+        const data = await res.json()
+        toast.error(data.error || t('deleteAccountError'))
+        return
+      }
+      await signOut()
+      window.location.href = '/'
+    } catch {
+      toast.error(t('deleteAccountError'))
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -1017,6 +1037,39 @@ function TeacherProfileContent() {
             </Dialog>
           </>
         )}
+
+        {/* Delete Account */}
+        <Card className="border-red-200 dark:border-red-800/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
+              <AlertTriangle className="w-5 h-5" />
+              {t('deleteAccountTitle')}
+            </CardTitle>
+            <CardDescription>{t('deleteAccountDescription')}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="destructive" onClick={() => setDeleteDialogOpen(true)}>
+              {t('deleteAccountButton')}
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{t('deleteAccountConfirmTitle')}</DialogTitle>
+              <DialogDescription>{t('deleteAccountConfirmDescription')}</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} disabled={deleting}>
+                {tc('cancel')}
+              </Button>
+              <Button variant="destructive" onClick={handleDeleteAccount} disabled={deleting}>
+                {deleting ? tc('deleting') : tc('delete')}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </ProtectedRoute>
   )

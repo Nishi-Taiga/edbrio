@@ -770,7 +770,13 @@
     "featureFee": "決済手数料（Stripe手数料込み）",
     "featureChat": "保護者メッセージ",
     "featurePrioritySupport": "優先サポート",
-    "upgradeButtonWithTrial": "Standardプランにアップグレード（30日間無料）"
+    "upgradeButtonWithTrial": "Standardプランにアップグレード（30日間無料）",
+    "deleteAccountTitle": "アカウント削除",
+    "deleteAccountDescription": "アカウントを完全に削除します。Stripeサブスクリプションも自動的にキャンセルされます。この操作は取り消せません。",
+    "deleteAccountButton": "アカウントを削除する",
+    "deleteAccountConfirmTitle": "本当に削除しますか？",
+    "deleteAccountConfirmDescription": "アカウントを削除すると、すべてのデータ（生徒情報、レッスン記録、カルテ、チャット、決済情報など）が完全に削除されます。この操作は取り消すことができません。",
+    "deleteAccountError": "アカウントの削除に失敗しました。しばらくしてからもう一度お試しください。"
   },
   "teacherContact": {
     "title": "お問い合わせ",
@@ -1456,6 +1462,12 @@
     "languageDescription": "表示言語を切り替えます",
     "cancellationPolicyTitle": "キャンセルポリシー",
     "cancellationPolicyDescription": "予約のキャンセルおよび問題報告に関するルール",
-    "cancellationPolicyContent": "授業開始の2時間前まで無料でキャンセルでき、チケット（授業分数）は全額自動返却されます。キャンセル後は先生の空き枠も自動で復元されます。\n\n講師の遅刻・欠勤があった場合は、予約履歴ページの「問題を報告」ボタンから報告できます。報告後3日以内に講師が対応しない場合、チケットは自動的に返却されます。\n\nキャンセル・報告時には双方にメール通知が送信されます（通知設定でオフにすることも可能です）。"
+    "cancellationPolicyContent": "授業開始の2時間前まで無料でキャンセルでき、チケット（授業分数）は全額自動返却されます。キャンセル後は先生の空き枠も自動で復元されます。\n\n講師の遅刻・欠勤があった場合は、予約履歴ページの「問題を報告」ボタンから報告できます。報告後3日以内に講師が対応しない場合、チケットは自動的に返却されます。\n\nキャンセル・報告時には双方にメール通知が送信されます（通知設定でオフにすることも可能です）。",
+    "deleteAccountTitle": "アカウント削除",
+    "deleteAccountDescription": "アカウントを完全に削除します。この操作は取り消せません。",
+    "deleteAccountButton": "アカウントを削除する",
+    "deleteAccountConfirmTitle": "本当に削除しますか？",
+    "deleteAccountConfirmDescription": "アカウントを削除すると、すべてのデータ（予約履歴、チャット、通知設定など）が完全に削除されます。この操作は取り消すことができません。",
+    "deleteAccountError": "アカウントの削除に失敗しました。しばらくしてからもう一度お試しください。"
   }
 }

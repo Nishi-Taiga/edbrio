@@ -4,12 +4,15 @@ import { useEffect, useState } from 'react'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
-import { Bell, Sun, Moon, Monitor, FileText, Globe } from 'lucide-react'
+import { Bell, Sun, Moon, Monitor, FileText, Globe, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTheme } from 'next-themes'
 import { useTranslations, useLocale } from 'next-intl'
 import { usePathname, useRouter } from '@/i18n/navigation'
 import { routing } from '@/i18n/routing'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { useAuth } from '@/hooks/use-auth'
 import type { NotificationPreferences } from '@/lib/types/database'
 
 const localeLabels: Record<string, string> = {
@@ -39,8 +42,13 @@ export default function GuardianSettingsPage() {
 
   const { theme, setTheme } = useTheme()
 
+  const tc = useTranslations('common')
+  const { signOut } = useAuth()
+
   const [notifPrefs, setNotifPrefs] = useState<NotificationPreferences>({})
   const [notifSaving, setNotifSaving] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     let mounted = true
@@ -77,6 +85,24 @@ export default function GuardianSettingsPage() {
       setNotifPrefs(prev)
     } finally {
       setNotifSaving(false)
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true)
+    try {
+      const res = await fetch('/api/account/delete', { method: 'DELETE' })
+      if (!res.ok) {
+        const data = await res.json()
+        toast.error(data.error || t('deleteAccountError'))
+        return
+      }
+      await signOut()
+      window.location.href = '/'
+    } catch {
+      toast.error(t('deleteAccountError'))
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -202,6 +228,39 @@ export default function GuardianSettingsPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Delete Account */}
+        <Card className="border-red-200 dark:border-red-800/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
+              <AlertTriangle className="w-5 h-5" />
+              {t('deleteAccountTitle')}
+            </CardTitle>
+            <CardDescription>{t('deleteAccountDescription')}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="destructive" onClick={() => setDeleteDialogOpen(true)}>
+              {t('deleteAccountButton')}
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{t('deleteAccountConfirmTitle')}</DialogTitle>
+              <DialogDescription>{t('deleteAccountConfirmDescription')}</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} disabled={deleting}>
+                {tc('cancel')}
+              </Button>
+              <Button variant="destructive" onClick={handleDeleteAccount} disabled={deleting}>
+                {deleting ? tc('deleting') : tc('delete')}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </ProtectedRoute>
   )
