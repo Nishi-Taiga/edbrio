@@ -927,9 +927,12 @@
       "subjects": "受講科目",
       "subjectsLabel": "受講科目（カンマ区切り）",
       "subjectsPlaceholder": "例: 数学, 英語, 国語",
-      "personality": "性格・学習スタイル",
+      "personality": "詳細",
       "personalityPlaceholder": "例: 集中力が高い。視覚的な教材を好む。",
-      "notSet": "未設定"
+      "notSet": "未設定",
+      "detailButton": "詳細を編集",
+      "detailDialogTitle": "詳細を編集",
+      "detailDialogDescription": "生徒の詳細情報を入力してください"
     },
     "goals": {
       "title": "学習目標",

@@ -6,7 +6,8 @@ import Link from 'next/link'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { FileText } from 'lucide-react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
+import { FileEdit } from 'lucide-react'
 import { SkeletonList } from '@/components/ui/skeleton-card'
 import { ErrorAlert } from '@/components/ui/error-alert'
 import { useAuth } from '@/hooks/use-auth'
@@ -15,23 +16,20 @@ import { useStudentCurriculum } from '@/hooks/use-student-curriculum'
 import { createClient } from '@/lib/supabase/client'
 import { StudentProfile } from '@/lib/types/database'
 import { CurriculumProfile } from '@/components/curriculum/curriculum-profile'
-import { GoalList } from '@/components/curriculum/goal-list'
-import { GoalForm } from '@/components/curriculum/goal-form'
 import { UnitList } from '@/components/curriculum/unit-list'
 import { UnitForm } from '@/components/curriculum/unit-form'
-import { useHandoverNotes } from '@/hooks/use-handover-notes'
-import { HandoverNoteList } from '@/components/curriculum/handover-note-list'
-import { HandoverNoteForm } from '@/components/curriculum/handover-note-form'
 import { useTranslations } from 'next-intl'
+import { LoadingButton } from '@/components/ui/loading-button'
 
 export default function StudentCurriculumPage() {
   const params = useParams()
   const profileId = params.profileId as string
   const tPage = useTranslations('curriculum.page')
+  const tProfile = useTranslations('curriculum.profile')
+  const tc = useTranslations('common')
   const { user, loading: authLoading } = useAuth()
   const { updateProfile } = useStudentProfiles(user?.id)
-  const { goals, units, loading: curriculumLoading, error: curriculumError, addGoal, updateGoal, deleteGoal, addUnit, updateUnit, deleteUnit } = useStudentCurriculum(profileId)
-  const { notes: handoverNotes, loading: handoverLoading, error: handoverError, addNote, deleteNote: deleteHandoverNote } = useHandoverNotes(profileId)
+  const { units, loading: curriculumLoading, error: curriculumError, addUnit, updateUnit, deleteUnit } = useStudentCurriculum(profileId)
   const supabase = useMemo(() => createClient(), [])
 
   const [profile, setProfile] = useState<StudentProfile | null>(null)
@@ -39,9 +37,10 @@ export default function StudentCurriculumPage() {
   const [error, setError] = useState<string | null>(null)
 
   // Dialogs
-  const [showGoalForm, setShowGoalForm] = useState(false)
   const [showUnitForm, setShowUnitForm] = useState(false)
-  const [showHandoverForm, setShowHandoverForm] = useState(false)
+  const [showDetailDialog, setShowDetailDialog] = useState(false)
+  const [detailText, setDetailText] = useState('')
+  const [savingDetail, setSavingDetail] = useState(false)
 
   useEffect(() => {
     if (!profileId) return
@@ -71,7 +70,23 @@ export default function StudentCurriculumPage() {
     if (data) setProfile(data)
   }
 
-  const anyError = error || curriculumError || handoverError
+  const handleOpenDetail = () => {
+    setDetailText(profile?.personality_notes || '')
+    setShowDetailDialog(true)
+  }
+
+  const handleSaveDetail = async () => {
+    if (!profile) return
+    setSavingDetail(true)
+    try {
+      await handleUpdateProfile(profile.id, { personality_notes: detailText || undefined })
+      setShowDetailDialog(false)
+    } finally {
+      setSavingDetail(false)
+    }
+  }
+
+  const anyError = error || curriculumError
 
   return (
     <ProtectedRoute allowedRoles={["teacher"]}>
@@ -90,15 +105,13 @@ export default function StudentCurriculumPage() {
         ) : (<>
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <div>
+          <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{profile.name}</h1>
             {profile.grade && <p className="text-gray-600 dark:text-gray-400 text-sm">{profile.grade}</p>}
-          </div>
-          <Link href={`/teacher/reports/new?profileId=${profileId}`}>
-            <Button>
-              <FileText className="w-4 h-4 mr-1" />{tPage('createReport')}
+            <Button variant="outline" size="sm" onClick={handleOpenDetail}>
+              <FileEdit className="w-4 h-4 mr-1" />{tProfile('detailButton')}
             </Button>
-          </Link>
+          </div>
         </div>
 
         {anyError && <ErrorAlert message={anyError} />}
@@ -108,8 +121,6 @@ export default function StudentCurriculumPage() {
           <TabsList className="mb-6">
             <TabsTrigger value="profile">{tPage('tabProfile')}</TabsTrigger>
             <TabsTrigger value="units">{tPage('tabCurriculum')}</TabsTrigger>
-            <TabsTrigger value="goals">{tPage('tabGoals')}</TabsTrigger>
-            <TabsTrigger value="handover">{tPage('tabHandover')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile">
@@ -123,28 +134,32 @@ export default function StudentCurriculumPage() {
               <UnitList units={units} onAdd={() => setShowUnitForm(true)} onUpdate={updateUnit} onDelete={deleteUnit} />
             )}
           </TabsContent>
-
-          <TabsContent value="goals">
-            {curriculumLoading ? (
-              <div className="text-gray-500">{tPage('loading')}</div>
-            ) : (
-              <GoalList goals={goals} onAdd={() => setShowGoalForm(true)} onUpdate={updateGoal} onDelete={deleteGoal} />
-            )}
-          </TabsContent>
-
-          <TabsContent value="handover">
-            {handoverLoading ? (
-              <div className="text-gray-500">{tPage('loading')}</div>
-            ) : (
-              <HandoverNoteList notes={handoverNotes} onAdd={() => setShowHandoverForm(true)} onDelete={deleteHandoverNote} />
-            )}
-          </TabsContent>
         </Tabs>
 
         {/* Dialogs */}
-        <GoalForm open={showGoalForm} onClose={() => setShowGoalForm(false)} onSubmit={addGoal} />
         <UnitForm open={showUnitForm} onClose={() => setShowUnitForm(false)} onSubmit={addUnit} />
-        <HandoverNoteForm open={showHandoverForm} onClose={() => setShowHandoverForm(false)} onSubmit={addNote} />
+
+        {/* Detail Dialog */}
+        <Dialog open={showDetailDialog} onOpenChange={v => !v && setShowDetailDialog(false)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{tProfile('detailDialogTitle')}</DialogTitle>
+              <DialogDescription>{tProfile('detailDialogDescription')}</DialogDescription>
+            </DialogHeader>
+            <textarea
+              className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm min-h-[120px]"
+              value={detailText}
+              onChange={e => setDetailText(e.target.value)}
+              placeholder={tProfile('personalityPlaceholder')}
+            />
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowDetailDialog(false)} disabled={savingDetail}>{tc('cancel')}</Button>
+              <LoadingButton onClick={handleSaveDetail} loading={savingDetail}>
+                {tc('save')}
+              </LoadingButton>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         </>)}
       </div>
     </ProtectedRoute>

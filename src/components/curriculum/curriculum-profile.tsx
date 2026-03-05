@@ -85,10 +85,12 @@ export function CurriculumProfile({ profile, onUpdate }: CurriculumProfileProps)
                 }
               </dd>
             </div>
-            <div className="col-span-2">
-              <dt className="text-gray-500">{t('personality')}</dt>
-              <dd className="whitespace-pre-wrap">{profile.personality_notes || t('notSet')}</dd>
-            </div>
+            {profile.personality_notes && (
+              <div className="col-span-2">
+                <dt className="text-gray-500">{t('personality')}</dt>
+                <dd className="whitespace-pre-wrap">{profile.personality_notes}</dd>
+              </div>
+            )}
           </dl>
         </CardContent>
       </Card>
@@ -131,17 +133,6 @@ export function CurriculumProfile({ profile, onUpdate }: CurriculumProfileProps)
           <div className="col-span-2">
             <Label htmlFor="subjects">{t('subjectsLabel')}</Label>
             <Input id="subjects" value={form.subjects} onChange={e => setForm(f => ({ ...f, subjects: e.target.value }))} placeholder={t('subjectsPlaceholder')} />
-          </div>
-          <div className="col-span-2">
-            <Label htmlFor="personality_notes">{t('personality')}</Label>
-            <textarea
-              id="personality_notes"
-              className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              rows={3}
-              value={form.personality_notes}
-              onChange={e => setForm(f => ({ ...f, personality_notes: e.target.value }))}
-              placeholder={t('personalityPlaceholder')}
-            />
           </div>
         </div>
       </CardContent>
