@@ -13,7 +13,6 @@
 # testing
 /coverage
 test-results/
-playwright.config.ts
 playwright-report/
 
 # next.js
@@ -83,4 +82,5 @@ src/app/landing.css
 
 # screenshots (local only)
 /screenshots/
+tests/screenshots/
 scripts/take-screenshots.ts
