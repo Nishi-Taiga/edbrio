@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from '@/i18n/navigation'
+import { Link, usePathname } from '@/i18n/navigation'
 import { Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useTranslations } from 'next-intl'
@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { EdBrioLogo } from '@/components/ui/edbrio-logo'
 import { useSidebar } from './sidebar-context'
 import { LanguageSwitcher } from '@/components/ui/language-switcher'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { createClient } from '@/lib/supabase/client'
 import type { TeacherPlan } from '@/lib/types/database'
 
@@ -20,10 +21,12 @@ export function Header({ showMenuButton }: HeaderProps) {
   const { user, dbUser } = useAuth()
   const { toggleDesktop, toggleMobile } = useSidebar()
   const t = useTranslations('common')
+  const pathname = usePathname()
   const supabase = useMemo(() => createClient(), [])
   const [plan, setPlan] = useState<TeacherPlan | null>(null)
 
   const homeHref = dbUser?.role === 'teacher' ? '/teacher/dashboard' : dbUser?.role === 'guardian' ? '/guardian/dashboard' : (dbUser?.role as string) === 'admin' ? '/admin/dashboard' : '/'
+  const profileHref = pathname?.startsWith('/guardian') ? '/guardian/settings' : '/teacher/profile'
 
   useEffect(() => {
     if (dbUser?.role !== 'teacher' || !dbUser?.id) return
@@ -38,7 +41,7 @@ export function Header({ showMenuButton }: HeaderProps) {
   }, [dbUser?.id, dbUser?.role, supabase])
 
   const handleMenuClick = () => {
-    if (window.innerWidth < 1024) {
+    if (window.innerWidth < 768) {
       toggleMobile()
     } else {
       toggleDesktop()
@@ -49,8 +52,9 @@ export function Header({ showMenuButton }: HeaderProps) {
     <header className="sticky top-0 z-50 border-b bg-background/95 border-border-semantic backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <div className="flex items-center space-x-3">
+          {/* Hamburger menu: desktop/tablet only — hidden on mobile where bottom nav is used */}
           {showMenuButton && (
-            <Button variant="ghost" size="sm" onClick={handleMenuClick}>
+            <Button variant="ghost" size="sm" className="hidden md:inline-flex" onClick={handleMenuClick}>
               <Menu className="w-5 h-5" />
             </Button>
           )}
@@ -70,7 +74,17 @@ export function Header({ showMenuButton }: HeaderProps) {
         </div>
 
         <div className="flex items-center space-x-3">
-          {!user && (
+          {user ? (
+            /* Profile avatar — links to profile/settings page */
+            <Link href={profileHref}>
+              <Avatar className="w-9 h-9 ring-2 ring-brand-200 dark:ring-brand-700 cursor-pointer hover:ring-brand-400 dark:hover:ring-brand-500 transition-all">
+                {dbUser?.avatar_url && <AvatarImage src={dbUser.avatar_url} alt={dbUser?.name || ''} />}
+                <AvatarFallback className="text-sm bg-brand-100 text-brand-700 dark:bg-brand-900/50 dark:text-brand-300">
+                  {(dbUser?.name || user.email)?.[0]?.toUpperCase() || '?'}
+                </AvatarFallback>
+              </Avatar>
+            </Link>
+          ) : (
             <>
               <LanguageSwitcher />
               <div className="flex space-x-2">

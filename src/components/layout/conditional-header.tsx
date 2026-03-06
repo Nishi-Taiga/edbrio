@@ -3,12 +3,13 @@
 import { usePathname } from '@/i18n/navigation'
 import { Header } from './header'
 import { MobileSidebar } from './mobile-sidebar'
+import { MobileFooter } from './mobile-footer'
 
 export function ConditionalHeader() {
   const pathname = usePathname()
 
-  // Hide the global header on the landing page to avoid double headers.
-  if (pathname === '/') return null
+  // Hide the global header on the landing page and admin routes.
+  if (pathname === '/' || pathname?.startsWith('/admin')) return null
 
   const hasSidebar = pathname?.startsWith('/teacher') || pathname?.startsWith('/guardian')
 
@@ -16,6 +17,7 @@ export function ConditionalHeader() {
     <>
       <Header showMenuButton={hasSidebar} />
       {hasSidebar && <MobileSidebar />}
+      {hasSidebar && <MobileFooter />}
     </>
   )
 }

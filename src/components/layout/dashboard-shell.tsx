@@ -16,8 +16,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       >
         <Sidebar collapsed={!desktopOpen} />
       </div>
-      {/* Content with animated offset */}
-      <div className={`transition-all duration-300 ease-in-out ${desktopOpen ? 'md:pl-64' : 'md:pl-16'}`}>
+      {/* Content with animated offset + bottom padding for mobile footer */}
+      <div className={`transition-all duration-300 ease-in-out pb-20 md:pb-0 ${desktopOpen ? 'md:pl-64' : 'md:pl-16'}`}>
         {children}
       </div>
     </>

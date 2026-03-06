@@ -17,7 +17,6 @@ import { toast } from 'sonner'
 import { SetupBanner } from './_components/setup-banner'
 import { UpcomingLessons } from './_components/upcoming-lessons'
 import { QuickActions } from './_components/quick-actions'
-import { MobileFooter } from './_components/mobile-footer'
 
 // Responsive components (unified mobile + desktop)
 import { ResponsiveSummary } from './_components/responsive-summary'
@@ -328,9 +327,6 @@ export default function TeacherDashboard() {
           </div>
         </div>
       </div>
-
-      {/* Mobile bottom navigation */}
-      <MobileFooter />
     </ProtectedRoute>
   )
 }
