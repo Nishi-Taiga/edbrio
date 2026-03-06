@@ -29,9 +29,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'リクエストが多すぎます。' }, { status: 429 })
     }
 
-    const priceId = process.env.STRIPE_PRO_PRICE_ID
+    const priceId = process.env.STRIPE_STANDARD_PRICE_ID
     if (!priceId) {
-      console.error('STRIPE_PRO_PRICE_ID is not set')
+      console.error('STRIPE_STANDARD_PRICE_ID is not set')
       return NextResponse.json({ error: 'サーバー設定エラー' }, { status: 500 })
     }
 
@@ -47,8 +47,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '講師情報が見つかりません。' }, { status: 404 })
     }
 
-    if (teacher.plan === 'pro' && teacher.stripe_subscription_id) {
-      return NextResponse.json({ error: '既にProプランです。' }, { status: 400 })
+    if (teacher.plan === 'standard' && teacher.stripe_subscription_id) {
+      return NextResponse.json({ error: '既にStandardプランです。' }, { status: 400 })
     }
 
     // Create or reuse Stripe Customer

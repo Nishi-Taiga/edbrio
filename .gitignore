@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+test-results/
+playwright-report/
 
 # next.js
 /.next/
@@ -45,12 +47,14 @@ next-env.d.ts
 .gemini/
 .tmp.drivedownload/
 .tmp.driveupload/
-test-results/
 
 # secrets / dev notes (never commit)
 edbrio-dev.txt
+tests/testacounts.txt
+tests/e2e-full.spec.ts
 MILESTONES.md
 TODO.md
+SNS-MARKETING.md
 
 # build artifacts
 lint-errors.json
@@ -72,3 +76,11 @@ EdBrio ロゴデザイン/
 
 # unused CSS
 src/app/landing.css
+
+# SQL files
+*.sql
+
+# screenshots (local only)
+/screenshots/
+tests/screenshots/
+scripts/take-screenshots.ts

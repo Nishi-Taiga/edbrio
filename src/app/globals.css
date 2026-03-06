@@ -37,7 +37,7 @@
   --surface: #110e1a;
   --surface-raised: #1a1625;
   --muted: #1a1625;
-  --muted-foreground: #9ca3af;
+  --muted-foreground: #a8b0bd;
   --border: #2a2538;
 
   /* shadcn/ui semantic tokens */
@@ -87,29 +87,36 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* Brand purple scale (anchored to logo #7C3AED) */
-  --color-brand-50:  #f5f0ff;
-  --color-brand-100: #ede5ff;
-  --color-brand-200: #ddd0fe;
-  --color-brand-300: #c4acfd;
-  --color-brand-400: #a67dfb;
-  --color-brand-500: #8b4ff6;
-  --color-brand-600: #7c3aed;
-  --color-brand-700: #6d28d9;
-  --color-brand-800: #5b21b6;
-  --color-brand-900: #4c1d95;
-  --color-brand-950: #2e1065;
+  /* Brand purple scale (anchored to logo #6528F7) */
+  --color-brand-50:  #EDE4FF;
+  --color-brand-100: #e0d3ff;
+  --color-brand-200: #D7BBF5;
+  --color-brand-300: #c09ef3;
+  --color-brand-400: #A076F9;
+  --color-brand-500: #8350f8;
+  --color-brand-600: #6528F7;
+  --color-brand-700: #5320d6;
+  --color-brand-800: #4319b2;
+  --color-brand-900: #36148f;
+  --color-brand-950: #1e0a5e;
 
-  /* Accent pink (from logo gradient endpoint) */
-  --color-accent-400: #f472b6;
-  --color-accent-500: #ec4899;
-  --color-accent-600: #db2777;
+  /* Accent purple-light (from logo palette) */
+  --color-accent-400: #D7BBF5;
+  --color-accent-500: #A076F9;
+  --color-accent-600: #6528F7;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Button micro-interactions */
+button:not(:disabled):active,
+[role="button"]:not(:disabled):active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
 }
 
 /* ===== FullCalendar overrides ===== */

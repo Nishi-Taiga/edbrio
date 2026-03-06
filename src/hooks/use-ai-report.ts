@@ -2,6 +2,8 @@
 
 import { useState, useCallback } from 'react'
 
+const MAX_GENERATIONS_PER_REPORT = 3
+
 interface GenerateReportParams {
   contentRaw: string
   studentName: string
@@ -10,18 +12,25 @@ interface GenerateReportParams {
   weakPoints?: string[]
   comprehensionLevel?: number
   studentMood?: string
+  maxLength?: number
 }
 
 export function useAiReport() {
   const [generatedContent, setGeneratedContent] = useState<string | null>(null)
+  const [tokensUsed, setTokensUsed] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [generationCount, setGenerationCount] = useState(0)
+
+  const remainingGenerations = MAX_GENERATIONS_PER_REPORT - generationCount
+  const canGenerate = generationCount < MAX_GENERATIONS_PER_REPORT
 
   const generateReport = useCallback(async (params: GenerateReportParams) => {
     try {
       setLoading(true)
       setError(null)
       setGeneratedContent(null)
+      setTokensUsed(null)
 
       const res = await fetch('/api/ai/generate-report', {
         method: 'POST',
@@ -36,7 +45,9 @@ export function useAiReport() {
 
       const data = await res.json()
       setGeneratedContent(data.generatedContent)
-      return data.generatedContent
+      setTokensUsed(data.tokensUsed ?? null)
+      setGenerationCount(prev => prev + 1)
+      return { generatedContent: data.generatedContent, tokensUsed: data.tokensUsed as number | undefined }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e)
       setError(msg)
@@ -51,5 +62,16 @@ export function useAiReport() {
     setError(null)
   }, [])
 
-  return { generateReport, generatedContent, loading, error, reset }
+  return {
+    generateReport,
+    generatedContent,
+    tokensUsed,
+    loading,
+    error,
+    reset,
+    generationCount,
+    remainingGenerations,
+    canGenerate,
+    maxGenerations: MAX_GENERATIONS_PER_REPORT,
+  }
 }

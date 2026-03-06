@@ -8,7 +8,7 @@ DO $$ BEGIN
     CREATE TYPE user_role AS ENUM ('teacher', 'guardian', 'student');
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'teacher_plan') THEN
-    CREATE TYPE teacher_plan AS ENUM ('free', 'pro');
+    CREATE TYPE teacher_plan AS ENUM ('free', 'standard');
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'booking_status') THEN
     CREATE TYPE booking_status AS ENUM ('pending', 'confirmed', 'canceled', 'done');

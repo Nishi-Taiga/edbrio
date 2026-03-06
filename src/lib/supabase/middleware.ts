@@ -94,22 +94,22 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
     'Content-Security-Policy',
     [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://api.anthropic.com https://api.resend.com",
-      "frame-src https://js.stripe.com https://hooks.stripe.com",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://api.anthropic.com https://api.resend.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://accounts.google.com",
+      "frame-src https://js.stripe.com https://hooks.stripe.com https://accounts.google.com",
       "object-src 'none'",
       "base-uri 'self'",
-      "form-action 'self'",
+      "form-action 'self' https://accounts.google.com",
     ].join('; ')
   )
   return response
 }
 
 // ── Main middleware ──
-export const updateSession = async (request: NextRequest) => {
+export const updateSession = async (request: NextRequest, existingResponse?: NextResponse) => {
   const { pathname } = request.nextUrl
 
   // Basic auth for admin routes
@@ -118,7 +118,8 @@ export const updateSession = async (request: NextRequest) => {
     if (authResult) return authResult
   }
 
-  let response = NextResponse.next({
+  // Use existing response (e.g. from next-intl middleware) or create new one
+  let response = existingResponse ?? NextResponse.next({
     request: {
       headers: request.headers,
     },
@@ -139,9 +140,12 @@ export const updateSession = async (request: NextRequest) => {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          response = NextResponse.next({
-            request,
-          })
+          // Preserve existing response if provided, otherwise create new
+          if (!existingResponse) {
+            response = NextResponse.next({
+              request,
+            })
+          }
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           )

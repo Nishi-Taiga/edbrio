@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { sendEmail, buildTicketPurchaseEmail, isNotificationEnabled } from '@/lib/email'
+import { format } from 'date-fns'
+import { ja } from 'date-fns/locale'
 
 export const dynamic = 'force-dynamic'
 
@@ -84,7 +87,7 @@ async function handleSubscriptionCheckoutCompleted(session: Stripe.Checkout.Sess
   const { error } = await supabase
     .from('teachers')
     .update({
-      plan: 'pro',
+      plan: 'standard',
       stripe_customer_id: customerId,
       stripe_subscription_id: subscriptionId,
       updated_at: new Date().toISOString(),
@@ -92,11 +95,11 @@ async function handleSubscriptionCheckoutCompleted(session: Stripe.Checkout.Sess
     .eq('id', teacherId)
 
   if (error) {
-    console.error('Failed to activate Pro plan:', error)
+    console.error('Failed to activate Standard plan:', error)
     throw error
   }
 
-  console.log(`Pro plan activated: teacher=${teacherId}, subscription=${subscriptionId}`)
+  console.log(`Standard plan activated: teacher=${teacherId}, subscription=${subscriptionId}`)
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
@@ -115,7 +118,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   }
 
   const isActive = ['active', 'trialing'].includes(subscription.status)
-  const newPlan = isActive ? 'pro' : 'free'
+  const newPlan = isActive ? 'standard' : 'free'
 
   if (teacher.plan !== newPlan) {
     const { error } = await supabase
@@ -181,7 +184,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   const { data: ticket, error: ticketErr } = await supabase
     .from('tickets')
-    .select('id, teacher_id, minutes, bundle_qty, valid_days, price_cents')
+    .select('id, teacher_id, name, minutes, bundle_qty, valid_days, price_cents')
     .eq('id', ticketId)
     .single()
 
@@ -198,7 +201,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   const { data: payer } = await supabase
     .from('users')
-    .select('id, role')
+    .select('id, role, notification_preferences')
     .eq('email', customerEmail)
     .single()
 
@@ -254,6 +257,25 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
     if (balErr) {
       console.error('Failed to create ticket balance:', balErr)
+    }
+  }
+
+  // Send ticket purchase confirmation email
+  if (customerEmail && isNotificationEnabled(payer.notification_preferences as Record<string, boolean> | null, 'ticket_purchase')) {
+    try {
+      const expiresDate = new Date()
+      expiresDate.setDate(expiresDate.getDate() + ticket.valid_days)
+      const expiresStr = format(expiresDate, 'yyyy年M月d日', { locale: ja })
+
+      const email = buildTicketPurchaseEmail({
+        ticketName: ticket.name,
+        totalMinutes: ticket.minutes * ticket.bundle_qty,
+        priceCents: session.amount_total || ticket.price_cents,
+        expiresAt: expiresStr,
+      })
+      await sendEmail(customerEmail, email.subject, email.html)
+    } catch (emailErr) {
+      console.error('Failed to send ticket purchase email:', emailErr)
     }
   }
 

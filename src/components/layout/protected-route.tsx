@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { UserRole } from '@/lib/types/database'
 
@@ -22,17 +22,17 @@ export function ProtectedRoute({
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        router.push(redirectTo)
+        router.replace(redirectTo)
         return
       }
 
       if (allowedRoles && dbUser && !allowedRoles.includes(dbUser.role)) {
         if (dbUser.role === 'teacher') {
-          router.push('/teacher/dashboard')
+          router.replace('/teacher/dashboard')
         } else if (dbUser.role === 'guardian') {
-          router.push('/guardian/dashboard')
+          router.replace('/guardian/dashboard')
         } else {
-          router.push('/')
+          router.replace('/')
         }
         return
       }

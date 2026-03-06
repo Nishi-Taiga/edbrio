@@ -1,17 +1,42 @@
+export interface AreaSelection {
+  prefecture: string
+  municipality: string
+}
+
+/** @deprecated Use AreaSelection instead. Kept for backward compatibility with legacy data. */
+export interface StationSelection {
+  name: string
+  line: string
+  prefecture: string
+}
+
 export type UserRole = 'teacher' | 'guardian' | 'student'
-export type TeacherPlan = 'free' | 'pro'
+export type TeacherPlan = 'free' | 'standard'
 export type BookingStatus = 'pending' | 'confirmed' | 'canceled' | 'done'
+export type BookingReportReason = 'late' | 'absent' | 'other'
+export type BookingReportStatus = 'pending' | 'approved' | 'rejected' | 'auto_approved'
 export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded'
 export type GoalStatus = 'active' | 'achieved' | 'paused'
 export type WeakPointSeverity = 'low' | 'medium' | 'high'
 export type WeakPointStatus = 'active' | 'improving' | 'resolved'
 export type StudentMood = 'good' | 'neutral' | 'tired' | 'unmotivated'
 
+export interface NotificationPreferences {
+  booking_confirmation?: boolean
+  booking_cancellation?: boolean
+  report_published?: boolean
+  new_chat_message?: boolean
+  booking_reminder?: boolean
+  ticket_purchase?: boolean
+}
+
 export interface User {
   id: string
   role: UserRole
   email: string
   name: string
+  avatar_url?: string
+  notification_preferences?: NotificationPreferences
   created_at: string
   updated_at: string
 }
@@ -59,8 +84,12 @@ export interface Invite {
   teacher_id: string
   token: string
   role: UserRole
+  email?: string
+  student_profile_id?: string
+  method?: 'email' | 'qr'
   expires_at: string
   used: boolean
+  accepted_at?: string
   created_at: string
 }
 
@@ -151,6 +180,22 @@ export interface Report {
   next_plan?: string
   student_mood?: StudentMood
   comprehension_level?: number
+  tokens_used?: number
+  teacher_memo?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface BookingReport {
+  id: string
+  booking_id: string
+  reporter_id: string
+  reason: BookingReportReason
+  description?: string
+  status: BookingReportStatus
+  deadline: string
+  resolved_at?: string
+  resolved_by?: string
   created_at: string
   updated_at: string
 }
@@ -165,12 +210,13 @@ export interface AuditLog {
   created_at: string
 }
 
-// --- Karte (指導カルテ) ---
+// --- Curriculum (生徒カリキュラム) ---
 
 export interface StudentProfile {
   id: string
   teacher_id: string
   student_id?: string
+  guardian_id?: string
   name: string
   grade?: string
   school?: string
@@ -226,4 +272,55 @@ export interface HandoverNote {
   to_teacher_id?: string | null
   content: string
   created_at: string
+}
+
+// --- チャット (先生 ↔ 保護者) ---
+
+export interface Conversation {
+  id: string
+  teacher_id: string
+  guardian_id: string
+  student_profile_id: string
+  last_message_at: string
+  created_at: string
+}
+
+export interface Message {
+  id: string
+  conversation_id: string
+  sender_id: string
+  content?: string
+  image_url?: string
+  is_read: boolean
+  created_at: string
+}
+
+// --- カリキュラム単元 & スキル評価 ---
+
+export type UnitStatus = 'not_started' | 'in_progress' | 'completed'
+
+export interface CurriculumUnit {
+  id: string
+  profile_id: string
+  subject: string
+  unit_name: string
+  description?: string
+  order_index: number
+  status: UnitStatus
+  started_at?: string
+  completed_at?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface SkillAssessment {
+  id: string
+  profile_id: string
+  subject: string
+  topic: string
+  rating: number
+  notes?: string
+  last_assessed_at: string
+  created_at: string
+  updated_at: string
 }

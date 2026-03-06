@@ -1,133 +1,368 @@
-import Link from 'next/link'
-import { Badge } from '@/components/ui/badge'
+'use client'
+
+import { useEffect, useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
+import { format } from 'date-fns'
+import { ja } from 'date-fns/locale'
+import { Users, GraduationCap, ShieldCheck } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { getUsers } from '@/lib/admin/queries'
-import { UserFilters } from './user-filters'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { SkeletonList } from '@/components/ui/skeleton-card'
+import { ErrorAlert } from '@/components/ui/error-alert'
+import { EmptyState } from '@/components/ui/empty-state'
+import { useTranslations } from 'next-intl'
 
-interface Props {
-  searchParams: Promise<{ role?: string; plan?: string; search?: string; page?: string }>
+interface AdminUser {
+  id: string
+  name: string
+  email: string
+  role: 'teacher' | 'guardian' | 'student'
+  created_at: string
+  is_suspended: boolean
+  // Teacher
+  plan?: string
+  subjects?: string[]
+  is_onboarding_complete?: boolean
+  student_count?: number
+  // Student
+  grade?: string | null
+  guardian_name?: string | null
+  teacher_count?: number
 }
 
-const roleBadge: Record<string, { label: string; className: string }> = {
-  teacher: { label: '講師', className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' },
-  guardian: { label: '保護者', className: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' },
-  student: { label: '生徒', className: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300' },
-}
+const LIMIT = 20
 
-const planBadge: Record<string, { label: string; className: string }> = {
-  pro: { label: 'Pro', className: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300' },
-  free: { label: 'Free', className: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400' },
-}
+export default function AdminUsersPage() {
+  const router = useRouter()
+  const t = useTranslations('adminUsers')
+  const tc = useTranslations('adminCommon')
 
-export default async function AdminUsersPage({ searchParams }: Props) {
-  const params = await searchParams
-  const page = parseInt(params.page || '1', 10)
-  const perPage = 20
-  const { users, total } = await getUsers({
-    role: params.role,
-    plan: params.plan,
-    search: params.search,
-    page,
-    perPage,
-  })
+  const [activeTab, setActiveTab] = useState('teacher')
+  const [users, setUsers] = useState<AdminUser[]>([])
+  const [total, setTotal] = useState(0)
+  const [page, setPage] = useState(1)
+  const [plan, setPlan] = useState('all')
+  const [search, setSearch] = useState('')
+  const [sort, setSort] = useState('newest')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const totalPages = Math.ceil(total / perPage)
+  const fetchUsers = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const params = new URLSearchParams({
+        page: String(page),
+        limit: String(LIMIT),
+        sort,
+        role: activeTab,
+      })
+      if (activeTab === 'teacher' && plan !== 'all') params.set('plan', plan)
+      if (search.trim()) params.set('search', search.trim())
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">ユーザー管理</h1>
-        <p className="text-gray-600 dark:text-slate-400">全ユーザーの一覧と管理</p>
+      const res = await fetch(`/api/admin/users?${params.toString()}`)
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body.error || tc('fetchUserError'))
+      }
+
+      const data = await res.json()
+      setUsers(data.users ?? [])
+      setTotal(data.total ?? 0)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : tc('fetchUserError'))
+    } finally {
+      setLoading(false)
+    }
+  }, [page, activeTab, plan, search, sort])
+
+  // Debounced search
+  useEffect(() => {
+    const timer = setTimeout(() => setPage(1), 500)
+    return () => clearTimeout(timer)
+  }, [search])
+
+  // Reset page & plan when tab or sort changes
+  useEffect(() => {
+    setPage(1)
+    setPlan('all')
+    setSearch('')
+  }, [activeTab])
+
+  useEffect(() => {
+    setPage(1)
+  }, [sort])
+
+  useEffect(() => {
+    fetchUsers()
+  }, [fetchUsers])
+
+  const from = (page - 1) * LIMIT + 1
+  const to = Math.min(page * LIMIT, total)
+  const totalPages = Math.ceil(total / LIMIT)
+
+  const statusBadge = (user: AdminUser) =>
+    user.is_suspended ? (
+      <Badge variant="destructive">{tc('statusSuspended')}</Badge>
+    ) : (
+      <Badge className="bg-green-600 text-white hover:bg-green-700">{tc('statusActive')}</Badge>
+    )
+
+  const pagination = total > LIMIT && (
+    <div className="flex items-center justify-between pt-2">
+      <p className="text-sm text-muted-foreground">
+        {tc('paginationInfoShort', { total, from, to })}
+      </p>
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+          {tc('prev')}
+        </Button>
+        <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
+          {tc('next')}
+        </Button>
       </div>
-
-      <UserFilters role={params.role} plan={params.plan} search={params.search} />
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">ユーザー一覧（{total}件）</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b text-left text-gray-500 dark:text-gray-400">
-                  <th className="pb-2 pr-4">名前</th>
-                  <th className="pb-2 pr-4">メール</th>
-                  <th className="pb-2 pr-4">ロール</th>
-                  <th className="pb-2 pr-4">プラン</th>
-                  <th className="pb-2 pr-4">登録日</th>
-                  <th className="pb-2">操作</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="py-8 text-center text-gray-500 dark:text-gray-400">
-                      ユーザーが見つかりません。
-                    </td>
-                  </tr>
-                ) : (
-                  users.map((u: any) => {
-                    const role = roleBadge[u.role] || { label: u.role, className: '' }
-                    const teacherPlan = u.teachers?.[0]?.plan || (u.role === 'teacher' ? 'free' : null)
-                    const plan = teacherPlan ? planBadge[teacherPlan] || planBadge.free : null
-
-                    return (
-                      <tr key={u.id} className="border-b last:border-0">
-                        <td className="py-3 pr-4 font-medium">{u.name || '—'}</td>
-                        <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">{u.email}</td>
-                        <td className="py-3 pr-4">
-                          <Badge className={role.className}>{role.label}</Badge>
-                        </td>
-                        <td className="py-3 pr-4">
-                          {plan ? <Badge className={plan.className}>{plan.label}</Badge> : '—'}
-                        </td>
-                        <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">
-                          {new Date(u.created_at).toLocaleDateString('ja-JP')}
-                        </td>
-                        <td className="py-3">
-                          <Link href={`/admin/users/${u.id}`}>
-                            <Button variant="outline" size="sm">詳細</Button>
-                          </Link>
-                        </td>
-                      </tr>
-                    )
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-6">
-              {page > 1 && (
-                <Link href={`/admin/users?${buildQuery(params, page - 1)}`}>
-                  <Button variant="outline" size="sm">前へ</Button>
-                </Link>
-              )}
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                {page} / {totalPages}
-              </span>
-              {page < totalPages && (
-                <Link href={`/admin/users?${buildQuery(params, page + 1)}`}>
-                  <Button variant="outline" size="sm">次へ</Button>
-                </Link>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   )
-}
 
-function buildQuery(params: Record<string, string | undefined>, page: number) {
-  const q = new URLSearchParams()
-  if (params.role) q.set('role', params.role)
-  if (params.plan) q.set('plan', params.plan)
-  if (params.search) q.set('search', params.search)
-  q.set('page', String(page))
-  return q.toString()
+  const renderLoadingOrEmpty = (icon: typeof Users, emptyTitle: string) => (
+    <>
+      {error && <ErrorAlert message={error} onRetry={fetchUsers} />}
+      {loading && <SkeletonList count={5} />}
+      {!loading && !error && users.length === 0 && (
+        <EmptyState icon={icon} title={emptyTitle} description={tc('changeCondition')} />
+      )}
+    </>
+  )
+
+  return (
+    <div className="container mx-auto px-4 py-8 space-y-6">
+      <div className="mb-2">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{t('title')}</h1>
+        <p className="text-gray-600 dark:text-slate-400">{t('description')}</p>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="teacher">{tc('teacher')}</TabsTrigger>
+          <TabsTrigger value="guardian">{tc('guardian')}</TabsTrigger>
+          <TabsTrigger value="student">{tc('student')}</TabsTrigger>
+        </TabsList>
+
+        {/* ── 講師一覧 ── */}
+        <TabsContent value="teacher">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">{t('teacherList')}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <Input placeholder={tc('searchPlaceholder')} value={search} onChange={(e) => setSearch(e.target.value)} className="w-64" />
+                <Select value={plan} onValueChange={(v) => { setPlan(v); setPage(1) }}>
+                  <SelectTrigger className="w-36"><SelectValue placeholder={tc('plan')} /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{tc('all')}</SelectItem>
+                    <SelectItem value="free">Free</SelectItem>
+                    <SelectItem value="standard">Standard</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={sort} onValueChange={setSort}>
+                  <SelectTrigger className="w-36"><SelectValue placeholder={tc('sortLabel')} /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">{tc('sortNewest')}</SelectItem>
+                    <SelectItem value="oldest">{tc('sortOldest')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {renderLoadingOrEmpty(Users, t('notFoundTeacher'))}
+
+              {!loading && !error && users.length > 0 && (
+                <>
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>{tc('name')}</TableHead>
+                          <TableHead>{tc('email')}</TableHead>
+                          <TableHead>{tc('plan')}</TableHead>
+                          <TableHead>{t('subjects')}</TableHead>
+                          <TableHead>{t('studentCount')}</TableHead>
+                          <TableHead>{t('initialSetup')}</TableHead>
+                          <TableHead>{tc('registeredDate')}</TableHead>
+                          <TableHead>{tc('status')}</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {users.map((user) => (
+                          <TableRow key={user.id} className="cursor-pointer hover:bg-muted/50" onClick={() => router.push(`/admin/users/${user.id}`)}>
+                            <TableCell className="font-medium">{user.name}</TableCell>
+                            <TableCell className="text-sm text-muted-foreground">{user.email}</TableCell>
+                            <TableCell>
+                              <Badge variant={user.plan === 'standard' ? 'default' : 'secondary'}>
+                                {user.plan === 'standard' ? 'Standard' : 'Free'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex flex-wrap gap-1">
+                                {(user.subjects || []).slice(0, 3).map((s) => (
+                                  <Badge key={s} variant="outline" className="text-xs">{s}</Badge>
+                                ))}
+                                {(user.subjects || []).length > 3 && (
+                                  <span className="text-xs text-muted-foreground">+{(user.subjects || []).length - 3}</span>
+                                )}
+                                {(user.subjects || []).length === 0 && <span className="text-muted-foreground">-</span>}
+                              </div>
+                            </TableCell>
+                            <TableCell>{tc('unitPeople', { count: user.student_count ?? 0 })}</TableCell>
+                            <TableCell>
+                              {user.is_onboarding_complete ? (
+                                <Badge className="bg-green-600 text-white hover:bg-green-700">{tc('onboardingComplete')}</Badge>
+                              ) : (
+                                <Badge variant="outline" className="text-amber-600 border-amber-300">{tc('onboardingIncomplete')}</Badge>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-sm">{format(new Date(user.created_at), 'PPP', { locale: ja })}</TableCell>
+                            <TableCell>{statusBadge(user)}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  {pagination}
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── 保護者一覧 ── */}
+        <TabsContent value="guardian">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">{t('guardianList')}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <Input placeholder={tc('searchPlaceholder')} value={search} onChange={(e) => setSearch(e.target.value)} className="w-64" />
+                <Select value={sort} onValueChange={setSort}>
+                  <SelectTrigger className="w-36"><SelectValue placeholder={tc('sortLabel')} /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">{tc('sortNewest')}</SelectItem>
+                    <SelectItem value="oldest">{tc('sortOldest')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {renderLoadingOrEmpty(ShieldCheck, t('notFoundGuardian'))}
+
+              {!loading && !error && users.length > 0 && (
+                <>
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>{tc('name')}</TableHead>
+                          <TableHead>{tc('email')}</TableHead>
+                          <TableHead>{t('studentCount')}</TableHead>
+                          <TableHead>{tc('registeredDate')}</TableHead>
+                          <TableHead>{tc('status')}</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {users.map((user) => (
+                          <TableRow key={user.id} className="cursor-pointer hover:bg-muted/50" onClick={() => router.push(`/admin/users/${user.id}`)}>
+                            <TableCell className="font-medium">{user.name}</TableCell>
+                            <TableCell className="text-sm text-muted-foreground">{user.email}</TableCell>
+                            <TableCell>{tc('unitPeople', { count: user.student_count ?? 0 })}</TableCell>
+                            <TableCell className="text-sm">{format(new Date(user.created_at), 'PPP', { locale: ja })}</TableCell>
+                            <TableCell>{statusBadge(user)}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  {pagination}
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── 生徒一覧 ── */}
+        <TabsContent value="student">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">{t('studentList')}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <Input placeholder={tc('searchPlaceholder')} value={search} onChange={(e) => setSearch(e.target.value)} className="w-64" />
+                <Select value={sort} onValueChange={setSort}>
+                  <SelectTrigger className="w-36"><SelectValue placeholder={tc('sortLabel')} /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">{tc('sortNewest')}</SelectItem>
+                    <SelectItem value="oldest">{tc('sortOldest')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {renderLoadingOrEmpty(GraduationCap, t('notFoundStudent'))}
+
+              {!loading && !error && users.length > 0 && (
+                <>
+                  <div className="rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>{tc('name')}</TableHead>
+                          <TableHead>{tc('email')}</TableHead>
+                          <TableHead>{t('grade')}</TableHead>
+                          <TableHead>{t('guardianLabel')}</TableHead>
+                          <TableHead>{t('teacherCount')}</TableHead>
+                          <TableHead>{tc('registeredDate')}</TableHead>
+                          <TableHead>{tc('status')}</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {users.map((user) => (
+                          <TableRow key={user.id} className="cursor-pointer hover:bg-muted/50" onClick={() => router.push(`/admin/users/${user.id}`)}>
+                            <TableCell className="font-medium">{user.name}</TableCell>
+                            <TableCell className="text-sm text-muted-foreground">{user.email}</TableCell>
+                            <TableCell>{user.grade || <span className="text-muted-foreground">-</span>}</TableCell>
+                            <TableCell>{user.guardian_name || <span className="text-muted-foreground">-</span>}</TableCell>
+                            <TableCell>{tc('unitPeople', { count: user.teacher_count ?? 0 })}</TableCell>
+                            <TableCell className="text-sm">{format(new Date(user.created_at), 'PPP', { locale: ja })}</TableCell>
+                            <TableCell>{statusBadge(user)}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                  {pagination}
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
 }

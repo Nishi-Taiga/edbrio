@@ -1,0 +1,27 @@
+<svg width="200" height="48" viewBox="0 0 200 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGradDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6528F7" />
+      <stop offset="100%" stop-color="#A076F9" />
+    </linearGradient>
+  </defs>
+
+  <!-- Icon circle -->
+  <circle cx="24" cy="24" r="22" fill="url(#logoGradDark)" />
+  <circle cx="24" cy="24" r="19" fill="#FFFFFF" opacity="0.15" />
+
+  <!-- Graduation cap -->
+  <path d="M14.5 17 L24 12.5 L33.5 17 L24 21.5 Z" fill="#FFFFFF" />
+  <circle cx="33" cy="16.8" r="0.9" fill="#FFFFFF" />
+  <line x1="33" y1="17.7" x2="33" y2="20.5" stroke="#FFFFFF" stroke-width="0.9" />
+
+  <!-- Open book - left page -->
+  <path d="M12 23 L12 34 C12 34.7 12.5 35.2 13.2 35.2 L23 35.2 L23 23 Z" fill="#FFFFFF" />
+  <!-- Open book - right page -->
+  <path d="M25 23 L25 35.2 L34.8 35.2 C35.5 35.2 36 34.7 36 34 L36 23 Z" fill="#FFFFFF" opacity="0.85" />
+  <!-- Book spine -->
+  <rect x="23" y="23" width="2" height="12.2" fill="#FFFFFF" opacity="0.7" />
+
+  <!-- "EdBrio" text (white for dark backgrounds) -->
+  <text x="54" y="33" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="28" font-weight="800" letter-spacing="-0.5" fill="#FFFFFF">EdBrio</text>
+</svg>

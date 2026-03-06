@@ -1,6 +1,6 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
+import { usePathname } from '@/i18n/navigation'
 import { Header } from './header'
 import { MobileSidebar } from './mobile-sidebar'
 

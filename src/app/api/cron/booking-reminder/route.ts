@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { sendEmail, buildBookingReminderEmail } from '@/lib/email'
+import { sendEmail, buildBookingReminderEmail, isNotificationEnabled } from '@/lib/email'
 import { format } from 'date-fns'
 import { ja } from 'date-fns/locale'
 
@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
         // Fetch teacher
         const { data: teacher } = await supabase
           .from('users')
-          .select('email, display_name')
+          .select('email, display_name, notification_preferences')
           .eq('id', booking.teacher_id)
           .single()
 
@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
         const endStr = format(new Date(booking.end_time), 'HH:mm', { locale: ja })
 
         // Send to teacher
-        if (teacher?.email) {
+        if (teacher?.email && isNotificationEnabled(teacher.notification_preferences, 'booking_reminder')) {
           const email = buildBookingReminderEmail({
             teacherName, studentName, date: dateStr, startTime: startStr, endTime: endStr,
             recipientRole: 'teacher',
@@ -85,11 +85,11 @@ export async function GET(req: NextRequest) {
         if (profile?.guardian_id) {
           const { data: guardian } = await supabase
             .from('users')
-            .select('email')
+            .select('email, notification_preferences')
             .eq('id', profile.guardian_id)
             .single()
 
-          if (guardian?.email) {
+          if (guardian?.email && isNotificationEnabled(guardian.notification_preferences, 'booking_reminder')) {
             const email = buildBookingReminderEmail({
               teacherName, studentName, date: dateStr, startTime: startStr, endTime: endStr,
               recipientRole: 'guardian',

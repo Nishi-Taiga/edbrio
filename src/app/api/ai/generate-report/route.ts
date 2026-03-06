@@ -2,19 +2,23 @@ import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@/lib/supabase/server'
 import { aiReportLimiter } from '@/lib/rate-limit'
+import { generateReportSchema } from '@/lib/validations'
 
 export const dynamic = 'force-dynamic'
 
-const SYSTEM_PROMPT = `あなたは個別指導塾・家庭教師の授業報告書を作成するアシスタントです。
+function buildSystemPrompt(maxLength: number): string {
+  return `あなたは個別指導の授業報告書を作成するアシスタントです。
 講師が記入した授業メモを元に、保護者が読みやすい丁寧な授業報告書を生成してください。
 
 ルール:
 - 丁寧語（です・ます調）で記述
-- 300〜500文字程度
-- 構成: 本日の学習内容 → お子様の理解度・取り組みの様子 → 課題・宿題 → 次回の予定
+- ${maxLength}文字以内で記述
+- 構成: 本日の学習内容 → お子様の理解度・取り組みの様子
 - 具体的なポジティブフィードバックを含める
 - 改善が必要な点は建設的に表現する
-- 保護者に安心感を与えるトーンで書く`
+- 保護者に安心感を与えるトーンで書く
+- 宿題・次回の予定は含めない（講師が別途記入する）`
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,12 +48,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Teachers only' }, { status: 403 })
     }
 
-    const body = await req.json()
-    const { contentRaw, studentName, subject, goals, weakPoints, comprehensionLevel, studentMood } = body
+    // Check subscription plan — AI generation is Standard plan only
+    const { data: teacher } = await supabase
+      .from('teachers')
+      .select('plan')
+      .eq('id', session.user.id)
+      .single()
 
-    if (!contentRaw || !studentName) {
-      return NextResponse.json({ error: 'contentRaw and studentName are required' }, { status: 400 })
+    if (!teacher || teacher.plan !== 'standard') {
+      return NextResponse.json(
+        { error: 'この機能はスタンダードプランでご利用いただけます。', code: 'PLAN_REQUIRED' },
+        { status: 403 }
+      )
     }
+
+    const body = await req.json()
+    const parsed = generateReportSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: '入力内容に不備があります' }, { status: 400 })
+    }
+    const { contentRaw, studentName, subject, goals, weakPoints, comprehensionLevel, studentMood, maxLength } = parsed.data
 
     // Build context for the AI
     let userPrompt = `## 授業メモ\n${contentRaw}\n\n## 生徒名\n${studentName}`
@@ -73,7 +91,7 @@ export async function POST(req: NextRequest) {
     const message = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 1024,
-      system: SYSTEM_PROMPT,
+      system: buildSystemPrompt(maxLength || 500),
       messages: [{ role: 'user', content: userPrompt }],
     })
 
@@ -86,6 +104,28 @@ export async function POST(req: NextRequest) {
     })
   } catch (error: unknown) {
     console.error('AI report generation error:', error)
+
+    if (error instanceof Anthropic.APIError) {
+      if (error.status === 400 && error.message.includes('credit balance')) {
+        return NextResponse.json(
+          { error: 'AIサービスの利用枠が不足しています。管理者にお問い合わせください。' },
+          { status: 503 }
+        )
+      }
+      if (error.status === 401) {
+        return NextResponse.json(
+          { error: 'AIサービスの認証に失敗しました。管理者にお問い合わせください。' },
+          { status: 503 }
+        )
+      }
+      if (error.status === 429) {
+        return NextResponse.json(
+          { error: 'AIサービスが混み合っています。しばらくしてからお試しください。' },
+          { status: 429 }
+        )
+      }
+    }
+
     return NextResponse.json(
       { error: 'レポート生成に失敗しました。しばらくしてからお試しください。' },
       { status: 500 }

@@ -1,133 +1,555 @@
+'use client'
+
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { KpiCard } from '@/components/admin/kpi-card'
-import { BarChart } from '@/components/admin/bar-chart'
-import { getDashboardStats, getMonthlyRevenue, getRecentAuditLogs } from '@/lib/admin/queries'
-import { AuditLog } from '@/lib/types/database'
+import { Badge } from '@/components/ui/badge'
+import { SkeletonStatsGrid, SkeletonList } from '@/components/ui/skeleton-card'
+import { ErrorAlert } from '@/components/ui/error-alert'
+import { EmptyState } from '@/components/ui/empty-state'
+import { Shield } from 'lucide-react'
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts'
+import { useTranslations } from 'next-intl'
 
-function formatYen(cents: number) {
-  return new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' }).format(cents / 100)
+/* ---------- Types ---------- */
+
+interface StatsData {
+  totalUsers: number
+  usersByRole: Record<string, number>
+  teachersByPlan: Record<string, number>
+  mrr: number
+  monthRevenue: number
+  monthAiReports: number
+  monthBookings: number
+  failedPayments24h: number
+  expiringTickets7d: number
+  incompleteInitialSetup: number
 }
 
-function trendPercent(current: number, previous: number): number {
-  if (previous === 0) return current > 0 ? 100 : 0
-  return Math.round(((current - previous) / previous) * 100)
+interface TrendPoint {
+  date: string
+  count: number
 }
 
-export default async function AdminDashboardPage() {
-  const [stats, revenue, logs] = await Promise.all([
-    getDashboardStats(),
-    getMonthlyRevenue(6),
-    getRecentAuditLogs(10),
-  ])
+interface RevenueTrendPoint {
+  date: string
+  amount: number
+}
 
-  const chartData = revenue.map((r) => ({
-    label: r.month.slice(5),
-    value: r.total,
-  }))
+interface TokenTrendPoint {
+  date: string
+  tokens: number
+}
+
+interface TrendsData {
+  period: string
+  signups: TrendPoint[]
+  signupsByRole: {
+    teacher: TrendPoint[]
+    guardian: TrendPoint[]
+    student: TrendPoint[]
+  }
+  revenue: RevenueTrendPoint[]
+  bookings: TrendPoint[]
+  aiReports: TrendPoint[]
+  aiTokens: TokenTrendPoint[]
+}
+
+type TrendPeriod = '7d' | '30d'
+type SignupTab = 'all' | 'teacher' | 'guardian' | 'student'
+type AiTab = 'count' | 'cost'
+
+/* ---------- Constants ---------- */
+
+// Claude Haiku 4.5 approximate cost: ~$1/MTok input, ~$5/MTok output
+// Weighted average ~$2/MTok combined ≈ ¥0.30 per 1K tokens (at ¥150/USD)
+const YEN_PER_1K_TOKENS = 0.3
+
+/* ---------- Formatters ---------- */
+
+const yenFormatter = new Intl.NumberFormat('ja-JP', {
+  style: 'currency',
+  currency: 'JPY',
+})
+
+/* ---------- Tab button ---------- */
+
+function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`px-2.5 py-1 text-xs rounded-md transition ${
+        active
+          ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900'
+          : 'bg-gray-100 text-gray-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700'
+      }`}
+    >
+      {children}
+    </button>
+  )
+}
+
+/* ---------- Component ---------- */
+
+export default function AdminDashboardPage() {
+  const t = useTranslations('adminDashboard')
+  const tc = useTranslations('adminCommon')
+
+  const [stats, setStats] = useState<StatsData | null>(null)
+  const [trends, setTrends] = useState<TrendsData | null>(null)
+  const [trendPeriod, setTrendPeriod] = useState<TrendPeriod>('7d')
+  const [signupTab, setSignupTab] = useState<SignupTab>('all')
+  const [aiTab, setAiTab] = useState<AiTab>('count')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const [statsRes, trendsRes] = await Promise.all([
+        fetch('/api/admin/stats'),
+        fetch(`/api/admin/stats/trends?period=${trendPeriod}`),
+      ])
+
+      if (!statsRes.ok) {
+        throw new Error(`Stats API returned ${statsRes.status}`)
+      }
+      if (!trendsRes.ok) {
+        throw new Error(`Trends API returned ${trendsRes.status}`)
+      }
+
+      const statsData: StatsData = await statsRes.json()
+      const trendsData: TrendsData = await trendsRes.json()
+
+      setStats(statsData)
+      setTrends(trendsData)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setLoading(false)
+    }
+  }, [trendPeriod])
+
+  useEffect(() => {
+    load()
+  }, [load])
+
+  /* ---------- Derived data ---------- */
+
+  const signupChartData = trends
+    ? signupTab === 'all'
+      ? trends.signups
+      : trends.signupsByRole[signupTab]
+    : []
+
+  const signupColors: Record<SignupTab, string> = {
+    all: '#6366f1',
+    teacher: '#3b82f6',
+    guardian: '#10b981',
+    student: '#f59e0b',
+  }
+
+  const signupLabels = useMemo(() => ({
+    all: t('signupAll'),
+    teacher: tc('teacher'),
+    guardian: tc('guardian'),
+    student: tc('student'),
+  } as Record<SignupTab, string>), [t, tc])
+
+  const aiCostData = trends
+    ? trends.aiTokens.map((d) => ({
+        date: d.date,
+        cost: Math.round(d.tokens / 1000 * YEN_PER_1K_TOKENS * 100) / 100,
+      }))
+    : []
+
+  /* ---------- Render ---------- */
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">ダッシュボード</h1>
-        <p className="text-gray-600 dark:text-slate-400">システム全体の統計情報</p>
-      </div>
+      {/* Header */}
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+        {t('title')}
+      </h1>
+      <p className="text-gray-600 dark:text-slate-400">
+        {t('description')}
+      </p>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <KpiCard
-          title="総ユーザー数"
-          value={stats.totalUsers}
-          trend={trendPercent(stats.totalUsers, stats.totalUsers - stats.prevMonthUsers)}
-          description="前月比"
-        />
-        <KpiCard
-          title="アクティブ講師"
-          value={stats.activeTeachers}
-          trend={trendPercent(stats.activeTeachers, stats.activeTeachers - stats.prevMonthTeachers)}
-          description="前月比"
-        />
-        <KpiCard
-          title="今月の売上"
-          value={formatYen(stats.monthRevenue)}
-          trend={trendPercent(stats.monthRevenue, stats.prevMonthRevenue)}
-          description="前月比"
-        />
-        <KpiCard
-          title="今月の予約"
-          value={stats.monthBookings}
-          trend={trendPercent(stats.monthBookings, stats.prevMonthBookings)}
-          description="前月比"
-        />
-      </div>
+      {/* Error */}
+      {error && <ErrorAlert message={error} onRetry={load} />}
 
-      <div className="grid lg:grid-cols-3 gap-8 mb-8">
-        {/* Revenue Chart */}
-        <div className="lg:col-span-2">
+      {/* Loading skeleton */}
+      {loading && (
+        <div className="mt-8 space-y-8">
+          <SkeletonStatsGrid count={4} />
+          <SkeletonList count={3} />
+        </div>
+      )}
+
+      {/* Main content */}
+      {!loading && !error && stats && trends && (
+        <>
+          {/* -------- KPI Cards -------- */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 mt-8">
+            {/* Total Users */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
+                  {t('totalUsers')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {stats.totalUsers}
+                </p>
+                <div className="flex flex-wrap gap-1 mt-2">
+                  <Badge variant="secondary" className="text-xs">
+                    {tc('teacher')} {stats.usersByRole.teacher ?? 0}
+                  </Badge>
+                  <Badge variant="secondary" className="text-xs">
+                    {tc('guardian')} {stats.usersByRole.guardian ?? 0}
+                  </Badge>
+                  <Badge variant="secondary" className="text-xs">
+                    {tc('student')} {stats.usersByRole.student ?? 0}
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* MRR */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
+                  {t('mrr')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {yenFormatter.format(stats.mrr)}
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Monthly Revenue */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
+                  {t('monthRevenue')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {yenFormatter.format(stats.monthRevenue / 100)}
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Monthly AI Reports */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
+                  {t('monthAiReports')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {tc('unitItems', { count: stats.monthAiReports })}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* -------- Trend Charts -------- */}
+          <div className="mb-4 flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
+              {t('period')}
+            </span>
+            <button
+              onClick={() => setTrendPeriod('7d')}
+              className={`px-3 py-1 text-sm rounded-md transition ${
+                trendPeriod === '7d'
+                  ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900'
+                  : 'bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              {t('days7')}
+            </button>
+            <button
+              onClick={() => setTrendPeriod('30d')}
+              className={`px-3 py-1 text-sm rounded-md transition ${
+                trendPeriod === '30d'
+                  ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900'
+                  : 'bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-slate-300 hover:bg-gray-200 dark:hover:bg-slate-700'
+              }`}
+            >
+              {t('days30')}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            {/* Signups with role tabs */}
+            <Card>
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
+                    {t('newUsers')}
+                  </CardTitle>
+                  <div className="flex gap-1">
+                    {(['all', 'teacher', 'guardian', 'student'] as const).map((tab) => (
+                      <TabButton key={tab} active={signupTab === tab} onClick={() => setSignupTab(tab)}>
+                        {signupLabels[tab]}
+                      </TabButton>
+                    ))}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={200}>
+                  <AreaChart data={signupChartData}>
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fontSize: 11 }}
+                      tickFormatter={(v) => String(v).slice(5)}
+                    />
+                    <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                    <Tooltip
+                      labelFormatter={(label) => String(label)}
+                      formatter={(value) => [value, signupLabels[signupTab]]}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="count"
+                      stroke={signupColors[signupTab]}
+                      fill={signupColors[signupTab]}
+                      fillOpacity={0.1}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Revenue */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
+                  {t('revenue')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={200}>
+                  <AreaChart
+                    data={trends.revenue.map((d) => ({
+                      date: d.date,
+                      amount: d.amount / 100,
+                    }))}
+                  >
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fontSize: 11 }}
+                      tickFormatter={(v) => String(v).slice(5)}
+                    />
+                    <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                    <Tooltip
+                      labelFormatter={(label) => String(label)}
+                      formatter={(value) => [
+                        yenFormatter.format(Number(value)),
+                        t('revenue'),
+                      ]}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="amount"
+                      stroke="#10b981"
+                      fill="#10b981"
+                      fillOpacity={0.1}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Bookings */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
+                  {t('bookingCount')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={200}>
+                  <AreaChart data={trends.bookings}>
+                    <XAxis
+                      dataKey="date"
+                      tick={{ fontSize: 11 }}
+                      tickFormatter={(v) => String(v).slice(5)}
+                    />
+                    <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                    <Tooltip
+                      labelFormatter={(label) => String(label)}
+                      formatter={(value) => [value, t('bookingCount')]}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="count"
+                      stroke="#f59e0b"
+                      fill="#f59e0b"
+                      fillOpacity={0.1}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* AI Reports with count/cost tabs */}
+            <Card>
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
+                    {t('aiReport')}
+                  </CardTitle>
+                  <div className="flex gap-1">
+                    <TabButton active={aiTab === 'count'} onClick={() => setAiTab('count')}>
+                      {t('generationCount')}
+                    </TabButton>
+                    <TabButton active={aiTab === 'cost'} onClick={() => setAiTab('cost')}>
+                      {t('apiCost')}
+                    </TabButton>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {aiTab === 'count' ? (
+                  <ResponsiveContainer width="100%" height={200}>
+                    <AreaChart data={trends.aiReports}>
+                      <XAxis
+                        dataKey="date"
+                        tick={{ fontSize: 11 }}
+                        tickFormatter={(v) => String(v).slice(5)}
+                      />
+                      <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                      <Tooltip
+                        labelFormatter={(label) => String(label)}
+                        formatter={(value) => [value, t('aiGenerationCount')]}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="count"
+                        stroke="#8b5cf6"
+                        fill="#8b5cf6"
+                        fillOpacity={0.1}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <ResponsiveContainer width="100%" height={200}>
+                    <AreaChart data={aiCostData}>
+                      <XAxis
+                        dataKey="date"
+                        tick={{ fontSize: 11 }}
+                        tickFormatter={(v) => String(v).slice(5)}
+                      />
+                      <YAxis tick={{ fontSize: 11 }} />
+                      <Tooltip
+                        labelFormatter={(label) => String(label)}
+                        formatter={(value) => [
+                          `${yenFormatter.format(Number(value))}`,
+                          t('apiCost'),
+                        ]}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="cost"
+                        stroke="#ec4899"
+                        fill="#ec4899"
+                        fillOpacity={0.1}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* -------- System Alerts -------- */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            {/* Failed payments */}
+            <Card>
+              <CardContent className="flex items-center justify-between p-4">
+                <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
+                  {t('failedPayments')}
+                </span>
+                <span
+                  className={`text-sm font-bold ${
+                    stats.failedPayments24h > 0
+                      ? 'text-red-600 dark:text-red-400'
+                      : 'text-gray-500 dark:text-slate-400'
+                  }`}
+                >
+                  {tc('unitItems', { count: stats.failedPayments24h })}
+                </span>
+              </CardContent>
+            </Card>
+
+            {/* Expiring tickets */}
+            <Card>
+              <CardContent className="flex items-center justify-between p-4">
+                <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
+                  {t('expiringTickets')}
+                </span>
+                <span
+                  className={`text-sm font-bold ${
+                    stats.expiringTickets7d > 0
+                      ? 'text-amber-600 dark:text-amber-400'
+                      : 'text-gray-500 dark:text-slate-400'
+                  }`}
+                >
+                  {tc('unitItems', { count: stats.expiringTickets7d })}
+                </span>
+              </CardContent>
+            </Card>
+
+            {/* Incomplete initial setup */}
+            <Card>
+              <CardContent className="flex items-center justify-between p-4">
+                <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
+                  {t('incompleteSetup')}
+                </span>
+                <span
+                  className={`text-sm font-bold ${
+                    stats.incompleteInitialSetup > 0
+                      ? 'text-blue-600 dark:text-blue-400'
+                      : 'text-gray-500 dark:text-slate-400'
+                  }`}
+                >
+                  {tc('unitItems', { count: stats.incompleteInitialSetup })}
+                </span>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* -------- Recent Activity (audit logs placeholder) -------- */}
           <Card>
             <CardHeader>
-              <CardTitle>売上推移（直近6ヶ月）</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-500 dark:text-slate-400">
+                {t('recentActivity')}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <BarChart data={chartData} formatValue={(v) => formatYen(v)} />
+              <EmptyState
+                icon={Shield}
+                title={t('noAuditLogs')}
+              />
             </CardContent>
           </Card>
-        </div>
-
-        {/* Additional Stats */}
-        <Card>
-          <CardHeader>
-            <CardTitle>その他の統計</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <dl className="space-y-3">
-              <div className="flex justify-between">
-                <dt className="text-sm text-gray-600 dark:text-slate-400">Proプラン講師</dt>
-                <dd className="font-medium">{stats.proTeachers}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-sm text-gray-600 dark:text-slate-400">アクティブチケット</dt>
-                <dd className="font-medium">{stats.activeTickets}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-sm text-gray-600 dark:text-slate-400">保留中予約</dt>
-                <dd className="font-medium">{stats.pendingBookings}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-sm text-gray-600 dark:text-slate-400">公開レポート</dt>
-                <dd className="font-medium">{stats.publishedReports}</dd>
-              </div>
-            </dl>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Recent Activity */}
-      <Card>
-        <CardHeader>
-          <CardTitle>最近の活動</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {logs.length === 0 ? (
-            <p className="text-gray-500 dark:text-slate-400 text-sm">操作ログはありません。</p>
-          ) : (
-            <div className="space-y-2">
-              {logs.map((log: AuditLog) => (
-                <div key={log.id} className="flex items-center justify-between p-2 rounded border text-sm">
-                  <div>
-                    <span className="font-medium">{log.action}</span>
-                    <span className="text-gray-500 dark:text-gray-400 ml-2">
-                      {log.target_table}{log.target_id ? ` / ${log.target_id.slice(0, 8)}...` : ''}
-                    </span>
-                  </div>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {new Date(log.created_at).toLocaleString('ja-JP')}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        </>
+      )}
     </div>
   )
 }
