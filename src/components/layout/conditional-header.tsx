@@ -3,6 +3,7 @@
 import { usePathname } from '@/i18n/navigation'
 import { Header } from './header'
 import { MobileSidebar } from './mobile-sidebar'
+import { MobileFooter } from './mobile-footer'
 
 export function ConditionalHeader() {
   const pathname = usePathname()
@@ -16,6 +17,7 @@ export function ConditionalHeader() {
     <>
       <Header showMenuButton={hasSidebar} />
       {hasSidebar && <MobileSidebar />}
+      {hasSidebar && <MobileFooter />}
     </>
   )
 }
