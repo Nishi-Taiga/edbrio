@@ -1054,6 +1054,11 @@ function TeacherProfileContent() {
           </CardContent>
         </Card>
 
+        {/* Version */}
+        <div className="text-center text-xs text-gray-400 dark:text-gray-600 py-4">
+          EdBrio v0.1.0
+        </div>
+
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <DialogContent>
             <DialogHeader>

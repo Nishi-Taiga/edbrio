@@ -112,8 +112,9 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
 export const updateSession = async (request: NextRequest, existingResponse?: NextResponse) => {
   const { pathname } = request.nextUrl
 
-  // Basic auth for admin routes
-  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
+  // Basic auth for admin routes only (strip locale prefix like /ja/ first)
+  const strippedPath = pathname.replace(/^\/[a-z]{2}(-[A-Z]{2})?(?=\/)/, '')
+  if (strippedPath.startsWith('/admin') || strippedPath.startsWith('/api/admin')) {
     const authResult = checkBasicAuth(request)
     if (authResult) return authResult
   }

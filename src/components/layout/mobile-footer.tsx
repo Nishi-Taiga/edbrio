@@ -4,11 +4,15 @@ import { useState, useEffect, useCallback } from 'react'
 import { Link, usePathname } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
 import { Home, FileText, Calendar, MessageCircle, LayoutGrid, Ticket, GraduationCap, Settings, X } from 'lucide-react'
+import { useAuth } from '@/hooks/use-auth'
+import { useUnreadCount } from '@/hooks/use-unread-count'
 
 export function MobileFooter() {
   const t = useTranslations('teacherDashboard')
   const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
+  const { user } = useAuth()
+  const { count: unreadCount } = useUnreadCount(user?.id, 'teacher')
 
   const isActive = (href: string) => pathname === href || (href !== '/teacher/dashboard' && pathname?.startsWith(href))
 
@@ -58,14 +62,22 @@ export function MobileFooter() {
   const renderTab = (tab: { icon: any; label: string; href: '/teacher/dashboard' | '/teacher/reports' | '/teacher/calendar' | '/teacher/chat' }) => {
     const Icon = tab.icon
     const active = isActive(tab.href)
+    const showBadge = tab.href === '/teacher/chat' && unreadCount > 0
     return (
       <Link
         key={tab.href}
         href={tab.href}
-        className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full rounded-xl transition-colors
+        className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full rounded-xl transition-colors relative
           ${active ? 'bg-[#EDE8F5] dark:bg-[#282237]' : ''}`}
       >
-        <Icon className={`w-[22px] h-[22px] ${active ? 'text-[#7C3AED] dark:text-[#A78BFA]' : 'text-[#6B7280] dark:text-[#6D5A8A]'}`} />
+        <div className="relative">
+          <Icon className={`w-[22px] h-[22px] ${active ? 'text-[#7C3AED] dark:text-[#A78BFA]' : 'text-[#6B7280] dark:text-[#6D5A8A]'}`} />
+          {showBadge && (
+            <span className="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] rounded-full bg-[#EF4444] text-white text-[9px] font-bold flex items-center justify-center px-1">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+        </div>
         <span className={`text-[10px] font-semibold ${active ? 'text-[#7C3AED] dark:text-[#A78BFA]' : 'text-[#6B7280] dark:text-[#6D5A8A]'}`}>
           {tab.label}
         </span>

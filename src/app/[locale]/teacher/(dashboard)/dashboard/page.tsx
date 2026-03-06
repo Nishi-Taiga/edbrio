@@ -259,7 +259,7 @@ export default function TeacherDashboard() {
 
   return (
     <ProtectedRoute allowedRoles={['teacher']}>
-      <div className="bg-[#F9F6F2] md:bg-[#F3F4F6] dark:bg-[#13111C] min-h-screen px-4 md:px-5 lg:px-7 py-4 md:py-6 space-y-4 pb-24 md:pb-6">
+      <div className="bg-[#F9F6F2] md:bg-[#F3F4F6] dark:bg-[#13111C] min-h-screen px-4 md:px-5 lg:px-7 py-4 md:py-6 space-y-5 pb-24 md:pb-6">
 
         {/* ── Setup Banner (conditional) ── */}
         {setupComplete === false && (
@@ -278,7 +278,7 @@ export default function TeacherDashboard() {
         />
 
         {/* ── Calendar + Tasks ── */}
-        <div className="flex flex-col lg:flex-row gap-4 lg:gap-5" style={{ minHeight: 560 }}>
+        <div className="flex flex-col lg:flex-row gap-5" style={{ minHeight: 560 }}>
           <div className="flex-1 min-w-0 order-2 lg:order-1">
             <ResponsiveCalendar
               calendarEvents={calendarEvents}
@@ -303,7 +303,7 @@ export default function TeacherDashboard() {
         </div>
 
         {/* ── Bottom Row: Monthly Stats + Upcoming Lessons + Quick Actions ── */}
-        <div className="flex flex-col md:flex-row gap-4 md:gap-5" style={{ minHeight: 320 }}>
+        <div className="flex flex-col md:flex-row gap-5" style={{ minHeight: 320 }}>
           <div className="flex-1 min-w-0">
             <ResponsiveStats
               thisMonthDone={thisMonthDone}
