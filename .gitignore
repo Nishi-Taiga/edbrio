@@ -80,6 +80,9 @@ src/app/landing.css
 # SQL files
 *.sql
 
+# Excel files (curriculum reference)
+*.xlsx
+
 # screenshots (local only)
 /screenshots/
 tests/screenshots/

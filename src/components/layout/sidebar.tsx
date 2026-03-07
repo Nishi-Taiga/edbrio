@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { useUnreadCount } from '@/hooks/use-unread-count'
 import { useBookingReports } from '@/hooks/use-booking-reports'
 import {
-  ChevronUp, LogOut, Mail, Settings, X,
+  ChevronUp, LogOut, Mail, Settings, X, BookOpen,
   LayoutDashboard, FileText, Calendar, MessageSquare, GraduationCap, Ticket,
   Home, CalendarPlus, CalendarCheck,
   type LucideIcon,
@@ -53,6 +53,7 @@ export function Sidebar({ mobile, collapsed, onClose }: SidebarProps) {
     { href: '/guardian/tickets', label: t('guardian.tickets'), icon: Ticket },
     { href: '/guardian/bookings', label: t('guardian.bookings'), icon: CalendarCheck },
     { href: '/guardian/reports', label: t('guardian.reports'), icon: FileText },
+    { href: '/guardian/curriculum', label: t('guardian.curriculum'), icon: BookOpen },
     { href: '/guardian/chat', label: t('guardian.chat'), icon: MessageSquare, badge: unreadCount },
     { href: '/guardian/settings', label: t('guardian.settings'), icon: Settings },
   ]

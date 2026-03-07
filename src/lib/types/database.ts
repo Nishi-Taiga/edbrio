@@ -225,6 +225,8 @@ export interface StudentProfile {
   personality_notes?: string
   enrollment_date?: string
   status: string
+  curriculum_year?: string
+  curriculum_title?: string
   created_at: string
   updated_at: string
 }
@@ -298,7 +300,11 @@ export interface Message {
 // --- カリキュラム単元 & スキル評価 ---
 
 export type UnitStatus = 'not_started' | 'in_progress' | 'completed'
+export type PhaseStatus = 'not_started' | 'in_progress' | 'completed'
+export type TestType = 'school_exam' | 'mock_exam' | 'quiz' | 'entrance_exam' | 'other'
+export type ExamCategory = 'recommendation' | 'common_test' | 'general' | 'certification' | 'school_exam'
 
+/** @deprecated Use CurriculumMaterial + CurriculumPhase instead */
 export interface CurriculumUnit {
   id: string
   profile_id: string
@@ -309,6 +315,84 @@ export interface CurriculumUnit {
   status: UnitStatus
   started_at?: string
   completed_at?: string
+  created_at: string
+  updated_at: string
+}
+
+// --- カリキュラム刷新 (教材→フェーズ 2層構造) ---
+
+export interface CurriculumMaterial {
+  id: string
+  profile_id: string
+  subject: string
+  material_name: string
+  study_pace?: string
+  color?: string
+  order_index: number
+  notes?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface CurriculumPhase {
+  id: string
+  material_id: string
+  phase_name: string
+  total_hours?: number
+  start_date?: string
+  end_date?: string
+  is_date_manual: boolean
+  status: PhaseStatus
+  order_index: number
+  goal_id?: string
+  completed_at?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface ExamSchedule {
+  id: string
+  profile_id: string
+  exam_name: string
+  exam_category: string
+  method?: string
+  exam_date: string
+  notes?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface LessonLog {
+  id: string
+  profile_id: string
+  booking_id?: string
+  report_id?: string
+  lesson_date: string
+  subject: string
+  notes?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface LessonLogPhase {
+  id: string
+  lesson_log_id: string
+  phase_id: string
+  progress_notes?: string
+  created_at: string
+}
+
+export interface TestScore {
+  id: string
+  profile_id: string
+  subject: string
+  test_name: string
+  test_type: TestType
+  score: number
+  max_score: number
+  percentile?: number
+  test_date: string
+  notes?: string
   created_at: string
   updated_at: string
 }
