@@ -1070,6 +1070,9 @@ function TeacherProfileContent() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Version */}
+        <p className="text-center text-xs text-slate-400 dark:text-slate-500 pt-2 pb-8">v0.1.0</p>
       </div>
     </ProtectedRoute>
   )
