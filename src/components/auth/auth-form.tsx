@@ -227,7 +227,7 @@ export function AuthForm({ mode, onModeChange, inviteToken, lockedRole, prefillE
           </div>
         </div>
 
-        <form onSubmit={handleAuth} className="space-y-4">
+        <form onSubmit={handleAuth} noValidate className="space-y-4">
           {mode === 'signup' && (
             <div className="space-y-2">
               <Label htmlFor="name">{t('nameLabel')}</Label>
