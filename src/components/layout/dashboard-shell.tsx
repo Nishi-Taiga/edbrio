@@ -10,7 +10,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     <>
       {/* Desktop sidebar with width animation */}
       <div
-        className={`hidden md:block fixed top-16 bottom-0 left-0 border-r bg-background/80 dark:bg-brand-950/80 dark:border-brand-800/30 backdrop-blur transition-all duration-300 ease-in-out z-30 ${
+        className={`hidden md:block fixed top-16 bottom-0 left-0 overflow-hidden border-r bg-background/80 dark:bg-brand-950/80 dark:border-brand-800/30 backdrop-blur transition-all duration-300 ease-in-out z-30 ${
           desktopOpen ? 'w-64' : 'w-16'
         }`}
       >

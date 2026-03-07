@@ -1,17 +1,18 @@
 'use client'
 
+import { useEffect, useMemo, useState } from 'react'
 import { Link, usePathname, useRouter } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks/use-auth'
 import { useUnreadCount } from '@/hooks/use-unread-count'
 import { useBookingReports } from '@/hooks/use-booking-reports'
+import { createClient } from '@/lib/supabase/client'
 import {
   ChevronUp, LogOut, Mail, Settings, X, BookOpen,
   LayoutDashboard, FileText, Calendar, MessageSquare, GraduationCap, Ticket,
   Home, CalendarPlus, CalendarCheck,
   type LucideIcon,
 } from 'lucide-react'
-import { useSidebar } from './sidebar-context'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -36,7 +37,6 @@ interface SidebarProps {
 export function Sidebar({ mobile, collapsed, onClose }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const { toggleDesktop } = useSidebar()
   const isGuardian = pathname?.startsWith('/guardian')
   const { user, dbUser, signOut } = useAuth()
   const t = useTranslations('sidebar')
@@ -46,6 +46,27 @@ export function Sidebar({ mobile, collapsed, onClose }: SidebarProps) {
     !isGuardian ? user?.id : undefined,
     'teacher'
   )
+
+  // Fetch profile display_name for teachers
+  const supabase = useMemo(() => createClient(), [])
+  const [displayName, setDisplayName] = useState<string | null>(null)
+  useEffect(() => {
+    if (!user?.id || !dbUser?.role) return
+    if (dbUser.role === 'teacher') {
+      supabase
+        .from('teachers')
+        .select('public_profile')
+        .eq('id', user.id)
+        .maybeSingle()
+        .then(({ data }) => {
+          const dn = (data?.public_profile as Record<string, any>)?.display_name
+          if (dn) setDisplayName(dn)
+        })
+    }
+  }, [user?.id, dbUser?.role, supabase])
+
+  const shownName = displayName || dbUser?.name || user?.email || ''
+  const nameInitial = shownName[0]?.toUpperCase() || '?'
 
   const guardianItems: { href: string; label: string; icon: LucideIcon; badge?: number }[] = [
     { href: '/guardian/dashboard', label: t('guardian.home'), icon: Home },
@@ -90,13 +111,8 @@ export function Sidebar({ mobile, collapsed, onClose }: SidebarProps) {
               <li key={it.href}>
                 <Link
                   href={it.href}
-                  onClick={(e) => {
-                    if (collapsed && !mobile) {
-                      e.preventDefault()
-                      toggleDesktop()
-                    } else {
-                      onClose?.()
-                    }
+                  onClick={() => {
+                    onClose?.()
                   }}
                   title={collapsed ? it.label : undefined}
                   className={classNames(
@@ -142,13 +158,13 @@ export function Sidebar({ mobile, collapsed, onClose }: SidebarProps) {
               <DropdownMenuTrigger asChild>
                 {collapsed ? (
                   <button
-                    title={dbUser?.name || user.email || ''}
+                    title={shownName}
                     className="flex items-center justify-center rounded-lg p-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800/50 transition-colors"
                   >
                     <Avatar className="w-6 h-6 shrink-0">
                       {dbUser?.avatar_url && <AvatarImage src={dbUser.avatar_url} alt="" />}
                       <AvatarFallback className="text-[10px] bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300">
-                        {(dbUser?.name || user.email)?.[0]?.toUpperCase() || '?'}
+                        {nameInitial}
                       </AvatarFallback>
                     </Avatar>
                   </button>
@@ -158,10 +174,10 @@ export function Sidebar({ mobile, collapsed, onClose }: SidebarProps) {
                       <Avatar className="w-6 h-6 shrink-0">
                         {dbUser?.avatar_url && <AvatarImage src={dbUser.avatar_url} alt="" />}
                         <AvatarFallback className="text-[10px] bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300">
-                          {(dbUser?.name || user.email)?.[0]?.toUpperCase() || '?'}
+                          {nameInitial}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="font-medium truncate">{dbUser?.name || user.email}</span>
+                      <span className="font-medium truncate">{shownName}</span>
                     </div>
                     <ChevronUp className="w-4 h-4 shrink-0 text-gray-400" />
                   </button>
