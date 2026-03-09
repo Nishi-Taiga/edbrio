@@ -1,37 +1,36 @@
 'use client'
 
 import { useMemo, useRef, useEffect, useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Plus, ChevronLeft, ChevronRight, GripVertical, Pencil, Trash2 } from 'lucide-react'
+import { Plus, Pencil, Trash2, CheckCircle } from 'lucide-react'
 import { CurriculumMaterial, CurriculumPhase, ExamSchedule } from '@/lib/types/database'
-import { format, startOfWeek, addWeeks, addMonths, isSameWeek, isWithinInterval, startOfMonth, endOfMonth, differenceInWeeks, isBefore, isAfter, startOfDay } from 'date-fns'
-import { ja } from 'date-fns/locale'
+import { differenceInDays, startOfDay, format } from 'date-fns'
 
 // --- Constants ---
-const CELL_WIDTH = 32
-const LABEL_WIDTH = 220
-const ROW_HEIGHT = 36
-const HEADER_HEIGHT = 64
-const MILESTONE_HEIGHT = 28
+const LABEL_WIDTH = 180
+const ROW_HEIGHT = 44
+const HEADER_HEIGHT = 44
+const EXAM_ROW_HEIGHT = 56
+const SUBJECT_HEADER_HEIGHT = 28
+const MONTHS = [4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3] // Academic year April–March
+const MONTH_LABELS = ['4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月']
 
-// Subject color presets
-const SUBJECT_COLORS: Record<string, string> = {
-  '数学': '#6B21A8',
-  '物理': '#0F766E',
-  '化学': '#B45309',
-  '英語': '#1D4ED8',
-  '国語': '#BE123C',
-  '社会': '#4338CA',
-  '理科': '#15803D',
-  '生物': '#059669',
+// Subject color presets (matching Pencil design)
+const SUBJECT_COLORS: Record<string, { color: string; bg: string; icon: string }> = {
+  '数学': { color: '#0C5394', bg: '#EFF6FF', icon: 'calculate' },
+  '物理': { color: '#45818E', bg: '#ECFDF5', icon: 'science' },
+  '化学': { color: '#B45309', bg: '#FFFBEB', icon: 'science' },
+  '英語': { color: '#1D4ED8', bg: '#EFF6FF', icon: 'translate' },
+  '国語': { color: '#BE123C', bg: '#FFF1F2', icon: 'menu_book' },
+  '社会': { color: '#4338CA', bg: '#EEF2FF', icon: 'public' },
+  '理科': { color: '#15803D', bg: '#ECFDF5', icon: 'science' },
+  '生物': { color: '#059669', bg: '#ECFDF5', icon: 'eco' },
 }
 
 const EXAM_CATEGORY_COLORS: Record<string, string> = {
-  recommendation: '#2563EB',
-  common_test: '#DC2626',
-  general: '#7C3AED',
+  recommendation: '#EF4444',
+  common_test: '#F59E0B',
+  general: '#3B82F6',
   certification: '#059669',
   school_exam: '#D97706',
 }
@@ -54,74 +53,27 @@ interface GanttChartProps {
 }
 
 // --- Helpers ---
-function getAcademicYearStart(yearStr?: string): Date {
-  const year = yearStr ? parseInt(yearStr) : new Date().getFullYear()
-  return new Date(year, 3, 1) // April 1st
+function getAcademicYear(yearStr?: string): number {
+  return yearStr ? parseInt(yearStr) : new Date().getFullYear()
 }
 
-function getWeekColumns(startDate: Date, weeks: number) {
-  const cols: { date: Date; weekNum: number; month: number; year: number }[] = []
-  for (let i = 0; i < weeks; i++) {
-    const d = addWeeks(startDate, i)
-    const weekStart = startOfWeek(d, { weekStartsOn: 1 })
-    cols.push({
-      date: weekStart,
-      weekNum: Math.ceil(d.getDate() / 7),
-      month: d.getMonth(),
-      year: d.getFullYear(),
-    })
-  }
-  return cols
-}
-
-function getMonthHeaders(columns: ReturnType<typeof getWeekColumns>) {
-  const months: { month: number; year: number; startIdx: number; span: number; label: string }[] = []
-  let current: typeof months[0] | null = null
-
-  columns.forEach((col, idx) => {
-    if (!current || current.month !== col.month || current.year !== col.year) {
-      if (current) months.push(current)
-      current = {
-        month: col.month,
-        year: col.year,
-        startIdx: idx,
-        span: 1,
-        label: `${col.month + 1}月`,
-      }
-    } else {
-      current.span++
-    }
+/** Get the start date of each month in the academic year (April to March) */
+function getMonthStarts(year: number): Date[] {
+  return MONTHS.map(m => {
+    const y = m >= 4 ? year : year + 1
+    return new Date(y, m - 1, 1)
   })
-  if (current) months.push(current)
-  return months
 }
 
-function getBarPosition(
-  startDate: string | undefined,
-  endDate: string | undefined,
-  columns: ReturnType<typeof getWeekColumns>
-) {
-  if (!startDate || !endDate || columns.length === 0) return null
-  const start = new Date(startDate)
-  const end = new Date(endDate)
-  const chartStart = columns[0].date
-  const chartEnd = columns[columns.length - 1].date
-
-  if (isAfter(start, chartEnd) || isBefore(end, chartStart)) return null
-
-  const startWeekIdx = Math.max(0, differenceInWeeks(start, chartStart))
-  const endWeekIdx = Math.min(columns.length - 1, differenceInWeeks(end, chartStart))
-
-  return {
-    left: startWeekIdx * CELL_WIDTH,
-    width: Math.max(CELL_WIDTH, (endWeekIdx - startWeekIdx + 1) * CELL_WIDTH),
-  }
+/** Get the last day of March of the next year (end of academic year) */
+function getAcademicYearEnd(year: number): Date {
+  return new Date(year + 1, 2, 31) // March 31
 }
 
-const statusBgClass: Record<string, string> = {
-  not_started: 'opacity-40',
-  in_progress: 'opacity-80',
-  completed: 'opacity-100',
+/** Convert a date to a pixel position within the chart timeline area */
+function dateToX(date: Date, academicYearStart: Date, timelineWidth: number, totalDays: number): number {
+  const days = differenceInDays(date, academicYearStart)
+  return Math.max(0, Math.min(timelineWidth, (days / totalDays) * timelineWidth))
 }
 
 // --- Component ---
@@ -142,12 +94,28 @@ export function GanttChart({
 }: GanttChartProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [hoveredRow, setHoveredRow] = useState<string | null>(null)
+  const [containerWidth, setContainerWidth] = useState(960)
 
-  // Calculate columns (60 weeks = ~14 months covering April to March + buffer)
-  const yearStart = getAcademicYearStart(curriculumYear)
-  const TOTAL_WEEKS = 56
-  const columns = useMemo(() => getWeekColumns(yearStart, TOTAL_WEEKS), [yearStart])
-  const monthHeaders = useMemo(() => getMonthHeaders(columns), [columns])
+  const year = getAcademicYear(curriculumYear)
+  const academicYearStart = new Date(year, 3, 1) // April 1
+  const academicYearEnd = getAcademicYearEnd(year)
+  const totalDays = differenceInDays(academicYearEnd, academicYearStart) + 1
+  const monthStarts = useMemo(() => getMonthStarts(year), [year])
+
+  // Timeline width = container width minus label column
+  const timelineWidth = Math.max(containerWidth - LABEL_WIDTH, 600)
+
+  // Observe container width
+  useEffect(() => {
+    const el = scrollRef.current?.parentElement
+    if (!el) return
+    const obs = new ResizeObserver(entries => {
+      const w = entries[0]?.contentRect.width
+      if (w) setContainerWidth(w)
+    })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
 
   // Group materials by subject
   const grouped = useMemo(() => {
@@ -156,38 +124,39 @@ export function GanttChart({
       if (!g[m.subject]) g[m.subject] = []
       g[m.subject].push(m)
     })
-    // Sort materials within each subject by order_index
     Object.values(g).forEach(arr => arr.sort((a, b) => a.order_index - b.order_index))
     return g
   }, [materials])
 
   const subjects = Object.keys(grouped)
 
-  // Get phases for a material
   const getPhases = (materialId: string) =>
-    phases
-      .filter(p => p.material_id === materialId)
-      .sort((a, b) => a.order_index - b.order_index)
+    phases.filter(p => p.material_id === materialId).sort((a, b) => a.order_index - b.order_index)
 
-  // Today line position
-  const todayPosition = useMemo(() => {
+  // Today line
+  const todayX = useMemo(() => {
     const today = startOfDay(new Date())
-    const chartStart = columns[0]?.date
-    if (!chartStart) return null
-    const weeksDiff = differenceInWeeks(today, chartStart)
-    if (weeksDiff < 0 || weeksDiff >= TOTAL_WEEKS) return null
-    return weeksDiff * CELL_WIDTH
-  }, [columns])
+    return dateToX(today, academicYearStart, timelineWidth, totalDays)
+  }, [academicYearStart, timelineWidth, totalDays])
 
-  // Scroll to today on mount
-  useEffect(() => {
-    if (scrollRef.current && todayPosition !== null) {
-      scrollRef.current.scrollLeft = Math.max(0, todayPosition - 200)
-    }
-  }, [todayPosition])
+  const todayVisible = (() => {
+    const today = startOfDay(new Date())
+    return today >= academicYearStart && today <= academicYearEnd
+  })()
 
-  // Calculate total chart rows
-  const rows: { type: 'subject' | 'material'; subject: string; material?: CurriculumMaterial }[] = []
+  // Month column boundaries (x positions)
+  const monthColumns = useMemo(() => {
+    return monthStarts.map((start, i) => {
+      const x = dateToX(start, academicYearStart, timelineWidth, totalDays)
+      const nextStart = i < monthStarts.length - 1 ? monthStarts[i + 1] : new Date(academicYearEnd.getTime() + 86400000)
+      const xEnd = dateToX(nextStart, academicYearStart, timelineWidth, totalDays)
+      return { x, width: xEnd - x, label: MONTH_LABELS[i] }
+    })
+  }, [monthStarts, academicYearStart, timelineWidth, totalDays, academicYearEnd])
+
+  // Build row list
+  type Row = { type: 'subject'; subject: string } | { type: 'material'; subject: string; material: CurriculumMaterial }
+  const rows: Row[] = []
   subjects.forEach(subject => {
     rows.push({ type: 'subject', subject })
     grouped[subject].forEach(material => {
@@ -195,231 +164,256 @@ export function GanttChart({
     })
   })
 
-  const totalHeight = HEADER_HEIGHT + MILESTONE_HEIGHT + rows.length * ROW_HEIGHT + 16
-  const chartWidth = TOTAL_WEEKS * CELL_WIDTH
+  // Total body height
+  const bodyHeight = EXAM_ROW_HEIGHT + rows.reduce((h, r) =>
+    h + (r.type === 'subject' ? SUBJECT_HEADER_HEIGHT : ROW_HEIGHT), 0)
+
+  // Render a phase bar
+  function renderPhaseBar(phase: CurriculumPhase, material: CurriculumMaterial) {
+    if (!phase.start_date || !phase.end_date) return null
+    const x1 = dateToX(new Date(phase.start_date), academicYearStart, timelineWidth, totalDays)
+    const x2 = dateToX(new Date(phase.end_date), academicYearStart, timelineWidth, totalDays)
+    const barWidth = Math.max(20, x2 - x1)
+    const color = material.color || SUBJECT_COLORS[material.subject]?.color || '#6B7280'
+    const isCompleted = phase.status === 'completed'
+    const isInProgress = phase.status === 'in_progress'
+
+    // Text color: for light bars (like yellow #F1C232), use dark text
+    const isLightColor = ['#F1C232', '#FDE047', '#FBBF24', '#D97706'].includes(color)
+    const textColor = isLightColor ? '#7C4A03' : '#FFFFFF'
+
+    return (
+      <div
+        key={phase.id}
+        className={`absolute flex items-center rounded cursor-pointer transition-opacity hover:opacity-100 ${
+          isCompleted ? 'opacity-100' : isInProgress ? 'opacity-90' : 'opacity-60'
+        }`}
+        style={{
+          left: x1,
+          width: barWidth,
+          height: 20,
+          top: 12,
+          backgroundColor: color,
+          zIndex: 5,
+        }}
+        onClick={() => onEditPhase(phase)}
+        title={`${phase.phase_name}${phase.total_hours ? ` (${phase.total_hours}h)` : ''}`}
+      >
+        <span
+          className="text-[9px] font-semibold truncate leading-tight pl-2 pr-1"
+          style={{ color: textColor }}
+        >
+          {phase.phase_name}
+        </span>
+        {isCompleted && (
+          <CheckCircle className="w-3 h-3 shrink-0 mr-1" style={{ color: '#10B981' }} />
+        )}
+      </div>
+    )
+  }
+
+  // Render exam markers on the exam row
+  function renderExamMarkers() {
+    // Group exams by approximate position to stagger overlapping ones
+    const markers = exams.map(exam => {
+      const examDate = new Date(exam.exam_date)
+      const x = dateToX(examDate, academicYearStart, timelineWidth, totalDays)
+      const color = EXAM_CATEGORY_COLORS[exam.exam_category] || '#6B7280'
+      const bgColor = color + '20'
+      const label = exam.exam_name.length > 6 ? exam.exam_name.slice(0, 6) + '…' : exam.exam_name
+      return { exam, x, color, bgColor, label, date: format(examDate, 'M/d') }
+    })
+
+    // Simple stagger: alternate y positions
+    return markers.map((m, i) => {
+      const yOffset = i % 2 === 0 ? 2 : 22
+      return (
+        <div
+          key={m.exam.id}
+          className="absolute flex items-center gap-1 rounded text-[9px] font-semibold whitespace-nowrap px-1.5 py-0.5 cursor-pointer hover:opacity-80"
+          style={{
+            left: m.x,
+            top: yOffset,
+            backgroundColor: m.bgColor,
+            color: m.color,
+            zIndex: 10,
+          }}
+          title={`${m.exam.exam_name}${m.exam.method ? ` (${m.exam.method})` : ''} - ${m.date}`}
+        >
+          {m.label} {m.date}
+        </div>
+      )
+    })
+  }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>{t('ganttTitle')}</CardTitle>
-          <div className="flex gap-2">
-            <Button size="sm" variant="outline" onClick={onAddExam}>
-              <Plus className="w-4 h-4 mr-1" />{t('addExam')}
-            </Button>
-            <Button size="sm" onClick={onAddMaterial}>
-              <Plus className="w-4 h-4 mr-1" />{t('addMaterial')}
-            </Button>
-          </div>
+    <div className="rounded-xl border border-border bg-card overflow-hidden" ref={scrollRef}>
+      {/* Header + Month columns */}
+      <div className="flex" style={{ height: HEADER_HEIGHT }}>
+        {/* Label column header */}
+        <div
+          className="flex items-center gap-2 px-4 border-r border-border shrink-0"
+          style={{ width: LABEL_WIDTH }}
+        >
+          <span className="text-[11px] font-bold text-muted-foreground tracking-wider">教材 / 科目</span>
         </div>
-      </CardHeader>
-      <CardContent className="p-0">
-        <div className="flex overflow-hidden border-t">
-          {/* Left label column (fixed) */}
-          <div className="flex-shrink-0 border-r bg-muted/30" style={{ width: LABEL_WIDTH }}>
-            {/* Month header spacer */}
-            <div style={{ height: HEADER_HEIGHT }} className="border-b flex items-end px-2 pb-1">
-              <span className="text-xs text-muted-foreground font-medium">{t('subjectMaterial')}</span>
+        {/* Month headers */}
+        <div className="flex flex-1 relative">
+          {monthColumns.map((mc, i) => (
+            <div
+              key={i}
+              className="flex items-center justify-center text-[11px] font-semibold text-muted-foreground border-r border-border/50 last:border-r-0"
+              style={{ width: mc.width }}
+            >
+              {mc.label}
             </div>
-            {/* Exam row spacer */}
-            <div style={{ height: MILESTONE_HEIGHT }} className="border-b flex items-center px-2">
-              <span className="text-xs text-muted-foreground">{t('examSchedule')}</span>
-            </div>
-            {/* Material labels */}
-            {rows.map((row, idx) => (
+          ))}
+        </div>
+      </div>
+
+      {/* Chart body */}
+      <div className="flex border-t border-border">
+        {/* Left labels */}
+        <div className="shrink-0 border-r border-border" style={{ width: LABEL_WIDTH }}>
+          {/* Exam row label */}
+          <div
+            className="flex items-center gap-1.5 px-4 border-b border-border"
+            style={{ height: EXAM_ROW_HEIGHT, backgroundColor: '#FEF2F2' }}
+          >
+            <span className="text-[11px] font-bold text-red-500">🎓 入試スケジュール</span>
+          </div>
+          {/* Material/Subject labels */}
+          {rows.map((row, idx) => {
+            if (row.type === 'subject') {
+              const sc = SUBJECT_COLORS[row.subject]
+              return (
+                <div
+                  key={`label-${idx}`}
+                  className="flex items-center gap-1.5 px-4 border-b border-border"
+                  style={{ height: SUBJECT_HEADER_HEIGHT, backgroundColor: sc?.bg || '#F9FAFB' }}
+                >
+                  <span className="text-xs font-bold" style={{ color: sc?.color || '#6B7280' }}>{row.subject}</span>
+                  <span
+                    className="text-[9px] font-medium px-1.5 py-0 rounded"
+                    style={{ backgroundColor: (sc?.color || '#6B7280') + '15', color: sc?.color || '#6B7280' }}
+                  >
+                    {grouped[row.subject].length}教材
+                  </span>
+                </div>
+              )
+            }
+            const mat = row.material
+            return (
               <div
                 key={`label-${idx}`}
+                className="flex items-center justify-between px-4 border-b border-border hover:bg-muted/30 transition-colors group/row"
                 style={{ height: ROW_HEIGHT }}
-                className={`flex items-center border-b ${row.type === 'subject' ? 'bg-muted/50' : 'hover:bg-muted/20'}`}
-                onMouseEnter={() => row.material && setHoveredRow(row.material.id)}
+                onMouseEnter={() => setHoveredRow(mat.id)}
                 onMouseLeave={() => setHoveredRow(null)}
               >
-                {row.type === 'subject' ? (
-                  <span className="px-2 text-xs font-bold text-foreground/80 uppercase tracking-wide">{row.subject}</span>
-                ) : row.material ? (
-                  <div className="flex items-center justify-between w-full px-2 gap-1">
-                    <div className="flex items-center gap-1 min-w-0">
-                      <div
-                        className="w-2 h-2 rounded-full flex-shrink-0"
-                        style={{ backgroundColor: row.material.color || SUBJECT_COLORS[row.subject] || '#6B7280' }}
-                      />
-                      <span className="text-xs truncate">{row.material.material_name}</span>
-                      {row.material.study_pace && (
-                        <span className="text-[10px] text-muted-foreground flex-shrink-0">({row.material.study_pace})</span>
-                      )}
-                    </div>
-                    {hoveredRow === row.material.id && (
-                      <div className="flex gap-0.5 flex-shrink-0">
-                        <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => onAddPhase(row.material!.id)}>
-                          <Plus className="w-3 h-3" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => onEditMaterial(row.material!)}>
-                          <Pencil className="w-3 h-3" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive" onClick={() => onDeleteMaterial(row.material!.id)}>
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                ) : null}
-              </div>
-            ))}
-          </div>
-
-          {/* Scrollable chart area */}
-          <div ref={scrollRef} className="overflow-x-auto flex-1">
-            <div style={{ width: chartWidth, position: 'relative' }}>
-              {/* Month headers */}
-              <div style={{ height: HEADER_HEIGHT }} className="border-b flex">
-                <div className="w-full relative">
-                  {/* Month labels */}
-                  <div className="flex h-8">
-                    {monthHeaders.map((mh, idx) => (
-                      <div
-                        key={`month-${idx}`}
-                        className="text-xs font-semibold text-center border-r text-foreground/70 flex items-center justify-center"
-                        style={{ width: mh.span * CELL_WIDTH }}
-                      >
-                        {mh.label}
-                      </div>
-                    ))}
-                  </div>
-                  {/* Week numbers */}
-                  <div className="flex h-8">
-                    {columns.map((col, idx) => (
-                      <div
-                        key={`week-${idx}`}
-                        className="text-[10px] text-muted-foreground text-center border-r flex items-center justify-center"
-                        style={{ width: CELL_WIDTH }}
-                      >
-                        {col.weekNum}
-                      </div>
-                    ))}
+                <div className="min-w-0 flex-1">
+                  <div className="text-[11px] font-semibold text-foreground truncate">{mat.material_name}</div>
+                  <div className="text-[9px] text-muted-foreground truncate">
+                    {mat.study_pace || ''}
+                    {mat.study_pace && getPhases(mat.id).length > 0 ? ' ・ ' : ''}
+                    {getPhases(mat.id).map(p => p.phase_name).join('→')}
                   </div>
                 </div>
+                {hoveredRow === mat.id && (
+                  <div className="flex gap-0.5 shrink-0 ml-1">
+                    <button className="p-0.5 rounded hover:bg-muted" onClick={() => onAddPhase(mat.id)}><Plus className="w-3 h-3 text-muted-foreground" /></button>
+                    <button className="p-0.5 rounded hover:bg-muted" onClick={() => onEditMaterial(mat)}><Pencil className="w-3 h-3 text-muted-foreground" /></button>
+                    <button className="p-0.5 rounded hover:bg-muted" onClick={() => onDeleteMaterial(mat.id)}><Trash2 className="w-3 h-3 text-destructive" /></button>
+                  </div>
+                )}
               </div>
-
-              {/* Exam milestones row */}
-              <div style={{ height: MILESTONE_HEIGHT }} className="border-b relative">
-                {exams.map(exam => {
-                  const examDate = new Date(exam.exam_date)
-                  const chartStart = columns[0]?.date
-                  if (!chartStart) return null
-                  const weeksDiff = differenceInWeeks(examDate, chartStart)
-                  if (weeksDiff < 0 || weeksDiff >= TOTAL_WEEKS) return null
-                  const left = weeksDiff * CELL_WIDTH
-                  const color = EXAM_CATEGORY_COLORS[exam.exam_category] || '#6B7280'
-                  return (
-                    <div
-                      key={exam.id}
-                      className="absolute top-0 flex flex-col items-center cursor-pointer group"
-                      style={{ left, zIndex: 10 }}
-                      title={`${exam.exam_name}${exam.method ? ` (${exam.method})` : ''} - ${format(examDate, 'M/d')}`}
-                    >
-                      <div
-                        className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[8px] border-l-transparent border-r-transparent"
-                        style={{ borderTopColor: color }}
-                      />
-                      <span className="text-[9px] font-medium whitespace-nowrap mt-0.5" style={{ color }}>
-                        {exam.exam_name.length > 4 ? exam.exam_name.slice(0, 4) : exam.exam_name}
-                      </span>
-                    </div>
-                  )
-                })}
-              </div>
-
-              {/* Gantt rows */}
-              {rows.map((row, idx) => (
-                <div
-                  key={`row-${idx}`}
-                  style={{ height: ROW_HEIGHT }}
-                  className={`relative border-b ${row.type === 'subject' ? 'bg-muted/30' : ''}`}
-                >
-                  {/* Grid lines */}
-                  {columns.map((col, colIdx) => (
-                    <div
-                      key={`grid-${colIdx}`}
-                      className={`absolute top-0 bottom-0 border-r border-border/30 ${col.weekNum === 1 ? 'border-border/60' : ''}`}
-                      style={{ left: colIdx * CELL_WIDTH, width: CELL_WIDTH }}
-                    />
-                  ))}
-
-                  {/* Phase bars for material rows */}
-                  {row.type === 'material' && row.material && getPhases(row.material.id).map(phase => {
-                    const pos = getBarPosition(phase.start_date, phase.end_date, columns)
-                    if (!pos) return null
-                    const color = row.material!.color || SUBJECT_COLORS[row.subject] || '#6B7280'
-                    return (
-                      <div
-                        key={phase.id}
-                        className={`absolute top-1 rounded-sm cursor-pointer transition-opacity hover:opacity-100 group/bar flex items-center px-1 ${statusBgClass[phase.status] || 'opacity-40'}`}
-                        style={{
-                          left: pos.left,
-                          width: pos.width,
-                          height: ROW_HEIGHT - 8,
-                          backgroundColor: color,
-                          zIndex: 5,
-                        }}
-                        onClick={() => onEditPhase(phase)}
-                        title={`${phase.phase_name}${phase.total_hours ? ` (${phase.total_hours}h)` : ''}`}
-                      >
-                        <span className="text-[10px] text-white font-medium truncate leading-tight">
-                          {phase.phase_name}
-                        </span>
-                        <button
-                          className="ml-auto opacity-0 group-hover/bar:opacity-100 text-white/80 hover:text-white flex-shrink-0"
-                          onClick={(e) => { e.stopPropagation(); onDeletePhase(phase.id) }}
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
-                    )
-                  })}
-                </div>
-              ))}
-
-              {/* Today line */}
-              {todayPosition !== null && (
-                <div
-                  className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-20 pointer-events-none"
-                  style={{ left: todayPosition }}
-                >
-                  <div className="absolute -top-0 -left-1 w-2.5 h-2.5 rounded-full bg-red-500" />
-                </div>
-              )}
-
-              {/* Exam vertical lines */}
-              {exams.map(exam => {
-                const examDate = new Date(exam.exam_date)
-                const chartStart = columns[0]?.date
-                if (!chartStart) return null
-                const weeksDiff = differenceInWeeks(examDate, chartStart)
-                if (weeksDiff < 0 || weeksDiff >= TOTAL_WEEKS) return null
-                const left = weeksDiff * CELL_WIDTH
-                const color = EXAM_CATEGORY_COLORS[exam.exam_category] || '#6B7280'
-                return (
-                  <div
-                    key={`line-${exam.id}`}
-                    className="absolute bottom-0 w-px opacity-30 pointer-events-none"
-                    style={{ left, top: HEADER_HEIGHT + MILESTONE_HEIGHT, backgroundColor: color }}
-                  />
-                )
-              })}
-            </div>
-          </div>
+            )
+          })}
         </div>
 
-        {/* Empty state */}
-        {materials.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-            <p className="text-sm mb-3">{t('emptyGantt')}</p>
-            <Button size="sm" onClick={onAddMaterial}>
-              <Plus className="w-4 h-4 mr-1" />{t('addMaterial')}
-            </Button>
+        {/* Timeline area */}
+        <div className="flex-1 relative overflow-x-auto">
+          <div style={{ width: timelineWidth, position: 'relative', height: bodyHeight }}>
+            {/* Month vertical lines */}
+            {monthColumns.map((mc, i) => (
+              <div
+                key={`ml-${i}`}
+                className="absolute top-0 bottom-0 border-r"
+                style={{ left: mc.x + mc.width, borderColor: '#E5E7EB50' }}
+              />
+            ))}
+
+            {/* Label separator line */}
+            <div className="absolute top-0 bottom-0 w-px bg-border" style={{ left: 0 }} />
+
+            {/* Exam markers row */}
+            <div
+              className="relative border-b border-border"
+              style={{ height: EXAM_ROW_HEIGHT, backgroundColor: '#FEF2F2' }}
+            >
+              {renderExamMarkers()}
+            </div>
+
+            {/* Material rows */}
+            {(() => {
+              let yOffset = EXAM_ROW_HEIGHT
+              return rows.map((row, idx) => {
+                const h = row.type === 'subject' ? SUBJECT_HEADER_HEIGHT : ROW_HEIGHT
+                const y = yOffset
+                yOffset += h
+
+                if (row.type === 'subject') {
+                  const sc = SUBJECT_COLORS[row.subject]
+                  return (
+                    <div
+                      key={`row-${idx}`}
+                      className="absolute left-0 right-0 border-b border-border"
+                      style={{ top: y, height: h, backgroundColor: sc?.bg || '#F9FAFB' }}
+                    />
+                  )
+                }
+
+                const mat = row.material
+                return (
+                  <div
+                    key={`row-${idx}`}
+                    className="absolute left-0 right-0 border-b border-border"
+                    style={{ top: y, height: h }}
+                  >
+                    {getPhases(mat.id).map(phase => renderPhaseBar(phase, mat))}
+                  </div>
+                )
+              })
+            })()}
+
+            {/* Today line */}
+            {todayVisible && (
+              <>
+                <div
+                  className="absolute top-0 w-0.5 bg-red-500 z-20 pointer-events-none"
+                  style={{ left: todayX, height: bodyHeight }}
+                />
+                <div
+                  className="absolute z-20 pointer-events-none rounded bg-red-500 text-white text-[8px] font-bold px-1.5 py-0.5"
+                  style={{ left: todayX - 14, top: -14 }}
+                >
+                  今日
+                </div>
+              </>
+            )}
           </div>
-        )}
-      </CardContent>
-    </Card>
+        </div>
+      </div>
+
+      {/* Empty state */}
+      {materials.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-12 text-muted-foreground border-t">
+          <p className="text-sm mb-3">{t('emptyGantt')}</p>
+          <Button size="sm" onClick={onAddMaterial}>
+            <Plus className="w-4 h-4 mr-1" />{t('addMaterial')}
+          </Button>
+        </div>
+      )}
+    </div>
   )
 }

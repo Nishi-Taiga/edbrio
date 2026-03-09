@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { useParams } from 'next/navigation'
-import Link from 'next/link'
+import { Link, useRouter } from '@/i18n/navigation'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
-import { FileEdit } from 'lucide-react'
+import { FileEdit, Download, Plus } from 'lucide-react'
 import { SkeletonList } from '@/components/ui/skeleton-card'
 import { ErrorAlert } from '@/components/ui/error-alert'
 import { useAuth } from '@/hooks/use-auth'
@@ -20,7 +20,7 @@ import { useTestScores } from '@/hooks/use-test-scores'
 import { useHandoverNotes } from '@/hooks/use-handover-notes'
 import { createClient } from '@/lib/supabase/client'
 import { StudentProfile, CurriculumMaterial, CurriculumPhase, ExamSchedule, TestScore, TestType } from '@/lib/types/database'
-import { CurriculumOverview } from '@/components/curriculum/curriculum-overview'
+import { StudentInfoBar } from '@/components/curriculum/student-info-bar'
 import { GanttChart } from '@/components/curriculum/gantt-chart'
 import { MaterialForm } from '@/components/curriculum/material-form'
 import { PhaseForm } from '@/components/curriculum/phase-form'
@@ -40,9 +40,13 @@ import { HandoverNoteForm } from '@/components/curriculum/handover-note-form'
 import { useTranslations } from 'next-intl'
 import { LoadingButton } from '@/components/ui/loading-button'
 
+// Avatar colors for student tabs (matching Pencil design)
+const STUDENT_COLORS = ['#0C5394', '#45818E', '#8E7CC3', '#F1C232', '#BE123C', '#059669']
+
 export default function StudentCurriculumPage() {
   const params = useParams()
   const profileId = params.profileId as string
+  const router = useRouter()
   const tPage = useTranslations('curriculum.page')
   const tProfile = useTranslations('curriculum.profile')
   const tOverview = useTranslations('curriculum.overview')
@@ -54,6 +58,7 @@ export default function StudentCurriculumPage() {
   const tTestScores = useTranslations('curriculum.testScores')
   const tc = useTranslations('common')
   const { user, loading: authLoading } = useAuth()
+  const { profiles } = useStudentProfiles(user?.id)
   const { updateProfile } = useStudentProfiles(user?.id)
   const { goals, skills, loading: curriculumLoading, error: curriculumError, addGoal, updateGoal, deleteGoal, addSkill, updateSkill, deleteSkill } = useStudentCurriculum(profileId)
   const { materials, phases, loading: materialsLoading, error: materialsError, addMaterial, updateMaterial, deleteMaterial, addPhase, updatePhase, deletePhase } = useCurriculumMaterials(profileId)
@@ -66,7 +71,7 @@ export default function StudentCurriculumPage() {
   const [profile, setProfile] = useState<StudentProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState('overview')
+  const [activeTab, setActiveTab] = useState('curriculum')
 
   // Material form dialog
   const [showMaterialForm, setShowMaterialForm] = useState(false)
@@ -200,38 +205,81 @@ export default function StudentCurriculumPage() {
 
   const anyError = error || curriculumError || materialsError || examsError || logsError || scoresError || notesError
 
+  // Current student index for color
+  const studentIndex = profiles.findIndex(p => p.id === profileId)
+
   return (
     <ProtectedRoute allowedRoles={["teacher"]}>
-      <div className="container mx-auto px-4 py-8">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 mb-4">
-          <Link href="/teacher/curriculum" className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">{tPage('breadcrumb')}</Link>
-          <span>/</span>
-          <span className="text-slate-900 dark:text-white font-medium">{profile?.name || tPage('loading')}</span>
-        </nav>
+      <div className="px-7 py-6 space-y-5">
+        {/* Page Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-[22px] font-extrabold text-foreground">{tPage('breadcrumb')}</h1>
+            <p className="text-[13px] text-muted-foreground mt-0.5">年間カリキュラムの進捗をガントチャートで管理</p>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <button className="flex items-center gap-1.5 text-[13px] font-medium text-muted-foreground border border-border rounded-lg px-3.5 py-2 hover:bg-muted/50 transition-colors bg-card">
+              <Download className="w-4 h-4" />
+              エクスポート
+            </button>
+            <Link href="/teacher/curriculum">
+              <button className="flex items-center gap-1.5 text-[13px] font-semibold text-white bg-[#7C3AED] hover:bg-[#6D28D9] rounded-lg px-3.5 py-2 transition-colors">
+                <Plus className="w-4 h-4" />
+                生徒を追加
+              </button>
+            </Link>
+          </div>
+        </div>
+
+        {/* Student Tabs */}
+        {profiles.length > 0 && (
+          <div className="flex items-center border-b border-border">
+            {profiles.map((p, idx) => {
+              const isActive = p.id === profileId
+              const color = STUDENT_COLORS[idx % STUDENT_COLORS.length]
+              return (
+                <button
+                  key={p.id}
+                  className={`flex items-center gap-2 px-4 py-2.5 text-[13px] transition-colors relative ${
+                    isActive
+                      ? 'font-bold text-[#7C3AED]'
+                      : 'font-medium text-muted-foreground hover:text-foreground'
+                  }`}
+                  onClick={() => router.push(`/teacher/curriculum/${p.id}`)}
+                >
+                  <div
+                    className="w-6 h-6 rounded-full shrink-0"
+                    style={{ backgroundColor: color }}
+                  />
+                  <span>{p.name}</span>
+                  {isActive && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#7C3AED]" />
+                  )}
+                </button>
+              )
+            })}
+          </div>
+        )}
 
         {(loading || authLoading) ? (
           <SkeletonList count={3} />
         ) : !profile ? (
           <ErrorAlert message={tPage('notFound')} />
         ) : (<>
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{profile.name}</h1>
-            {profile.grade && <p className="text-gray-600 dark:text-gray-400 text-sm">{profile.grade}</p>}
-            <Button variant="outline" size="sm" onClick={handleOpenDetail}>
-              <FileEdit className="w-4 h-4 mr-1" />{tProfile('detailButton')}
-            </Button>
-          </div>
-        </div>
+        {/* Student Info Bar */}
+        <StudentInfoBar
+          profile={profile}
+          materials={materials}
+          phases={phases}
+          exams={exams}
+          colorIndex={studentIndex >= 0 ? studentIndex : 0}
+        />
 
         {anyError && <ErrorAlert message={anyError} />}
 
-        {/* Tabs */}
+        {/* Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-6 flex-wrap">
-            <TabsTrigger value="overview">{tPage('tabOverview')}</TabsTrigger>
+          <TabsList className="mb-4 flex-wrap">
             <TabsTrigger value="curriculum">{tPage('tabCurriculum')}</TabsTrigger>
             <TabsTrigger value="lessons">{tPage('tabLessonLogs')}</TabsTrigger>
             <TabsTrigger value="scores">{tPage('tabScores')}</TabsTrigger>
@@ -240,23 +288,9 @@ export default function StudentCurriculumPage() {
             <TabsTrigger value="handover">{tPage('tabHandover')}</TabsTrigger>
           </TabsList>
 
-          {/* Overview tab */}
-          <TabsContent value="overview">
-            <CurriculumOverview
-              profile={profile}
-              materials={materials}
-              phases={phases}
-              goals={goals}
-              exams={exams}
-              scores={scores}
-              onNavigateTab={setActiveTab}
-              t={(key: string) => tOverview(key)}
-            />
-          </TabsContent>
-
           {/* Curriculum (Gantt) tab */}
           <TabsContent value="curriculum">
-            <div className="space-y-6">
+            <div className="space-y-5">
               <GanttChart
                 materials={materials}
                 phases={phases}
@@ -311,7 +345,7 @@ export default function StudentCurriculumPage() {
           {/* Goals tab */}
           <TabsContent value="goals">
             {curriculumLoading ? (
-              <div className="text-gray-500">{tPage('loading')}</div>
+              <div className="text-muted-foreground text-sm">{tPage('loading')}</div>
             ) : (
               <GoalList goals={goals} onAdd={() => setShowGoalForm(true)} onUpdate={updateGoal} onDelete={deleteGoal} />
             )}
@@ -320,7 +354,7 @@ export default function StudentCurriculumPage() {
           {/* Skills tab */}
           <TabsContent value="skills">
             {curriculumLoading ? (
-              <div className="text-gray-500">{tPage('loading')}</div>
+              <div className="text-muted-foreground text-sm">{tPage('loading')}</div>
             ) : (
               <SkillList skills={skills} onAdd={() => setShowSkillForm(true)} onUpdate={updateSkill} onDelete={deleteSkill} />
             )}
@@ -329,7 +363,7 @@ export default function StudentCurriculumPage() {
           {/* Handover tab */}
           <TabsContent value="handover">
             {notesLoading ? (
-              <div className="text-gray-500">{tPage('loading')}</div>
+              <div className="text-muted-foreground text-sm">{tPage('loading')}</div>
             ) : (
               <HandoverNoteList notes={notes} onAdd={() => setShowHandoverForm(true)} onDelete={deleteNote} />
             )}

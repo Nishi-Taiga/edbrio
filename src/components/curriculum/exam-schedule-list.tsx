@@ -1,11 +1,9 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Plus, Trash2, Pencil, Calendar } from 'lucide-react'
 import { ExamSchedule } from '@/lib/types/database'
-import { format } from 'date-fns'
+import { format, isBefore, startOfDay } from 'date-fns'
 
 interface ExamScheduleListProps {
   exams: ExamSchedule[]
@@ -23,76 +21,93 @@ const categoryLabel: Record<string, string> = {
   school_exam: '定期',
 }
 
-const categoryVariant: Record<string, 'default' | 'secondary' | 'outline' | 'destructive'> = {
-  recommendation: 'default',
-  common_test: 'destructive',
-  general: 'secondary',
-  certification: 'outline',
-  school_exam: 'outline',
+const statusConfig = (examDate: string) => {
+  const today = startOfDay(new Date())
+  const date = new Date(examDate)
+  const daysUntil = Math.ceil((date.getTime() - today.getTime()) / 86400000)
+
+  if (isBefore(date, today)) {
+    return { label: '終了', bg: '#F3F4F6', color: '#6B7280' }
+  }
+  if (daysUntil <= 14) {
+    return { label: '直前', bg: '#FEE2E2', color: '#EF4444' }
+  }
+  if (daysUntil <= 60) {
+    return { label: '準備中', bg: '#FEF3C7', color: '#D97706' }
+  }
+  return { label: '予定', bg: '#DBEAFE', color: '#3B82F6' }
 }
 
 export function ExamScheduleList({ exams, onAdd, onEdit, onDelete, t }: ExamScheduleListProps) {
-  // Sort by date
   const sorted = [...exams].sort((a, b) => new Date(a.exam_date).getTime() - new Date(b.exam_date).getTime())
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="w-5 h-5" />
-            {t('examTitle')}
-          </CardTitle>
-          <Button size="sm" onClick={onAdd}>
-            <Plus className="w-4 h-4 mr-1" />{t('addExam')}
-          </Button>
+    <div className="rounded-xl border border-border bg-card overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-5">
+        <div className="flex items-center gap-2">
+          <Calendar className="w-[18px] h-[18px] text-red-500" />
+          <h3 className="text-base font-bold text-foreground">{t('examTitle')}（仮）</h3>
         </div>
-      </CardHeader>
-      <CardContent>
-        {sorted.length === 0 ? (
-          <p className="text-muted-foreground text-sm">{t('examEmpty')}</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2 px-2 font-medium text-muted-foreground">{t('examDate')}</th>
-                  <th className="text-left py-2 px-2 font-medium text-muted-foreground">{t('examName')}</th>
-                  <th className="text-left py-2 px-2 font-medium text-muted-foreground">{t('examMethod')}</th>
-                  <th className="text-left py-2 px-2 font-medium text-muted-foreground">{t('examCategory')}</th>
-                  <th className="py-2 px-2"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {sorted.map(exam => (
-                  <tr key={exam.id} className="border-b hover:bg-muted/30 transition-colors">
-                    <td className="py-2 px-2 whitespace-nowrap">
+        <button
+          className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground border border-border rounded-md px-2.5 py-1.5 hover:bg-muted/50 transition-colors"
+          onClick={onAdd}
+        >
+          <Plus className="w-3.5 h-3.5" />
+          {t('addExam')}
+        </button>
+      </div>
+
+      {/* Table */}
+      {sorted.length === 0 ? (
+        <div className="px-6 pb-6 text-muted-foreground text-sm">{t('examEmpty')}</div>
+      ) : (
+        <div className="mx-6 mb-5 rounded-lg border border-border overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-[#F9FAFB] dark:bg-muted/30">
+                <th className="text-left py-2.5 px-4 text-[11px] font-bold text-muted-foreground tracking-wider">大学</th>
+                <th className="text-left py-2.5 px-4 text-[11px] font-bold text-muted-foreground tracking-wider">方式</th>
+                <th className="text-left py-2.5 px-4 text-[11px] font-bold text-muted-foreground tracking-wider w-[120px]">日付</th>
+                <th className="text-left py-2.5 px-4 text-[11px] font-bold text-muted-foreground tracking-wider w-[100px]">ステータス</th>
+                <th className="w-[60px]"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {sorted.map(exam => {
+                const status = statusConfig(exam.exam_date)
+                return (
+                  <tr key={exam.id} className="border-t border-border hover:bg-muted/20 transition-colors group">
+                    <td className="py-2.5 px-4 font-semibold text-foreground text-xs">{exam.exam_name}</td>
+                    <td className="py-2.5 px-4 text-muted-foreground text-xs">{exam.method || '—'}</td>
+                    <td className="py-2.5 px-4 font-medium text-foreground text-xs whitespace-nowrap">
                       {format(new Date(exam.exam_date), 'M/d')}
                     </td>
-                    <td className="py-2 px-2 font-medium">{exam.exam_name}</td>
-                    <td className="py-2 px-2 text-muted-foreground">{exam.method || '—'}</td>
-                    <td className="py-2 px-2">
-                      <Badge variant={categoryVariant[exam.exam_category] || 'outline'}>
-                        {categoryLabel[exam.exam_category] || exam.exam_category}
-                      </Badge>
+                    <td className="py-2.5 px-4">
+                      <span
+                        className="text-[10px] font-semibold px-2 py-0.5 rounded"
+                        style={{ backgroundColor: status.bg, color: status.color }}
+                      >
+                        {status.label}
+                      </span>
                     </td>
-                    <td className="py-2 px-2">
-                      <div className="flex gap-1 justify-end">
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onEdit(exam)}>
-                          <Pencil className="w-3.5 h-3.5" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => onDelete(exam.id)}>
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
+                    <td className="py-2.5 px-2">
+                      <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button className="p-1 rounded hover:bg-muted" onClick={() => onEdit(exam)}>
+                          <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                        </button>
+                        <button className="p-1 rounded hover:bg-muted" onClick={() => onDelete(exam.id)}>
+                          <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                        </button>
                       </div>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   )
 }
