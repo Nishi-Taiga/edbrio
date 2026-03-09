@@ -2,7 +2,7 @@
 
 import { Booking } from '@/lib/types/database'
 import { useTranslations } from 'next-intl'
-import { format } from 'date-fns'
+import { format, isSameDay, addDays } from 'date-fns'
 
 interface ResponsiveSummaryProps {
   greeting: string
@@ -37,12 +37,25 @@ export function ResponsiveSummary({
   const greetPrefix = greetingParts[0] + '、'
   const greetName = greetingParts[1] || ''
 
-  const nextLessonText = nextLesson
-    ? t('nextLessonFormat', {
-        time: format(new Date(nextLesson.start_time), 'HH:mm'),
-        name: studentNames[nextLesson.student_id] || tc('student'),
-      })
-    : t('noNextLesson')
+  const nextLessonText = (() => {
+    if (!nextLesson) return t('noNextLesson')
+    const lessonDate = new Date(nextLesson.start_time)
+    const now = new Date()
+    const tomorrow = addDays(new Date(now.getFullYear(), now.getMonth(), now.getDate()), 1)
+    let dateStr: string
+    if (isSameDay(lessonDate, now)) {
+      dateStr = t('calendarToday')
+    } else if (isSameDay(lessonDate, tomorrow)) {
+      dateStr = t('tomorrow')
+    } else {
+      dateStr = format(lessonDate, 'M/d')
+    }
+    return t('nextLessonFormat', {
+      date: dateStr,
+      time: format(lessonDate, 'HH:mm'),
+      name: studentNames[nextLesson.student_id] || tc('student'),
+    })
+  })()
 
   const incomeFormatted = `\u00a5${Math.round(todayEstimatedIncome).toLocaleString('ja-JP')}`
 

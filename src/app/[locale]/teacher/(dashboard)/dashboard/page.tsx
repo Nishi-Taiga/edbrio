@@ -35,6 +35,7 @@ export default function TeacherDashboard() {
 
   const [setupComplete, setSetupComplete] = useState<boolean | null>(null)
   const [missingItems, setMissingItems] = useState<string[]>([])
+  const [displayName, setDisplayName] = useState<string | null>(null)
   const [studentNames, setStudentNames] = useState<Record<string, string>>({})
   const [studentSubjects, setStudentSubjects] = useState<Record<string, string>>({})
   const [isUpdating, setIsUpdating] = useState<string | null>(null)
@@ -59,6 +60,9 @@ export default function TeacherDashboard() {
         )
         setSetupComplete(missing.length === 0)
         setMissingItems(missing)
+        // Extract display_name from public_profile
+        const dn = (data.public_profile as Record<string, any>)?.display_name
+        if (dn) setDisplayName(dn)
       } else {
         setSetupComplete(false)
       }
@@ -259,7 +263,7 @@ export default function TeacherDashboard() {
   // Time-based greeting
   const hour = new Date().getHours()
   const greeting = hour < 12 ? t('greetingMorning') : hour < 18 ? t('greetingAfternoon') : t('greetingEvening')
-  const greetingText = t('greeting', { name: dbUser?.name || '', greeting })
+  const greetingText = t('greeting', { name: displayName || dbUser?.name || '', greeting })
 
   const loading = authLoading || bookingsLoading || reportsLoading
 
@@ -285,7 +289,7 @@ export default function TeacherDashboard() {
 
         {/* ── Calendar + Tasks ── */}
         <div className="flex flex-col lg:flex-row gap-4 lg:gap-5" style={{ minHeight: 560 }}>
-          <div className="flex-1 min-w-0 order-2 lg:order-1">
+          <div className="w-full lg:w-2/3 min-w-0 order-2 lg:order-1">
             <ResponsiveCalendar
               calendarEvents={calendarEvents}
               loading={loading}
@@ -294,7 +298,7 @@ export default function TeacherDashboard() {
               studentNames={studentNames}
             />
           </div>
-          <div className="w-full lg:w-[380px] shrink-0 order-1 lg:order-2">
+          <div className="w-full lg:w-1/3 min-w-0 order-1 lg:order-2">
             <ResponsiveTasks
               loading={loading}
               needsReportBookings={needsReportBookings}
@@ -329,7 +333,7 @@ export default function TeacherDashboard() {
               loading={loading}
             />
           </div>
-          <div className="w-full md:w-[380px] shrink-0">
+          <div className="flex-1 min-w-0">
             <QuickActions />
           </div>
         </div>

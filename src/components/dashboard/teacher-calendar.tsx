@@ -24,6 +24,7 @@ interface Props {
     done: string
     noEvents: string
   }
+  onEventClick?: (eventId: string) => void
 }
 
 const DAY_NAMES = ['月', '火', '水', '木', '金', '土', '日']
@@ -136,7 +137,7 @@ function MiniCal({
   )
 }
 
-export function TeacherDashboardCalendar({ events, title, labels }: Props) {
+export function TeacherDashboardCalendar({ events, title, labels, onEventClick }: Props) {
   const [view, setView] = useState<'week' | 'month'>('week')
   const [currentDate, setCurrentDate] = useState(() => new Date())
   const gridRef = useRef<HTMLDivElement>(null)
@@ -244,6 +245,32 @@ export function TeacherDashboardCalendar({ events, title, labels }: Props) {
 
           {/* Grid area */}
           <div className="flex-1 min-w-0 flex flex-col">
+            {/* Week navigation */}
+            <div className="flex items-center justify-between mb-2" style={{ paddingLeft: TIME_COL }}>
+              <div className="flex items-center gap-2">
+                <button
+                  className="w-7 h-7 flex items-center justify-center rounded-md text-gray-400 dark:text-[#6D5A8A] hover:bg-gray-100 dark:hover:bg-[#282237] transition-colors text-sm"
+                  onClick={() => setCurrentDate(prev => addDays(getMonday(prev), -7))}
+                >
+                  ‹
+                </button>
+                <span className="text-sm font-semibold text-gray-700 dark:text-[#E8E4F0] min-w-[100px] text-center">
+                  {format(weekStart, 'M/d')} – {format(addDays(weekStart, 6), 'M/d')}
+                </span>
+                <button
+                  className="w-7 h-7 flex items-center justify-center rounded-md text-gray-400 dark:text-[#6D5A8A] hover:bg-gray-100 dark:hover:bg-[#282237] transition-colors text-sm"
+                  onClick={() => setCurrentDate(prev => addDays(getMonday(prev), 7))}
+                >
+                  ›
+                </button>
+              </div>
+              <button
+                className="text-xs font-medium text-[#7C3AED] dark:text-[#A78BFA] hover:opacity-80 transition-opacity px-2 py-1 rounded-md hover:bg-[#EDE8F5] dark:hover:bg-[#282237]"
+                onClick={() => setCurrentDate(new Date())}
+              >
+                {labels.weekView === '週' ? '今日' : 'Today'}
+              </button>
+            </div>
             {/* Day headers */}
             <div className="flex" style={{ paddingLeft: TIME_COL }}>
               {weekDays.map((day, i) => {
@@ -333,13 +360,17 @@ export function TeacherDashboardCalendar({ events, title, labels }: Props) {
                     return (
                       <div
                         key={ev.id}
-                        className="absolute rounded-md bg-white dark:bg-[#1E1A2B] border border-[#D4BEE4] dark:border-[#6D5A8A] shadow-sm overflow-hidden z-10"
+                        className={cn(
+                          'absolute rounded-md bg-white dark:bg-[#1E1A2B] border border-[#D4BEE4] dark:border-[#6D5A8A] shadow-sm overflow-hidden z-10',
+                          onEventClick && 'cursor-pointer hover:shadow-md hover:border-[#A78BFA] dark:hover:border-[#A78BFA] transition-all',
+                        )}
                         style={{
                           top,
                           height,
                           left: `calc(${TIME_COL}px + (100% - ${TIME_COL}px) / 7 * ${di} + 2px)`,
                           width: `calc((100% - ${TIME_COL}px) / 7 - 4px)`,
                         }}
+                        onClick={() => onEventClick?.(ev.id)}
                       >
                         <div className={cn('absolute left-[3px] top-[4px] bottom-[4px] w-[3px] rounded-sm', ACCENT_COLOR[ev.color])} />
                         <div className="pl-[10px] pt-[3px]">

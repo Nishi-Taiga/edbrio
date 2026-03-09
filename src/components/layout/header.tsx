@@ -24,6 +24,7 @@ export function Header({ showMenuButton }: HeaderProps) {
   const pathname = usePathname()
   const supabase = useMemo(() => createClient(), [])
   const [plan, setPlan] = useState<TeacherPlan | null>(null)
+  const [displayName, setDisplayName] = useState<string | null>(null)
 
   const homeHref = dbUser?.role === 'teacher' ? '/teacher/dashboard' : dbUser?.role === 'guardian' ? '/guardian/dashboard' : (dbUser?.role as string) === 'admin' ? '/admin/dashboard' : '/'
   const profileHref = pathname?.startsWith('/guardian') ? '/guardian/settings' : '/teacher/profile'
@@ -32,11 +33,15 @@ export function Header({ showMenuButton }: HeaderProps) {
     if (dbUser?.role !== 'teacher' || !dbUser?.id) return
     supabase
       .from('teachers')
-      .select('plan')
+      .select('plan, public_profile')
       .eq('id', dbUser.id)
       .maybeSingle()
       .then(({ data }) => {
-        if (data) setPlan(data.plan as TeacherPlan)
+        if (data) {
+          setPlan(data.plan as TeacherPlan)
+          const dn = (data.public_profile as Record<string, any>)?.display_name
+          if (dn) setDisplayName(dn)
+        }
       })
   }, [dbUser?.id, dbUser?.role, supabase])
 
@@ -98,9 +103,9 @@ export function Header({ showMenuButton }: HeaderProps) {
               {/* Profile avatar — links to profile/settings page */}
               <Link href={profileHref}>
                 <Avatar className="w-8 h-8 cursor-pointer hover:opacity-90 transition-opacity">
-                  {dbUser?.avatar_url && <AvatarImage src={dbUser.avatar_url} alt={dbUser?.name || ''} />}
+                  {dbUser?.avatar_url && <AvatarImage src={dbUser.avatar_url} alt={displayName || dbUser?.name || ''} />}
                   <AvatarFallback className="text-sm bg-gradient-to-b from-[#7C3AED] to-[#D4BEE4] dark:from-[#A78BFA] dark:to-[#6D5A8A] text-white">
-                    {(dbUser?.name || user.email)?.[0]?.toUpperCase() || '?'}
+                    {(displayName || dbUser?.name || user.email)?.[0]?.toUpperCase() || '?'}
                   </AvatarFallback>
                 </Avatar>
               </Link>
