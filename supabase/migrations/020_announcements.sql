@@ -21,11 +21,9 @@ CREATE TABLE public.announcement_reads (
 ALTER TABLE public.announcements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.announcement_reads ENABLE ROW LEVEL SECURITY;
 
--- Admins can manage announcements
-CREATE POLICY "Admins can manage announcements" ON public.announcements
-  FOR ALL USING (
-    EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin')
-  );
+-- Service role (admin API) can manage announcements
+CREATE POLICY "Service role can manage announcements" ON public.announcements
+  FOR ALL USING (auth.role() = 'service_role');
 
 -- Authenticated users can read announcements
 CREATE POLICY "Authenticated users can read announcements" ON public.announcements
