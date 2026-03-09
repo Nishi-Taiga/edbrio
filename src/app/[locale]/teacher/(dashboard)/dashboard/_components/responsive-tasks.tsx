@@ -87,7 +87,7 @@ export function ResponsiveTasks({
           {/* Task: Reports */}
           {needsReportBookings.length > 0 && (
             <Link href="/teacher/reports/new" className="block">
-              <div className="flex rounded-xl border border-[#FEE2E2] dark:border-[#4A2020] bg-white dark:bg-[#1E1A2B] overflow-hidden">
+              <div className="flex rounded-xl border border-[#FEE2E2] dark:border-[#3D2020] bg-white dark:bg-[#1E1A2B] overflow-hidden">
                 <div className="w-1 shrink-0 bg-[#EF4444]" />
                 <div className="flex items-center gap-2.5 md:gap-3 px-3.5 md:px-3 py-3 md:py-2.5 flex-1 min-w-0">
                   <FileText className="w-5 h-5 text-[#EF4444] shrink-0" />
@@ -107,7 +107,7 @@ export function ResponsiveTasks({
 
           {/* Task: Pending Approvals */}
           {pendingBookings.length > 0 && (
-            <div className="flex rounded-xl border border-[#FEF3C7] dark:border-[#4A3D1A] bg-white dark:bg-[#1E1A2B] overflow-hidden">
+            <div className="flex rounded-xl border border-[#FEF3C7] dark:border-[#3D3520] bg-white dark:bg-[#1E1A2B] overflow-hidden">
               <div className="w-1 shrink-0 bg-[#F59E0B]" />
               <div className="flex-1">
                 <div className="flex items-center gap-2.5 md:gap-3 px-3.5 md:px-3 py-2.5 md:py-2">
@@ -166,7 +166,7 @@ export function ResponsiveTasks({
           <div
             className={`flex rounded-xl border px-4 py-3.5 items-center gap-3 ${
               issueReportCount > 0
-                ? 'border-[#FED7AA] dark:border-[#4A3D1A] bg-white dark:bg-[#1E1A2B]'
+                ? 'border-[#FED7AA] dark:border-[#3D3520] bg-white dark:bg-[#1E1A2B]'
                 : 'border-[#E5E0D8] dark:border-[#2E2840] bg-[#F9F6F2] dark:bg-[#13111C] opacity-60'
             }`}
           >
@@ -195,7 +195,7 @@ export function ResponsiveTasks({
           {/* Task: Unread Messages */}
           {unreadCount > 0 ? (
             <Link href="/teacher/chat" className="block">
-              <div className="flex rounded-xl border border-[#DBEAFE] dark:border-[#1A2A4A] bg-white dark:bg-[#1E1A2B] overflow-hidden">
+              <div className="flex rounded-xl border border-[#DBEAFE] dark:border-[#1A2540] bg-white dark:bg-[#1E1A2B] overflow-hidden">
                 <div className="w-1 shrink-0 bg-[#3B82F6]" />
                 <div className="flex items-center gap-2.5 md:gap-3 px-3.5 md:px-3 py-3 md:py-2.5 flex-1 min-w-0">
                   <Mail className="w-5 h-5 text-[#3B82F6] shrink-0" />

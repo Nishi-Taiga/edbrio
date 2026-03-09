@@ -36,6 +36,7 @@ export default function TeacherDashboard() {
   const [setupComplete, setSetupComplete] = useState<boolean | null>(null)
   const [missingItems, setMissingItems] = useState<string[]>([])
   const [studentNames, setStudentNames] = useState<Record<string, string>>({})
+  const [studentSubjects, setStudentSubjects] = useState<Record<string, string>>({})
   const [isUpdating, setIsUpdating] = useState<string | null>(null)
   const [ticketPriceMap, setTicketPriceMap] = useState<Record<string, number>>({})
 
@@ -71,15 +72,20 @@ export default function TeacherDashboard() {
     const ids = [...new Set(bookings.map((b: Booking) => b.student_id))]
     supabase
       .from('student_profiles')
-      .select('student_id, name')
+      .select('student_id, name, subjects')
       .in('student_id', ids)
       .then(({ data }) => {
         if (data) {
-          const map: Record<string, string> = {}
-          data.forEach((p: { student_id: string | null; name: string }) => {
-            if (p.student_id) map[p.student_id] = p.name
+          const nameMap: Record<string, string> = {}
+          const subjectMap: Record<string, string> = {}
+          data.forEach((p: { student_id: string | null; name: string; subjects: string[] }) => {
+            if (p.student_id) {
+              nameMap[p.student_id] = p.name
+              if (p.subjects?.length > 0) subjectMap[p.student_id] = p.subjects[0]
+            }
           })
-          setStudentNames(map)
+          setStudentNames(nameMap)
+          setStudentSubjects(subjectMap)
         }
       })
   }, [bookings, supabase])
@@ -259,7 +265,7 @@ export default function TeacherDashboard() {
 
   return (
     <ProtectedRoute allowedRoles={['teacher']}>
-      <div className="bg-[#F9F6F2] md:bg-[#F3F4F6] dark:bg-[#13111C] min-h-screen px-4 md:px-5 lg:px-7 py-4 md:py-6 space-y-4 pb-24 md:pb-6">
+      <div className="bg-[#F9F6F2] dark:bg-[#13111C] min-h-screen px-4 md:px-5 lg:px-7 py-4 md:py-6 space-y-4 pb-24 md:pb-6">
 
         {/* ── Setup Banner (conditional) ── */}
         {setupComplete === false && (
@@ -319,6 +325,7 @@ export default function TeacherDashboard() {
             <UpcomingLessons
               upcomingLessons={upcomingLessons}
               studentNames={studentNames}
+              studentSubjects={studentSubjects}
               loading={loading}
             />
           </div>

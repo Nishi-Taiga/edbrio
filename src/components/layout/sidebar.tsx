@@ -116,16 +116,16 @@ export function Sidebar({ mobile, collapsed, onClose }: SidebarProps) {
                   }}
                   title={collapsed ? it.label : undefined}
                   className={classNames(
-                    'flex items-center rounded-lg text-sm transition-colors relative',
-                    collapsed ? 'justify-center p-2' : 'justify-between px-3 py-2',
+                    'flex items-center rounded-[10px] text-sm transition-colors relative',
+                    collapsed ? 'justify-center p-2' : 'justify-between px-3 py-2.5',
                     active
-                      ? 'bg-brand-50 text-brand-700 font-medium border-l-[3px] border-brand-600 dark:bg-brand-900/40 dark:text-brand-200 dark:border-brand-400'
-                      : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800/50'
+                      ? 'bg-[#3D2B5E] text-white font-semibold dark:bg-[#1A1726] dark:text-white'
+                      : 'text-[#9B8AB5] hover:bg-[#3D2B5E]/30 dark:text-[#6D5A8A] dark:hover:bg-[#1A1726]/50'
                   )}
                 >
                   {collapsed ? (
                     <>
-                      <Icon className="w-5 h-5" />
+                      <Icon className={classNames('w-5 h-5', active ? 'text-[#D4BEE4] dark:text-[#6D5A8A]' : '')} />
                       {it.badge ? (
                         <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] rounded-full bg-brand-600 text-white text-[9px] flex items-center justify-center">
                           {it.badge}
@@ -134,8 +134,8 @@ export function Sidebar({ mobile, collapsed, onClose }: SidebarProps) {
                     </>
                   ) : (
                     <>
-                      <div className="flex items-center gap-2.5">
-                        <Icon className="w-4 h-4 shrink-0" />
+                      <div className="flex items-center gap-3">
+                        <Icon className={classNames('w-5 h-5 shrink-0', active ? 'text-[#D4BEE4] dark:text-[#6D5A8A]' : '')} />
                         <span>{it.label}</span>
                       </div>
                       {it.badge ? (
@@ -153,33 +153,33 @@ export function Sidebar({ mobile, collapsed, onClose }: SidebarProps) {
 
         {/* User menu */}
         {user && (
-          <div className={classNames('mt-4 border-t pt-3', collapsed && 'flex justify-center')}>
+          <div className={classNames('mt-4 border-t border-[#3D2B5E] dark:border-[#1A1726] pt-3', collapsed && 'flex justify-center')}>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 {collapsed ? (
                   <button
                     title={shownName}
-                    className="flex items-center justify-center rounded-lg p-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800/50 transition-colors"
+                    className="flex items-center justify-center rounded-[10px] p-2 text-sm text-[#9B8AB5] hover:bg-[#3D2B5E]/30 dark:text-[#6D5A8A] dark:hover:bg-[#1A1726]/50 transition-colors"
                   >
-                    <Avatar className="w-6 h-6 shrink-0">
+                    <Avatar className="w-8 h-8 shrink-0">
                       {dbUser?.avatar_url && <AvatarImage src={dbUser.avatar_url} alt="" />}
-                      <AvatarFallback className="text-[10px] bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300">
+                      <AvatarFallback className="text-[10px] bg-gradient-to-b from-[#7C3AED] to-[#D4BEE4] dark:from-[#A78BFA] dark:to-[#6D5A8A] text-white">
                         {nameInitial}
                       </AvatarFallback>
                     </Avatar>
                   </button>
                 ) : (
-                  <button className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800/50 transition-colors">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <Avatar className="w-6 h-6 shrink-0">
+                  <button className="flex w-full items-center justify-between rounded-[10px] px-3 py-2.5 text-sm text-white hover:bg-[#3D2B5E]/30 dark:hover:bg-[#1A1726]/50 transition-colors">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <Avatar className="w-8 h-8 shrink-0">
                         {dbUser?.avatar_url && <AvatarImage src={dbUser.avatar_url} alt="" />}
-                        <AvatarFallback className="text-[10px] bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300">
+                        <AvatarFallback className="text-[10px] bg-gradient-to-b from-[#7C3AED] to-[#D4BEE4] dark:from-[#A78BFA] dark:to-[#6D5A8A] text-white">
                           {nameInitial}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="font-medium truncate">{shownName}</span>
+                      <span className="font-semibold truncate">{shownName}</span>
                     </div>
-                    <ChevronUp className="w-4 h-4 shrink-0 text-gray-400" />
+                    <ChevronUp className="w-4 h-4 shrink-0 text-[#9B8AB5] dark:text-[#6D5A8A]" />
                   </button>
                 )}
               </DropdownMenuTrigger>

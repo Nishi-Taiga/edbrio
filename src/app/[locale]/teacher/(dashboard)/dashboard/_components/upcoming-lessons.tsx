@@ -10,10 +10,11 @@ import { ja } from 'date-fns/locale'
 interface UpcomingLessonsProps {
   upcomingLessons: Booking[]
   studentNames: Record<string, string>
+  studentSubjects?: Record<string, string>
   loading: boolean
 }
 
-export function UpcomingLessons({ upcomingLessons, studentNames, loading }: UpcomingLessonsProps) {
+export function UpcomingLessons({ upcomingLessons, studentNames, studentSubjects, loading }: UpcomingLessonsProps) {
   const t = useTranslations('teacherDashboard')
   const tc = useTranslations('common')
 
@@ -92,8 +93,8 @@ export function UpcomingLessons({ upcomingLessons, studentNames, loading }: Upco
                         {studentNames[b.student_id] || tc('student')}
                       </span>
                       <span className="text-[11px] text-gray-500 dark:text-[#6D5A8A]">
-                        {isTimeOnly
-                          ? format(startDate, 'HH:mm', { locale: ja })
+                        {studentSubjects?.[b.student_id]
+                          ? `${studentSubjects[b.student_id]}・${format(startDate, 'HH:mm', { locale: ja })}`
                           : format(startDate, 'HH:mm', { locale: ja })}
                       </span>
                     </div>
