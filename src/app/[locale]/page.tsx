@@ -299,7 +299,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Bento Grid (Why EdBrio + Screenshots) ── */}
-      <section className="py-16 sm:py-24 px-5 sm:px-6 bg-slate-50 dark:bg-slate-900">
+      <section className="hidden md:block py-16 sm:py-24 px-5 sm:px-6 bg-slate-50 dark:bg-slate-900">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 sm:mb-16" data-reveal>
             <span className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-3 block">{t('sections.whyEdBrio')}</span>
@@ -343,7 +343,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Features Carousel (5 cards) ── */}
-      <section id="features" className="py-16 sm:py-24 px-5 sm:px-6 bg-white dark:bg-slate-950">
+      <section id="features" className="hidden md:block py-16 sm:py-24 px-5 sm:px-6 bg-white dark:bg-slate-950">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 sm:mb-16" data-reveal>
             <span className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-3 block">{t('sections.features')}</span>
@@ -407,7 +407,7 @@ export default function HomePage() {
       </section>
 
       {/* ── How It Works (3 Steps) ── */}
-      <section className="py-16 sm:py-24 px-5 sm:px-6 bg-slate-50 dark:bg-slate-900">
+      <section className="hidden md:block py-16 sm:py-24 px-5 sm:px-6 bg-slate-50 dark:bg-slate-900">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 sm:mb-16" data-reveal>
             <span className="text-xs font-bold text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-3 block">{t('sections.howItWorks')}</span>
@@ -437,7 +437,7 @@ export default function HomePage() {
       </section>
 
       {/* ── FAQ ── */}
-      <section id="faq" className="py-16 sm:py-24 px-5 sm:px-6 bg-white dark:bg-slate-950">
+      <section id="faq" className="hidden md:block py-16 sm:py-24 px-5 sm:px-6 bg-white dark:bg-slate-950">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-10 sm:mb-16" data-reveal>
             <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white">{t('faq.title')}</h2>
@@ -459,7 +459,7 @@ export default function HomePage() {
       </section>
 
       {/* ── CTA Banner ── */}
-      <section className="py-8 sm:py-16 px-5 sm:px-6" data-reveal>
+      <section className="hidden md:block py-8 sm:py-16 px-5 sm:px-6" data-reveal>
         <div className="max-w-6xl mx-auto bg-brand-950 rounded-3xl px-8 sm:px-16 py-12 sm:py-16 text-center">
           <h2 className="text-2xl sm:text-4xl font-black text-white mb-4">
             {t('ctaBanner.title')}
@@ -479,7 +479,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Contact Form ── */}
-      <section id="contact" className="py-16 sm:py-24 px-5 sm:px-6 bg-slate-50 dark:bg-slate-900">
+      <section id="contact" className="hidden md:block py-16 sm:py-24 px-5 sm:px-6 bg-slate-50 dark:bg-slate-900">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-10 sm:mb-16" data-reveal>
             <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white mb-4">{t('contact.title')}</h2>
@@ -553,7 +553,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="bg-white dark:bg-slate-950 pt-12 sm:pt-24 pb-8 sm:pb-12 px-5 sm:px-6 border-t border-slate-100 dark:border-slate-800">
+      <footer className="hidden md:block bg-white dark:bg-slate-950 pt-12 sm:pt-24 pb-8 sm:pb-12 px-5 sm:px-6 border-t border-slate-100 dark:border-slate-800">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-8 sm:gap-12 mb-12 sm:mb-20">
           <div className="max-w-xs">
             <div className="flex items-center gap-2.5 mb-4 sm:mb-6">
