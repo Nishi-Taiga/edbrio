@@ -79,6 +79,7 @@ src/app/landing.css
 
 # SQL files
 *.sql
+!supabase/migrations/*.sql
 
 # Excel files (curriculum reference)
 *.xlsx
