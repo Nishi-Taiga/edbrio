@@ -80,6 +80,8 @@ src/app/landing.css
 # SQL files
 *.sql
 !supabase/migrations/*.sql
+supabase/migrations/011_rls_audit_fixes.sql
+supabase/migrations/018_curriculum_revamp.sql
 
 # Excel files (curriculum reference)
 *.xlsx
