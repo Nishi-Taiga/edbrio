@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Check, Edit2, X, Sun, Moon, Monitor, Mail, Bell, Loader2, Clock, CheckCircle2, QrCode, CreditCard, AlertCircle, AlertTriangle, Camera } from 'lucide-react'
+import { Check, Edit2, X, Sun, Moon, Monitor, Mail, Bell, Loader2, Clock, CheckCircle2, QrCode, CreditCard, AlertCircle, AlertTriangle, Camera, CalendarDays } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
 import { getStripe } from '@/lib/stripe'
 import { toast } from 'sonner'
@@ -213,7 +213,7 @@ function TeacherProfileContent() {
     return () => { mounted = false }
   }, [])
 
-  const handleNotifToggle = async (key: keyof NotificationPreferences, value: boolean) => {
+  const handleNotifToggle = async (key: keyof NotificationPreferences, value: boolean | number) => {
     const updated = { ...notifPrefs, [key]: value }
     setNotifPrefs(updated)
     setNotifSaving(true)
@@ -895,6 +895,32 @@ function TeacherProfileContent() {
                   >
                     <Monitor className="w-6 h-6 text-slate-500" />
                     <span className="text-sm font-semibold">{t('themeSystem')}</span>
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Calendar Settings */}
+            <Card>
+              <CardHeader>
+                <CardTitle>{t('calendarSettingsTitle') || 'カレンダー設定'}</CardTitle>
+                <CardDescription>{t('calendarSettingsDescription') || '週の開始曜日を設定します'}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-3 max-w-xs">
+                  <button
+                    onClick={() => handleNotifToggle('calendar_week_start', 0)}
+                    className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition cursor-pointer ${(notifPrefs.calendar_week_start ?? 0) === 0 ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30' : 'border-border-semantic hover:border-brand-300'}`}
+                  >
+                    <CalendarDays className="w-6 h-6 text-brand-500" />
+                    <span className="text-sm font-semibold">{t('calendarSunday') || '日曜始まり'}</span>
+                  </button>
+                  <button
+                    onClick={() => handleNotifToggle('calendar_week_start', 1)}
+                    className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition cursor-pointer ${notifPrefs.calendar_week_start === 1 ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30' : 'border-border-semantic hover:border-brand-300'}`}
+                  >
+                    <CalendarDays className="w-6 h-6 text-slate-500" />
+                    <span className="text-sm font-semibold">{t('calendarMonday') || '月曜始まり'}</span>
                   </button>
                 </div>
               </CardContent>

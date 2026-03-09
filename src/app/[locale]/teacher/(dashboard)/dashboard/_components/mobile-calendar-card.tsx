@@ -7,21 +7,23 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { startOfWeek, addDays, addWeeks, subWeeks, isSameDay, isToday, format } from 'date-fns'
 
-const WEEKDAY_KEYS = ['weekdayMon', 'weekdayTue', 'weekdayWed', 'weekdayThu', 'weekdayFri', 'weekdaySat', 'weekdaySun'] as const
+const WEEKDAY_KEYS_MON = ['weekdayMon', 'weekdayTue', 'weekdayWed', 'weekdayThu', 'weekdayFri', 'weekdaySat', 'weekdaySun'] as const
+const WEEKDAY_KEYS_SUN = ['weekdaySun', 'weekdayMon', 'weekdayTue', 'weekdayWed', 'weekdayThu', 'weekdayFri', 'weekdaySat'] as const
 
 interface Props {
   bookings: Booking[]
   reportedBookingIds: Set<string | null>
   studentNames: Record<string, string>
   loading: boolean
+  weekStartsOn?: 0 | 1
 }
 
-export function MobileCalendarCard({ bookings, reportedBookingIds, studentNames, loading }: Props) {
+export function MobileCalendarCard({ bookings, reportedBookingIds, studentNames, loading, weekStartsOn = 0 }: Props) {
   const t = useTranslations('teacherDashboard')
   const tc = useTranslations('common')
 
   const [selectedDate, setSelectedDate] = useState(() => new Date())
-  const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }))
+  const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn }))
 
   const weekDays = useMemo(() =>
     Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)),
@@ -41,7 +43,7 @@ export function MobileCalendarCard({ bookings, reportedBookingIds, studentNames,
   const goToday = () => {
     const now = new Date()
     setSelectedDate(now)
-    setWeekStart(startOfWeek(now, { weekStartsOn: 1 }))
+    setWeekStart(startOfWeek(now, { weekStartsOn }))
   }
   const goPrevWeek = () => setWeekStart(prev => subWeeks(prev, 1))
   const goNextWeek = () => setWeekStart(prev => addWeeks(prev, 1))
@@ -131,7 +133,7 @@ export function MobileCalendarCard({ bookings, reportedBookingIds, studentNames,
               onClick={() => setSelectedDate(day)}
               className={`flex flex-col items-center justify-center gap-1 w-11 h-14 rounded-xl transition-colors ${wrapClass}`}
             >
-              <span className={`text-[11px] font-medium ${dayColor}`}>{t(WEEKDAY_KEYS[i])}</span>
+              <span className={`text-[11px] font-medium ${dayColor}`}>{t((weekStartsOn === 1 ? WEEKDAY_KEYS_MON : WEEKDAY_KEYS_SUN)[i])}</span>
               <span className={`${dateFontClass} ${dateColor}`}>{format(day, 'd')}</span>
             </button>
           )

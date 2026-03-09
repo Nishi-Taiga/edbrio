@@ -23,6 +23,7 @@ interface ResponsiveCalendarProps {
   bookings: Booking[]
   reportedBookingIds: Set<string | null>
   studentNames: Record<string, string>
+  weekStartsOn?: 0 | 1
 }
 
 const STATUS_LABELS: Record<string, { ja: string; color: string }> = {
@@ -38,6 +39,7 @@ export function ResponsiveCalendar({
   bookings,
   reportedBookingIds,
   studentNames,
+  weekStartsOn = 0,
 }: ResponsiveCalendarProps) {
   const t = useTranslations('teacherDashboard')
   const tc = useTranslations('common')
@@ -59,6 +61,7 @@ export function ResponsiveCalendar({
           reportedBookingIds={reportedBookingIds}
           studentNames={studentNames}
           loading={loading}
+          weekStartsOn={weekStartsOn}
         />
       </div>
 
@@ -81,6 +84,7 @@ export function ResponsiveCalendar({
               noEvents: t('calendarNoEvents'),
             }}
             onEventClick={handleEventClick}
+            weekStartsOn={weekStartsOn}
           />
         )}
       </div>

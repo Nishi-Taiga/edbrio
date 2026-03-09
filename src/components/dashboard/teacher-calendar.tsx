@@ -25,9 +25,11 @@ interface Props {
     noEvents: string
   }
   onEventClick?: (eventId: string) => void
+  weekStartsOn?: 0 | 1
 }
 
-const DAY_NAMES = ['月', '火', '水', '木', '金', '土', '日']
+const DAY_NAMES_MON = ['月', '火', '水', '木', '金', '土', '日']
+const DAY_NAMES_SUN = ['日', '月', '火', '水', '木', '金', '土']
 
 const ACCENT_COLOR: Record<string, string> = {
   blue: 'bg-[#3B82F6]',
@@ -47,13 +49,13 @@ const END_H = 22
 const HOURS = Array.from({ length: END_H - START_H + 1 }, (_, i) => START_H + i)
 const TIME_COL = 36
 
-function getMonday(date: Date): Date {
-  return startOfWeek(date, { weekStartsOn: 1 })
+function getWeekStart(date: Date, weekStartsOn: 0 | 1 = 0): Date {
+  return startOfWeek(date, { weekStartsOn })
 }
 
-function getMonthWeeks(year: number, month: number): Date[][] {
+function getMonthWeeks(year: number, month: number, weekStartsOn: 0 | 1 = 0): Date[][] {
   const lastDay = new Date(year, month + 1, 0)
-  const cur = getMonday(new Date(year, month, 1))
+  const cur = getWeekStart(new Date(year, month, 1), weekStartsOn)
   const weeks: Date[][] = []
   while (true) {
     const week: Date[] = []
@@ -72,15 +74,18 @@ function MiniCal({
   month,
   today,
   onSelectDate,
+  weekStartsOn = 0,
 }: {
   month: Date
   today: Date
   onSelectDate: (d: Date) => void
+  weekStartsOn?: 0 | 1
 }) {
   const weeks = useMemo(
-    () => getMonthWeeks(month.getFullYear(), month.getMonth()),
-    [month],
+    () => getMonthWeeks(month.getFullYear(), month.getMonth(), weekStartsOn),
+    [month, weekStartsOn],
   )
+  const dayNames = weekStartsOn === 1 ? DAY_NAMES_MON : DAY_NAMES_SUN
 
   return (
     <div className="flex flex-col gap-[6px] px-1 py-2">
@@ -88,25 +93,32 @@ function MiniCal({
         {format(month, 'M月 yyyy', { locale: ja })}
       </span>
       <div className="flex justify-between w-[92px] mx-auto">
-        {DAY_NAMES.map((n, i) => (
-          <span
-            key={n}
-            className={cn(
-              'text-[9px] font-medium w-[13px] text-center',
-              i === 5 && 'text-[#3B82F6]',
-              i === 6 && 'text-[#EF4444]',
-              i < 5 && 'text-gray-400 dark:text-[#6D5A8A]',
-            )}
-          >
-            {n}
-          </span>
-        ))}
+        {dayNames.map((n) => {
+          const isSat = n === '土'
+          const isSun = n === '日'
+          return (
+            <span
+              key={n}
+              className={cn(
+                'text-[9px] font-medium w-[13px] text-center',
+                isSat && 'text-[#3B82F6]',
+                isSun && 'text-[#EF4444]',
+                !isSat && !isSun && 'text-gray-400 dark:text-[#6D5A8A]',
+              )}
+            >
+              {n}
+            </span>
+          )
+        })}
       </div>
       {weeks.map((week, wi) => (
         <div key={wi} className="flex justify-between w-[92px] mx-auto">
           {week.map((day, di) => {
             const inMonth = day.getMonth() === month.getMonth()
             const isTd = isSameDay(day, today)
+            const dayOfWeek = day.getDay()
+            const isSat = dayOfWeek === 6
+            const isSun = dayOfWeek === 0
             return (
               <button
                 key={di}
@@ -121,9 +133,9 @@ function MiniCal({
                     'relative text-[9px] leading-none',
                     !inMonth && 'invisible',
                     isTd && 'text-white font-bold',
-                    !isTd && di === 5 && 'text-[#3B82F6]',
-                    !isTd && di === 6 && 'text-[#EF4444]',
-                    !isTd && di < 5 && 'text-gray-500 dark:text-[#6D5A8A]',
+                    !isTd && isSat && 'text-[#3B82F6]',
+                    !isTd && isSun && 'text-[#EF4444]',
+                    !isTd && !isSat && !isSun && 'text-gray-500 dark:text-[#6D5A8A]',
                   )}
                 >
                   {day.getDate()}
@@ -137,7 +149,7 @@ function MiniCal({
   )
 }
 
-export function TeacherDashboardCalendar({ events, title, labels, onEventClick }: Props) {
+export function TeacherDashboardCalendar({ events, title, labels, onEventClick, weekStartsOn = 0 }: Props) {
   const [view, setView] = useState<'week' | 'month'>('week')
   const [currentDate, setCurrentDate] = useState(() => new Date())
   const gridRef = useRef<HTMLDivElement>(null)
@@ -146,7 +158,7 @@ export function TeacherDashboardCalendar({ events, title, labels, onEventClick }
     const d = new Date(); d.setHours(0, 0, 0, 0); return d
   }, [])
 
-  const weekStart = useMemo(() => getMonday(currentDate), [currentDate])
+  const weekStart = useMemo(() => getWeekStart(currentDate, weekStartsOn), [currentDate, weekStartsOn])
   const weekDays = useMemo(
     () => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)),
     [weekStart],
@@ -169,8 +181,8 @@ export function TeacherDashboardCalendar({ events, title, labels, onEventClick }
   }, [events])
 
   const monthWeeks = useMemo(
-    () => getMonthWeeks(curMonth.getFullYear(), curMonth.getMonth()),
-    [curMonth],
+    () => getMonthWeeks(curMonth.getFullYear(), curMonth.getMonth(), weekStartsOn),
+    [curMonth, weekStartsOn],
   )
 
   // Scroll to ~10:00 on mount / week change
@@ -238,8 +250,8 @@ export function TeacherDashboardCalendar({ events, title, labels, onEventClick }
         <div className="flex gap-3 flex-1 min-h-0">
           {/* Mini calendars — hidden on smaller screens */}
           <div className="hidden lg:flex flex-col gap-3 w-[100px] shrink-0">
-            <MiniCal month={curMonth} today={today} onSelectDate={d => setCurrentDate(d)} />
-            <MiniCal month={nxtMonth} today={today} onSelectDate={d => setCurrentDate(d)} />
+            <MiniCal month={curMonth} today={today} onSelectDate={d => setCurrentDate(d)} weekStartsOn={weekStartsOn} />
+            <MiniCal month={nxtMonth} today={today} onSelectDate={d => setCurrentDate(d)} weekStartsOn={weekStartsOn} />
           </div>
           <div className="hidden lg:block w-px shrink-0 bg-[#D4BEE4] dark:bg-[#2E2840]" />
 
@@ -250,7 +262,7 @@ export function TeacherDashboardCalendar({ events, title, labels, onEventClick }
               <div className="flex items-center gap-2">
                 <button
                   className="w-7 h-7 flex items-center justify-center rounded-md text-gray-400 dark:text-[#6D5A8A] hover:bg-gray-100 dark:hover:bg-[#282237] transition-colors text-sm"
-                  onClick={() => setCurrentDate(prev => addDays(getMonday(prev), -7))}
+                  onClick={() => setCurrentDate(prev => addDays(getWeekStart(prev, weekStartsOn), -7))}
                 >
                   ‹
                 </button>
@@ -259,7 +271,7 @@ export function TeacherDashboardCalendar({ events, title, labels, onEventClick }
                 </span>
                 <button
                   className="w-7 h-7 flex items-center justify-center rounded-md text-gray-400 dark:text-[#6D5A8A] hover:bg-gray-100 dark:hover:bg-[#282237] transition-colors text-sm"
-                  onClick={() => setCurrentDate(prev => addDays(getMonday(prev), 7))}
+                  onClick={() => setCurrentDate(prev => addDays(getWeekStart(prev, weekStartsOn), 7))}
                 >
                   ›
                 </button>
@@ -275,6 +287,10 @@ export function TeacherDashboardCalendar({ events, title, labels, onEventClick }
             <div className="flex" style={{ paddingLeft: TIME_COL }}>
               {weekDays.map((day, i) => {
                 const isTd = isSameDay(day, today)
+                const dayOfWeek = day.getDay() // 0=Sun, 6=Sat
+                const isSat = dayOfWeek === 6
+                const isSun = dayOfWeek === 0
+                const dayNames = weekStartsOn === 1 ? DAY_NAMES_MON : DAY_NAMES_SUN
                 return (
                   <div
                     key={i}
@@ -286,11 +302,11 @@ export function TeacherDashboardCalendar({ events, title, labels, onEventClick }
                     <span className={cn(
                       'text-[10px] font-medium',
                       isTd && 'text-[#2D1B4E] dark:text-[#A78BFA] font-semibold',
-                      !isTd && i === 5 && 'text-[#3B82F6]',
-                      !isTd && i === 6 && 'text-[#EF4444]',
-                      !isTd && i < 5 && 'text-gray-400 dark:text-[#6D5A8A]',
+                      !isTd && isSat && 'text-[#3B82F6]',
+                      !isTd && isSun && 'text-[#EF4444]',
+                      !isTd && !isSat && !isSun && 'text-gray-400 dark:text-[#6D5A8A]',
                     )}>
-                      {DAY_NAMES[i]}
+                      {dayNames[i]}
                     </span>
                     {isTd ? (
                       <span className="w-[15px] h-[15px] rounded-full bg-[#2D1B4E] dark:bg-[#A78BFA] text-white text-[11px] font-bold flex items-center justify-center leading-none">
@@ -299,9 +315,9 @@ export function TeacherDashboardCalendar({ events, title, labels, onEventClick }
                     ) : (
                       <span className={cn(
                         'text-xs font-semibold',
-                        i === 5 && 'text-[#3B82F6]',
-                        i === 6 && 'text-[#EF4444]',
-                        i < 5 && 'text-gray-600 dark:text-[#9CA3AF]',
+                        isSat && 'text-[#3B82F6]',
+                        isSun && 'text-[#EF4444]',
+                        !isSat && !isSun && 'text-gray-600 dark:text-[#9CA3AF]',
                       )}>
                         {day.getDate()}
                       </span>
@@ -412,16 +428,20 @@ export function TeacherDashboardCalendar({ events, title, labels, onEventClick }
 
           <div className="rounded-lg overflow-hidden border border-[#D4BEE4]/30 dark:border-[#2E2840]">
             <div className="grid grid-cols-7 bg-gray-50/50 dark:bg-[#282237]/50">
-              {DAY_NAMES.map((n, i) => (
-                <div key={n} className={cn(
-                  'text-center text-[11px] font-medium py-1.5',
-                  i === 5 && 'text-[#3B82F6]',
-                  i === 6 && 'text-[#EF4444]',
-                  i < 5 && 'text-gray-400 dark:text-[#6D5A8A]',
-                )}>
-                  {n}
-                </div>
-              ))}
+              {(weekStartsOn === 1 ? DAY_NAMES_MON : DAY_NAMES_SUN).map((n) => {
+                const isSat = n === '土'
+                const isSun = n === '日'
+                return (
+                  <div key={n} className={cn(
+                    'text-center text-[11px] font-medium py-1.5',
+                    isSat && 'text-[#3B82F6]',
+                    isSun && 'text-[#EF4444]',
+                    !isSat && !isSun && 'text-gray-400 dark:text-[#6D5A8A]',
+                  )}>
+                    {n}
+                  </div>
+                )
+              })}
             </div>
             {monthWeeks.map((week, wi) => (
               <div key={wi} className="grid grid-cols-7 border-t border-[#D4BEE4]/30 dark:border-[#2E2840]">
@@ -429,6 +449,9 @@ export function TeacherDashboardCalendar({ events, title, labels, onEventClick }
                   const inMonth = day.getMonth() === curMonth.getMonth()
                   const isTd = isSameDay(day, today)
                   const dots = dotsFor(day)
+                  const dow = day.getDay()
+                  const isSat = dow === 6
+                  const isSun = dow === 0
                   return (
                     <button
                       key={di}
@@ -442,9 +465,9 @@ export function TeacherDashboardCalendar({ events, title, labels, onEventClick }
                       <span className={cn(
                         'w-7 h-7 flex items-center justify-center rounded-full text-sm',
                         isTd && 'bg-[#2D1B4E] dark:bg-[#A78BFA] text-white font-bold',
-                        !isTd && di === 5 && 'text-[#3B82F6]',
-                        !isTd && di === 6 && 'text-[#EF4444]',
-                        !isTd && di < 5 && 'text-gray-600 dark:text-[#9CA3AF]',
+                        !isTd && isSat && 'text-[#3B82F6]',
+                        !isTd && isSun && 'text-[#EF4444]',
+                        !isTd && !isSat && !isSun && 'text-gray-600 dark:text-[#9CA3AF]',
                       )}>
                         {day.getDate()}
                       </span>

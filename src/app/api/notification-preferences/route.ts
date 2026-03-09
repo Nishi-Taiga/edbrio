@@ -11,6 +11,7 @@ const preferencesSchema = z.object({
   new_chat_message: z.boolean().optional(),
   booking_reminder: z.boolean().optional(),
   ticket_purchase: z.boolean().optional(),
+  calendar_week_start: z.union([z.literal(0), z.literal(1)]).optional(),
 })
 
 export async function GET() {

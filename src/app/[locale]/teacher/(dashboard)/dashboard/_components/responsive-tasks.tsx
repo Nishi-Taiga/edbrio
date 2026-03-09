@@ -43,19 +43,8 @@ export function ResponsiveTasks({
 
   return (
     <div
-      className="h-full rounded-2xl border border-[#E5E0D8] md:border-[#D4BEE4] dark:border-[#2E2840] md:dark:border-[#6D5A8A] p-4 md:p-6 flex flex-col gap-3 md:gap-4 overflow-hidden bg-white dark:bg-[#1E1A2B] md:bg-none"
-      style={{
-        background: undefined,
-      }}
+      className="h-full rounded-2xl border border-[#E5E0D8] md:border-gray-200 dark:border-[#2E2840] p-4 md:p-6 flex flex-col gap-3 md:gap-4 overflow-hidden bg-white dark:bg-[#1E1A2B]"
     >
-      {/* Desktop gradient background */}
-      <style>{`
-        @media (min-width: 768px) {
-          .responsive-tasks-panel { background: var(--task-panel-bg) !important; }
-        }
-        :root { --task-panel-bg: linear-gradient(180deg, #EDE8F5 0%, #FFFFFF 100%); }
-        .dark { --task-panel-bg: linear-gradient(180deg, #282237 0%, #1E1A2B 100%); }
-      `}</style>
 
       {/* Header */}
       <div className="flex items-center justify-between">

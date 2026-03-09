@@ -28,6 +28,7 @@ export interface NotificationPreferences {
   new_chat_message?: boolean
   booking_reminder?: boolean
   ticket_purchase?: boolean
+  calendar_week_start?: 0 | 1 // 0 = Sunday, 1 = Monday
 }
 
 export interface User {

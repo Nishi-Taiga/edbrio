@@ -40,6 +40,7 @@ export default function TeacherDashboard() {
   const [studentSubjects, setStudentSubjects] = useState<Record<string, string>>({})
   const [isUpdating, setIsUpdating] = useState<string | null>(null)
   const [ticketPriceMap, setTicketPriceMap] = useState<Record<string, number>>({})
+  const [weekStartsOn, setWeekStartsOn] = useState<0 | 1>(0)
 
   const supabase = useMemo(() => createClient(), [])
 
@@ -69,6 +70,21 @@ export default function TeacherDashboard() {
     }
     checkSetup()
   }, [user, dbUser, supabase])
+
+  // Load calendar week start preference
+  useEffect(() => {
+    async function loadPrefs() {
+      try {
+        const res = await fetch('/api/notification-preferences')
+        if (res.ok) {
+          const data = await res.json()
+          const ws = data.preferences?.calendar_week_start
+          if (ws === 0 || ws === 1) setWeekStartsOn(ws)
+        }
+      } catch { /* non-critical */ }
+    }
+    loadPrefs()
+  }, [])
 
   // Resolve student UUIDs to names
   useEffect(() => {
@@ -289,16 +305,17 @@ export default function TeacherDashboard() {
 
         {/* ── Calendar + Tasks ── */}
         <div className="flex flex-col lg:flex-row gap-4 lg:gap-5" style={{ minHeight: 560 }}>
-          <div className="w-full lg:w-2/3 min-w-0 order-2 lg:order-1">
+          <div className="flex-[2] min-w-0 order-2 lg:order-1">
             <ResponsiveCalendar
               calendarEvents={calendarEvents}
               loading={loading}
               bookings={bookings}
               reportedBookingIds={reportedBookingIds}
               studentNames={studentNames}
+              weekStartsOn={weekStartsOn}
             />
           </div>
-          <div className="w-full lg:w-1/3 min-w-0 order-1 lg:order-2">
+          <div className="flex-1 min-w-0 order-1 lg:order-2">
             <ResponsiveTasks
               loading={loading}
               needsReportBookings={needsReportBookings}
