@@ -82,8 +82,8 @@ export function MobileFooter() {
       <Link
         key={tab.href}
         href={tab.href as any}
-        className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full rounded-xl transition-colors relative
-          ${active ? 'bg-[#EDE8F5] dark:bg-[#282237]' : ''}`}
+        className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full rounded-lg transition-colors relative
+          ${active ? 'bg-[#EDE8F5]/70 dark:bg-[#282237]/70' : ''}`}
       >
         <div className="relative">
           <Icon className={`w-[22px] h-[22px] ${active ? 'text-[#7C3AED] dark:text-[#A78BFA]' : 'text-[#6B7280] dark:text-[#6D5A8A]'}`} />

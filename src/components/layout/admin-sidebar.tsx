@@ -2,11 +2,11 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, CreditCard, FileText, Calendar, Ticket, Shield, X } from 'lucide-react'
+import { LayoutDashboard, Users, CreditCard, FileText, Calendar, Ticket, Shield, Megaphone, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useTranslations } from 'next-intl'
 
-type NavKey = 'dashboard' | 'users' | 'payments' | 'reports' | 'bookings' | 'tickets' | 'audit'
+type NavKey = 'dashboard' | 'users' | 'payments' | 'reports' | 'bookings' | 'tickets' | 'announcements' | 'audit'
 
 const itemDefs: { href: string; key: NavKey; icon: typeof LayoutDashboard }[] = [
   { href: '/admin/dashboard', key: 'dashboard', icon: LayoutDashboard },
@@ -15,6 +15,7 @@ const itemDefs: { href: string; key: NavKey; icon: typeof LayoutDashboard }[] = 
   { href: '/admin/reports', key: 'reports', icon: FileText },
   { href: '/admin/bookings', key: 'bookings', icon: Calendar },
   { href: '/admin/tickets', key: 'tickets', icon: Ticket },
+  { href: '/admin/announcements', key: 'announcements', icon: Megaphone },
   { href: '/admin/audit', key: 'audit', icon: Shield },
 ]
 

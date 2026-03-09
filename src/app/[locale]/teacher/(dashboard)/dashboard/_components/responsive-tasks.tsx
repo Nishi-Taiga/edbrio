@@ -72,7 +72,7 @@ export function ResponsiveTasks({
         </div>
       ) : (
         /* Task list: always visible on md+, collapsible on mobile */
-        <div className={`flex flex-col gap-3 md:gap-4 flex-1 ${expanded ? '' : 'hidden'} md:!flex`}>
+        <div className={`flex flex-col gap-3 md:gap-4 flex-1 transition-all duration-300 ease-in-out overflow-hidden md:!max-h-none md:!opacity-100 md:!flex ${expanded ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'}`}>
           {/* Task: Reports */}
           {needsReportBookings.length > 0 && (
             <Link href="/teacher/reports/new" className="block">

@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -17,6 +17,7 @@ import { useShifts } from '@/hooks/use-shifts'
 import { useAvailability } from '@/hooks/use-availability'
 import { useBookings } from '@/hooks/use-bookings'
 import { useBookingReports } from '@/hooks/use-booking-reports'
+import { useReports } from '@/hooks/use-reports'
 import { ShiftForm } from '@/components/calendar/shift-form'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
@@ -50,6 +51,10 @@ export default function TeacherCalendarPage() {
   const { availability, loading: availLoading } = useAvailability(teacherId, dateRange)
   const { bookings, loading: bookingsLoading, updateBookingStatus } = useBookings(teacherId, 'teacher')
   const { reports, resolveReport, refresh: refreshReports } = useBookingReports(teacherId, 'teacher')
+  const { reports: lessonReports, loading: reportsLoading } = useReports(teacherId, 'teacher')
+
+  const calendarRef = useRef<FullCalendar>(null)
+  const [currentView, setCurrentView] = useState<'timeGridWeek' | 'dayGridMonth'>('timeGridWeek')
 
   // Dialog state
   const [shiftFormOpen, setShiftFormOpen] = useState(false)
@@ -62,8 +67,9 @@ export default function TeacherCalendarPage() {
   const [isUpdatingBooking, setIsUpdatingBooking] = useState(false)
   const [isResolvingReport, setIsResolvingReport] = useState(false)
 
-  // Student name resolution
+  // Student name & subject resolution
   const [studentNames, setStudentNames] = useState<Record<string, string>>({})
+  const [studentSubjects, setStudentSubjects] = useState<Record<string, string>>({})
   const supabase = useMemo(() => createClient(), [])
 
   useEffect(() => {
@@ -71,13 +77,20 @@ export default function TeacherCalendarPage() {
     const ids = [...new Set(bookings.map(b => b.student_id))]
     supabase
       .from('student_profiles')
-      .select('student_id, name')
+      .select('student_id, name, subjects')
       .in('student_id', ids)
       .then(({ data }) => {
         if (data) {
-          const map: Record<string, string> = {}
-          data.forEach(p => { if (p.student_id) map[p.student_id] = p.name })
-          setStudentNames(map)
+          const nameMap: Record<string, string> = {}
+          const subjectMap: Record<string, string> = {}
+          data.forEach((p: { student_id: string | null; name: string; subjects: string[] }) => {
+            if (p.student_id) {
+              nameMap[p.student_id] = p.name
+              if (p.subjects?.length > 0) subjectMap[p.student_id] = p.subjects[0]
+            }
+          })
+          setStudentNames(nameMap)
+          setStudentSubjects(subjectMap)
         }
       })
   }, [bookings, supabase])
@@ -92,6 +105,12 @@ export default function TeacherCalendarPage() {
     }
     return map
   }, [availability])
+
+  // Lesson report lookup for color coding
+  const reportedBookingIds = useMemo(() =>
+    new Set(lessonReports.filter(r => r.booking_id).map(r => r.booking_id)),
+    [lessonReports]
+  )
 
   // Convert data to FullCalendar events
   const events: EventInput[] = useMemo(() => {
@@ -113,21 +132,31 @@ export default function TeacherCalendarPage() {
       }
     }
 
-    // Bookings (color-coded by status)
+    // Bookings (color-coded matching dashboard calendar)
     for (const b of bookings) {
       if (b.status === 'canceled') continue
       const name = studentNames[b.student_id] || ''
-      const statusLabel = tc('statusLabels.' + (b.status === 'confirmed' ? 'confirmed' : b.status === 'done' ? 'done' : 'pending'))
-      const title = name ? `${name}（${statusLabel}）` : statusLabel
+      const subject = studentSubjects[b.student_id] || ''
+      const title = name && subject ? `${name} · ${subject}` : name || tc('student')
 
-      let bgColor = '#3b82f6'
-      let borderColor = '#2563eb'
-      if (b.status === 'pending') {
+      const isDone = b.status === 'done'
+      const hasReport = reportedBookingIds.has(b.id)
+
+      let bgColor: string
+      let borderColor: string
+
+      if (isDone && hasReport) {
+        bgColor = '#22c55e'
+        borderColor = '#16a34a'
+      } else if (isDone) {
+        bgColor = '#ef4444'
+        borderColor = '#dc2626'
+      } else if (b.status === 'pending') {
         bgColor = '#f59e0b'
         borderColor = '#d97706'
-      } else if (b.status === 'done') {
-        bgColor = '#94a3b8'
-        borderColor = '#64748b'
+      } else {
+        bgColor = '#3b82f6'
+        borderColor = '#2563eb'
       }
 
       result.push({
@@ -143,7 +172,7 @@ export default function TeacherCalendarPage() {
     }
 
     return result
-  }, [availability, bookings, studentNames, t, tc])
+  }, [availability, bookings, studentNames, studentSubjects, reportedBookingIds, t, tc])
 
   // Handle date click -> open shift form
   const handleDateClick = useCallback((info: DateClickArg) => {
@@ -179,6 +208,21 @@ export default function TeacherCalendarPage() {
   // Handle FullCalendar date range changes
   const handleDatesSet = useCallback((arg: DatesSetArg) => {
     setDateRange({ start: arg.start, end: arg.end })
+    setCurrentView(arg.view.type as 'timeGridWeek' | 'dayGridMonth')
+  }, [])
+
+  // Custom view switching
+  const changeView = useCallback((view: 'timeGridWeek' | 'dayGridMonth') => {
+    const api = calendarRef.current?.getApi()
+    if (api) {
+      api.changeView(view)
+      setCurrentView(view)
+    }
+  }, [])
+
+  const goToday = useCallback(() => {
+    const api = calendarRef.current?.getApi()
+    if (api) api.today()
   }, [])
 
   // Handle shift creation
@@ -241,11 +285,11 @@ export default function TeacherCalendarPage() {
     }
   }
 
-  const loading = shiftsLoading || availLoading || bookingsLoading
+  const loading = shiftsLoading || availLoading || bookingsLoading || reportsLoading
 
   return (
     <ProtectedRoute allowedRoles={["teacher"]}>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6 pb-24 md:pb-8">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t('title')}</h1>
           <Button onClick={() => { setShiftFormDate(undefined); setShiftFormOpen(true) }}>
@@ -260,23 +304,59 @@ export default function TeacherCalendarPage() {
         )}
 
         {/* Legend */}
-        <div className="flex flex-wrap gap-4 mb-4 text-sm">
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-[#10b981]" />
+        <div className="flex flex-wrap gap-3 sm:gap-4 mb-4 text-xs sm:text-sm">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#10b981]" />
             <span className="text-slate-600 dark:text-slate-400">{t('legendAvailable')}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-[#3b82f6]" />
-            <span className="text-slate-600 dark:text-slate-400">{t('legendBooking')}</span>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#3b82f6]" />
+            <span className="text-slate-600 dark:text-slate-400">{t('legendConfirmed')}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-[#f59e0b]" />
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#f59e0b]" />
             <span className="text-slate-600 dark:text-slate-400">{t('legendPending')}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-[#94a3b8]" />
-            <span className="text-slate-600 dark:text-slate-400">{t('legendDone')}</span>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#ef4444]" />
+            <span className="text-slate-600 dark:text-slate-400">{t('legendNeedsReport')}</span>
           </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#22c55e]" />
+            <span className="text-slate-600 dark:text-slate-400">{t('legendReported')}</span>
+          </div>
+        </div>
+
+        {/* View toggle + Today button */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex gap-1 p-1 bg-slate-100 dark:bg-slate-800/50 rounded-lg">
+            <button
+              onClick={() => changeView('timeGridWeek')}
+              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                currentView === 'timeGridWeek'
+                  ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-medium'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              {t('viewWeek')}
+            </button>
+            <button
+              onClick={() => changeView('dayGridMonth')}
+              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                currentView === 'dayGridMonth'
+                  ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-medium'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              {t('viewMonth')}
+            </button>
+          </div>
+          <button
+            onClick={goToday}
+            className="px-3 py-1.5 text-sm rounded-md bg-slate-100 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+          >
+            {t('today')}
+          </button>
         </div>
 
         <div className="relative">
@@ -285,15 +365,16 @@ export default function TeacherCalendarPage() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600" />
             </div>
           )}
-          <div className="fc-wrapper bg-white dark:bg-surface-raised rounded-xl border border-slate-200 dark:border-brand-800/20 p-4 shadow-sm">
+          <div className="fc-wrapper bg-white dark:bg-surface-raised rounded-xl border border-slate-200 dark:border-brand-800/20 p-2 sm:p-4 shadow-sm">
             <FullCalendar
+              ref={calendarRef}
               plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
               initialView="timeGridWeek"
               locale={jaLocale}
               headerToolbar={{
-                left: 'prev,next today',
+                left: 'prev',
                 center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay',
+                right: 'next',
               }}
               events={events}
               dateClick={handleDateClick}

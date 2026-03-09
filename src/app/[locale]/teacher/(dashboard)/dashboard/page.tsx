@@ -304,7 +304,7 @@ export default function TeacherDashboard() {
         />
 
         {/* ── Calendar + Tasks ── */}
-        <div className="flex flex-col lg:flex-row gap-4 lg:gap-5" style={{ minHeight: 560 }}>
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-5 lg:min-h-[560px]">
           <div className="flex-[2] min-w-0 order-2 lg:order-1">
             <ResponsiveCalendar
               calendarEvents={calendarEvents}
@@ -330,7 +330,7 @@ export default function TeacherDashboard() {
         </div>
 
         {/* ── Bottom Row: Monthly Stats + Upcoming Lessons + Quick Actions ── */}
-        <div className="flex flex-col md:flex-row gap-4 md:gap-5" style={{ minHeight: 320 }}>
+        <div className="flex flex-col md:flex-row gap-4 md:gap-5 md:min-h-[320px]">
           <div className="flex-1 min-w-0">
             <ResponsiveStats
               thisMonthDone={thisMonthDone}

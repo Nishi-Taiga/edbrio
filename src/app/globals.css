@@ -189,3 +189,35 @@ button:not(:disabled):active,
 .fc-wrapper .fc-button-group > .fc-button:last-child {
   border-radius: 0 8px 8px 0 !important;
 }
+
+/* Mobile responsiveness for FullCalendar */
+@media (max-width: 640px) {
+  .fc-wrapper .fc-toolbar {
+    gap: 4px;
+  }
+  .fc-wrapper .fc-toolbar-title {
+    font-size: 0.9rem !important;
+  }
+  .fc-wrapper .fc-button {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+  .fc-wrapper .fc-event {
+    font-size: 0.65rem;
+    padding: 1px 2px;
+  }
+  .fc-wrapper .fc-timegrid-slot-label-cushion {
+    font-size: 0.6rem;
+  }
+  .fc-wrapper .fc-col-header-cell-cushion {
+    font-size: 0.7rem;
+    padding: 2px !important;
+  }
+  .fc-wrapper .fc-daygrid-day-number {
+    font-size: 0.75rem;
+    padding: 2px 4px !important;
+  }
+  .fc-wrapper .fc-timegrid-slot {
+    height: 2em !important;
+  }
+}

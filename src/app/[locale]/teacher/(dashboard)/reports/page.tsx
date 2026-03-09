@@ -154,7 +154,6 @@ export default function TeacherReportsPage() {
             icon={FileText}
             title={t('emptyTitle')}
             description={t('emptyDescription')}
-            action={{ label: t('emptyAction'), href: "/teacher/reports/new" }}
           />
         ) : (<>
           {/* Search & Filter */}

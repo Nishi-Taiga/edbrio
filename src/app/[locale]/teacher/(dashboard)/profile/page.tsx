@@ -104,6 +104,13 @@ function TeacherProfileContent() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
+  // Account settings state
+  const [newEmail, setNewEmail] = useState('')
+  const [emailSaving, setEmailSaving] = useState(false)
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [passwordSaving, setPasswordSaving] = useState(false)
+
   const SUBJECT_OPTIONS = [
     t('subjectOptions.japanese'), t('subjectOptions.arithmetic'), t('subjectOptions.math'), t('subjectOptions.english'), t('subjectOptions.science'), t('subjectOptions.socialStudies'),
     t('subjectOptions.physics'), t('subjectOptions.chemistry'), t('subjectOptions.biology'), t('subjectOptions.earthScience'),
@@ -289,6 +296,44 @@ function TeacherProfileContent() {
       toast.error(tInvite('inviteError'))
     } finally {
       setInviteSending(false)
+    }
+  }
+
+  const handleEmailChange = async () => {
+    if (!newEmail.trim()) return
+    setEmailSaving(true)
+    try {
+      const { error } = await supabase.auth.updateUser({ email: newEmail.trim() })
+      if (error) throw error
+      toast.success(t('emailChangeSuccess'))
+      setNewEmail('')
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : t('emailChangeError'))
+    } finally {
+      setEmailSaving(false)
+    }
+  }
+
+  const handlePasswordChange = async () => {
+    if (!newPassword || newPassword !== confirmPassword) {
+      toast.error(t('passwordMismatch'))
+      return
+    }
+    if (newPassword.length < 6) {
+      toast.error(t('passwordTooShort'))
+      return
+    }
+    setPasswordSaving(true)
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword })
+      if (error) throw error
+      toast.success(t('passwordChangeSuccess'))
+      setNewPassword('')
+      setConfirmPassword('')
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : t('passwordChangeError'))
+    } finally {
+      setPasswordSaving(false)
     }
   }
 
@@ -926,6 +971,71 @@ function TeacherProfileContent() {
               </CardContent>
             </Card>
 
+            {/* Account Settings: Email & Password */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="w-5 h-5" />
+                  {t('accountSettingsTitle')}
+                </CardTitle>
+                <CardDescription>{t('accountSettingsDescription')}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Email change */}
+                <div>
+                  <h4 className="text-sm font-medium mb-2">{t('emailChangeLabel')}</h4>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    {t('currentEmail')}: <span className="font-medium text-foreground">{dbUser?.email || '-'}</span>
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Input
+                      type="email"
+                      value={newEmail}
+                      onChange={e => setNewEmail(e.target.value)}
+                      placeholder={t('newEmailPlaceholder')}
+                      className="flex-1"
+                    />
+                    <Button
+                      onClick={handleEmailChange}
+                      disabled={emailSaving || !newEmail.trim()}
+                      size="sm"
+                    >
+                      {emailSaving ? tc('saving') : t('changeEmail')}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">{t('emailChangeNote')}</p>
+                </div>
+
+                <div className="border-t" />
+
+                {/* Password change */}
+                <div>
+                  <h4 className="text-sm font-medium mb-2">{t('passwordChangeLabel')}</h4>
+                  <div className="space-y-2 max-w-sm">
+                    <Input
+                      type="password"
+                      value={newPassword}
+                      onChange={e => setNewPassword(e.target.value)}
+                      placeholder={t('newPasswordPlaceholder')}
+                    />
+                    <Input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={e => setConfirmPassword(e.target.value)}
+                      placeholder={t('confirmPasswordPlaceholder')}
+                    />
+                    <Button
+                      onClick={handlePasswordChange}
+                      disabled={passwordSaving || !newPassword || newPassword !== confirmPassword}
+                      size="sm"
+                    >
+                      {passwordSaving ? tc('saving') : t('changePassword')}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Plan Feature Comparison */}
             <Card>
               <CardHeader>
@@ -975,7 +1085,7 @@ function TeacherProfileContent() {
                       </tr>
                       <tr className="border-b border-dashed">
                         <td className="py-3 pr-4">{t('featureChat')}</td>
-                        <td className="text-center py-3 px-4"><X className="w-4 h-4 mx-auto text-gray-300 dark:text-gray-600" /></td>
+                        <td className="text-center py-3 px-4"><Check className="w-4 h-4 mx-auto text-brand-600 dark:text-brand-400" /></td>
                         <td className="text-center py-3 pl-4"><Check className="w-4 h-4 mx-auto text-brand-600 dark:text-brand-400" /></td>
                       </tr>
                       <tr>
