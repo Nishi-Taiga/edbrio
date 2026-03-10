@@ -141,7 +141,7 @@ export async function exportCurriculumExcel(data: {
     autoSizeColumns(ws1, curriculumRows)
     XLSX.utils.book_append_sheet(wb, ws1, 'カリキュラム')
 
-    // ---- Sheet 2: 入試スケジュール ----
+    // ---- Sheet 2: 試験スケジュール ----
     const examRows = exams.map((exam) => ({
       '大学/試験名': exam.exam_name,
       方式: exam.method ?? '',
@@ -153,7 +153,7 @@ export async function exportCurriculumExcel(data: {
       examRows.length > 0 ? examRows : [{ '大学/試験名': '', 方式: '', カテゴリ: '', 日付: '' }]
     )
     autoSizeColumns(ws2, examRows)
-    XLSX.utils.book_append_sheet(wb, ws2, '入試スケジュール')
+    XLSX.utils.book_append_sheet(wb, ws2, '試験スケジュール')
 
     // ---- Sheet 3: タスク一覧 ----
     const taskRows: Record<string, string | number>[] = []

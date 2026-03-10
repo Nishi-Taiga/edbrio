@@ -111,7 +111,7 @@ export function StudentInfoBar({ profile, materials, phases, exams, phaseTasks, 
         </div>
         {daysUntilExam !== null && (
           <div className="flex flex-col items-center bg-white/[0.07] rounded-[10px] px-3 sm:px-5 py-2 sm:py-2.5 min-w-[56px] sm:min-w-[70px]">
-            <span className="text-[#D4BEE4] text-[10px] font-medium tracking-wider">入試まで</span>
+            <span className="text-[#D4BEE4] text-[10px] font-medium tracking-wider">試験まで</span>
             <span className="text-[#F59E0B] text-[22px] font-extrabold leading-tight">{daysUntilExam}日</span>
           </div>
         )}

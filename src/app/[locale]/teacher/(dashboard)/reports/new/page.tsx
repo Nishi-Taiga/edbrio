@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label'
 import { Save, Send, Sparkles } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
-import { useStudentCurriculum } from '@/hooks/use-student-curriculum'
 import { useAiReport } from '@/hooks/use-ai-report'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
@@ -63,7 +62,6 @@ function NewReportContent() {
 
   const selectedBooking = unreportedBookings.find(b => b.id === selectedBookingId)
   const selectedProfileId = selectedBooking?.profileId || ''
-  const { goals, skills } = useStudentCurriculum(selectedProfileId || undefined)
   const {
     generateReport, generatedContent, tokensUsed, loading: aiLoading, error: aiError,
     canGenerate, remainingGenerations, maxGenerations,
@@ -186,8 +184,6 @@ function NewReportContent() {
       contentRaw: formData.contentRaw,
       studentName: selectedBooking.studentName,
       subject: formData.subject || undefined,
-      goals: goals.filter(g => g.status === 'active').map(g => g.title),
-      weakPoints: skills.filter(s => s.rating <= 2).map(s => `${s.subject}: ${s.topic}`),
       comprehensionLevel: formData.comprehensionLevel,
       studentMood: formData.studentMood,
       maxLength: formData.maxLength,

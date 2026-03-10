@@ -4,15 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { BookOpen, Target, ClipboardList, Calendar, Plus, TrendingUp } from 'lucide-react'
-import { StudentProfile, CurriculumMaterial, CurriculumPhase, StudentGoal, ExamSchedule, TestScore } from '@/lib/types/database'
+import { BookOpen, Calendar, TrendingUp } from 'lucide-react'
+import { StudentProfile, CurriculumMaterial, CurriculumPhase, ExamSchedule, TestScore } from '@/lib/types/database'
 import { format, isBefore, differenceInDays } from 'date-fns'
 
 interface CurriculumOverviewProps {
   profile: StudentProfile
   materials: CurriculumMaterial[]
   phases: CurriculumPhase[]
-  goals: StudentGoal[]
   exams: ExamSchedule[]
   scores: TestScore[]
   onNavigateTab: (tab: string) => void
@@ -23,7 +22,6 @@ export function CurriculumOverview({
   profile,
   materials,
   phases,
-  goals,
   exams,
   scores,
   onNavigateTab,
@@ -51,9 +49,6 @@ export function CurriculumOverview({
       pct: data.total > 0 ? Math.round((data.completed / data.total) * 100) : 0,
     }))
   })()
-
-  // Active goals
-  const activeGoals = goals.filter(g => g.status === 'active').slice(0, 3)
 
   // Upcoming exams (next 3 future exams)
   const upcomingExams = exams
@@ -107,38 +102,6 @@ export function CurriculumOverview({
                       <span className="text-muted-foreground">{sp.completed}/{sp.total} ({sp.pct}%)</span>
                     </div>
                     <Progress value={sp.pct} className="h-2" />
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Active goals */}
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Target className="w-4 h-4" />
-                {t('overviewGoals')}
-              </CardTitle>
-              <Button variant="ghost" size="sm" onClick={() => onNavigateTab('goals')}>
-                {t('overviewViewAll')}
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {activeGoals.length === 0 ? (
-              <p className="text-sm text-muted-foreground">{t('overviewNoGoals')}</p>
-            ) : (
-              <div className="space-y-3">
-                {activeGoals.map(goal => (
-                  <div key={goal.id}>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="font-medium truncate mr-2">{goal.title}</span>
-                      <span className="text-muted-foreground flex-shrink-0">{goal.progress}%</span>
-                    </div>
-                    <Progress value={goal.progress} className="h-2" />
                   </div>
                 ))}
               </div>

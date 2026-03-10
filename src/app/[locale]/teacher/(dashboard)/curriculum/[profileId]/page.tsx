@@ -13,12 +13,9 @@ import { SkeletonList } from '@/components/ui/skeleton-card'
 import { ErrorAlert } from '@/components/ui/error-alert'
 import { useAuth } from '@/hooks/use-auth'
 import { useStudentProfiles } from '@/hooks/use-student-profiles'
-import { useStudentCurriculum } from '@/hooks/use-student-curriculum'
 import { useCurriculumMaterials } from '@/hooks/use-curriculum-materials'
 import { useExamSchedules } from '@/hooks/use-exam-schedules'
-import { useLessonLogs } from '@/hooks/use-lesson-logs'
 import { useTestScores } from '@/hooks/use-test-scores'
-import { useHandoverNotes } from '@/hooks/use-handover-notes'
 import { createClient } from '@/lib/supabase/client'
 import { StudentProfile, CurriculumMaterial, CurriculumPhase, ExamSchedule, TestScore, TestType } from '@/lib/types/database'
 import { StudentInfoBar } from '@/components/curriculum/student-info-bar'
@@ -29,17 +26,9 @@ import { PhaseDetailDialog } from '@/components/curriculum/phase-detail-dialog'
 import { SubjectColorEditor } from '@/components/curriculum/subject-color-editor'
 import { ExamScheduleList } from '@/components/curriculum/exam-schedule-list'
 import { ExamScheduleForm } from '@/components/curriculum/exam-schedule-form'
-import { LessonLogList } from '@/components/curriculum/lesson-log-list'
-import { LessonLogForm } from '@/components/curriculum/lesson-log-form'
 import { TestScoreList } from '@/components/curriculum/test-score-list'
 import { TestScoreForm } from '@/components/curriculum/test-score-form'
 import { TestScoreChart } from '@/components/curriculum/test-score-chart'
-import { GoalList } from '@/components/curriculum/goal-list'
-import { GoalForm } from '@/components/curriculum/goal-form'
-import { SkillList } from '@/components/curriculum/skill-list'
-import { SkillForm } from '@/components/curriculum/skill-form'
-import { HandoverNoteList } from '@/components/curriculum/handover-note-list'
-import { HandoverNoteForm } from '@/components/curriculum/handover-note-form'
 import { exportCurriculumPDF, exportCurriculumExcel } from '@/lib/export-curriculum'
 import { useTranslations } from 'next-intl'
 import { LoadingButton } from '@/components/ui/loading-button'
@@ -59,7 +48,6 @@ export default function StudentCurriculumPage() {
   const tMaterials = useTranslations('curriculum.materials')
   const tPhases = useTranslations('curriculum.phases')
   const tExams = useTranslations('curriculum.exams')
-  const tLessonLogs = useTranslations('curriculum.lessonLogs')
   const tTestScores = useTranslations('curriculum.testScores')
   const tc = useTranslations('common')
   const { user, loading: authLoading } = useAuth()
@@ -69,12 +57,9 @@ export default function StudentCurriculumPage() {
   // Year selection
   const [selectedYear, setSelectedYear] = useState<string | undefined>(undefined)
 
-  const { goals, skills, loading: curriculumLoading, error: curriculumError, addGoal, updateGoal, deleteGoal, addSkill, updateSkill, deleteSkill } = useStudentCurriculum(profileId)
   const { materials, phases, phaseTasks, loading: materialsLoading, error: materialsError, addMaterial, updateMaterial, deleteMaterial, addPhase, updatePhase, deletePhase, addTask, updateTask, deleteTask, copyToNextYear } = useCurriculumMaterials(profileId, selectedYear)
   const { exams, loading: examsLoading, error: examsError, addExam, updateExam, deleteExam } = useExamSchedules(profileId)
-  const { logs, logPhases, loading: logsLoading, error: logsError, addLog, deleteLog } = useLessonLogs(profileId)
   const { scores, loading: scoresLoading, error: scoresError, addScore, updateScore, deleteScore } = useTestScores(profileId)
-  const { notes, loading: notesLoading, error: notesError, addNote, deleteNote } = useHandoverNotes(profileId)
   const supabase = useMemo(() => createClient(), [])
   const ganttRef = useRef<HTMLDivElement>(null)
 
@@ -102,17 +87,9 @@ export default function StudentCurriculumPage() {
   const [showExamForm, setShowExamForm] = useState(false)
   const [editingExam, setEditingExam] = useState<ExamSchedule | null>(null)
 
-  // Lesson log form dialog
-  const [showLogForm, setShowLogForm] = useState(false)
-
   // Test score form dialog
   const [showScoreForm, setShowScoreForm] = useState(false)
   const [editingScore, setEditingScore] = useState<TestScore | null>(null)
-
-  // Goal / Skill / Handover forms
-  const [showGoalForm, setShowGoalForm] = useState(false)
-  const [showSkillForm, setShowSkillForm] = useState(false)
-  const [showHandoverForm, setShowHandoverForm] = useState(false)
 
   // Detail dialog
   const [showDetailDialog, setShowDetailDialog] = useState(false)
@@ -219,12 +196,6 @@ export default function StudentCurriculumPage() {
     setShowExamForm(false)
   }
 
-  // Lesson log handler
-  const handleSubmitLog = async (data: { lesson_date: string; subject: string; notes?: string }, phaseIds: string[]) => {
-    await addLog(data, phaseIds)
-    setShowLogForm(false)
-  }
-
   // Test score handlers
   const handleAddScore = () => { setEditingScore(null); setShowScoreForm(true) }
   const handleEditScore = (s: TestScore) => { setEditingScore(s); setShowScoreForm(true) }
@@ -305,7 +276,7 @@ export default function StudentCurriculumPage() {
     }
   }
 
-  const anyError = error || curriculumError || materialsError || examsError || logsError || scoresError || notesError
+  const anyError = error || materialsError || examsError || scoresError
 
   // Current student index for color
   const studentIndex = profiles.findIndex(p => p.id === profileId)
@@ -436,11 +407,7 @@ export default function StudentCurriculumPage() {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-4 flex-wrap">
             <TabsTrigger value="curriculum">{tPage('tabCurriculum')}</TabsTrigger>
-            <TabsTrigger value="lessons">{tPage('tabLessonLogs')}</TabsTrigger>
             <TabsTrigger value="scores">{tPage('tabScores')}</TabsTrigger>
-            <TabsTrigger value="goals">{tPage('tabGoals')}</TabsTrigger>
-            <TabsTrigger value="skills">{tPage('tabSkills')}</TabsTrigger>
-            <TabsTrigger value="handover">{tPage('tabHandover')}</TabsTrigger>
           </TabsList>
 
           {/* Curriculum (Gantt) tab */}
@@ -485,18 +452,6 @@ export default function StudentCurriculumPage() {
             </div>
           </TabsContent>
 
-          {/* Lesson Logs tab */}
-          <TabsContent value="lessons">
-            <LessonLogList
-              logs={logs}
-              logPhases={logPhases}
-              phases={phases}
-              onAdd={() => setShowLogForm(true)}
-              onDelete={deleteLog}
-              t={(key: string) => tLessonLogs(key)}
-            />
-          </TabsContent>
-
           {/* Test Scores tab */}
           <TabsContent value="scores">
             <div className="space-y-6">
@@ -511,32 +466,6 @@ export default function StudentCurriculumPage() {
             </div>
           </TabsContent>
 
-          {/* Goals tab */}
-          <TabsContent value="goals">
-            {curriculumLoading ? (
-              <div className="text-muted-foreground text-sm">{tPage('loading')}</div>
-            ) : (
-              <GoalList goals={goals} onAdd={() => setShowGoalForm(true)} onUpdate={updateGoal} onDelete={deleteGoal} />
-            )}
-          </TabsContent>
-
-          {/* Skills tab */}
-          <TabsContent value="skills">
-            {curriculumLoading ? (
-              <div className="text-muted-foreground text-sm">{tPage('loading')}</div>
-            ) : (
-              <SkillList skills={skills} onAdd={() => setShowSkillForm(true)} onUpdate={updateSkill} onDelete={deleteSkill} />
-            )}
-          </TabsContent>
-
-          {/* Handover tab */}
-          <TabsContent value="handover">
-            {notesLoading ? (
-              <div className="text-muted-foreground text-sm">{tPage('loading')}</div>
-            ) : (
-              <HandoverNoteList notes={notes} onAdd={() => setShowHandoverForm(true)} onDelete={deleteNote} />
-            )}
-          </TabsContent>
         </Tabs>
 
         {/* Dialogs */}
@@ -574,16 +503,6 @@ export default function StudentCurriculumPage() {
           initialData={editingExam ? { exam_name: editingExam.exam_name, exam_category: editingExam.exam_category, method: editingExam.method || undefined, exam_date: editingExam.exam_date, notes: editingExam.notes || undefined } : undefined}
           t={(key: string) => tExams(key)}
         />
-        <LessonLogForm
-          open={showLogForm}
-          onOpenChange={setShowLogForm}
-          onSubmit={handleSubmitLog}
-          phases={phases.map(p => {
-            const mat = materials.find(m => m.id === p.material_id)
-            return { id: p.id, phase_name: p.phase_name, material_name: mat?.material_name || '', subject: mat?.subject || '' }
-          })}
-          t={(key: string) => tLessonLogs(key)}
-        />
         <TestScoreForm
           open={showScoreForm}
           onOpenChange={setShowScoreForm}
@@ -591,10 +510,6 @@ export default function StudentCurriculumPage() {
           initialData={editingScore ? { test_name: editingScore.test_name, test_type: editingScore.test_type, subject: editingScore.subject, score: editingScore.score, max_score: editingScore.max_score, percentile: editingScore.percentile || undefined, test_date: editingScore.test_date, notes: editingScore.notes || undefined } : undefined}
           t={(key: string) => tTestScores(key)}
         />
-        <GoalForm open={showGoalForm} onClose={() => setShowGoalForm(false)} onSubmit={addGoal} />
-        <SkillForm open={showSkillForm} onClose={() => setShowSkillForm(false)} onSubmit={addSkill} />
-        <HandoverNoteForm open={showHandoverForm} onClose={() => setShowHandoverForm(false)} onSubmit={addNote} />
-
         {/* Detail Dialog */}
         <Dialog open={showDetailDialog} onOpenChange={v => !v && setShowDetailDialog(false)}>
           <DialogContent>

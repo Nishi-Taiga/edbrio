@@ -5,11 +5,11 @@ import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { BookOpen, Target, Calendar, TrendingUp } from 'lucide-react'
+import { BookOpen, Calendar, TrendingUp } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useAuth } from '@/hooks/use-auth'
 import { createClient } from '@/lib/supabase/client'
-import { StudentProfile, CurriculumMaterial, CurriculumPhase, StudentGoal, ExamSchedule, TestScore } from '@/lib/types/database'
+import { StudentProfile, CurriculumMaterial, CurriculumPhase, ExamSchedule, TestScore } from '@/lib/types/database'
 import { TestScoreChart } from '@/components/curriculum/test-score-chart'
 import { SkeletonList } from '@/components/ui/skeleton-card'
 import { format, isBefore, differenceInDays } from 'date-fns'
@@ -26,7 +26,6 @@ export default function GuardianCurriculumPage() {
   // Data for selected student
   const [materials, setMaterials] = useState<CurriculumMaterial[]>([])
   const [phases, setPhases] = useState<CurriculumPhase[]>([])
-  const [goals, setGoals] = useState<StudentGoal[]>([])
   const [exams, setExams] = useState<ExamSchedule[]>([])
   const [scores, setScores] = useState<TestScore[]>([])
   const [dataLoading, setDataLoading] = useState(false)
@@ -63,16 +62,14 @@ export default function GuardianCurriculumPage() {
     async function loadData() {
       setDataLoading(true)
       try {
-        const [matsRes, goalsRes, examsRes, scoresRes] = await Promise.all([
+        const [matsRes, examsRes, scoresRes] = await Promise.all([
           supabase.from('curriculum_materials').select('*').eq('profile_id', selectedProfileId).order('order_index'),
-          supabase.from('student_goals').select('*').eq('profile_id', selectedProfileId).order('created_at', { ascending: false }),
           supabase.from('exam_schedules').select('*').eq('profile_id', selectedProfileId).order('exam_date'),
           supabase.from('test_scores').select('*').eq('profile_id', selectedProfileId).order('test_date', { ascending: false }),
         ])
         if (!mounted) return
         const fetchedMaterials = matsRes.data || []
         setMaterials(fetchedMaterials)
-        setGoals(goalsRes.data || [])
         setExams(examsRes.data || [])
         setScores(scoresRes.data || [])
 
@@ -119,7 +116,6 @@ export default function GuardianCurriculumPage() {
     }))
   })()
 
-  const activeGoals = goals.filter(g => g.status === 'active')
   const upcomingExams = exams.filter(e => !isBefore(new Date(e.exam_date), today)).slice(0, 5)
   const latestScores = scores.slice(0, 5)
 
@@ -190,33 +186,6 @@ export default function GuardianCurriculumPage() {
                                 <span className="text-muted-foreground">{sp.completed}/{sp.total} ({sp.pct}%)</span>
                               </div>
                               <Progress value={sp.pct} className="h-2" />
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* Active goals */}
-                  <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <Target className="w-4 h-4" />
-                        {t('goals')}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {activeGoals.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">{t('noGoals')}</p>
-                      ) : (
-                        <div className="space-y-3">
-                          {activeGoals.map(goal => (
-                            <div key={goal.id}>
-                              <div className="flex justify-between text-sm mb-1">
-                                <span className="font-medium truncate mr-2">{goal.title}</span>
-                                <span className="text-muted-foreground flex-shrink-0">{goal.progress}%</span>
-                              </div>
-                              <Progress value={goal.progress} className="h-2" />
                             </div>
                           ))}
                         </div>

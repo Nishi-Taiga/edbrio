@@ -1123,9 +1123,9 @@
       "addExam": "試験追加",
       "addMaterial": "教材追加",
       "subjectMaterial": "教科 / 教材",
-      "examSchedule": "入試スケジュール",
+      "examSchedule": "試験スケジュール",
       "emptyGantt": "教材を追加してカリキュラムを作成しましょう",
-      "examScheduleLabel": "🎓 入試スケジュール"
+      "examScheduleLabel": "試験スケジュール"
     },
     "materials": {
       "editMaterial": "教材を編集",
