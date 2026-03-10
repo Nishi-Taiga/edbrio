@@ -171,6 +171,18 @@ button:not(:disabled):active,
   cursor: pointer;
 }
 
+/* Availability slot: subtle purple dashed border */
+.fc-wrapper .fc-event.fc-avail-slot {
+  border: 1.5px dashed #a78bfa !important;
+  background-color: #f5f3ff !important;
+  font-weight: 500;
+}
+.dark .fc-wrapper .fc-event.fc-avail-slot {
+  background-color: rgba(139, 92, 246, 0.1) !important;
+  border-color: #8b5cf6 !important;
+  color: #c4b5fd !important;
+}
+
 .fc-wrapper .fc-button {
   border-radius: 8px !important;
   font-weight: 600;

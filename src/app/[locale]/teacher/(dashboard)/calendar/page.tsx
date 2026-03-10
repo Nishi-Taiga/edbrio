@@ -116,17 +116,21 @@ export default function TeacherCalendarPage() {
   const events: EventInput[] = useMemo(() => {
     const result: EventInput[] = []
 
-    // Availability / 空き枠 (lighter green to distinguish from done bookings)
+    // Availability / 空き枠 (subtle purple with dashed border)
     for (const a of availability) {
       if (a.is_bookable) {
+        const start = new Date(a.slot_start)
+        const end = new Date(a.slot_end)
+        const timeLabel = `${start.getHours()}:${String(start.getMinutes()).padStart(2, '0')}–${end.getHours()}:${String(end.getMinutes()).padStart(2, '0')}`
         result.push({
           id: `avail:${a.id}`,
-          title: t('eventAvailable'),
+          title: timeLabel,
           start: a.slot_start,
           end: a.slot_end,
-          backgroundColor: '#34d399',
-          borderColor: '#10b981',
-          textColor: '#ffffff',
+          backgroundColor: '#f5f3ff',
+          borderColor: '#a78bfa',
+          textColor: '#7c3aed',
+          classNames: ['fc-avail-slot'],
           extendedProps: { type: 'availability', availId: a.id },
         })
       }
@@ -303,7 +307,7 @@ export default function TeacherCalendarPage() {
         {/* Legend (matching dashboard: booked/done/needs-report + availability) */}
         <div className="flex flex-wrap gap-3 sm:gap-4 mb-4 text-xs sm:text-sm">
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#34d399]" />
+            <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border-2 border-dashed border-[#a78bfa] bg-[#f5f3ff] dark:bg-[#2d2252]" />
             <span className="text-slate-600 dark:text-slate-400">{t('legendAvailable')}</span>
           </div>
           <div className="flex items-center gap-1.5">
