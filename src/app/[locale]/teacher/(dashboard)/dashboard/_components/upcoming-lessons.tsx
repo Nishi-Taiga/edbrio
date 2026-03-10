@@ -62,7 +62,7 @@ export function UpcomingLessons({ upcomingLessons, studentNames, studentSubjects
   }
 
   return (
-    <div className="h-full rounded-2xl border border-gray-200 dark:border-[#2E2840] bg-white dark:bg-[#1E1A2B] p-6 flex flex-col gap-3">
+    <div className="h-full rounded-2xl border border-gray-200 dark:border-[#2E2840] bg-white dark:bg-[#1E1A2B] p-4 lg:p-5 flex flex-col gap-2 lg:gap-3">
       <h3 className="text-xs font-bold text-gray-500 dark:text-[#9CA3AF] tracking-widest uppercase">{t('upcomingLessonsTitle')}</h3>
 
       {upcomingLessons.length === 0 ? (

@@ -66,7 +66,7 @@ export function ResponsiveCalendar({
       </div>
 
       {/* Desktop: time grid calendar */}
-      <div className="hidden md:block h-full rounded-2xl border border-gray-200 dark:border-[#2E2840] bg-white dark:bg-[#1E1A2B] p-6">
+      <div className="hidden md:block h-full rounded-2xl border border-gray-200 dark:border-[#2E2840] bg-white dark:bg-[#1E1A2B] p-4 lg:p-5">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#7C3AED]" />
