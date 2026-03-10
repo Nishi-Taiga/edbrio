@@ -124,8 +124,8 @@ export function Header({ showMenuButton }: HeaderProps) {
   return (
     <header className={
       isDashboard
-        ? 'sticky top-0 z-50 border-b border-[#3D2B5E] dark:border-[#1A1726] bg-[#2D1B4E] dark:bg-[#0F0D18]'
-        : 'sticky top-0 z-50 border-b bg-background/95 border-border-semantic backdrop-blur supports-[backdrop-filter]:bg-background/60'
+        ? 'shrink-0 z-50 border-b border-[#3D2B5E] dark:border-[#1A1726] bg-[#2D1B4E] dark:bg-[#0F0D18]'
+        : 'shrink-0 z-50 border-b bg-background/95 border-border-semantic backdrop-blur supports-[backdrop-filter]:bg-background/60'
     }>
       <div className={isDashboard
         ? 'container mx-auto px-5 h-14 flex justify-between items-center'
