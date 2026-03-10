@@ -16,9 +16,10 @@ interface ShiftFormProps {
   onClose: () => void
   onSubmit: (params: { startTime: string; endTime: string; rrule?: string }) => Promise<void>
   initialDate?: Date
+  initialStartTime?: string // "HH:MM" format from calendar click
 }
 
-export function ShiftForm({ open, onClose, onSubmit, initialDate }: ShiftFormProps) {
+export function ShiftForm({ open, onClose, onSubmit, initialDate, initialStartTime }: ShiftFormProps) {
   const t = useTranslations('slotForm')
   const tc = useTranslations('common')
 
@@ -33,12 +34,17 @@ export function ShiftForm({ open, onClose, onSubmit, initialDate }: ShiftFormPro
   useEffect(() => {
     if (open) {
       setDate(formatDateLocal(initialDate ?? new Date()))
-      setStartTime('09:00')
-      setEndTime('10:00')
+      // Use clicked time or default to 09:00-10:00
+      const start = initialStartTime || '09:00'
+      setStartTime(start)
+      // Auto-set end time to 1 hour after start
+      const [h, m] = start.split(':').map(Number)
+      const endH = Math.min(h + 1, 23)
+      setEndTime(`${String(endH).padStart(2, '0')}:${String(m).padStart(2, '0')}`)
       setRecurrence('none')
       setError(null)
     }
-  }, [open, initialDate])
+  }, [open, initialDate, initialStartTime])
 
   const handleSubmit = async () => {
     setError(null)

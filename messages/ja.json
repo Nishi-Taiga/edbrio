@@ -557,6 +557,7 @@
     "deleteSlotTitle": "空き枠の削除",
     "deleteSlotDescription": "{title}を削除しますか？関連する空き枠（未予約分）も削除されます。",
     "slotOf": "の空き枠",
+    "errorOverlap": "この時間帯にはすでに空き枠があります",
     "legendPending": "予約（承認待ち）",
     "bookingDetailTitle": "予約詳細",
     "bookingStudent": "生徒: {name}",

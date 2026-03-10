@@ -119,18 +119,16 @@ export default function TeacherCalendarPage() {
     // Availability / 空き枠 (subtle purple with dashed border)
     for (const a of availability) {
       if (a.is_bookable) {
-        const start = new Date(a.slot_start)
-        const end = new Date(a.slot_end)
-        const timeLabel = `${start.getHours()}:${String(start.getMinutes()).padStart(2, '0')}–${end.getHours()}:${String(end.getMinutes()).padStart(2, '0')}`
         result.push({
           id: `avail:${a.id}`,
-          title: timeLabel,
+          title: '',
           start: a.slot_start,
           end: a.slot_end,
           backgroundColor: '#f5f3ff',
           borderColor: '#a78bfa',
           textColor: '#7c3aed',
           classNames: ['fc-avail-slot'],
+          display: 'block',
           extendedProps: { type: 'availability', availId: a.id },
         })
       }
@@ -175,9 +173,14 @@ export default function TeacherCalendarPage() {
     return result
   }, [availability, bookings, studentNames, studentSubjects, reportedBookingIds, t, tc])
 
-  // Handle date click -> open shift form
+  // Handle date click -> open shift form with clicked time pre-filled
+  const [shiftFormStartTime, setShiftFormStartTime] = useState<string | undefined>()
   const handleDateClick = useCallback((info: DateClickArg) => {
     setShiftFormDate(info.date)
+    // timeGrid click includes the specific time
+    const h = String(info.date.getHours()).padStart(2, '0')
+    const m = String(info.date.getMinutes()).padStart(2, '0')
+    setShiftFormStartTime(`${h}:${m}`)
     setShiftFormOpen(true)
   }, [])
 
@@ -226,8 +229,20 @@ export default function TeacherCalendarPage() {
     if (api) api.today()
   }, [])
 
-  // Handle shift creation
+  // Handle shift creation (with overlap check)
   const handleCreateShift = async (params: { startTime: string; endTime: string; rrule?: string }) => {
+    const newStart = new Date(params.startTime).getTime()
+    const newEnd = new Date(params.endTime).getTime()
+    const hasOverlap = availability.some(a => {
+      if (!a.is_bookable) return false
+      const s = new Date(a.slot_start).getTime()
+      const e = new Date(a.slot_end).getTime()
+      return newStart < e && newEnd > s
+    })
+    if (hasOverlap) {
+      toast.error(t('errorOverlap'))
+      return
+    }
     await createShift(params)
     await refreshAvailability()
   }
@@ -295,7 +310,7 @@ export default function TeacherCalendarPage() {
       <div className="container mx-auto px-4 py-6 pb-24 md:pb-8">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t('title')}</h1>
-          <Button onClick={() => { setShiftFormDate(undefined); setShiftFormOpen(true) }}>
+          <Button onClick={() => { setShiftFormDate(undefined); setShiftFormStartTime(undefined); setShiftFormOpen(true) }}>
             <Plus className="w-4 h-4 mr-1" /> {t('addSlot')}
           </Button>
         </div>
@@ -397,6 +412,7 @@ export default function TeacherCalendarPage() {
           onClose={() => setShiftFormOpen(false)}
           onSubmit={handleCreateShift}
           initialDate={shiftFormDate}
+          initialStartTime={shiftFormStartTime}
         />
 
         {/* Delete Confirmation Dialog */}

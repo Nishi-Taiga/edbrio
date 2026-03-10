@@ -576,6 +576,7 @@
     "deleteSlotTitle": "Delete Slot",
     "deleteSlotDescription": "Are you sure you want to delete {title}? Related slots (unbooked) will also be deleted.",
     "slotOf": "'s slots",
+    "errorOverlap": "An availability slot already exists at this time",
     "legendPending": "Booking (Pending)",
     "legendDone": "Booking (Done)",
     "bookingDetailTitle": "Booking Details",
