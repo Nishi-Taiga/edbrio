@@ -258,7 +258,7 @@ export default function TeacherDashboard() {
         (b.status === 'confirmed' || b.status === 'pending') && new Date(b.start_time) > now
       )
       .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())
-      .slice(0, 5),
+      .slice(0, 4),
     [bookings, now]
   )
 
@@ -285,7 +285,7 @@ export default function TeacherDashboard() {
 
   return (
     <ProtectedRoute allowedRoles={['teacher']}>
-      <div className="bg-[#F9F6F2] dark:bg-[#13111C] min-h-screen lg:min-h-0 lg:h-[calc(100vh-3.5rem)] px-4 md:px-5 lg:px-7 py-4 md:py-5 lg:py-3 flex flex-col gap-4 pb-24 md:pb-5 lg:pb-3 lg:overflow-hidden">
+      <div className="bg-[#F9F6F2] dark:bg-[#13111C] min-h-screen lg:min-h-0 lg:h-[calc(100vh-3.5rem)] px-4 md:px-5 lg:px-7 py-4 md:py-5 lg:py-3 flex flex-col gap-4 lg:gap-3 pb-24 md:pb-5 lg:pb-3 lg:overflow-hidden">
 
         {/* ── Setup Banner (conditional) ── */}
         {setupComplete === false && (
@@ -330,8 +330,8 @@ export default function TeacherDashboard() {
         </div>
 
         {/* ── Bottom Row: Monthly Stats + Upcoming Lessons + Quick Actions ── */}
-        <div className="flex flex-col md:flex-row gap-4 md:gap-5 lg:flex-[2] lg:min-h-0">
-          <div className="flex-1 min-w-0">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-5 lg:gap-4 lg:flex-[2] lg:min-h-0">
+          <div className="flex-1 min-w-0 lg:overflow-hidden">
             <ResponsiveStats
               thisMonthDone={thisMonthDone}
               thisMonthTotal={thisMonthBookings.length}
@@ -342,7 +342,7 @@ export default function TeacherDashboard() {
               loading={loading}
             />
           </div>
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 lg:overflow-hidden">
             <UpcomingLessons
               upcomingLessons={upcomingLessons}
               studentNames={studentNames}
@@ -350,7 +350,7 @@ export default function TeacherDashboard() {
               loading={loading}
             />
           </div>
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 lg:overflow-hidden">
             <QuickActions />
           </div>
         </div>

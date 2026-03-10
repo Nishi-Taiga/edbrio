@@ -62,7 +62,7 @@ export function UpcomingLessons({ upcomingLessons, studentNames, studentSubjects
   }
 
   return (
-    <div className="h-full rounded-2xl border border-gray-200 dark:border-[#2E2840] bg-white dark:bg-[#1E1A2B] p-4 lg:p-5 flex flex-col gap-2 lg:gap-3">
+    <div className="h-full rounded-2xl border border-gray-200 dark:border-[#2E2840] bg-white dark:bg-[#1E1A2B] p-4 lg:p-5 flex flex-col gap-2 lg:gap-3 overflow-hidden">
       <h3 className="text-xs font-bold text-gray-500 dark:text-[#9CA3AF] tracking-widest uppercase">{t('upcomingLessonsTitle')}</h3>
 
       {upcomingLessons.length === 0 ? (
@@ -71,7 +71,7 @@ export function UpcomingLessons({ upcomingLessons, studentNames, studentSubjects
           <p className="text-sm text-gray-400 dark:text-[#6D5A8A]">{t('upcomingLessonsEmpty')}</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-0 flex-1">
+        <div className="flex flex-col gap-0 flex-1 min-h-0 overflow-y-auto">
           {upcomingLessons.map((b, i) => {
             const startDate = new Date(b.start_time)
             const timeLabel = getTimeLabel(b.start_time)
