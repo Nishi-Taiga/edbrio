@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,16 +22,23 @@ export function ShiftForm({ open, onClose, onSubmit, initialDate }: ShiftFormPro
   const t = useTranslations('slotForm')
   const tc = useTranslations('common')
 
-  const defaultDate = initialDate
-    ? formatDateLocal(initialDate)
-    : formatDateLocal(new Date())
-
-  const [date, setDate] = useState(defaultDate)
+  const [date, setDate] = useState(() => formatDateLocal(initialDate ?? new Date()))
   const [startTime, setStartTime] = useState('09:00')
   const [endTime, setEndTime] = useState('10:00')
   const [recurrence, setRecurrence] = useState<RecurrenceType>('none')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Reset form when dialog opens
+  useEffect(() => {
+    if (open) {
+      setDate(formatDateLocal(initialDate ?? new Date()))
+      setStartTime('09:00')
+      setEndTime('10:00')
+      setRecurrence('none')
+      setError(null)
+    }
+  }, [open, initialDate])
 
   const handleSubmit = async () => {
     setError(null)

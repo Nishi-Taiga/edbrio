@@ -48,7 +48,7 @@ export default function TeacherCalendarPage() {
   })
 
   const { shifts, loading: shiftsLoading, error: shiftsError, createShift, deleteShift } = useShifts(teacherId)
-  const { availability, loading: availLoading } = useAvailability(teacherId, dateRange)
+  const { availability, loading: availLoading, refresh: refreshAvailability } = useAvailability(teacherId, dateRange)
   const { bookings, loading: bookingsLoading, updateBookingStatus } = useBookings(teacherId, 'teacher')
   const { reports, resolveReport, refresh: refreshReports } = useBookingReports(teacherId, 'teacher')
   const { reports: lessonReports, loading: reportsLoading } = useReports(teacherId, 'teacher')
@@ -229,6 +229,7 @@ export default function TeacherCalendarPage() {
   // Handle shift creation
   const handleCreateShift = async (params: { startTime: string; endTime: string; rrule?: string }) => {
     await createShift(params)
+    await refreshAvailability()
   }
 
   // Handle shift deletion
@@ -237,6 +238,7 @@ export default function TeacherCalendarPage() {
     setDeleting(true)
     try {
       await deleteShift(deleteConfirm.id)
+      await refreshAvailability()
       setDeleteConfirm(null)
     } finally {
       setDeleting(false)
