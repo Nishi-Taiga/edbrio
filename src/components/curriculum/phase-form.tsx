@@ -12,10 +12,11 @@ interface PhaseFormProps {
   onOpenChange: (open: boolean) => void
   onSubmit: (phase: { phase_name: string; total_hours?: number; start_date?: string; end_date?: string }) => Promise<void>
   initialData?: { phase_name: string; total_hours?: number; start_date?: string; end_date?: string }
+  materialName?: string
   t: (key: string) => string
 }
 
-export function PhaseForm({ open, onOpenChange, onSubmit, initialData, t }: PhaseFormProps) {
+export function PhaseForm({ open, onOpenChange, onSubmit, initialData, materialName, t }: PhaseFormProps) {
   const [phaseName, setPhaseName] = useState('')
   const [totalHours, setTotalHours] = useState('')
   const [startDate, setStartDate] = useState('')
@@ -54,6 +55,7 @@ export function PhaseForm({ open, onOpenChange, onSubmit, initialData, t }: Phas
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{isEdit ? t('editPhase') : t('addPhase')}</DialogTitle>
+          {materialName && <p className="text-xs text-muted-foreground">{materialName}</p>}
           <DialogDescription>{isEdit ? t('editPhaseDescription') : t('addPhaseDescription')}</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">

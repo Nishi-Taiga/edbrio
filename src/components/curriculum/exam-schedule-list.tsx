@@ -47,7 +47,7 @@ export function ExamScheduleList({ exams, onAdd, onEdit, onDelete, t }: ExamSche
       <div className="flex items-center justify-between px-6 py-5">
         <div className="flex items-center gap-2">
           <Calendar className="w-[18px] h-[18px] text-red-500" />
-          <h3 className="text-base font-bold text-foreground">{t('examTitle')}（仮）</h3>
+          <h3 className="text-base font-bold text-foreground">{t('examTitle')}</h3>
         </div>
         <button
           className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground border border-border rounded-md px-2.5 py-1.5 hover:bg-muted/50 transition-colors"
@@ -62,14 +62,14 @@ export function ExamScheduleList({ exams, onAdd, onEdit, onDelete, t }: ExamSche
       {sorted.length === 0 ? (
         <div className="px-6 pb-6 text-muted-foreground text-sm">{t('examEmpty')}</div>
       ) : (
-        <div className="mx-6 mb-5 rounded-lg border border-border overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="mx-6 mb-5 rounded-lg border border-border overflow-hidden overflow-x-auto">
+          <table className="w-full text-sm min-w-[480px]">
             <thead>
               <tr className="bg-[#F9FAFB] dark:bg-muted/30">
                 <th className="text-left py-2.5 px-4 text-[11px] font-bold text-muted-foreground tracking-wider">大学</th>
                 <th className="text-left py-2.5 px-4 text-[11px] font-bold text-muted-foreground tracking-wider">方式</th>
                 <th className="text-left py-2.5 px-4 text-[11px] font-bold text-muted-foreground tracking-wider w-[120px]">日付</th>
-                <th className="text-left py-2.5 px-4 text-[11px] font-bold text-muted-foreground tracking-wider w-[100px]">ステータス</th>
+                <th className="text-left py-2.5 px-4 text-[11px] font-bold text-muted-foreground tracking-wider w-[100px] hidden sm:table-cell">ステータス</th>
                 <th className="w-[60px]"></th>
               </tr>
             </thead>
@@ -83,7 +83,7 @@ export function ExamScheduleList({ exams, onAdd, onEdit, onDelete, t }: ExamSche
                     <td className="py-2.5 px-4 font-medium text-foreground text-xs whitespace-nowrap">
                       {format(new Date(exam.exam_date), 'M/d')}
                     </td>
-                    <td className="py-2.5 px-4">
+                    <td className="py-2.5 px-4 hidden sm:table-cell">
                       <span
                         className="text-[10px] font-semibold px-2 py-0.5 rounded"
                         style={{ backgroundColor: status.bg, color: status.color }}

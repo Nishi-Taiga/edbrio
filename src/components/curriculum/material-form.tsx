@@ -24,10 +24,11 @@ interface MaterialFormProps {
   onOpenChange: (open: boolean) => void
   onSubmit: (material: { material_name: string; subject: string; study_pace?: string; color?: string; notes?: string }) => Promise<void>
   initialData?: { material_name: string; subject: string; study_pace?: string; color?: string; notes?: string }
+  existingSubjects?: string[]
   t: (key: string) => string
 }
 
-export function MaterialForm({ open, onOpenChange, onSubmit, initialData, t }: MaterialFormProps) {
+export function MaterialForm({ open, onOpenChange, onSubmit, initialData, existingSubjects, t }: MaterialFormProps) {
   const [materialName, setMaterialName] = useState('')
   const [subject, setSubject] = useState('')
   const [studyPace, setStudyPace] = useState('')
@@ -83,6 +84,24 @@ export function MaterialForm({ open, onOpenChange, onSubmit, initialData, t }: M
           </div>
           <div>
             <Label htmlFor="material-subject">{t('subject')}</Label>
+            {existingSubjects && existingSubjects.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-1 mb-2">
+                {existingSubjects.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+                      subject === s
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-muted/50 text-muted-foreground border-border hover:bg-muted'
+                    }`}
+                    onClick={() => setSubject(s)}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
             <Input
               id="material-subject"
               value={subject}

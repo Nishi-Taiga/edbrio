@@ -1,6 +1,6 @@
 'use client'
 
-import { StudentProfile, CurriculumMaterial, CurriculumPhase, ExamSchedule } from '@/lib/types/database'
+import { StudentProfile, CurriculumMaterial, CurriculumPhase, ExamSchedule, PhaseTask } from '@/lib/types/database'
 import { differenceInDays } from 'date-fns'
 
 // Avatar color for each student (cycle through)
@@ -11,10 +11,11 @@ interface StudentInfoBarProps {
   materials: CurriculumMaterial[]
   phases: CurriculumPhase[]
   exams: ExamSchedule[]
+  phaseTasks?: PhaseTask[]
   colorIndex?: number
 }
 
-export function StudentInfoBar({ profile, materials, phases, exams, colorIndex = 0 }: StudentInfoBarProps) {
+export function StudentInfoBar({ profile, materials, phases, exams, phaseTasks, colorIndex = 0 }: StudentInfoBarProps) {
   const today = new Date()
   const avatarColor = AVATAR_COLORS[colorIndex % AVATAR_COLORS.length]
 
@@ -24,6 +25,9 @@ export function StudentInfoBar({ profile, materials, phases, exams, colorIndex =
     materials.forEach(m => {
       if (!subjects.has(m.subject)) subjects.set(m.subject, { total: 0, completed: 0 })
     })
+
+    // Build a map of phase IDs per subject
+    const subjectPhaseIds = new Map<string, string[]>()
     phases.forEach(p => {
       const material = materials.find(m => m.id === p.material_id)
       if (!material) return
@@ -31,11 +35,30 @@ export function StudentInfoBar({ profile, materials, phases, exams, colorIndex =
       if (!entry) return
       entry.total++
       if (p.status === 'completed') entry.completed++
+      const ids = subjectPhaseIds.get(material.subject) || []
+      ids.push(p.id)
+      subjectPhaseIds.set(material.subject, ids)
     })
-    return Array.from(subjects.entries()).map(([subject, data]) => ({
-      subject,
-      pct: data.total > 0 ? Math.round((data.completed / data.total) * 100) : 0,
-    }))
+
+    return Array.from(subjects.entries()).map(([subject, data]) => {
+      // If phaseTasks are provided, check for task-based progress
+      if (phaseTasks && phaseTasks.length > 0) {
+        const phaseIds = subjectPhaseIds.get(subject) || []
+        const tasksForSubject = phaseTasks.filter(t => phaseIds.includes(t.phase_id))
+        if (tasksForSubject.length > 0) {
+          const completedTasks = tasksForSubject.filter(t => t.is_completed).length
+          return {
+            subject,
+            pct: Math.round((completedTasks / tasksForSubject.length) * 100),
+          }
+        }
+      }
+      // Fallback to phase-based calculation
+      return {
+        subject,
+        pct: data.total > 0 ? Math.round((data.completed / data.total) * 100) : 0,
+      }
+    })
   })()
 
   // Overall progress
@@ -57,9 +80,9 @@ export function StudentInfoBar({ profile, materials, phases, exams, colorIndex =
   const metaText = metaParts.join(' ・ ')
 
   return (
-    <div className="flex items-center gap-4 rounded-xl bg-[#2D1B4E] dark:bg-[#1A1230] px-6 py-4 w-full">
+    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 rounded-xl bg-[#2D1B4E] dark:bg-[#1A1230] px-4 sm:px-6 py-4 w-full">
       {/* Left: Avatar + Name */}
-      <div className="flex items-center gap-4 shrink-0">
+      <div className="flex items-center gap-3 sm:gap-4 shrink-0">
         <div
           className="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-lg shrink-0"
           style={{ background: `linear-gradient(180deg, ${avatarColor} 0%, ${avatarColor}99 100%)` }}
@@ -75,19 +98,19 @@ export function StudentInfoBar({ profile, materials, phases, exams, colorIndex =
       </div>
 
       {/* Right: Stats */}
-      <div className="flex items-center gap-6 ml-auto">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-6 sm:ml-auto">
         {subjectProgress.map(sp => (
-          <div key={sp.subject} className="flex flex-col items-center bg-white/[0.07] rounded-[10px] px-5 py-2.5 min-w-[70px]">
+          <div key={sp.subject} className="flex flex-col items-center bg-white/[0.07] rounded-[10px] px-3 sm:px-5 py-2 sm:py-2.5 min-w-[56px] sm:min-w-[70px]">
             <span className="text-[#D4BEE4] text-[10px] font-medium tracking-wider">{sp.subject}</span>
             <span className="text-white text-[22px] font-extrabold leading-tight">{sp.pct}%</span>
           </div>
         ))}
-        <div className="flex flex-col items-center bg-white/[0.07] rounded-[10px] px-5 py-2.5 min-w-[70px]">
+        <div className="flex flex-col items-center bg-white/[0.07] rounded-[10px] px-3 sm:px-5 py-2 sm:py-2.5 min-w-[56px] sm:min-w-[70px]">
           <span className="text-[#D4BEE4] text-[10px] font-medium tracking-wider">総合進捗</span>
           <span className="text-[#10B981] text-[22px] font-extrabold leading-tight">{overallPct}%</span>
         </div>
         {daysUntilExam !== null && (
-          <div className="flex flex-col items-center bg-white/[0.07] rounded-[10px] px-5 py-2.5 min-w-[70px]">
+          <div className="flex flex-col items-center bg-white/[0.07] rounded-[10px] px-3 sm:px-5 py-2 sm:py-2.5 min-w-[56px] sm:min-w-[70px]">
             <span className="text-[#D4BEE4] text-[10px] font-medium tracking-wider">入試まで</span>
             <span className="text-[#F59E0B] text-[22px] font-extrabold leading-tight">{daysUntilExam}日</span>
           </div>
