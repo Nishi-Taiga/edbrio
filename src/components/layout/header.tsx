@@ -26,7 +26,7 @@ interface HeaderProps {
 }
 
 export function Header({ showMenuButton }: HeaderProps) {
-  const { user, dbUser } = useAuth()
+  const { user, dbUser, loading: authLoading } = useAuth()
   const { toggleDesktop, toggleMobile } = useSidebar()
   const t = useTranslations('common')
   const pathname = usePathname()
@@ -113,8 +113,8 @@ export function Header({ showMenuButton }: HeaderProps) {
     setNotifOpen(prev => !prev)
   }
 
-  // Use solid dark purple header when authenticated (dashboard), transparent for public pages
-  const isDashboard = !!user
+  // Use solid dark purple header for dashboard routes (path-based to avoid flash during auth loading)
+  const isDashboard = pathname?.startsWith('/teacher') || pathname?.startsWith('/guardian')
 
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr)
@@ -161,7 +161,13 @@ export function Header({ showMenuButton }: HeaderProps) {
         </div>
 
         <div className="flex items-center gap-4">
-          {user ? (
+          {authLoading ? (
+            /* Placeholder matching bell+avatar size to prevent layout shift */
+            <div className="flex items-center gap-4">
+              <div className="w-[22px] h-[22px] rounded-full" />
+              <div className="w-8 h-8 rounded-full" />
+            </div>
+          ) : user ? (
             <>
               {/* Notification bell with dropdown */}
               <div className="relative" ref={notifRef}>
