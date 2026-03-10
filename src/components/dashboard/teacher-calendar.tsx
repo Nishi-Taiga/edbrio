@@ -66,6 +66,16 @@ function getMonthWeeks(year: number, month: number, weekStartsOn: 0 | 1 = 0): Da
     weeks.push(week)
     if (cur > lastDay) break
   }
+  // Cap at 5 weeks: drop the last row if it has fewer in-month days
+  if (weeks.length > 5) {
+    const firstInMonth = weeks[0].filter(d => d.getMonth() === month).length
+    const lastInMonth = weeks[weeks.length - 1].filter(d => d.getMonth() === month).length
+    if (lastInMonth <= firstInMonth) {
+      weeks.pop()
+    } else {
+      weeks.shift()
+    }
+  }
   return weeks
 }
 

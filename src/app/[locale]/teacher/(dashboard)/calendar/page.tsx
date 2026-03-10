@@ -116,7 +116,7 @@ export default function TeacherCalendarPage() {
   const events: EventInput[] = useMemo(() => {
     const result: EventInput[] = []
 
-    // Availability / 空き枠 (green)
+    // Availability / 空き枠 (lighter green to distinguish from done bookings)
     for (const a of availability) {
       if (a.is_bookable) {
         result.push({
@@ -124,15 +124,15 @@ export default function TeacherCalendarPage() {
           title: t('eventAvailable'),
           start: a.slot_start,
           end: a.slot_end,
-          backgroundColor: '#10b981',
-          borderColor: '#059669',
+          backgroundColor: '#34d399',
+          borderColor: '#10b981',
           textColor: '#ffffff',
           extendedProps: { type: 'availability', availId: a.id },
         })
       }
     }
 
-    // Bookings (color-coded matching dashboard calendar)
+    // Bookings (color-coded matching dashboard calendar: blue=booked, green=done, red=needs report)
     for (const b of bookings) {
       if (b.status === 'canceled') continue
       const name = studentNames[b.student_id] || ''
@@ -146,14 +146,11 @@ export default function TeacherCalendarPage() {
       let borderColor: string
 
       if (isDone && hasReport) {
-        bgColor = '#22c55e'
-        borderColor = '#16a34a'
+        bgColor = '#10b981'
+        borderColor = '#059669'
       } else if (isDone) {
         bgColor = '#ef4444'
         borderColor = '#dc2626'
-      } else if (b.status === 'pending') {
-        bgColor = '#f59e0b'
-        borderColor = '#d97706'
       } else {
         bgColor = '#3b82f6'
         borderColor = '#2563eb'
@@ -303,27 +300,23 @@ export default function TeacherCalendarPage() {
           </div>
         )}
 
-        {/* Legend */}
+        {/* Legend (matching dashboard: booked/done/needs-report + availability) */}
         <div className="flex flex-wrap gap-3 sm:gap-4 mb-4 text-xs sm:text-sm">
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#10b981]" />
+            <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#34d399]" />
             <span className="text-slate-600 dark:text-slate-400">{t('legendAvailable')}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#3b82f6]" />
-            <span className="text-slate-600 dark:text-slate-400">{t('legendConfirmed')}</span>
+            <span className="text-slate-600 dark:text-slate-400">{t('legendBooking')}</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#f59e0b]" />
-            <span className="text-slate-600 dark:text-slate-400">{t('legendPending')}</span>
+            <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#10b981]" />
+            <span className="text-slate-600 dark:text-slate-400">{t('legendDone')}</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#ef4444]" />
             <span className="text-slate-600 dark:text-slate-400">{t('legendNeedsReport')}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#22c55e]" />
-            <span className="text-slate-600 dark:text-slate-400">{t('legendReported')}</span>
           </div>
         </div>
 
