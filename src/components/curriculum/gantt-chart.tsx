@@ -3,7 +3,7 @@
 import { useMemo, useRef, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Plus, Pencil, Trash2, CheckCircle } from 'lucide-react'
-import { CurriculumMaterial, CurriculumPhase, ExamSchedule } from '@/lib/types/database'
+import { CurriculumMaterial, CurriculumPhase, ExamSchedule, PhaseTask } from '@/lib/types/database'
 import { differenceInDays, startOfDay, format } from 'date-fns'
 
 // --- Constants ---
@@ -39,8 +39,10 @@ const EXAM_CATEGORY_COLORS: Record<string, string> = {
 interface GanttChartProps {
   materials: CurriculumMaterial[]
   phases: CurriculumPhase[]
+  phaseTasks: PhaseTask[]
   exams: ExamSchedule[]
   curriculumYear?: string
+  subjectColors?: Record<string, string>
   onAddMaterial: () => void
   onEditMaterial: (material: CurriculumMaterial) => void
   onDeleteMaterial: (id: string) => void
@@ -49,6 +51,7 @@ interface GanttChartProps {
   onDeletePhase: (id: string) => void
   onUpdatePhase: (id: string, updates: Partial<CurriculumPhase>) => Promise<void>
   onAddExam: () => void
+  onPhaseClick?: (phase: CurriculumPhase, materialName: string) => void
   t: (key: string) => string
 }
 
@@ -80,8 +83,10 @@ function dateToX(date: Date, academicYearStart: Date, timelineWidth: number, tot
 export function GanttChart({
   materials,
   phases,
+  phaseTasks,
   exams,
   curriculumYear,
+  subjectColors,
   onAddMaterial,
   onEditMaterial,
   onDeleteMaterial,
@@ -90,11 +95,20 @@ export function GanttChart({
   onDeletePhase,
   onUpdatePhase,
   onAddExam,
+  onPhaseClick,
   t,
 }: GanttChartProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [hoveredRow, setHoveredRow] = useState<string | null>(null)
   const [containerWidth, setContainerWidth] = useState(960)
+
+  const getSubjectStyle = (subject: string) => {
+    const customColor = subjectColors?.[subject]
+    const preset = SUBJECT_COLORS[subject]
+    const color = customColor || preset?.color || '#6B7280'
+    const bg = customColor ? color + '10' : preset?.bg || '#F9FAFB'
+    return { color, bg }
+  }
 
   const year = getAcademicYear(curriculumYear)
   const academicYearStart = new Date(year, 3, 1) // April 1
@@ -102,8 +116,13 @@ export function GanttChart({
   const totalDays = differenceInDays(academicYearEnd, academicYearStart) + 1
   const monthStarts = useMemo(() => getMonthStarts(year), [year])
 
+  // Mobile responsive values
+  const isMobile = containerWidth < 640
+  const labelWidth = isMobile ? 120 : LABEL_WIDTH
+  const rowHeight = isMobile ? 36 : ROW_HEIGHT
+
   // Timeline width = container width minus label column
-  const timelineWidth = Math.max(containerWidth - LABEL_WIDTH, 600)
+  const timelineWidth = Math.max(containerWidth - labelWidth, 600)
 
   // Observe container width
   useEffect(() => {
@@ -166,17 +185,23 @@ export function GanttChart({
 
   // Total body height
   const bodyHeight = EXAM_ROW_HEIGHT + rows.reduce((h, r) =>
-    h + (r.type === 'subject' ? SUBJECT_HEADER_HEIGHT : ROW_HEIGHT), 0)
+    h + (r.type === 'subject' ? SUBJECT_HEADER_HEIGHT : rowHeight), 0)
 
   // Render a phase bar
-  function renderPhaseBar(phase: CurriculumPhase, material: CurriculumMaterial) {
+  function renderPhaseBar(phase: CurriculumPhase, mat: CurriculumMaterial) {
     if (!phase.start_date || !phase.end_date) return null
     const x1 = dateToX(new Date(phase.start_date), academicYearStart, timelineWidth, totalDays)
     const x2 = dateToX(new Date(phase.end_date), academicYearStart, timelineWidth, totalDays)
     const barWidth = Math.max(20, x2 - x1)
-    const color = material.color || SUBJECT_COLORS[material.subject]?.color || '#6B7280'
+    const color = mat.color || getSubjectStyle(mat.subject).color
     const isCompleted = phase.status === 'completed'
     const isInProgress = phase.status === 'in_progress'
+
+    // Task progress
+    const tasks = phaseTasks.filter(pt => pt.phase_id === phase.id)
+    const taskProgress = tasks.length > 0
+      ? Math.round(tasks.filter(pt => pt.is_completed).length / tasks.length * 100)
+      : null
 
     // Text color: for light bars (like yellow #F1C232), use dark text
     const isLightColor = ['#F1C232', '#FDE047', '#FBBF24', '#D97706'].includes(color)
@@ -185,7 +210,7 @@ export function GanttChart({
     return (
       <div
         key={phase.id}
-        className={`absolute flex items-center rounded cursor-pointer transition-opacity hover:opacity-100 ${
+        className={`absolute flex flex-col rounded cursor-pointer transition-opacity hover:opacity-100 overflow-hidden ${
           isCompleted ? 'opacity-100' : isInProgress ? 'opacity-90' : 'opacity-60'
         }`}
         style={{
@@ -196,17 +221,39 @@ export function GanttChart({
           backgroundColor: color,
           zIndex: 5,
         }}
-        onClick={() => onEditPhase(phase)}
-        title={`${phase.phase_name}${phase.total_hours ? ` (${phase.total_hours}h)` : ''}`}
+        onClick={() => {
+          if (onPhaseClick) {
+            onPhaseClick(phase, mat.material_name)
+          } else {
+            onEditPhase(phase)
+          }
+        }}
+        title={`${phase.phase_name}${phase.total_hours ? ` (${phase.total_hours}h)` : ''}${taskProgress !== null ? ` - ${taskProgress}%` : ''}`}
       >
-        <span
-          className="text-[9px] font-semibold truncate leading-tight pl-2 pr-1"
-          style={{ color: textColor }}
-        >
-          {phase.phase_name}
-        </span>
-        {isCompleted && (
-          <CheckCircle className="w-3 h-3 shrink-0 mr-1" style={{ color: '#10B981' }} />
+        <div className="flex items-center flex-1 min-h-0">
+          <span
+            className={`${isMobile ? 'text-[8px]' : 'text-[9px]'} font-semibold truncate leading-tight pl-2 pr-1`}
+            style={{ color: textColor }}
+          >
+            {phase.phase_name}
+            {taskProgress !== null && barWidth > 60 && (
+              <span className="ml-1 opacity-80">{taskProgress}%</span>
+            )}
+          </span>
+          {isCompleted && (
+            <CheckCircle className="w-3 h-3 shrink-0 mr-1" style={{ color: '#10B981' }} />
+          )}
+        </div>
+        {taskProgress !== null && (
+          <div className="w-full" style={{ height: 2, backgroundColor: 'rgba(0,0,0,0.15)' }}>
+            <div
+              style={{
+                height: 2,
+                width: `${taskProgress}%`,
+                backgroundColor: '#10B981',
+              }}
+            />
+          </div>
         )}
       </div>
     )
@@ -253,7 +300,7 @@ export function GanttChart({
         {/* Label column header */}
         <div
           className="flex items-center gap-2 px-4 border-r border-border shrink-0"
-          style={{ width: LABEL_WIDTH }}
+          style={{ width: labelWidth }}
         >
           <span className="text-[11px] font-bold text-muted-foreground tracking-wider">教材 / 科目</span>
         </div>
@@ -274,28 +321,28 @@ export function GanttChart({
       {/* Chart body */}
       <div className="flex border-t border-border">
         {/* Left labels */}
-        <div className="shrink-0 border-r border-border" style={{ width: LABEL_WIDTH }}>
+        <div className="shrink-0 border-r border-border" style={{ width: labelWidth }}>
           {/* Exam row label */}
           <div
             className="flex items-center gap-1.5 px-4 border-b border-border"
             style={{ height: EXAM_ROW_HEIGHT, backgroundColor: '#FEF2F2' }}
           >
-            <span className="text-[11px] font-bold text-red-500">🎓 入試スケジュール</span>
+            <span className="text-[11px] font-bold text-red-500">{t('examScheduleLabel')}</span>
           </div>
           {/* Material/Subject labels */}
           {rows.map((row, idx) => {
             if (row.type === 'subject') {
-              const sc = SUBJECT_COLORS[row.subject]
+              const sc = getSubjectStyle(row.subject)
               return (
                 <div
                   key={`label-${idx}`}
                   className="flex items-center gap-1.5 px-4 border-b border-border"
-                  style={{ height: SUBJECT_HEADER_HEIGHT, backgroundColor: sc?.bg || '#F9FAFB' }}
+                  style={{ height: SUBJECT_HEADER_HEIGHT, backgroundColor: sc.bg }}
                 >
-                  <span className="text-xs font-bold" style={{ color: sc?.color || '#6B7280' }}>{row.subject}</span>
+                  <span className="text-xs font-bold" style={{ color: sc.color }}>{row.subject}</span>
                   <span
                     className="text-[9px] font-medium px-1.5 py-0 rounded"
-                    style={{ backgroundColor: (sc?.color || '#6B7280') + '15', color: sc?.color || '#6B7280' }}
+                    style={{ backgroundColor: sc.color + '15', color: sc.color }}
                   >
                     {grouped[row.subject].length}教材
                   </span>
@@ -307,12 +354,12 @@ export function GanttChart({
               <div
                 key={`label-${idx}`}
                 className="flex items-center justify-between px-4 border-b border-border hover:bg-muted/30 transition-colors group/row"
-                style={{ height: ROW_HEIGHT }}
+                style={{ height: rowHeight }}
                 onMouseEnter={() => setHoveredRow(mat.id)}
                 onMouseLeave={() => setHoveredRow(null)}
               >
                 <div className="min-w-0 flex-1">
-                  <div className="text-[11px] font-semibold text-foreground truncate">{mat.material_name}</div>
+                  <div className={`${isMobile ? 'text-[10px]' : 'text-[11px]'} font-semibold text-foreground truncate`}>{mat.material_name}</div>
                   <div className="text-[9px] text-muted-foreground truncate">
                     {mat.study_pace || ''}
                     {mat.study_pace && getPhases(mat.id).length > 0 ? ' ・ ' : ''}
@@ -358,17 +405,17 @@ export function GanttChart({
             {(() => {
               let yOffset = EXAM_ROW_HEIGHT
               return rows.map((row, idx) => {
-                const h = row.type === 'subject' ? SUBJECT_HEADER_HEIGHT : ROW_HEIGHT
+                const h = row.type === 'subject' ? SUBJECT_HEADER_HEIGHT : rowHeight
                 const y = yOffset
                 yOffset += h
 
                 if (row.type === 'subject') {
-                  const sc = SUBJECT_COLORS[row.subject]
+                  const sc = getSubjectStyle(row.subject)
                   return (
                     <div
                       key={`row-${idx}`}
                       className="absolute left-0 right-0 border-b border-border"
-                      style={{ top: y, height: h, backgroundColor: sc?.bg || '#F9FAFB' }}
+                      style={{ top: y, height: h, backgroundColor: sc.bg }}
                     />
                   )
                 }

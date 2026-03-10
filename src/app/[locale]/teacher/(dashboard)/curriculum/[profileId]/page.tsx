@@ -1,13 +1,14 @@
 "use client"
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import { Link, useRouter } from '@/i18n/navigation'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
-import { FileEdit, Download, Plus } from 'lucide-react'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { FileEdit, Download, Plus, ChevronDown, Copy, FileSpreadsheet, FileText } from 'lucide-react'
 import { SkeletonList } from '@/components/ui/skeleton-card'
 import { ErrorAlert } from '@/components/ui/error-alert'
 import { useAuth } from '@/hooks/use-auth'
@@ -24,6 +25,8 @@ import { StudentInfoBar } from '@/components/curriculum/student-info-bar'
 import { GanttChart } from '@/components/curriculum/gantt-chart'
 import { MaterialForm } from '@/components/curriculum/material-form'
 import { PhaseForm } from '@/components/curriculum/phase-form'
+import { PhaseDetailDialog } from '@/components/curriculum/phase-detail-dialog'
+import { SubjectColorEditor } from '@/components/curriculum/subject-color-editor'
 import { ExamScheduleList } from '@/components/curriculum/exam-schedule-list'
 import { ExamScheduleForm } from '@/components/curriculum/exam-schedule-form'
 import { LessonLogList } from '@/components/curriculum/lesson-log-list'
@@ -37,8 +40,10 @@ import { SkillList } from '@/components/curriculum/skill-list'
 import { SkillForm } from '@/components/curriculum/skill-form'
 import { HandoverNoteList } from '@/components/curriculum/handover-note-list'
 import { HandoverNoteForm } from '@/components/curriculum/handover-note-form'
+import { exportCurriculumPDF, exportCurriculumExcel } from '@/lib/export-curriculum'
 import { useTranslations } from 'next-intl'
 import { LoadingButton } from '@/components/ui/loading-button'
+import { toast } from 'sonner'
 
 // Avatar colors for student tabs (matching Pencil design)
 const STUDENT_COLORS = ['#0C5394', '#45818E', '#8E7CC3', '#F1C232', '#BE123C', '#059669']
@@ -60,18 +65,24 @@ export default function StudentCurriculumPage() {
   const { user, loading: authLoading } = useAuth()
   const { profiles } = useStudentProfiles(user?.id)
   const { updateProfile } = useStudentProfiles(user?.id)
+
+  // Year selection
+  const [selectedYear, setSelectedYear] = useState<string | undefined>(undefined)
+
   const { goals, skills, loading: curriculumLoading, error: curriculumError, addGoal, updateGoal, deleteGoal, addSkill, updateSkill, deleteSkill } = useStudentCurriculum(profileId)
-  const { materials, phases, loading: materialsLoading, error: materialsError, addMaterial, updateMaterial, deleteMaterial, addPhase, updatePhase, deletePhase } = useCurriculumMaterials(profileId)
+  const { materials, phases, phaseTasks, loading: materialsLoading, error: materialsError, addMaterial, updateMaterial, deleteMaterial, addPhase, updatePhase, deletePhase, addTask, updateTask, deleteTask, copyToNextYear } = useCurriculumMaterials(profileId, selectedYear)
   const { exams, loading: examsLoading, error: examsError, addExam, updateExam, deleteExam } = useExamSchedules(profileId)
   const { logs, logPhases, loading: logsLoading, error: logsError, addLog, deleteLog } = useLessonLogs(profileId)
   const { scores, loading: scoresLoading, error: scoresError, addScore, updateScore, deleteScore } = useTestScores(profileId)
   const { notes, loading: notesLoading, error: notesError, addNote, deleteNote } = useHandoverNotes(profileId)
   const supabase = useMemo(() => createClient(), [])
+  const ganttRef = useRef<HTMLDivElement>(null)
 
   const [profile, setProfile] = useState<StudentProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState('curriculum')
+  const [exporting, setExporting] = useState(false)
 
   // Material form dialog
   const [showMaterialForm, setShowMaterialForm] = useState(false)
@@ -81,6 +92,11 @@ export default function StudentCurriculumPage() {
   const [showPhaseForm, setShowPhaseForm] = useState(false)
   const [editingPhase, setEditingPhase] = useState<CurriculumPhase | null>(null)
   const [phaseTargetMaterialId, setPhaseTargetMaterialId] = useState<string>('')
+
+  // Phase detail dialog
+  const [showPhaseDetail, setShowPhaseDetail] = useState(false)
+  const [detailPhase, setDetailPhase] = useState<CurriculumPhase | null>(null)
+  const [detailMaterialName, setDetailMaterialName] = useState('')
 
   // Exam form dialog
   const [showExamForm, setShowExamForm] = useState(false)
@@ -103,6 +119,13 @@ export default function StudentCurriculumPage() {
   const [detailText, setDetailText] = useState('')
   const [savingDetail, setSavingDetail] = useState(false)
 
+  // Copy year dialog
+  const [showCopyYearDialog, setShowCopyYearDialog] = useState(false)
+  const [copyingYear, setCopyingYear] = useState(false)
+
+  // Subject color editor
+  const [showColorEditor, setShowColorEditor] = useState(false)
+
   useEffect(() => {
     if (!profileId) return
     let mounted = true
@@ -114,7 +137,12 @@ export default function StudentCurriculumPage() {
           .eq('id', profileId)
           .single()
         if (err) throw err
-        if (mounted) setProfile(data)
+        if (mounted) {
+          setProfile(data)
+          if (data.curriculum_year && !selectedYear) {
+            setSelectedYear(data.curriculum_year)
+          }
+        }
       } catch (e: unknown) {
         if (mounted) setError(e instanceof Error ? e.message : String(e))
       } finally {
@@ -154,7 +182,7 @@ export default function StudentCurriculumPage() {
     if (editingMaterial) {
       await updateMaterial(editingMaterial.id, data)
     } else {
-      await addMaterial({ ...data, order_index: materials.length })
+      await addMaterial({ ...data, order_index: materials.length, curriculum_year: selectedYear })
     }
     setShowMaterialForm(false)
   }
@@ -170,6 +198,13 @@ export default function StudentCurriculumPage() {
       await addPhase({ ...data, material_id: phaseTargetMaterialId, is_date_manual: false, status: 'not_started', order_index: materialPhases.length })
     }
     setShowPhaseForm(false)
+  }
+
+  // Phase detail (click on Gantt bar)
+  const handlePhaseClick = (phase: CurriculumPhase, materialName: string) => {
+    setDetailPhase(phase)
+    setDetailMaterialName(materialName)
+    setShowPhaseDetail(true)
   }
 
   // Exam handlers
@@ -203,29 +238,139 @@ export default function StudentCurriculumPage() {
     setShowScoreForm(false)
   }
 
+  // Export handlers
+  const handleExportPDF = async () => {
+    if (!ganttRef.current || !profile) return
+    setExporting(true)
+    try {
+      const result = await exportCurriculumPDF(ganttRef.current, profile.name)
+      if (!result.success) toast.error(result.error || 'PDF出力に失敗しました')
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  const handleExportExcel = async () => {
+    if (!profile) return
+    setExporting(true)
+    try {
+      const result = await exportCurriculumExcel({
+        studentName: profile.name,
+        materials,
+        phases,
+        exams,
+        phaseTasks,
+      })
+      if (!result.success) toast.error(result.error || 'Excel出力に失敗しました')
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  // Subject color handlers
+  const subjectColors = profile?.subject_colors || {}
+  const existingSubjects = useMemo(() => {
+    const set = new Set(materials.map(m => m.subject))
+    return Array.from(set)
+  }, [materials])
+
+  const handleSubjectColorsChange = async (colors: Record<string, string>) => {
+    if (!profile) return
+    await handleUpdateProfile(profile.id, { subject_colors: colors } as Partial<StudentProfile>)
+  }
+
+  // Year selection
+  const currentYear = new Date().getFullYear()
+  const yearOptions = useMemo(() => {
+    const years = new Set<string>()
+    if (profile?.curriculum_year) years.add(profile.curriculum_year)
+    years.add(String(currentYear))
+    years.add(String(currentYear + 1))
+    return Array.from(years).sort()
+  }, [profile?.curriculum_year, currentYear])
+
+  const handleCopyToNextYear = async () => {
+    if (!selectedYear) return
+    setCopyingYear(true)
+    try {
+      const nextYear = String(Number(selectedYear) + 1)
+      await copyToNextYear(nextYear)
+      setSelectedYear(nextYear)
+      toast.success(`${nextYear}年度のカリキュラムを作成しました`)
+      setShowCopyYearDialog(false)
+    } catch {
+      toast.error('次年度カリキュラムの作成に失敗しました')
+    } finally {
+      setCopyingYear(false)
+    }
+  }
+
   const anyError = error || curriculumError || materialsError || examsError || logsError || scoresError || notesError
 
   // Current student index for color
   const studentIndex = profiles.findIndex(p => p.id === profileId)
 
+  // Material name for phase form
+  const phaseTargetMaterialName = materials.find(m => m.id === phaseTargetMaterialId)?.material_name || ''
+
   return (
     <ProtectedRoute allowedRoles={["teacher"]}>
-      <div className="px-7 py-6 space-y-5">
+      <div className="px-4 sm:px-7 py-4 sm:py-6 space-y-4 sm:space-y-5">
         {/* Page Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-[22px] font-extrabold text-foreground">{tPage('breadcrumb')}</h1>
-            <p className="text-[13px] text-muted-foreground mt-0.5">年間カリキュラムの進捗をガントチャートで管理</p>
+            <h1 className="text-xl sm:text-[22px] font-extrabold text-foreground">{tPage('breadcrumb')}</h1>
+            <p className="text-[12px] sm:text-[13px] text-muted-foreground mt-0.5">年間カリキュラムの進捗をガントチャートで管理</p>
           </div>
-          <div className="flex items-center gap-2.5">
-            <button className="flex items-center gap-1.5 text-[13px] font-medium text-muted-foreground border border-border rounded-lg px-3.5 py-2 hover:bg-muted/50 transition-colors bg-card">
-              <Download className="w-4 h-4" />
-              エクスポート
+          <div className="flex items-center gap-2">
+            {/* Year selector */}
+            <select
+              value={selectedYear || ''}
+              onChange={e => setSelectedYear(e.target.value || undefined)}
+              className="text-[13px] font-medium text-foreground border border-border rounded-lg px-3 py-2 bg-card"
+            >
+              {yearOptions.map(y => (
+                <option key={y} value={y}>{y}年度</option>
+              ))}
+            </select>
+
+            {/* Export dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="flex items-center gap-1.5 text-[13px] font-medium text-muted-foreground border border-border rounded-lg px-3 py-2 hover:bg-muted/50 transition-colors bg-card"
+                  disabled={exporting}
+                >
+                  <Download className="w-4 h-4" />
+                  <span className="hidden sm:inline">エクスポート</span>
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleExportPDF}>
+                  <FileText className="w-4 h-4 mr-2" />
+                  PDF
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExportExcel}>
+                  <FileSpreadsheet className="w-4 h-4 mr-2" />
+                  Excel
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Copy to next year */}
+            <button
+              className="flex items-center gap-1.5 text-[13px] font-medium text-muted-foreground border border-border rounded-lg px-3 py-2 hover:bg-muted/50 transition-colors bg-card"
+              onClick={() => setShowCopyYearDialog(true)}
+            >
+              <Copy className="w-4 h-4" />
+              <span className="hidden sm:inline">次年度作成</span>
             </button>
+
             <Link href="/teacher/curriculum">
               <button className="flex items-center gap-1.5 text-[13px] font-semibold text-white bg-[#7C3AED] hover:bg-[#6D28D9] rounded-lg px-3.5 py-2 transition-colors">
                 <Plus className="w-4 h-4" />
-                生徒を追加
+                <span className="hidden sm:inline">生徒を追加</span>
               </button>
             </Link>
           </div>
@@ -233,14 +378,14 @@ export default function StudentCurriculumPage() {
 
         {/* Student Tabs */}
         {profiles.length > 0 && (
-          <div className="flex items-center border-b border-border">
+          <div className="flex items-center border-b border-border overflow-x-auto scrollbar-hide">
             {profiles.map((p, idx) => {
               const isActive = p.id === profileId
               const color = STUDENT_COLORS[idx % STUDENT_COLORS.length]
               return (
                 <button
                   key={p.id}
-                  className={`flex items-center gap-2 px-4 py-2.5 text-[13px] transition-colors relative ${
+                  className={`flex items-center gap-2 px-3 sm:px-4 py-2.5 text-[12px] sm:text-[13px] transition-colors relative whitespace-nowrap shrink-0 ${
                     isActive
                       ? 'font-bold text-[#7C3AED]'
                       : 'font-medium text-muted-foreground hover:text-foreground'
@@ -248,7 +393,7 @@ export default function StudentCurriculumPage() {
                   onClick={() => router.push(`/teacher/curriculum/${p.id}`)}
                 >
                   <div
-                    className="w-6 h-6 rounded-full shrink-0"
+                    className="w-5 h-5 sm:w-6 sm:h-6 rounded-full shrink-0"
                     style={{ backgroundColor: color }}
                   />
                   <span>{p.name}</span>
@@ -272,10 +417,20 @@ export default function StudentCurriculumPage() {
           materials={materials}
           phases={phases}
           exams={exams}
+          phaseTasks={phaseTasks}
           colorIndex={studentIndex >= 0 ? studentIndex : 0}
         />
 
         {anyError && <ErrorAlert message={anyError} />}
+
+        {/* Subject Color Editor (toggle) */}
+        {showColorEditor && existingSubjects.length > 0 && (
+          <SubjectColorEditor
+            subjects={existingSubjects}
+            subjectColors={subjectColors}
+            onChange={handleSubjectColorsChange}
+          />
+        )}
 
         {/* Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -291,21 +446,35 @@ export default function StudentCurriculumPage() {
           {/* Curriculum (Gantt) tab */}
           <TabsContent value="curriculum">
             <div className="space-y-5">
-              <GanttChart
-                materials={materials}
-                phases={phases}
-                exams={exams}
-                curriculumYear={profile.curriculum_year}
-                onAddMaterial={handleAddMaterial}
-                onEditMaterial={handleEditMaterial}
-                onDeleteMaterial={deleteMaterial}
-                onAddPhase={handleAddPhase}
-                onEditPhase={handleEditPhase}
-                onDeletePhase={deletePhase}
-                onUpdatePhase={updatePhase}
-                onAddExam={handleAddExam}
-                t={(key: string) => tGantt(key)}
-              />
+              {/* Color editor toggle */}
+              <div className="flex justify-end">
+                <button
+                  className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+                  onClick={() => setShowColorEditor(!showColorEditor)}
+                >
+                  {showColorEditor ? '色設定を閉じる' : '科目の色を変更'}
+                </button>
+              </div>
+              <div ref={ganttRef}>
+                <GanttChart
+                  materials={materials}
+                  phases={phases}
+                  phaseTasks={phaseTasks}
+                  exams={exams}
+                  curriculumYear={selectedYear || profile.curriculum_year}
+                  subjectColors={subjectColors}
+                  onAddMaterial={handleAddMaterial}
+                  onEditMaterial={handleEditMaterial}
+                  onDeleteMaterial={deleteMaterial}
+                  onAddPhase={handleAddPhase}
+                  onEditPhase={handleEditPhase}
+                  onDeletePhase={deletePhase}
+                  onUpdatePhase={updatePhase}
+                  onAddExam={handleAddExam}
+                  onPhaseClick={handlePhaseClick}
+                  t={(key: string) => tGantt(key)}
+                />
+              </div>
               <ExamScheduleList
                 exams={exams}
                 onAdd={handleAddExam}
@@ -376,6 +545,7 @@ export default function StudentCurriculumPage() {
           onOpenChange={setShowMaterialForm}
           onSubmit={handleSubmitMaterial}
           initialData={editingMaterial ? { material_name: editingMaterial.material_name, subject: editingMaterial.subject, study_pace: editingMaterial.study_pace || undefined, color: editingMaterial.color || undefined, notes: editingMaterial.notes || undefined } : undefined}
+          existingSubjects={existingSubjects}
           t={(key: string) => tMaterials(key)}
         />
         <PhaseForm
@@ -383,7 +553,19 @@ export default function StudentCurriculumPage() {
           onOpenChange={setShowPhaseForm}
           onSubmit={handleSubmitPhase}
           initialData={editingPhase ? { phase_name: editingPhase.phase_name, total_hours: editingPhase.total_hours || undefined, start_date: editingPhase.start_date || undefined, end_date: editingPhase.end_date || undefined } : undefined}
+          materialName={phaseTargetMaterialName}
           t={(key: string) => tPhases(key)}
+        />
+        <PhaseDetailDialog
+          open={showPhaseDetail}
+          onOpenChange={setShowPhaseDetail}
+          phase={detailPhase}
+          materialName={detailMaterialName}
+          tasks={phaseTasks.filter(t => t.phase_id === detailPhase?.id)}
+          onAddTask={addTask}
+          onUpdateTask={updateTask}
+          onDeleteTask={deleteTask}
+          onUpdatePhase={updatePhase}
         />
         <ExamScheduleForm
           open={showExamForm}
@@ -430,6 +612,24 @@ export default function StudentCurriculumPage() {
               <Button variant="outline" onClick={() => setShowDetailDialog(false)} disabled={savingDetail}>{tc('cancel')}</Button>
               <LoadingButton onClick={handleSaveDetail} loading={savingDetail}>
                 {tc('save')}
+              </LoadingButton>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Copy Year Dialog */}
+        <Dialog open={showCopyYearDialog} onOpenChange={setShowCopyYearDialog}>
+          <DialogContent className="max-w-[400px]">
+            <DialogHeader>
+              <DialogTitle>次年度カリキュラムを作成</DialogTitle>
+              <DialogDescription>
+                {selectedYear}年度のカリキュラムを{Number(selectedYear) + 1}年度にコピーします。日程は1年後にシフトされ、ステータスはリセットされます。
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowCopyYearDialog(false)} disabled={copyingYear}>{tc('cancel')}</Button>
+              <LoadingButton onClick={handleCopyToNextYear} loading={copyingYear}>
+                作成する
               </LoadingButton>
             </DialogFooter>
           </DialogContent>

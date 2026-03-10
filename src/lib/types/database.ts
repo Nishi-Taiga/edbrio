@@ -228,6 +228,7 @@ export interface StudentProfile {
   status: string
   curriculum_year?: string
   curriculum_title?: string
+  subject_colors?: Record<string, string>
   created_at: string
   updated_at: string
 }
@@ -331,6 +332,7 @@ export interface CurriculumMaterial {
   color?: string
   order_index: number
   notes?: string
+  curriculum_year?: string
   created_at: string
   updated_at: string
 }
@@ -349,6 +351,15 @@ export interface CurriculumPhase {
   completed_at?: string
   created_at: string
   updated_at: string
+}
+
+export interface PhaseTask {
+  id: string
+  phase_id: string
+  task_name: string
+  is_completed: boolean
+  order_index: number
+  created_at: string
 }
 
 export interface ExamSchedule {
