@@ -126,7 +126,6 @@ export async function exportCurriculumExcel(data: {
         curriculumRows.push({
           科目: material.subject,
           教材名: material.material_name,
-          ペース: material.study_pace ?? '',
           フェーズ: phase.phase_name,
           '所要時間(h)': phase.total_hours ?? '',
           開始日: phase.start_date ?? '',

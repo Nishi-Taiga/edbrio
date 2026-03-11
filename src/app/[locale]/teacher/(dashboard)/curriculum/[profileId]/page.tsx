@@ -156,7 +156,7 @@ export default function StudentCurriculumPage() {
   // Material handlers
   const handleAddMaterial = () => { setEditingMaterial(null); setShowMaterialForm(true) }
   const handleEditMaterial = (m: CurriculumMaterial) => { setEditingMaterial(m); setShowMaterialForm(true) }
-  const handleSubmitMaterial = async (data: { material_name: string; subject: string; study_pace?: string; color?: string; notes?: string }) => {
+  const handleSubmitMaterial = async (data: { material_name: string; subject: string; color?: string; notes?: string }) => {
     if (editingMaterial) {
       await updateMaterial(editingMaterial.id, data)
     } else {
@@ -474,7 +474,7 @@ export default function StudentCurriculumPage() {
           open={showMaterialForm}
           onOpenChange={setShowMaterialForm}
           onSubmit={handleSubmitMaterial}
-          initialData={editingMaterial ? { material_name: editingMaterial.material_name, subject: editingMaterial.subject, study_pace: editingMaterial.study_pace || undefined, color: editingMaterial.color || undefined, notes: editingMaterial.notes || undefined } : undefined}
+          initialData={editingMaterial ? { material_name: editingMaterial.material_name, subject: editingMaterial.subject, color: editingMaterial.color || undefined, notes: editingMaterial.notes || undefined } : undefined}
           existingSubjects={existingSubjects}
           t={(key: string) => tMaterials(key)}
         />

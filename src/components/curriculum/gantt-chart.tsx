@@ -361,8 +361,6 @@ export function GanttChart({
                 <div className="min-w-0 flex-1">
                   <div className={`${isMobile ? 'text-[10px]' : 'text-[11px]'} font-semibold text-foreground truncate`}>{mat.material_name}</div>
                   <div className="text-[9px] text-muted-foreground truncate">
-                    {mat.study_pace || ''}
-                    {mat.study_pace && getPhases(mat.id).length > 0 ? ' ・ ' : ''}
                     {getPhases(mat.id).map(p => p.phase_name).join('→')}
                   </div>
                 </div>

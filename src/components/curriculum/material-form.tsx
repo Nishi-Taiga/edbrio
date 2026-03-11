@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Loader2 } from 'lucide-react'
 
 const PRESET_COLORS = [
@@ -22,8 +23,8 @@ const PRESET_COLORS = [
 interface MaterialFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (material: { material_name: string; subject: string; study_pace?: string; color?: string; notes?: string }) => Promise<void>
-  initialData?: { material_name: string; subject: string; study_pace?: string; color?: string; notes?: string }
+  onSubmit: (material: { material_name: string; subject: string; color?: string; notes?: string }) => Promise<void>
+  initialData?: { material_name: string; subject: string; color?: string; notes?: string }
   existingSubjects?: string[]
   t: (key: string) => string
 }
@@ -31,7 +32,6 @@ interface MaterialFormProps {
 export function MaterialForm({ open, onOpenChange, onSubmit, initialData, existingSubjects, t }: MaterialFormProps) {
   const [materialName, setMaterialName] = useState('')
   const [subject, setSubject] = useState('')
-  const [studyPace, setStudyPace] = useState('')
   const [color, setColor] = useState('')
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
@@ -40,7 +40,6 @@ export function MaterialForm({ open, onOpenChange, onSubmit, initialData, existi
     if (open) {
       setMaterialName(initialData?.material_name ?? '')
       setSubject(initialData?.subject ?? '')
-      setStudyPace(initialData?.study_pace ?? '')
       setColor(initialData?.color ?? '')
       setNotes(initialData?.notes ?? '')
     }
@@ -53,8 +52,7 @@ export function MaterialForm({ open, onOpenChange, onSubmit, initialData, existi
       await onSubmit({
         material_name: materialName.trim(),
         subject: subject.trim(),
-        study_pace: studyPace.trim() || undefined,
-        color: color.trim() || undefined,
+        color: color || undefined,
         notes: notes.trim() || undefined,
       })
       onOpenChange(false)
@@ -84,39 +82,26 @@ export function MaterialForm({ open, onOpenChange, onSubmit, initialData, existi
           </div>
           <div>
             <Label htmlFor="material-subject">{t('subject')}</Label>
-            {existingSubjects && existingSubjects.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-1 mb-2">
-                {existingSubjects.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
-                      subject === s
-                        ? 'bg-primary text-primary-foreground border-primary'
-                        : 'bg-muted/50 text-muted-foreground border-border hover:bg-muted'
-                    }`}
-                    onClick={() => setSubject(s)}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
+            {existingSubjects && existingSubjects.length > 0 ? (
+              <Select value={subject} onValueChange={setSubject}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder={t('subjectPlaceholder')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {existingSubjects.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <Input
+                id="material-subject"
+                value={subject}
+                onChange={e => setSubject(e.target.value)}
+                placeholder={t('subjectPlaceholder')}
+                className="mt-1"
+              />
             )}
-            <Input
-              id="material-subject"
-              value={subject}
-              onChange={e => setSubject(e.target.value)}
-              placeholder={t('subjectPlaceholder')}
-            />
-          </div>
-          <div>
-            <Label htmlFor="material-pace">{t('studyPace')}</Label>
-            <Input
-              id="material-pace"
-              value={studyPace}
-              onChange={e => setStudyPace(e.target.value)}
-              placeholder={t('studyPacePlaceholder')}
-            />
           </div>
           <div>
             <Label>{t('color')}</Label>
@@ -132,13 +117,6 @@ export function MaterialForm({ open, onOpenChange, onSubmit, initialData, existi
                 />
               ))}
             </div>
-            <Input
-              id="material-color"
-              value={color}
-              onChange={e => setColor(e.target.value)}
-              placeholder="#3B82F6"
-              className="mt-2"
-            />
           </div>
           <div>
             <Label htmlFor="material-notes">{t('notes')}</Label>
