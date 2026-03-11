@@ -23,7 +23,7 @@ import { GanttChart } from '@/components/curriculum/gantt-chart'
 import { MaterialForm } from '@/components/curriculum/material-form'
 import { PhaseForm } from '@/components/curriculum/phase-form'
 import { PhaseDetailDialog } from '@/components/curriculum/phase-detail-dialog'
-import { SubjectColorEditor } from '@/components/curriculum/subject-color-editor'
+
 import { ExamScheduleList } from '@/components/curriculum/exam-schedule-list'
 import { ExamScheduleForm } from '@/components/curriculum/exam-schedule-form'
 import { TestScoreList } from '@/components/curriculum/test-score-list'
@@ -113,8 +113,6 @@ export default function StudentCurriculumPage() {
   const [showCopyYearDialog, setShowCopyYearDialog] = useState(false)
   const [copyingYear, setCopyingYear] = useState(false)
 
-  // Subject color editor
-  const [showColorEditor, setShowColorEditor] = useState(false)
 
   useEffect(() => {
     if (!profileId) return
@@ -169,7 +167,7 @@ export default function StudentCurriculumPage() {
   // Material handlers
   const handleAddMaterial = () => { setEditingMaterial(null); setShowMaterialForm(true) }
   const handleEditMaterial = (m: CurriculumMaterial) => { setEditingMaterial(m); setShowMaterialForm(true) }
-  const handleSubmitMaterial = async (data: { material_name: string; subject: string; color?: string; notes?: string }) => {
+  const handleSubmitMaterial = async (data: { material_name: string; subject: string; notes?: string }) => {
     if (editingMaterial) {
       await updateMaterial(editingMaterial.id, data)
     } else {
@@ -252,17 +250,10 @@ export default function StudentCurriculumPage() {
     }
   }
 
-  // Subject color handlers
-  const subjectColors = profile?.subject_colors || {}
   const existingSubjects = useMemo(() => {
     const set = new Set(materials.map(m => m.subject))
     return Array.from(set)
   }, [materials])
-
-  const handleSubjectColorsChange = async (colors: Record<string, string>) => {
-    if (!profile) return
-    await handleUpdateProfile(profile.id, { subject_colors: colors } as Partial<StudentProfile>)
-  }
 
   // Year selection
   const currentYear = new Date().getFullYear()
@@ -390,15 +381,6 @@ export default function StudentCurriculumPage() {
 
         {anyError && <ErrorAlert message={anyError} />}
 
-        {/* Subject Color Editor (toggle) */}
-        {showColorEditor && existingSubjects.length > 0 && (
-          <SubjectColorEditor
-            subjects={existingSubjects}
-            subjectColors={subjectColors}
-            onChange={handleSubjectColorsChange}
-          />
-        )}
-
         {/* Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-4 flex-wrap">
@@ -428,12 +410,6 @@ export default function StudentCurriculumPage() {
                     <ChevronRight className="w-5 h-5 text-muted-foreground" />
                   </button>
                 </div>
-                <button
-                  className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
-                  onClick={() => setShowColorEditor(!showColorEditor)}
-                >
-                  {showColorEditor ? '色設定を閉じる' : '科目の色を変更'}
-                </button>
               </div>
               <div ref={ganttRef}>
                 <GanttChart
@@ -442,7 +418,6 @@ export default function StudentCurriculumPage() {
                   phaseTasks={phaseTasks}
                   exams={exams}
                   curriculumYear={selectedYear || profile.curriculum_year}
-                  subjectColors={subjectColors}
                   onAddMaterial={handleAddMaterial}
                   onEditMaterial={handleEditMaterial}
                   onDeleteMaterial={deleteMaterial}
@@ -486,7 +461,7 @@ export default function StudentCurriculumPage() {
           open={showMaterialForm}
           onOpenChange={setShowMaterialForm}
           onSubmit={handleSubmitMaterial}
-          initialData={editingMaterial ? { material_name: editingMaterial.material_name, subject: editingMaterial.subject, color: editingMaterial.color || undefined, notes: editingMaterial.notes || undefined } : undefined}
+          initialData={editingMaterial ? { material_name: editingMaterial.material_name, subject: editingMaterial.subject, notes: editingMaterial.notes || undefined } : undefined}
           existingSubjects={existingSubjects}
           t={(key: string) => tMaterials(key)}
         />

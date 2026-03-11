@@ -15,16 +15,29 @@ const SUBJECT_HEADER_HEIGHT = 28
 const MONTHS = [4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3] // Academic year April–March
 const MONTH_LABELS = ['4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月']
 
-// Subject color presets (matching Pencil design)
-const SUBJECT_COLORS: Record<string, { color: string; bg: string; icon: string }> = {
-  '数学': { color: '#0C5394', bg: '#EFF6FF', icon: 'calculate' },
-  '物理': { color: '#45818E', bg: '#ECFDF5', icon: 'science' },
-  '化学': { color: '#B45309', bg: '#FFFBEB', icon: 'science' },
-  '英語': { color: '#1D4ED8', bg: '#EFF6FF', icon: 'translate' },
-  '国語': { color: '#BE123C', bg: '#FFF1F2', icon: 'menu_book' },
-  '社会': { color: '#4338CA', bg: '#EEF2FF', icon: 'public' },
-  '理科': { color: '#15803D', bg: '#ECFDF5', icon: 'science' },
-  '生物': { color: '#059669', bg: '#ECFDF5', icon: 'eco' },
+// Subject color mapping (fixed by subject)
+const SUBJECT_COLORS: Record<string, { color: string; bg: string }> = {
+  '国語': { color: '#BE123C', bg: '#FFF1F2' },
+  '算数': { color: '#2563EB', bg: '#EFF6FF' },
+  '数学': { color: '#2563EB', bg: '#EFF6FF' },
+  '理科': { color: '#15803D', bg: '#ECFDF5' },
+  '物理': { color: '#15803D', bg: '#ECFDF5' },
+  '化学': { color: '#059669', bg: '#ECFDF5' },
+  '生物': { color: '#16A34A', bg: '#ECFDF5' },
+  '社会': { color: '#D97706', bg: '#FFFBEB' },
+  '地理': { color: '#D97706', bg: '#FFFBEB' },
+  '歴史': { color: '#EA580C', bg: '#FFF7ED' },
+  '英語': { color: '#7C3AED', bg: '#F5F3FF' },
+}
+
+/** Get color for a subject, with fallback for unknown subjects */
+export function getSubjectColor(subject: string): { color: string; bg: string } {
+  if (SUBJECT_COLORS[subject]) return SUBJECT_COLORS[subject]
+  // Partial match: e.g. "数学A" matches "数学"
+  for (const key of Object.keys(SUBJECT_COLORS)) {
+    if (subject.includes(key)) return SUBJECT_COLORS[key]
+  }
+  return { color: '#6B7280', bg: '#F9FAFB' }
 }
 
 const EXAM_CATEGORY_COLORS: Record<string, string> = {
@@ -42,7 +55,6 @@ interface GanttChartProps {
   phaseTasks: PhaseTask[]
   exams: ExamSchedule[]
   curriculumYear?: string
-  subjectColors?: Record<string, string>
   onAddMaterial: () => void
   onEditMaterial: (material: CurriculumMaterial) => void
   onDeleteMaterial: (id: string) => void
@@ -86,7 +98,6 @@ export function GanttChart({
   phaseTasks,
   exams,
   curriculumYear,
-  subjectColors,
   onAddMaterial,
   onEditMaterial,
   onDeleteMaterial,
@@ -102,13 +113,7 @@ export function GanttChart({
   const [hoveredRow, setHoveredRow] = useState<string | null>(null)
   const [containerWidth, setContainerWidth] = useState(960)
 
-  const getSubjectStyle = (subject: string) => {
-    const customColor = subjectColors?.[subject]
-    const preset = SUBJECT_COLORS[subject]
-    const color = customColor || preset?.color || '#6B7280'
-    const bg = customColor ? color + '10' : preset?.bg || '#F9FAFB'
-    return { color, bg }
-  }
+  const getSubjectStyle = (subject: string) => getSubjectColor(subject)
 
   const year = getAcademicYear(curriculumYear)
   const academicYearStart = new Date(year, 3, 1) // April 1
@@ -193,7 +198,7 @@ export function GanttChart({
     const x1 = dateToX(new Date(phase.start_date), academicYearStart, timelineWidth, totalDays)
     const x2 = dateToX(new Date(phase.end_date), academicYearStart, timelineWidth, totalDays)
     const barWidth = Math.max(20, x2 - x1)
-    const color = mat.color || getSubjectStyle(mat.subject).color
+    const color = getSubjectStyle(mat.subject).color
     const isCompleted = phase.status === 'completed'
     const isInProgress = phase.status === 'in_progress'
 
