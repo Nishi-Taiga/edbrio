@@ -183,6 +183,16 @@ button:not(:disabled):active,
   color: #c4b5fd !important;
 }
 
+/* Sunday red / Saturday blue — dayGrid day numbers & headers */
+.fc-wrapper .fc-day-sun .fc-col-header-cell-cushion,
+.fc-wrapper .fc-day-sun .fc-daygrid-day-number {
+  color: #EF4444 !important;
+}
+.fc-wrapper .fc-day-sat .fc-col-header-cell-cushion,
+.fc-wrapper .fc-day-sat .fc-daygrid-day-number {
+  color: #3B82F6 !important;
+}
+
 .fc-wrapper .fc-button {
   border-radius: 8px !important;
   font-weight: 600;

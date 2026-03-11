@@ -55,6 +55,22 @@ export default function TeacherCalendarPage() {
 
   const calendarRef = useRef<FullCalendar>(null)
   const [currentView, setCurrentView] = useState<'timeGridWeek' | 'dayGridMonth'>('timeGridWeek')
+  const [weekStartsOn, setWeekStartsOn] = useState<0 | 1>(0)
+
+  // Load calendar week start preference
+  useEffect(() => {
+    async function loadPrefs() {
+      try {
+        const res = await fetch('/api/notification-preferences')
+        if (res.ok) {
+          const data = await res.json()
+          const ws = data.preferences?.calendar_week_start
+          if (ws === 0 || ws === 1) setWeekStartsOn(ws)
+        }
+      } catch { /* non-critical */ }
+    }
+    loadPrefs()
+  }, [])
 
   // Dialog state
   const [shiftFormOpen, setShiftFormOpen] = useState(false)
@@ -385,6 +401,17 @@ export default function TeacherCalendarPage() {
               plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
               initialView="timeGridWeek"
               locale={jaLocale}
+              firstDay={weekStartsOn}
+              dayHeaderContent={(arg) => {
+                const dow = arg.date.getDay()
+                const names = ['日', '月', '火', '水', '木', '金', '土']
+                const isSun = dow === 0
+                const isSat = dow === 6
+                const color = isSun ? '#EF4444' : isSat ? '#3B82F6' : ''
+                return {
+                  html: `<div style="${color ? `color:${color}` : ''}"><div style="font-size:0.65rem;font-weight:500">${names[dow]}</div><div style="font-size:0.95rem;font-weight:700">${arg.date.getDate()}</div></div>`,
+                }
+              }}
               headerToolbar={{
                 left: 'prev',
                 center: 'title',
