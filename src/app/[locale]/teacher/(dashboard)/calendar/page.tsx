@@ -55,16 +55,13 @@ export default function TeacherCalendarPage() {
 
   const calendarRef = useRef<FullCalendar>(null)
   const [currentView, setCurrentView] = useState<'timeGridWeek' | 'dayGridMonth'>('timeGridWeek')
-  const [weekStartsOn, setWeekStartsOn] = useState<0 | 1>(() => {
-    if (typeof window !== 'undefined') {
-      const v = localStorage.getItem('calendar_week_start')
-      if (v === '1') return 1
-    }
-    return 0
-  })
+  const [weekStartsOn, setWeekStartsOn] = useState<0 | 1 | null>(null)
 
-  // Load calendar week start preference and cache in localStorage
+  // Load calendar week start: localStorage first (instant), then API for freshness
   useEffect(() => {
+    const cached = localStorage.getItem('calendar_week_start')
+    setWeekStartsOn(cached === '1' ? 1 : 0)
+
     async function loadPrefs() {
       try {
         const res = await fetch('/api/notification-preferences')
@@ -399,13 +396,15 @@ export default function TeacherCalendarPage() {
         </div>
 
         <div className="relative">
-          {loading && (
+          {(loading || weekStartsOn === null) && (
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 dark:bg-surface-raised/60 rounded-xl">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600" />
             </div>
           )}
+          {weekStartsOn !== null && (
           <div className="fc-wrapper bg-white dark:bg-surface-raised rounded-xl border border-slate-200 dark:border-brand-800/20 p-2 sm:p-4 shadow-sm">
             <FullCalendar
+              key={`fc-${weekStartsOn}`}
               ref={calendarRef}
               plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
               initialView="timeGridWeek"
@@ -440,6 +439,7 @@ export default function TeacherCalendarPage() {
               eventDisplay="block"
             />
           </div>
+          )}
         </div>
 
         {/* Shift Form Dialog */}

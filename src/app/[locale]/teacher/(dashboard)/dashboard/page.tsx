@@ -40,13 +40,7 @@ export default function TeacherDashboard() {
   const [studentSubjects, setStudentSubjects] = useState<Record<string, string>>({})
   const [isUpdating, setIsUpdating] = useState<string | null>(null)
   const [ticketPriceMap, setTicketPriceMap] = useState<Record<string, number>>({})
-  const [weekStartsOn, setWeekStartsOn] = useState<0 | 1>(() => {
-    if (typeof window !== 'undefined') {
-      const v = localStorage.getItem('calendar_week_start')
-      if (v === '1') return 1
-    }
-    return 0
-  })
+  const [weekStartsOn, setWeekStartsOn] = useState<0 | 1 | null>(null)
 
   const supabase = useMemo(() => createClient(), [])
 
@@ -77,8 +71,11 @@ export default function TeacherDashboard() {
     checkSetup()
   }, [user, dbUser, supabase])
 
-  // Load calendar week start preference and cache in localStorage
+  // Load calendar week start: localStorage first (instant), then API for freshness
   useEffect(() => {
+    const cached = localStorage.getItem('calendar_week_start')
+    setWeekStartsOn(cached === '1' ? 1 : 0)
+
     async function loadPrefs() {
       try {
         const res = await fetch('/api/notification-preferences')
@@ -321,7 +318,7 @@ export default function TeacherDashboard() {
               bookings={bookings}
               reportedBookingIds={reportedBookingIds}
               studentNames={studentNames}
-              weekStartsOn={weekStartsOn}
+              weekStartsOn={weekStartsOn ?? 0}
             />
           </div>
           <div className="flex-1 min-w-0 order-1 lg:order-2">
