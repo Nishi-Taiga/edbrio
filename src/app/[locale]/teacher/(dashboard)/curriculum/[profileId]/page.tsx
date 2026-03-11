@@ -121,7 +121,8 @@ export default function StudentCurriculumPage() {
           }
         }
       } catch (e: unknown) {
-        if (mounted) setError(e instanceof Error ? e.message : String(e))
+        const msg = e instanceof Error ? e.message : (e && typeof e === 'object' && 'message' in e) ? String((e as { message: string }).message) : String(e)
+        if (mounted) setError(msg)
       } finally {
         if (mounted) setLoading(false)
       }

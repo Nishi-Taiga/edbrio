@@ -31,7 +31,15 @@ export function useCurriculumMaterials(profileId: string | undefined, curriculum
         query = query.eq('curriculum_year', curriculumYear)
       }
 
-      const materialsRes = await query
+      let materialsRes = await query
+      // Fallback: if curriculum_year column doesn't exist yet, retry without filter
+      if (materialsRes.error && curriculumYear) {
+        materialsRes = await supabase
+          .from('curriculum_materials')
+          .select('*')
+          .eq('profile_id', profileId)
+          .order('order_index', { ascending: true })
+      }
       if (materialsRes.error) throw materialsRes.error
       const fetchedMaterials = materialsRes.data || []
       setMaterials(fetchedMaterials)
@@ -47,7 +55,7 @@ export function useCurriculumMaterials(profileId: string | undefined, curriculum
         const fetchedPhases = phasesRes.data || []
         setPhases(fetchedPhases)
 
-        // Fetch phase tasks
+        // Fetch phase tasks (graceful: skip if table not yet created)
         if (fetchedPhases.length > 0) {
           const phaseIds = fetchedPhases.map(p => p.id)
           const tasksRes = await supabase
@@ -55,8 +63,12 @@ export function useCurriculumMaterials(profileId: string | undefined, curriculum
             .select('*')
             .in('phase_id', phaseIds)
             .order('order_index', { ascending: true })
-          if (tasksRes.error) throw tasksRes.error
-          setPhaseTasks(tasksRes.data || [])
+          if (tasksRes.error) {
+            console.warn('phase_tasks fetch skipped:', tasksRes.error.message)
+            setPhaseTasks([])
+          } else {
+            setPhaseTasks(tasksRes.data || [])
+          }
         } else {
           setPhaseTasks([])
         }
@@ -65,7 +77,8 @@ export function useCurriculumMaterials(profileId: string | undefined, curriculum
         setPhaseTasks([])
       }
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : String(e))
+      const msg = e instanceof Error ? e.message : (e && typeof e === 'object' && 'message' in e) ? String((e as { message: string }).message) : String(e)
+      setError(msg)
     } finally {
       setLoading(false)
     }
