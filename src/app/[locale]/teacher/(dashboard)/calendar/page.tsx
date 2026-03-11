@@ -55,9 +55,15 @@ export default function TeacherCalendarPage() {
 
   const calendarRef = useRef<FullCalendar>(null)
   const [currentView, setCurrentView] = useState<'timeGridWeek' | 'dayGridMonth'>('timeGridWeek')
-  const [weekStartsOn, setWeekStartsOn] = useState<0 | 1>(0)
+  const [weekStartsOn, setWeekStartsOn] = useState<0 | 1>(() => {
+    if (typeof window !== 'undefined') {
+      const v = localStorage.getItem('calendar_week_start')
+      if (v === '1') return 1
+    }
+    return 0
+  })
 
-  // Load calendar week start preference
+  // Load calendar week start preference and cache in localStorage
   useEffect(() => {
     async function loadPrefs() {
       try {
@@ -65,7 +71,10 @@ export default function TeacherCalendarPage() {
         if (res.ok) {
           const data = await res.json()
           const ws = data.preferences?.calendar_week_start
-          if (ws === 0 || ws === 1) setWeekStartsOn(ws)
+          if (ws === 0 || ws === 1) {
+            setWeekStartsOn(ws)
+            localStorage.setItem('calendar_week_start', String(ws))
+          }
         }
       } catch { /* non-critical */ }
     }
