@@ -269,21 +269,21 @@ export function TeacherDashboardCalendar({ events, title, labels, onEventClick, 
           <div className="flex-1 min-w-0 flex flex-col">
             {/* Week navigation */}
             <div className="flex items-center justify-between mb-2" style={{ paddingLeft: TIME_COL }}>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-[#282237] rounded-lg px-1 py-0.5">
                 <button
-                  className="w-7 h-7 flex items-center justify-center rounded-md text-gray-400 dark:text-[#6D5A8A] hover:bg-gray-100 dark:hover:bg-[#282237] transition-colors text-sm"
+                  className="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 dark:text-[#6D5A8A] hover:bg-white dark:hover:bg-[#1E1A2B] hover:text-gray-600 dark:hover:text-[#A78BFA] transition-colors"
                   onClick={() => setCurrentDate(prev => addDays(getWeekStart(prev, weekStartsOn), -7))}
                 >
-                  ‹
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
                 </button>
-                <span className="text-sm font-semibold text-gray-700 dark:text-[#E8E4F0] min-w-[100px] text-center">
+                <span className="text-[13px] font-semibold text-gray-700 dark:text-[#E8E4F0] min-w-[100px] text-center tabular-nums">
                   {format(weekStart, 'M/d')} – {format(addDays(weekStart, 6), 'M/d')}
                 </span>
                 <button
-                  className="w-7 h-7 flex items-center justify-center rounded-md text-gray-400 dark:text-[#6D5A8A] hover:bg-gray-100 dark:hover:bg-[#282237] transition-colors text-sm"
+                  className="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 dark:text-[#6D5A8A] hover:bg-white dark:hover:bg-[#1E1A2B] hover:text-gray-600 dark:hover:text-[#A78BFA] transition-colors"
                   onClick={() => setCurrentDate(prev => addDays(getWeekStart(prev, weekStartsOn), 7))}
                 >
-                  ›
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
                 </button>
               </div>
               <button
@@ -293,55 +293,55 @@ export function TeacherDashboardCalendar({ events, title, labels, onEventClick, 
                 {labels.weekView === '週' ? '今日' : 'Today'}
               </button>
             </div>
-            {/* Day headers */}
-            <div className="flex" style={{ paddingLeft: TIME_COL }}>
-              {weekDays.map((day, i) => {
-                const isTd = isSameDay(day, today)
-                const dayOfWeek = day.getDay() // 0=Sun, 6=Sat
-                const isSat = dayOfWeek === 6
-                const isSun = dayOfWeek === 0
-                const dayNames = weekStartsOn === 1 ? DAY_NAMES_MON : DAY_NAMES_SUN
-                return (
-                  <div
-                    key={i}
-                    className={cn(
-                      'flex-1 flex flex-col items-center gap-0.5 py-1',
-                      isTd && 'bg-[#EDE8F5] dark:bg-[#A78BFA]/[0.15] rounded-t-md',
-                    )}
-                  >
-                    <span className={cn(
-                      'text-[10px] font-medium',
-                      isTd && 'text-[#2D1B4E] dark:text-[#A78BFA] font-semibold',
-                      !isTd && isSat && 'text-[#3B82F6]',
-                      !isTd && isSun && 'text-[#EF4444]',
-                      !isTd && !isSat && !isSun && 'text-gray-400 dark:text-[#6D5A8A]',
-                    )}>
-                      {dayNames[i]}
-                    </span>
-                    {isTd ? (
-                      <span className="w-[15px] h-[15px] rounded-full bg-[#2D1B4E] dark:bg-[#A78BFA] text-white text-[11px] font-bold flex items-center justify-center leading-none">
-                        {day.getDate()}
-                      </span>
-                    ) : (
-                      <span className={cn(
-                        'text-xs font-semibold',
-                        isSat && 'text-[#3B82F6]',
-                        isSun && 'text-[#EF4444]',
-                        !isSat && !isSun && 'text-gray-600 dark:text-[#9CA3AF]',
-                      )}>
-                        {day.getDate()}
-                      </span>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
 
-            {/* Scrollable time grid */}
+            {/* Scrollable time grid (includes day headers for alignment) */}
             <div
               ref={gridRef}
               className="flex-1 overflow-y-auto overflow-x-hidden relative min-h-0"
             >
+              {/* Day headers — sticky inside scroll container so columns align with grid */}
+              <div className="flex sticky top-0 z-20 bg-white dark:bg-[#1E1A2B]" style={{ paddingLeft: TIME_COL }}>
+                {weekDays.map((day, i) => {
+                  const isTd = isSameDay(day, today)
+                  const dayOfWeek = day.getDay() // 0=Sun, 6=Sat
+                  const isSat = dayOfWeek === 6
+                  const isSun = dayOfWeek === 0
+                  const dayNames = weekStartsOn === 1 ? DAY_NAMES_MON : DAY_NAMES_SUN
+                  return (
+                    <div
+                      key={i}
+                      className={cn(
+                        'flex-1 flex flex-col items-center gap-0.5 py-1',
+                        isTd && 'bg-[#EDE8F5] dark:bg-[#A78BFA]/[0.15] rounded-t-md',
+                      )}
+                    >
+                      <span className={cn(
+                        'text-[10px] font-medium',
+                        isTd && 'text-[#2D1B4E] dark:text-[#A78BFA] font-semibold',
+                        !isTd && isSat && 'text-[#3B82F6]',
+                        !isTd && isSun && 'text-[#EF4444]',
+                        !isTd && !isSat && !isSun && 'text-gray-400 dark:text-[#6D5A8A]',
+                      )}>
+                        {dayNames[i]}
+                      </span>
+                      {isTd ? (
+                        <span className="w-[15px] h-[15px] rounded-full bg-[#2D1B4E] dark:bg-[#A78BFA] text-white text-[11px] font-bold flex items-center justify-center leading-none">
+                          {day.getDate()}
+                        </span>
+                      ) : (
+                        <span className={cn(
+                          'text-xs font-semibold',
+                          isSat && 'text-[#3B82F6]',
+                          isSun && 'text-[#EF4444]',
+                          !isSat && !isSun && 'text-gray-600 dark:text-[#9CA3AF]',
+                        )}>
+                          {day.getDate()}
+                        </span>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
               <div className="relative" style={{ height: (END_H - START_H + 1) * HOUR_H }}>
                 {/* Today column background */}
                 {weekDays.map((day, i) =>
@@ -418,22 +418,24 @@ export function TeacherDashboardCalendar({ events, title, labels, onEventClick, 
       ) : (
         /* ═══ MONTH VIEW ═══ */
         <div className="flex-1">
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <button
-              className="text-lg text-gray-400 dark:text-[#6D5A8A] hover:text-gray-600 dark:hover:text-[#A78BFA]"
-              onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))}
-            >
-              ‹
-            </button>
-            <span className="text-sm font-semibold text-gray-800 dark:text-[#E8E4F0] min-w-[100px] text-center">
-              {format(curMonth, 'yyyy年M月', { locale: ja })}
-            </span>
-            <button
-              className="text-lg text-gray-400 dark:text-[#6D5A8A] hover:text-gray-600 dark:hover:text-[#A78BFA]"
-              onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))}
-            >
-              ›
-            </button>
+          <div className="flex items-center justify-center mb-3">
+            <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-[#282237] rounded-lg px-1 py-0.5">
+              <button
+                className="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 dark:text-[#6D5A8A] hover:bg-white dark:hover:bg-[#1E1A2B] hover:text-gray-600 dark:hover:text-[#A78BFA] transition-colors"
+                onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+              </button>
+              <span className="text-[13px] font-semibold text-gray-700 dark:text-[#E8E4F0] min-w-[90px] text-center">
+                {format(curMonth, 'yyyy年M月', { locale: ja })}
+              </span>
+              <button
+                className="w-6 h-6 flex items-center justify-center rounded-md text-gray-400 dark:text-[#6D5A8A] hover:bg-white dark:hover:bg-[#1E1A2B] hover:text-gray-600 dark:hover:text-[#A78BFA] transition-colors"
+                onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1))}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+              </button>
+            </div>
           </div>
 
           <div className="rounded-lg overflow-hidden border border-[#D4BEE4]/30 dark:border-[#2E2840]">
