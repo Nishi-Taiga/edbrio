@@ -299,10 +299,11 @@ export function GanttChart({
       <div className="flex" style={{ height: HEADER_HEIGHT }}>
         {/* Label column header */}
         <div
-          className="flex items-center gap-2 px-4 border-r border-border shrink-0"
+          className="flex flex-col justify-center px-4 border-r border-border shrink-0"
           style={{ width: labelWidth }}
         >
           <span className="text-[11px] font-bold text-muted-foreground tracking-wider">教材 / 科目</span>
+          <span className="text-[10px] text-muted-foreground">{year}年度（{year}.4〜{year + 1}.3）</span>
         </div>
         {/* Month headers */}
         <div className="flex flex-1 relative">
@@ -450,13 +451,23 @@ export function GanttChart({
         </div>
       </div>
 
-      {/* Empty state */}
-      {materials.length === 0 && (
+      {/* Empty state or Add material button */}
+      {materials.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-muted-foreground border-t">
           <p className="text-sm mb-3">{t('emptyGantt')}</p>
           <Button size="sm" onClick={onAddMaterial}>
             <Plus className="w-4 h-4 mr-1" />{t('addMaterial')}
           </Button>
+        </div>
+      ) : (
+        <div className="flex justify-center py-2 border-t border-border">
+          <button
+            className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors py-1 px-3 rounded hover:bg-muted/50"
+            onClick={onAddMaterial}
+          >
+            <Plus className="w-3.5 h-3.5" />
+            {t('addMaterial')}
+          </button>
         </div>
       )}
     </div>

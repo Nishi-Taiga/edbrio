@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { FileEdit, Download, Plus, ChevronDown, Copy, FileSpreadsheet, FileText } from 'lucide-react'
+import { FileEdit, Download, Plus, ChevronDown, ChevronLeft, ChevronRight, Copy, FileSpreadsheet, FileText } from 'lucide-react'
 import { SkeletonList } from '@/components/ui/skeleton-card'
 import { ErrorAlert } from '@/components/ui/error-alert'
 import { useAuth } from '@/hooks/use-auth'
@@ -54,8 +54,21 @@ export default function StudentCurriculumPage() {
   const { profiles } = useStudentProfiles(user?.id)
   const { updateProfile } = useStudentProfiles(user?.id)
 
-  // Year selection
-  const [selectedYear, setSelectedYear] = useState<string | undefined>(undefined)
+  // Year selection (persist in localStorage per profile)
+  const yearStorageKey = `curriculum_year_${profileId}`
+  const [selectedYear, setSelectedYear] = useState<string | undefined>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(yearStorageKey) || undefined
+    }
+    return undefined
+  })
+
+  // Persist year selection to localStorage
+  useEffect(() => {
+    if (selectedYear) {
+      localStorage.setItem(yearStorageKey, selectedYear)
+    }
+  }, [selectedYear, yearStorageKey])
 
   const { materials, phases, phaseTasks, loading: materialsLoading, error: materialsError, addMaterial, updateMaterial, deleteMaterial, addPhase, updatePhase, deletePhase, addTask, updateTask, deleteTask, copyToNextYear } = useCurriculumMaterials(profileId, selectedYear)
   const { exams, loading: examsLoading, error: examsError, addExam, updateExam, deleteExam } = useExamSchedules(profileId)
@@ -253,13 +266,6 @@ export default function StudentCurriculumPage() {
 
   // Year selection
   const currentYear = new Date().getFullYear()
-  const yearOptions = useMemo(() => {
-    const years = new Set<string>()
-    if (profile?.curriculum_year) years.add(profile.curriculum_year)
-    years.add(String(currentYear))
-    years.add(String(currentYear + 1))
-    return Array.from(years).sort()
-  }, [profile?.curriculum_year, currentYear])
 
   const handleCopyToNextYear = async () => {
     if (!selectedYear) return
@@ -295,17 +301,6 @@ export default function StudentCurriculumPage() {
             <p className="text-[12px] sm:text-[13px] text-muted-foreground mt-0.5">年間カリキュラムの進捗をガントチャートで管理</p>
           </div>
           <div className="flex items-center gap-2">
-            {/* Year selector */}
-            <select
-              value={selectedYear || ''}
-              onChange={e => setSelectedYear(e.target.value || undefined)}
-              className="text-[13px] font-medium text-foreground border border-border rounded-lg px-3 py-2 bg-card"
-            >
-              {yearOptions.map(y => (
-                <option key={y} value={y}>{y}年度</option>
-              ))}
-            </select>
-
             {/* Export dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -414,8 +409,25 @@ export default function StudentCurriculumPage() {
           {/* Curriculum (Gantt) tab */}
           <TabsContent value="curriculum">
             <div className="space-y-5">
-              {/* Color editor toggle */}
-              <div className="flex justify-end">
+              {/* Year selector + color editor toggle */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                  <button
+                    className="p-1 rounded hover:bg-muted transition-colors"
+                    onClick={() => setSelectedYear(String(Number(selectedYear || currentYear) - 1))}
+                  >
+                    <ChevronLeft className="w-5 h-5 text-muted-foreground" />
+                  </button>
+                  <span className="text-sm font-bold text-foreground min-w-[80px] text-center">
+                    {selectedYear || currentYear}年度
+                  </span>
+                  <button
+                    className="p-1 rounded hover:bg-muted transition-colors"
+                    onClick={() => setSelectedYear(String(Number(selectedYear || currentYear) + 1))}
+                  >
+                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                  </button>
+                </div>
                 <button
                   className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
                   onClick={() => setShowColorEditor(!showColorEditor)}
