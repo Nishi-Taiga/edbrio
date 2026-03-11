@@ -10,7 +10,6 @@ import { differenceInDays, startOfDay, format } from 'date-fns'
 const LABEL_WIDTH = 180
 const ROW_HEIGHT = 44
 const HEADER_HEIGHT = 44
-const EXAM_ROW_HEIGHT = 56
 const SUBJECT_HEADER_HEIGHT = 28
 const MONTHS = [4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3] // Academic year April–March
 const MONTH_LABELS = ['4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月']
@@ -188,8 +187,36 @@ export function GanttChart({
     })
   })
 
+  // Compute exam marker layout to determine dynamic row height
+  const EXAM_MARKER_ROW_H = 18
+  const examMarkerLayout = useMemo(() => {
+    const markers = exams
+      .map(exam => {
+        const examDate = new Date(exam.exam_date)
+        const x = dateToX(examDate, academicYearStart, timelineWidth, totalDays)
+        const label = exam.exam_name.length > 6 ? exam.exam_name.slice(0, 6) + '…' : exam.exam_name
+        const text = `${label} ${format(examDate, 'M/d')}`
+        const estWidth = text.length * 7 + 12
+        return { x, estWidth, row: 0 }
+      })
+      .sort((a, b) => a.x - b.x)
+    const rowEnds: number[] = []
+    for (const m of markers) {
+      let placed = false
+      for (let r = 0; r < rowEnds.length; r++) {
+        if (m.x >= rowEnds[r] + 4) {
+          m.row = r; rowEnds[r] = m.x + m.estWidth; placed = true; break
+        }
+      }
+      if (!placed) { m.row = rowEnds.length; rowEnds.push(m.x + m.estWidth) }
+    }
+    return { rowCount: Math.max(1, rowEnds.length) }
+  }, [exams, academicYearStart, timelineWidth, totalDays])
+
+  const examRowHeight = 4 + examMarkerLayout.rowCount * EXAM_MARKER_ROW_H + 4
+
   // Total body height
-  const bodyHeight = EXAM_ROW_HEIGHT + rows.reduce((h, r) =>
+  const bodyHeight = examRowHeight + rows.reduce((h, r) =>
     h + (r.type === 'subject' ? SUBJECT_HEADER_HEIGHT : rowHeight), 0)
 
   // Render a phase bar
@@ -266,36 +293,54 @@ export function GanttChart({
 
   // Render exam markers on the exam row
   function renderExamMarkers() {
-    // Group exams by approximate position to stagger overlapping ones
-    const markers = exams.map(exam => {
-      const examDate = new Date(exam.exam_date)
-      const x = dateToX(examDate, academicYearStart, timelineWidth, totalDays)
-      const color = EXAM_CATEGORY_COLORS[exam.exam_category] || '#6B7280'
-      const bgColor = color + '20'
-      const label = exam.exam_name.length > 6 ? exam.exam_name.slice(0, 6) + '…' : exam.exam_name
-      return { exam, x, color, bgColor, label, date: format(examDate, 'M/d') }
-    })
+    const ROW_H = 18 // height per marker row
+    const markers = exams
+      .map(exam => {
+        const examDate = new Date(exam.exam_date)
+        const x = dateToX(examDate, academicYearStart, timelineWidth, totalDays)
+        const color = EXAM_CATEGORY_COLORS[exam.exam_category] || '#6B7280'
+        const bgColor = color + '20'
+        const label = exam.exam_name.length > 6 ? exam.exam_name.slice(0, 6) + '…' : exam.exam_name
+        const text = `${label} ${format(examDate, 'M/d')}`
+        const estWidth = text.length * 7 + 12 // approximate rendered width
+        return { exam, x, color, bgColor, text, estWidth, row: 0 }
+      })
+      .sort((a, b) => a.x - b.x)
 
-    // Simple stagger: alternate y positions
-    return markers.map((m, i) => {
-      const yOffset = i % 2 === 0 ? 2 : 22
-      return (
-        <div
-          key={m.exam.id}
-          className="absolute flex items-center gap-1 rounded text-[9px] font-semibold whitespace-nowrap px-1.5 py-0.5 cursor-pointer hover:opacity-80"
-          style={{
-            left: m.x,
-            top: yOffset,
-            backgroundColor: m.bgColor,
-            color: m.color,
-            zIndex: 10,
-          }}
-          title={`${m.exam.exam_name}${m.exam.method ? ` (${m.exam.method})` : ''} - ${m.date}`}
-        >
-          {m.label} {m.date}
-        </div>
-      )
-    })
+    // Assign rows: place each marker in the first row where it doesn't overlap
+    const rowEnds: number[] = [] // tracks the rightmost x-end of each row
+    for (const m of markers) {
+      let placed = false
+      for (let r = 0; r < rowEnds.length; r++) {
+        if (m.x >= rowEnds[r] + 4) { // 4px gap
+          m.row = r
+          rowEnds[r] = m.x + m.estWidth
+          placed = true
+          break
+        }
+      }
+      if (!placed) {
+        m.row = rowEnds.length
+        rowEnds.push(m.x + m.estWidth)
+      }
+    }
+
+    return markers.map(m => (
+      <div
+        key={m.exam.id}
+        className="absolute flex items-center gap-1 rounded text-[9px] font-semibold whitespace-nowrap px-1.5 py-0.5 cursor-pointer hover:opacity-80"
+        style={{
+          left: m.x,
+          top: 2 + m.row * ROW_H,
+          backgroundColor: m.bgColor,
+          color: m.color,
+          zIndex: 10,
+        }}
+        title={`${m.exam.exam_name}${m.exam.method ? ` (${m.exam.method})` : ''}`}
+      >
+        {m.text}
+      </div>
+    ))
   }
 
   return (
@@ -331,7 +376,7 @@ export function GanttChart({
           {/* Exam row label */}
           <div
             className="flex items-center gap-1.5 px-4 border-b border-border"
-            style={{ height: EXAM_ROW_HEIGHT, backgroundColor: '#FEF2F2' }}
+            style={{ height: examRowHeight, backgroundColor: '#FEF2F2' }}
           >
             <span className="text-[11px] font-bold text-red-500">{t('examScheduleLabel')}</span>
           </div>
@@ -400,14 +445,14 @@ export function GanttChart({
             {/* Exam markers row */}
             <div
               className="relative border-b border-border"
-              style={{ height: EXAM_ROW_HEIGHT, backgroundColor: '#FEF2F2' }}
+              style={{ height: examRowHeight, backgroundColor: '#FEF2F2' }}
             >
               {renderExamMarkers()}
             </div>
 
             {/* Material rows */}
             {(() => {
-              let yOffset = EXAM_ROW_HEIGHT
+              let yOffset = examRowHeight
               return rows.map((row, idx) => {
                 const h = row.type === 'subject' ? SUBJECT_HEADER_HEIGHT : rowHeight
                 const y = yOffset
