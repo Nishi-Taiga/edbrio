@@ -18,13 +18,13 @@ function getStripe() {
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    if (!session) {
+    if (authError || !user) {
       return NextResponse.json({ error: '認証が必要です。' }, { status: 401 })
     }
 
-    const { success: rateLimitOk } = subscriptionLimiter.check(session.user.id)
+    const { success: rateLimitOk } = subscriptionLimiter.check(user.id)
     if (!rateLimitOk) {
       return NextResponse.json({ error: 'リクエストが多すぎます。' }, { status: 429 })
     }
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     const { data: teacher, error: tErr } = await supabase
       .from('teachers')
       .select('id, plan, stripe_customer_id, stripe_subscription_id')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .single()
 
     if (tErr || !teacher) {
@@ -55,8 +55,8 @@ export async function POST(req: NextRequest) {
     let customerId = teacher.stripe_customer_id
     if (!customerId) {
       const customer = await stripe.customers.create({
-        email: session.user.email,
-        metadata: { teacherId: session.user.id },
+        email: user.email,
+        metadata: { teacherId: user.id },
       })
       customerId = customer.id
 
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       await adminSupabase
         .from('teachers')
         .update({ stripe_customer_id: customerId })
-        .eq('id', session.user.id)
+        .eq('id', user.id)
     }
 
     const checkoutSession = await stripe.checkout.sessions.create({
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
       mode: 'subscription',
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/teacher/profile?subscription=success`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/teacher/profile?subscription=canceled`,
-      metadata: { teacherId: session.user.id },
+      metadata: { teacherId: user.id },
     })
 
     return NextResponse.json({ sessionId: checkoutSession.id })

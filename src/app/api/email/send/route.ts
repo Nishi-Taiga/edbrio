@@ -15,13 +15,13 @@ export async function POST(req: NextRequest) {
     }
 
     const supabase = await createClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    if (!session) {
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { success: rateLimitOk } = emailLimiter.check(session.user.id)
+    const { success: rateLimitOk } = emailLimiter.check(user.id)
     if (!rateLimitOk) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
     }
@@ -248,7 +248,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Determine recipient (the other party)
-        const senderId = session.user.id
+        const senderId = user.id
         const recipientId = senderId === conv.teacher_id ? conv.guardian_id : conv.teacher_id
 
         // Check if recipient already has unread messages (throttle)

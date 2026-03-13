@@ -27,24 +27,24 @@ export async function POST(req: NextRequest) {
     }
 
     const supabase = await createClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    if (!session) {
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { success: rateLimitOk } = aiReportLimiter.check(session.user.id)
+    const { success: rateLimitOk } = aiReportLimiter.check(user.id)
     if (!rateLimitOk) {
       return NextResponse.json({ error: 'リクエストが多すぎます。しばらくしてからお試しください。' }, { status: 429 })
     }
 
-    const { data: user } = await supabase
+    const { data: dbUser } = await supabase
       .from('users')
       .select('role')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .single()
 
-    if (!user || user.role !== 'teacher') {
+    if (!dbUser || dbUser.role !== 'teacher') {
       return NextResponse.json({ error: 'Teachers only' }, { status: 403 })
     }
 
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     const { data: teacher } = await supabase
       .from('teachers')
       .select('plan')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .single()
 
     if (!teacher || teacher.plan !== 'standard') {

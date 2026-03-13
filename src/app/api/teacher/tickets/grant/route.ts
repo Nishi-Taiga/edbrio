@@ -12,13 +12,13 @@ export const dynamic = 'force-dynamic'
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    if (!session) {
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const teacherId = session.user.id
+    const teacherId = user.id
 
     const { success: rateLimitOk } = ticketGrantLimiter.check(teacherId)
     if (!rateLimitOk) {

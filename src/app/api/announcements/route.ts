@@ -6,8 +6,8 @@ export const dynamic = 'force-dynamic'
 export async function GET() {
   try {
     const supabase = await createClient()
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -15,7 +15,7 @@ export async function GET() {
     const { data: userData } = await supabase
       .from('users')
       .select('role')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .single()
 
     const role = userData?.role || ''
@@ -40,7 +40,7 @@ export async function GET() {
     const { data: reads } = await supabase
       .from('announcement_reads')
       .select('announcement_id')
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
 
     const readIds = new Set((reads || []).map(r => r.announcement_id))
 

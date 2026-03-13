@@ -7,9 +7,9 @@ export const dynamic = 'force-dynamic'
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    if (!session) {
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     const { data: students } = await supabase
       .from('students')
       .select('id')
-      .eq('guardian_id', session.user.id)
+      .eq('guardian_id', user.id)
 
     if (!students || students.length === 0) {
       return NextResponse.json({ error: 'No students found' }, { status: 403 })
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
       .from('booking_reports')
       .insert({
         booking_id: bookingId,
-        reporter_id: session.user.id,
+        reporter_id: user.id,
         reason,
         description: description?.trim() || null,
         deadline: deadline.toISOString(),
@@ -100,9 +100,9 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     const supabase = await createClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    if (!session) {
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -112,7 +112,7 @@ export async function GET(req: NextRequest) {
     const { data: bookings } = await supabase
       .from('bookings')
       .select('id')
-      .eq('teacher_id', session.user.id)
+      .eq('teacher_id', user.id)
 
     if (!bookings || bookings.length === 0) {
       return NextResponse.json({ reports: [] })

@@ -12,9 +12,9 @@ export async function PATCH(
   try {
     const { id: reportId } = await params
     const supabase = await createClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    if (!session) {
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -37,7 +37,7 @@ export async function PATCH(
     }
 
     const booking = (report as any).bookings
-    if (booking.teacher_id !== session.user.id) {
+    if (booking.teacher_id !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -54,7 +54,7 @@ export async function PATCH(
         .update({
           status: 'approved',
           resolved_at: new Date().toISOString(),
-          resolved_by: session.user.id,
+          resolved_by: user.id,
           updated_at: new Date().toISOString(),
         })
         .eq('id', reportId)
@@ -94,7 +94,7 @@ export async function PATCH(
         .update({
           status: 'rejected',
           resolved_at: new Date().toISOString(),
-          resolved_by: session.user.id,
+          resolved_by: user.id,
           updated_at: new Date().toISOString(),
         })
         .eq('id', reportId)
