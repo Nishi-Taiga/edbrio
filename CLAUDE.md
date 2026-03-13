@@ -13,7 +13,7 @@ EdBrio は家庭教師プラットフォーム SaaS。Next.js 15 App Router + Re
 | i18n | next-intl v4 (14 locales, default: ja) |
 | AI | Anthropic Claude SDK (レッスンレポート生成) |
 | Email | Resend (トランザクションメール) |
-| Testing | Playwright (E2E のみ、ユニットテストなし) |
+| Testing | Playwright (E2E), Page Object Model パターン |
 | Hosting | Vercel |
 
 ## Project Structure
@@ -36,7 +36,16 @@ src/
     └── rate-limit.ts # レートリミッター
 messages/             # 翻訳 JSON (ja.json, en.json, etc.)
 supabase/migrations/  # DB マイグレーション SQL
-tests/                # Playwright E2E テスト
+tests/
+├── e2e/              # E2E テスト (機能別ディレクトリ)
+│   ├── auth/         # 認証系テスト (login, logout, register)
+│   ├── teacher/      # 講師機能テスト
+│   ├── guardian/     # 保護者機能テスト
+│   └── public/       # 公開ページテスト
+├── fixtures/         # テストフィクスチャ (認証、テストデータ)
+├── pages/            # Page Object Model クラス
+├── screenshots/      # テスト用スクリーンショット
+└── *.sql             # テスト用 DB シード
 ```
 
 ## Development Commands
@@ -45,7 +54,10 @@ tests/                # Playwright E2E テスト
 npm run dev           # 開発サーバー起動 (localhost:3000)
 npm run build         # プロダクションビルド
 npm run lint          # ESLint 実行
-npx playwright test   # E2E テスト実行
+npx playwright test   # 全 E2E テスト実行
+npx playwright test tests/e2e/auth/  # 特定ディレクトリのテスト実行
+npx playwright test --repeat-each=10 tests/e2e/auth/login.spec.ts  # Flaky テスト検出
+npx playwright show-report  # テストレポート表示
 ```
 
 ## Coding Conventions
@@ -109,6 +121,51 @@ npx playwright test   # E2E テスト実行
 - `useAuth` Hook でクライアント側の認証状態取得
 - `ProtectedRoute` コンポーネントでルート保護
 - ログイン試行制限: 10 回失敗で 30 分ロック (middleware)
+
+## E2E Testing (Playwright)
+
+### 方針
+- **Page Object Model (POM)** パターンを使用。ページ操作は `tests/pages/` のクラスに集約
+- テストファイルは `tests/e2e/` 配下に機能別ディレクトリで整理
+- 共通の認証・データセットアップは `tests/fixtures/` にフィクスチャとして定義
+- `data-testid` 属性でテスト対象要素を特定する
+
+### テストの書き方
+- `page.waitForTimeout()` は使用禁止 — 代わりに `waitForResponse()`, `waitForLoadState()`, locator の auto-wait を使用
+- ネットワーク待機: `await page.waitForResponse(resp => resp.url().includes('/api/...'))`
+- スクリーンショット: `artifacts/` ディレクトリに保存
+- Flaky テストは `test.fixme()` で隔離し、Issue 番号をコメントに記載
+
+### Page Object Model 例
+```typescript
+// tests/pages/LoginPage.ts
+import { Page, Locator } from '@playwright/test'
+
+export class LoginPage {
+  readonly page: Page
+  readonly emailInput: Locator
+  readonly passwordInput: Locator
+  readonly submitButton: Locator
+
+  constructor(page: Page) {
+    this.page = page
+    this.emailInput = page.locator('[data-testid="email-input"]')
+    this.passwordInput = page.locator('[data-testid="password-input"]')
+    this.submitButton = page.locator('[data-testid="login-submit"]')
+  }
+
+  async goto() {
+    await this.page.goto('/login')
+    await this.page.waitForLoadState('networkidle')
+  }
+
+  async login(email: string, password: string) {
+    await this.emailInput.fill(email)
+    await this.passwordInput.fill(password)
+    await this.submitButton.click()
+  }
+}
+```
 
 ## Workflow Rules
 
