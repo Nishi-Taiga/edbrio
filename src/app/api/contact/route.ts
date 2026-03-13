@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     const { name, email, message } = result.data
 
     // Log the inquiry (always works regardless of email config)
-    console.log('[Contact]', { name, email, message: message.substring(0, 100) })
+    console.log('[Contact] inquiry received', { messageLength: message.length })
 
     // Send email notification via Resend
     if (!process.env.RESEND_API_KEY) {

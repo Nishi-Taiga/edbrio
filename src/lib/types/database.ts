@@ -36,6 +36,7 @@ export interface User {
   role: UserRole
   email: string
   name: string
+  display_name?: string
   avatar_url?: string
   notification_preferences?: NotificationPreferences
   created_at: string

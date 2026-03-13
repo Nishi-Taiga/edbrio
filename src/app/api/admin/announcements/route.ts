@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { adminLimiter } from '@/lib/rate-limit'
+import { z } from 'zod'
+
+const announcementSchema = z.object({
+  title: z.string().min(1).max(200),
+  content: z.string().min(1).max(5000),
+  target_role: z.enum(['teacher', 'guardian', 'student']).nullable().optional(),
+})
 
 export const dynamic = 'force-dynamic'
 
@@ -41,10 +48,11 @@ export async function POST(req: NextRequest) {
     const supabase = createAdminClient()
     const body = await req.json()
 
-    const { title, content, target_role, created_by } = body
-    if (!title || !content) {
-      return NextResponse.json({ error: 'title and content are required' }, { status: 400 })
+    const parsed = announcementSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Invalid input', details: parsed.error.flatten() }, { status: 400 })
     }
+    const { title, content, target_role } = parsed.data
 
     const { data, error } = await supabase
       .from('announcements')
@@ -52,7 +60,7 @@ export async function POST(req: NextRequest) {
         title,
         content,
         target_role: target_role || null,
-        created_by: created_by || null,
+        created_by: null,
       })
       .select()
       .single()

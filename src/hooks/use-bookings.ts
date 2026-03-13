@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Booking } from '@/lib/types/database'
 
@@ -10,7 +10,7 @@ export function useBookings(userId: string | undefined, role: 'teacher' | 'guard
     const [error, setError] = useState<string | null>(null)
     const supabase = useMemo(() => createClient(), [])
 
-    const fetchBookings = useMemo(() => async () => {
+    const fetchBookings = useCallback(async () => {
         if (!userId) {
             setBookings([])
             setLoading(false)
@@ -70,26 +70,25 @@ export function useBookings(userId: string | undefined, role: 'teacher' | 'guard
                 .eq('id', availabilityId)
             if (aErr) throw aErr
 
-            // 3. Deduct remaining_minutes from ticket balance
+            // 3. Deduct remaining_minutes from ticket balance (atomic via API)
             if (bookingData.ticket_balance_id) {
                 const startMs = new Date(bookingData.start_time).getTime()
                 const endMs = new Date(bookingData.end_time).getTime()
                 const durationMinutes = Math.round((endMs - startMs) / (1000 * 60))
 
-                const { data: balance, error: balFetchErr } = await supabase
-                    .from('ticket_balances')
-                    .select('remaining_minutes')
-                    .eq('id', bookingData.ticket_balance_id)
-                    .single()
-                if (balFetchErr) throw balFetchErr
-
-                if (balance && durationMinutes > 0) {
-                    const newRemaining = Math.max(0, (balance.remaining_minutes || 0) - durationMinutes)
-                    const { error: balUpdErr } = await supabase
-                        .from('ticket_balances')
-                        .update({ remaining_minutes: newRemaining })
-                        .eq('id', bookingData.ticket_balance_id)
-                    if (balUpdErr) throw balUpdErr
+                if (durationMinutes > 0) {
+                    const res = await fetch('/api/ticket-balance/adjust', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            ticketBalanceId: bookingData.ticket_balance_id,
+                            deltaMinutes: -durationMinutes,
+                        }),
+                    })
+                    if (!res.ok) {
+                        const err = await res.json()
+                        throw new Error(err.error || 'Failed to adjust ticket balance')
+                    }
                 }
             }
 
@@ -138,25 +137,21 @@ export function useBookings(userId: string | undefined, role: 'teacher' | 'guard
                         .eq('slot_start', booking.start_time)
                         .eq('slot_end', booking.end_time)
 
-                    // Restore ticket balance minutes
+                    // Restore ticket balance minutes (atomic via API)
                     if (booking.ticket_balance_id) {
                         const startMs = new Date(booking.start_time).getTime()
                         const endMs = new Date(booking.end_time).getTime()
                         const durationMinutes = Math.round((endMs - startMs) / (1000 * 60))
 
                         if (durationMinutes > 0) {
-                            const { data: balance } = await supabase
-                                .from('ticket_balances')
-                                .select('remaining_minutes')
-                                .eq('id', booking.ticket_balance_id)
-                                .single()
-
-                            if (balance) {
-                                await supabase
-                                    .from('ticket_balances')
-                                    .update({ remaining_minutes: (balance.remaining_minutes || 0) + durationMinutes })
-                                    .eq('id', booking.ticket_balance_id)
-                            }
+                            await fetch('/api/ticket-balance/adjust', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    ticketBalanceId: booking.ticket_balance_id,
+                                    deltaMinutes: durationMinutes,
+                                }),
+                            })
                         }
                     }
                 }

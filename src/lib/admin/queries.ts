@@ -143,7 +143,10 @@ export async function getUsers({ role, plan, search, page = 1, perPage = 20 }: G
     query = query.eq('role', role)
   }
   if (search) {
-    query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%`)
+    const sanitized = search.replace(/[%_\\.,()]/g, '')
+    if (sanitized) {
+      query = query.or(`name.ilike.%${sanitized}%,email.ilike.%${sanitized}%`)
+    }
   }
 
   const { data, count } = await query
