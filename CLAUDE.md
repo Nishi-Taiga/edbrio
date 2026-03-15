@@ -1,192 +1,59 @@
 # EdBrio - CLAUDE.md
 
-EdBrio は家庭教師プラットフォーム SaaS。Next.js 15 App Router + React 19 + Supabase + Stripe で構成。
+家庭教師プラットフォーム SaaS。Next.js 15 App Router + React 19 + Supabase + Stripe。
 
 ## Tech Stack
 
-| カテゴリ | 技術 |
-|---|---|
+| Category | Tech |
+|----------|------|
 | Framework | Next.js 15 (App Router), React 19, TypeScript 5 (strict) |
-| UI | shadcn/ui (new-york style), Radix UI, Tailwind CSS v4, lucide-react |
+| UI | shadcn/ui (new-york), Radix UI, Tailwind CSS v4, lucide-react |
 | DB/Auth | Supabase (PostgreSQL + Auth + RLS) |
 | Payments | Stripe (Checkout + Webhook + Billing Portal) |
 | i18n | next-intl v4 (14 locales, default: ja) |
-| AI | Anthropic Claude SDK (レッスンレポート生成) |
-| Email | Resend (トランザクションメール) |
-| Testing | Playwright (E2E), Page Object Model パターン |
+| AI | Anthropic Claude SDK (lesson reports) |
+| Email | Resend |
+| Testing | Playwright E2E (POM pattern) |
 | Hosting | Vercel |
 
-## Project Structure
-
-```
-src/
-├── app/              # Next.js App Router (pages, layouts, API routes)
-│   ├── [locale]/     # i18n ルーティング
-│   └── api/          # API routes (REST)
-├── components/
-│   ├── ui/           # shadcn/ui プリミティブ
-│   ├── layout/       # レイアウト共通コンポーネント
-│   └── [domain]/     # 機能別コンポーネント (auth, teacher, guardian, etc.)
-├── hooks/            # カスタム Hooks (use-[feature].ts)
-├── i18n/             # next-intl 設定 (routing, request, navigation)
-└── lib/
-    ├── supabase/     # Supabase クライアント (client, server, admin, middleware)
-    ├── types/        # 型定義 (database.ts)
-    ├── validations.ts # Zod バリデーション
-    └── rate-limit.ts # レートリミッター
-messages/             # 翻訳 JSON (ja.json, en.json, etc.)
-supabase/migrations/  # DB マイグレーション SQL
-tests/
-├── e2e/              # E2E テスト (機能別ディレクトリ)
-│   ├── auth/         # 認証系テスト (login, logout, register)
-│   ├── teacher/      # 講師機能テスト
-│   ├── guardian/     # 保護者機能テスト
-│   └── public/       # 公開ページテスト
-├── fixtures/         # テストフィクスチャ (認証、テストデータ)
-├── pages/            # Page Object Model クラス
-├── screenshots/      # テスト用スクリーンショット
-└── *.sql             # テスト用 DB シード
-```
-
-## Development Commands
+## Commands
 
 ```bash
-npm run dev           # 開発サーバー起動 (localhost:3000)
-npm run build         # プロダクションビルド
-npm run lint          # ESLint 実行
-npx playwright test   # 全 E2E テスト実行
-npx playwright test tests/e2e/auth/  # 特定ディレクトリのテスト実行
-npx playwright test --repeat-each=10 tests/e2e/auth/login.spec.ts  # Flaky テスト検出
-npx playwright show-report  # テストレポート表示
+npm run dev / build / lint
+npx playwright test [path]
 ```
 
-## Coding Conventions
+## Key Rules
 
-### ファイル命名
+- **Import**: `@/*` alias only, never relative paths
+- **i18n**: 日本語最優先、他言語は後回し。未翻訳は memory/i18n-pending.md に追記
+- **Client Component**: `'use client'` + `useMemo(() => createClient(), [])`
+- **Server Component**: `await createClient()` from `@/lib/supabase/server`
+- **API Routes**: `force-dynamic` + `getUser()` (not getSession) + Zod + rate limit → see `.claude/skills/api-route.md`
+- **DB**: RLS 必須、新 migration SQL で変更 → see `.claude/skills/db-migration.md`
+- **Styling**: `cn()` (clsx + tailwind-merge), lucide-react icons, sonner toasts
+- **File naming**: Components `kebab-case.tsx`, Hooks `use-*.ts`, API `[feature]/route.ts`, page-local `_components/`
+- **TypeScript**: strict mode, DB types in `src/lib/types/database.ts` (manual), UserRole: `teacher | guardian | student`
+- **Commit**: English, conventional commits (feat/fix/refactor/...), always push after commit
+- **Branch**: master = production
+- **Testing**: POM pattern, `data-testid` attributes, no `waitForTimeout()` → see `.claude/skills/e2e-testing.md`
 
-- コンポーネント: `kebab-case.tsx` (例: `auth-form.tsx`)
-- Hooks: `use-[feature].ts` (例: `use-bookings.ts`)
-- API routes: ディレクトリベース `[feature]/route.ts`
-- ページローカルコンポーネント: `_components/` サブディレクトリ
+## Skills (.claude/skills/)
 
-### インポート
+| Skill | Purpose |
+|-------|---------|
+| `e2e-testing.md` | Playwright patterns, login flow, Radix UI handling |
+| `api-route.md` | API route template with auth, validation, error handling |
+| `component.md` | Client/Server Component patterns |
+| `db-migration.md` | Supabase migration workflow |
+| `i18n.md` | Translation key management, next-intl usage |
 
-- パスエイリアス `@/*` を常に使用 (`./src/*` に対応)、相対パスは使わない
-- 例: `import { cn } from '@/lib/utils'`
+## Auth
 
-### React パターン
-
-- Client Component: `'use client'` ディレクティブ + `useMemo(() => createClient(), [])` で Supabase クライアント生成
-- Server Component: `await createClient()` from `@/lib/supabase/server`
-- 状態管理: グローバルストアなし。カスタム Hooks + useState/useEffect で管理
-- スタイリング: `cn()` ユーティリティ (clsx + tailwind-merge) でクラス結合
-- アイコン: lucide-react を使用
-- トースト通知: sonner の `toast()` を使用
-
-### API Routes パターン
-
-- `export const dynamic = 'force-dynamic'` を設定
-- `createClient()` で認証確認 → Zod でバリデーション → DB 操作
-- レスポンス: `NextResponse.json({ error: '...' }, { status: NNN })`
-- レートリミッター適用 (`@/lib/rate-limit.ts`)
-- Admin API: Basic Auth (middleware で制御)
-
-### TypeScript
-
-- strict モード有効
-- DB 型は `src/lib/types/database.ts` に手動定義 (自動生成ではない)
-- UserRole: `'teacher' | 'guardian' | 'student'`
-
-## Database (Supabase)
-
-- RLS (Row Level Security) 有効 — ポリシーを必ず設定
-- マイグレーションは `supabase/migrations/` に連番 SQL ファイル
-- Service Role クライアント (`@/lib/supabase/admin`) は Webhook/Server Action 専用 (RLS バイパス)
-- テーブル変更時は新規マイグレーション SQL を作成すること
-
-## i18n (多言語化)
-
-- **日本語 (ja) を最優先で実装**、他言語は後回し
-- 未翻訳キーは `i18n-pending.md` に追記し、翻訳完了後に削除
-- 14 locales: ja, en, fr, es, it, sv, ru, zh, ko, ar, pt, de, hi, zh-TW
-- デフォルト locale: `ja` (URL プレフィックスなし、`as-needed` 戦略)
-- Client: `useTranslations('namespace')` / Server: `getTranslations('namespace')`
-- ナビゲーション: `@/i18n/navigation` の `Link`, `redirect`, `useRouter` を使用
-- Admin ルートは日本語固定
-
-## Authentication
-
-- Supabase Auth (Email/Password + Google OAuth)
-- Cookie ベースのセッション管理 (`@supabase/ssr`)
-- `useAuth` Hook でクライアント側の認証状態取得
-- `ProtectedRoute` コンポーネントでルート保護
-- ログイン試行制限: 10 回失敗で 30 分ロック (middleware)
-
-## E2E Testing (Playwright)
-
-### 方針
-- **Page Object Model (POM)** パターンを使用。ページ操作は `tests/pages/` のクラスに集約
-- テストファイルは `tests/e2e/` 配下に機能別ディレクトリで整理
-- 共通の認証・データセットアップは `tests/fixtures/` にフィクスチャとして定義
-- `data-testid` 属性でテスト対象要素を特定する
-
-### テストの書き方
-- `page.waitForTimeout()` は使用禁止 — 代わりに `waitForResponse()`, `waitForLoadState()`, locator の auto-wait を使用
-- ネットワーク待機: `await page.waitForResponse(resp => resp.url().includes('/api/...'))`
-- スクリーンショット: `artifacts/` ディレクトリに保存
-- Flaky テストは `test.fixme()` で隔離し、Issue 番号をコメントに記載
-
-### Page Object Model 例
-```typescript
-// tests/pages/LoginPage.ts
-import { Page, Locator } from '@playwright/test'
-
-export class LoginPage {
-  readonly page: Page
-  readonly emailInput: Locator
-  readonly passwordInput: Locator
-  readonly submitButton: Locator
-
-  constructor(page: Page) {
-    this.page = page
-    this.emailInput = page.locator('[data-testid="email-input"]')
-    this.passwordInput = page.locator('[data-testid="password-input"]')
-    this.submitButton = page.locator('[data-testid="login-submit"]')
-  }
-
-  async goto() {
-    await this.page.goto('/login')
-    await this.page.waitForLoadState('networkidle')
-  }
-
-  async login(email: string, password: string) {
-    await this.emailInput.fill(email)
-    await this.passwordInput.fill(password)
-    await this.submitButton.click()
-  }
-}
-```
-
-## Workflow Rules
-
-- **修正後は必ず `git commit` & `git push` まで行うこと**
-- コミットメッセージは英語で、Conventional Commits 形式 (feat:, fix:, refactor:, etc.)
-- ブランチ: master が本番ブランチ
-
-## Environment Variables
-
-主要な環境変数 (`.env` / `.env.local`):
-
-- `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase 接続
-- `SUPABASE_SERVICE_ROLE_KEY` — Service Role (サーバー専用)
-- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` / `STRIPE_SECRET_KEY` — Stripe
-- `STRIPE_WEBHOOK_SECRET` — Stripe Webhook 検証
-- `RESEND_API_KEY` — メール送信
-- `ANTHROPIC_API_KEY` — AI レポート生成
-- `ADMIN_BASIC_AUTH_USER` / `ADMIN_BASIC_AUTH_PASS` — Admin 認証
-- `NEXT_PUBLIC_APP_URL` — アプリ URL
+- Supabase Auth (Email/Password + Google OAuth), cookie-based sessions (`@supabase/ssr`)
+- `useAuth` hook (client), `ProtectedRoute` component, 10 failed attempts = 30min lock
 
 ## Build Notes
 
-- `next.config.ts` で ESLint と TypeScript のビルドエラーを無視する設定 (`ignoreDuringBuilds: true`, `ignoreBuildErrors: true`)
-- Vercel cron: `/api/cron/cleanup-chat-images` (毎日 03:00 UTC)
+- ESLint/TS errors ignored during build (`next.config.ts`: `ignoreDuringBuilds`, `ignoreBuildErrors`)
+- Vercel cron: `/api/cron/cleanup-chat-images` (daily 03:00 UTC)
