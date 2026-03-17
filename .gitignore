@@ -90,3 +90,4 @@ supabase/migrations/018_curriculum_revamp.sql
 /screenshots/
 tests/screenshots/
 scripts/take-screenshots.ts
+UI.pen
