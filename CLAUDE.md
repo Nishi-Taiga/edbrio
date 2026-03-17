@@ -37,6 +37,7 @@ npx playwright test [path]
 - **Commit**: English, conventional commits (feat/fix/refactor/...), always push after commit
 - **Branch**: master = production
 - **Testing**: POM pattern, `data-testid` attributes, no `waitForTimeout()` → see `.claude/skills/e2e-testing.md`
+- **E2E必須**: 機能修正後は対応する E2E テストを作成・実行すること。テストは `tests/e2e/` 配下に配置
 
 ## Skills (.claude/skills/)
 
