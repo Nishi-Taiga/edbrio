@@ -266,7 +266,7 @@ export default function GuardianCurriculumPage() {
 
                 {/* Test score chart */}
                 {scores.length > 0 && (
-                  <TestScoreChart scores={scores} t={(key: string) => t(key)} />
+                  <TestScoreChart scores={scores} exams={exams} t={(key: string) => t(key)} />
                 )}
               </div>
             )}

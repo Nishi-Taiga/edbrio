@@ -370,6 +370,8 @@ export interface ExamSchedule {
   exam_category: string
   method?: string
   exam_date: string
+  preference_order?: number
+  border_score?: number
   notes?: string
   created_at: string
   updated_at: string

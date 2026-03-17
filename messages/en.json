@@ -490,6 +490,7 @@
     "subjectsPlaceholder": "e.g. Math, English",
     "addSuccess": "Student added successfully",
     "addError": "Failed to add student",
+    "hideInactive": "Hide inactive",
     "planGate": {
       "title": "Student Curriculum",
       "description": "The Student Curriculum feature is available on the Standard plan. Manage learning goals and curriculum for each student to deliver more effective tutoring.",

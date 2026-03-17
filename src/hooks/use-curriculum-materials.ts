@@ -207,12 +207,23 @@ export function useCurriculumMaterials(profileId: string | undefined, curriculum
     await fetchAll()
   }
 
+  // Batch reorder materials (update order_index for multiple items)
+  const reorderMaterials = async (updates: Array<{ id: string; order_index: number }>) => {
+    for (const { id, order_index } of updates) {
+      await supabase
+        .from('curriculum_materials')
+        .update({ order_index, updated_at: new Date().toISOString() })
+        .eq('id', id)
+    }
+    await fetchAll()
+  }
+
   return {
     materials, phases, phaseTasks, loading, error,
     addMaterial, updateMaterial, deleteMaterial,
     addPhase, updatePhase, deletePhase,
     addTask, updateTask, deleteTask,
-    copyToNextYear,
+    copyToNextYear, reorderMaterials,
     refresh: fetchAll,
   }
 }

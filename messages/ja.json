@@ -459,6 +459,7 @@
     "subjectsPlaceholder": "例: 数学, 英語",
     "addSuccess": "生徒を追加しました",
     "addError": "生徒の追加に失敗しました",
+    "hideInactive": "非アクティブを非表示",
     "planGate": {
       "title": "生徒カリキュラム",
       "description": "生徒カリキュラム機能はスタンダードプランでご利用いただけます。生徒一人ひとりの学習目標やカリキュラムを管理して、より効果的な指導を実現しましょう。",
@@ -1181,6 +1182,10 @@
       "examCategory_school_exam": "定期テスト",
       "method": "方式",
       "methodPlaceholder": "例: 総合型選抜",
+      "preferenceOrder": "志望順",
+      "preferenceOrderPlaceholder": "例: 1",
+      "borderScore": "ボーダー",
+      "borderScorePlaceholder": "例: 65.0",
       "examDate2": "試験日",
       "notes": "メモ",
       "notesPlaceholder": "備考があれば入力...",
@@ -1660,6 +1665,11 @@
     "daysLeft": "あと{days}日",
     "scores": "テスト成績",
     "noScores": "テスト結果はありません",
-    "testChartTitle": "成績推移"
+    "testChartTitle": "成績推移",
+    "testType_school_exam": "定期テスト",
+    "testType_mock_exam": "模試",
+    "testType_quiz": "小テスト",
+    "testType_entrance_exam": "入試",
+    "testType_other": "その他"
   }
 }

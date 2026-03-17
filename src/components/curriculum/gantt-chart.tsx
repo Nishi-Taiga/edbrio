@@ -2,9 +2,10 @@
 
 import { useMemo, useRef, useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Plus, Pencil, Trash2, CheckCircle } from 'lucide-react'
+import { Plus, Pencil, Trash2, CheckCircle, GripVertical } from 'lucide-react'
 import { CurriculumMaterial, CurriculumPhase, ExamSchedule, PhaseTask } from '@/lib/types/database'
 import { differenceInDays, startOfDay, format } from 'date-fns'
+import { useGanttInteractions } from '@/components/curriculum/use-gantt-interactions'
 
 // --- Constants ---
 const LABEL_WIDTH = 180
@@ -57,10 +58,11 @@ interface GanttChartProps {
   onAddMaterial: () => void
   onEditMaterial: (material: CurriculumMaterial) => void
   onDeleteMaterial: (id: string) => void
-  onAddPhase: (materialId: string) => void
+  onAddPhase: (materialId: string, startDate?: string, endDate?: string) => void
   onEditPhase: (phase: CurriculumPhase) => void
   onDeletePhase: (id: string) => void
   onUpdatePhase: (id: string, updates: Partial<CurriculumPhase>) => Promise<void>
+  onReorderMaterials?: (updates: Array<{ id: string; order_index: number }>) => Promise<void>
   onAddExam: () => void
   onPhaseClick?: (phase: CurriculumPhase, materialName: string) => void
   t: (key: string) => string
@@ -104,13 +106,90 @@ export function GanttChart({
   onEditPhase,
   onDeletePhase,
   onUpdatePhase,
+  onReorderMaterials,
   onAddExam,
   onPhaseClick,
   t,
 }: GanttChartProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
+  const timelineRef = useRef<HTMLDivElement>(null)
   const [hoveredRow, setHoveredRow] = useState<string | null>(null)
   const [containerWidth, setContainerWidth] = useState(960)
+
+  // Drag reorder state for materials and subjects
+  const [reorderDrag, setReorderDrag] = useState<{
+    type: 'material' | 'subject'
+    id: string // materialId or subject name
+    subject: string
+    startIdx: number
+    currentIdx: number
+  } | null>(null)
+
+  const handleReorderMouseDown = (
+    e: React.MouseEvent,
+    type: 'material' | 'subject',
+    id: string,
+    subject: string,
+    idx: number,
+  ) => {
+    if (e.button !== 0) return
+    e.preventDefault()
+    const startY = e.clientY
+    setReorderDrag({ type, id, subject, startIdx: idx, currentIdx: idx })
+
+    const getTargetIdx = (clientY: number) => {
+      const delta = clientY - startY
+      const steps = Math.round(delta / rowHeight)
+      return idx + steps
+    }
+
+    const onMove = (me: MouseEvent) => {
+      me.preventDefault()
+      const newIdx = getTargetIdx(me.clientY)
+      setReorderDrag(prev => prev ? { ...prev, currentIdx: newIdx } : null)
+    }
+    const onUp = (me: MouseEvent) => {
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+      const finalIdx = getTargetIdx(me.clientY)
+      setReorderDrag(null)
+      if (finalIdx === idx || !onReorderMaterials) return
+
+      if (type === 'material') {
+        // Reorder materials within the same subject
+        const subjectMats = [...(grouped[subject] || [])]
+        const fromIdx = subjectMats.findIndex(m => m.id === id)
+        if (fromIdx < 0) return
+        const toIdx = Math.max(0, Math.min(subjectMats.length - 1, fromIdx + (finalIdx - idx)))
+        if (fromIdx === toIdx) return
+        const [moved] = subjectMats.splice(fromIdx, 1)
+        subjectMats.splice(toIdx, 0, moved)
+        // Reassign order_index for this subject's materials
+        const updates = subjectMats.map((m, i) => ({ id: m.id, order_index: i }))
+        onReorderMaterials(updates)
+      } else {
+        // Reorder subjects: reassign order_index across all materials
+        const subjectList = [...subjects]
+        const fromIdx = subjectList.indexOf(id)
+        if (fromIdx < 0) return
+        const toIdx = Math.max(0, Math.min(subjectList.length - 1, fromIdx + (finalIdx - idx)))
+        if (fromIdx === toIdx) return
+        const [moved] = subjectList.splice(fromIdx, 1)
+        subjectList.splice(toIdx, 0, moved)
+        // Flatten in new subject order and reassign order_index
+        const updates: Array<{ id: string; order_index: number }> = []
+        let orderIdx = 0
+        for (const subj of subjectList) {
+          for (const mat of grouped[subj]) {
+            updates.push({ id: mat.id, order_index: orderIdx++ })
+          }
+        }
+        onReorderMaterials(updates)
+      }
+    }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+  }
 
   const getSubjectStyle = (subject: string) => getSubjectColor(subject)
 
@@ -127,6 +206,23 @@ export function GanttChart({
 
   // Timeline width = container width minus label column
   const timelineWidth = Math.max(containerWidth - labelWidth, 600)
+
+  // Drag interactions (click-to-add, resize, move)
+  const {
+    skipClickRef,
+    handleRowMouseDown,
+    handleEdgeMouseDown,
+    handleBarMouseDown,
+    getVisualBounds,
+    createPreview,
+  } = useGanttInteractions(
+    timelineRef,
+    timelineWidth,
+    totalDays,
+    academicYearStart,
+    onUpdatePhase,
+    onAddPhase,
+  )
 
   // Observe container width
   useEffect(() => {
@@ -177,6 +273,20 @@ export function GanttChart({
     })
   }, [monthStarts, academicYearStart, timelineWidth, totalDays, academicYearEnd])
 
+  // Week boundary positions (every Monday)
+  const weekLines = useMemo(() => {
+    const lines: number[] = []
+    const cursor = new Date(academicYearStart)
+    // Advance to first Monday
+    while (cursor.getDay() !== 1) cursor.setDate(cursor.getDate() + 1)
+    while (cursor <= academicYearEnd) {
+      const x = dateToX(cursor, academicYearStart, timelineWidth, totalDays)
+      lines.push(x)
+      cursor.setDate(cursor.getDate() + 7)
+    }
+    return lines
+  }, [academicYearStart, academicYearEnd, timelineWidth, totalDays])
+
   // Build row list
   type Row = { type: 'subject'; subject: string } | { type: 'material'; subject: string; material: CurriculumMaterial }
   const rows: Row[] = []
@@ -219,12 +329,16 @@ export function GanttChart({
   const bodyHeight = examRowHeight + rows.reduce((h, r) =>
     h + (r.type === 'subject' ? SUBJECT_HEADER_HEIGHT : rowHeight), 0)
 
-  // Render a phase bar
+  // Render a phase bar with drag handles
   function renderPhaseBar(phase: CurriculumPhase, mat: CurriculumMaterial) {
     if (!phase.start_date || !phase.end_date) return null
-    const x1 = dateToX(new Date(phase.start_date), academicYearStart, timelineWidth, totalDays)
-    const x2 = dateToX(new Date(phase.end_date), academicYearStart, timelineWidth, totalDays)
-    const barWidth = Math.max(20, x2 - x1)
+    const rawX1 = dateToX(new Date(phase.start_date), academicYearStart, timelineWidth, totalDays)
+    const rawX2 = dateToX(new Date(phase.end_date), academicYearStart, timelineWidth, totalDays)
+    const rawWidth = Math.max(20, rawX2 - rawX1)
+
+    // Apply drag/resize visual offsets
+    const { left: x1, width: barWidth } = getVisualBounds(phase.id, rawX1, rawWidth)
+
     const color = getSubjectStyle(mat.subject).color
     const isCompleted = phase.status === 'completed'
     const isInProgress = phase.status === 'in_progress'
@@ -242,7 +356,8 @@ export function GanttChart({
     return (
       <div
         key={phase.id}
-        className={`absolute flex flex-col rounded cursor-pointer transition-opacity hover:opacity-100 overflow-hidden ${
+        data-phase-bar
+        className={`absolute flex flex-col rounded cursor-grab transition-opacity hover:opacity-100 overflow-visible group/bar ${
           isCompleted ? 'opacity-100' : isInProgress ? 'opacity-90' : 'opacity-60'
         }`}
         style={{
@@ -253,7 +368,9 @@ export function GanttChart({
           backgroundColor: color,
           zIndex: 5,
         }}
+        onMouseDown={(e) => handleBarMouseDown(e, phase.id, rawX1, rawWidth)}
         onClick={() => {
+          if (skipClickRef.current) return
           if (onPhaseClick) {
             onPhaseClick(phase, mat.material_name)
           } else {
@@ -262,7 +379,17 @@ export function GanttChart({
         }}
         title={`${phase.phase_name}${phase.total_hours ? ` (${phase.total_hours}h)` : ''}${taskProgress !== null ? ` - ${taskProgress}%` : ''}`}
       >
-        <div className="flex items-center flex-1 min-h-0">
+        {/* Left resize handle */}
+        <div
+          className="absolute left-0 top-0 bottom-0 w-2 cursor-col-resize z-10 opacity-0 group-hover/bar:opacity-100 hover:bg-white/30 rounded-l"
+          onMouseDown={(e) => handleEdgeMouseDown(e, phase.id, 'left', rawX1, rawX1 + rawWidth)}
+        />
+        {/* Right resize handle */}
+        <div
+          className="absolute right-0 top-0 bottom-0 w-2 cursor-col-resize z-10 opacity-0 group-hover/bar:opacity-100 hover:bg-white/30 rounded-r"
+          onMouseDown={(e) => handleEdgeMouseDown(e, phase.id, 'right', rawX1, rawX1 + rawWidth)}
+        />
+        <div className="flex items-center flex-1 min-h-0 overflow-hidden rounded">
           <span
             className={`${isMobile ? 'text-[8px]' : 'text-[9px]'} font-semibold truncate leading-tight pl-2 pr-1`}
             style={{ color: textColor }}
@@ -353,7 +480,6 @@ export function GanttChart({
           style={{ width: labelWidth }}
         >
           <span className="text-[11px] font-bold text-muted-foreground tracking-wider">教材 / 科目</span>
-          <span className="text-[10px] text-muted-foreground">{year}年度（{year}.4〜{year + 1}.3）</span>
         </div>
         {/* Month headers */}
         <div className="flex flex-1 relative">
@@ -384,12 +510,20 @@ export function GanttChart({
           {rows.map((row, idx) => {
             if (row.type === 'subject') {
               const sc = getSubjectStyle(row.subject)
+              const subjectIdx = subjects.indexOf(row.subject)
+              const isDragging = reorderDrag?.type === 'subject' && reorderDrag.id === row.subject
               return (
                 <div
                   key={`label-${idx}`}
-                  className="flex items-center gap-1.5 px-4 border-b border-border"
+                  className={`flex items-center gap-1 px-1 border-b border-border group/subj ${isDragging ? 'opacity-50' : ''}`}
                   style={{ height: SUBJECT_HEADER_HEIGHT, backgroundColor: sc.bg }}
                 >
+                  <div
+                    className="cursor-grab active:cursor-grabbing p-0.5 opacity-0 group-hover/subj:opacity-60 transition-opacity"
+                    onMouseDown={(e) => handleReorderMouseDown(e, 'subject', row.subject, row.subject, subjectIdx)}
+                  >
+                    <GripVertical className="w-3 h-3" style={{ color: sc.color }} />
+                  </div>
                   <span className="text-xs font-bold" style={{ color: sc.color }}>{row.subject}</span>
                   <span
                     className="text-[9px] font-medium px-1.5 py-0 rounded"
@@ -401,15 +535,23 @@ export function GanttChart({
               )
             }
             const mat = row.material
+            const matIdx = (grouped[row.subject] || []).indexOf(mat)
+            const isDragging = reorderDrag?.type === 'material' && reorderDrag.id === mat.id
             return (
               <div
                 key={`label-${idx}`}
-                className="flex items-center justify-between px-4 border-b border-border hover:bg-muted/30 transition-colors group/row"
+                className={`flex items-center justify-between px-1 border-b border-border hover:bg-muted/30 transition-colors group/row ${isDragging ? 'opacity-50' : ''}`}
                 style={{ height: rowHeight }}
                 onMouseEnter={() => setHoveredRow(mat.id)}
                 onMouseLeave={() => setHoveredRow(null)}
               >
-                <div className="min-w-0 flex-1">
+                <div
+                  className="cursor-grab active:cursor-grabbing p-0.5 opacity-0 group-hover/row:opacity-40 transition-opacity shrink-0"
+                  onMouseDown={(e) => handleReorderMouseDown(e, 'material', mat.id, row.subject, matIdx)}
+                >
+                  <GripVertical className="w-3 h-3 text-muted-foreground" />
+                </div>
+                <div className="min-w-0 flex-1 px-1">
                   <div className={`${isMobile ? 'text-[10px]' : 'text-[11px]'} font-semibold text-foreground truncate`}>{mat.material_name}</div>
                   <div className="text-[9px] text-muted-foreground truncate">
                     {getPhases(mat.id).map(p => p.phase_name).join('→')}
@@ -428,14 +570,22 @@ export function GanttChart({
         </div>
 
         {/* Timeline area */}
-        <div className="flex-1 relative overflow-x-auto">
+        <div className="flex-1 relative overflow-x-auto" ref={timelineRef}>
           <div style={{ width: timelineWidth, position: 'relative', height: bodyHeight }}>
-            {/* Month vertical lines */}
+            {/* Week dotted lines */}
+            {weekLines.map((x, i) => (
+              <div
+                key={`wl-${i}`}
+                className="absolute top-0 bottom-0"
+                style={{ left: x, width: 0, borderLeft: '1px dotted #E5E7EB60' }}
+              />
+            ))}
+            {/* Month solid lines */}
             {monthColumns.map((mc, i) => (
               <div
                 key={`ml-${i}`}
-                className="absolute top-0 bottom-0 border-r"
-                style={{ left: mc.x + mc.width, borderColor: '#E5E7EB50' }}
+                className="absolute top-0 bottom-0"
+                style={{ left: mc.x + mc.width, width: 0, borderLeft: '1px solid #D1D5DB' }}
               />
             ))}
 
@@ -473,10 +623,25 @@ export function GanttChart({
                 return (
                   <div
                     key={`row-${idx}`}
-                    className="absolute left-0 right-0 border-b border-border"
+                    className="absolute left-0 right-0 border-b border-border cursor-crosshair"
                     style={{ top: y, height: h }}
+                    onMouseDown={(e) => handleRowMouseDown(e, mat.id)}
                   >
                     {getPhases(mat.id).map(phase => renderPhaseBar(phase, mat))}
+                    {/* Creation preview bar */}
+                    {createPreview && createPreview.materialId === mat.id && (
+                      <div
+                        className="absolute rounded opacity-40 pointer-events-none"
+                        style={{
+                          left: createPreview.left,
+                          width: createPreview.width,
+                          height: 20,
+                          top: 12,
+                          backgroundColor: getSubjectStyle(mat.subject).color,
+                          zIndex: 4,
+                        }}
+                      />
+                    )}
                   </div>
                 )
               })

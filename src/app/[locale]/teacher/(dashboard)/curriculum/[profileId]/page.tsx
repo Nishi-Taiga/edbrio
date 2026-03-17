@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { Link, useRouter } from '@/i18n/navigation'
 import { ProtectedRoute } from '@/components/layout/protected-route'
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { FileEdit, Download, Plus, ChevronDown, ChevronLeft, ChevronRight, Copy, FileSpreadsheet, FileText } from 'lucide-react'
+import { Download, ChevronDown, ChevronLeft, ChevronRight, FileSpreadsheet, FileText } from 'lucide-react'
 import { SkeletonList } from '@/components/ui/skeleton-card'
 import { ErrorAlert } from '@/components/ui/error-alert'
 import { useAuth } from '@/hooks/use-auth'
@@ -43,7 +43,6 @@ export default function StudentCurriculumPage() {
   const router = useRouter()
   const tPage = useTranslations('curriculum.page')
   const tProfile = useTranslations('curriculum.profile')
-  const tOverview = useTranslations('curriculum.overview')
   const tGantt = useTranslations('curriculum.gantt')
   const tMaterials = useTranslations('curriculum.materials')
   const tPhases = useTranslations('curriculum.phases')
@@ -70,9 +69,9 @@ export default function StudentCurriculumPage() {
     }
   }, [selectedYear, yearStorageKey])
 
-  const { materials, phases, phaseTasks, loading: materialsLoading, error: materialsError, addMaterial, updateMaterial, deleteMaterial, addPhase, updatePhase, deletePhase, addTask, updateTask, deleteTask, copyToNextYear } = useCurriculumMaterials(profileId, selectedYear)
-  const { exams, loading: examsLoading, error: examsError, addExam, updateExam, deleteExam } = useExamSchedules(profileId)
-  const { scores, loading: scoresLoading, error: scoresError, addScore, updateScore, deleteScore } = useTestScores(profileId)
+  const { materials, phases, phaseTasks, error: materialsError, addMaterial, updateMaterial, deleteMaterial, addPhase, updatePhase, deletePhase, addTask, updateTask, deleteTask, reorderMaterials } = useCurriculumMaterials(profileId, selectedYear)
+  const { exams, error: examsError, addExam, updateExam, deleteExam } = useExamSchedules(profileId)
+  const { scores, error: scoresError, addScore, updateScore, deleteScore } = useTestScores(profileId)
   const supabase = useMemo(() => createClient(), [])
   const ganttRef = useRef<HTMLDivElement>(null)
 
@@ -109,9 +108,6 @@ export default function StudentCurriculumPage() {
   const [detailText, setDetailText] = useState('')
   const [savingDetail, setSavingDetail] = useState(false)
 
-  // Copy year dialog
-  const [showCopyYearDialog, setShowCopyYearDialog] = useState(false)
-  const [copyingYear, setCopyingYear] = useState(false)
 
 
   useEffect(() => {
@@ -176,8 +172,14 @@ export default function StudentCurriculumPage() {
     setShowMaterialForm(false)
   }
 
-  // Phase handlers
-  const handleAddPhase = (materialId: string) => { setPhaseTargetMaterialId(materialId); setEditingPhase(null); setShowPhaseForm(true) }
+  // Phase handlers (optional dates from Gantt timeline click/drag)
+  const [prefilledPhaseDates, setPrefilledPhaseDates] = useState<{ start_date: string; end_date: string } | null>(null)
+  const handleAddPhase = (materialId: string, startDate?: string, endDate?: string) => {
+    setPhaseTargetMaterialId(materialId)
+    setEditingPhase(null)
+    setPrefilledPhaseDates(startDate && endDate ? { start_date: startDate, end_date: endDate } : null)
+    setShowPhaseForm(true)
+  }
   const handleEditPhase = (p: CurriculumPhase) => { setPhaseTargetMaterialId(p.material_id); setEditingPhase(p); setShowPhaseForm(true) }
   const handleSubmitPhase = async (data: { phase_name: string; total_hours?: number; start_date?: string; end_date?: string }) => {
     if (editingPhase) {
@@ -199,7 +201,7 @@ export default function StudentCurriculumPage() {
   // Exam handlers
   const handleAddExam = () => { setEditingExam(null); setShowExamForm(true) }
   const handleEditExam = (e: ExamSchedule) => { setEditingExam(e); setShowExamForm(true) }
-  const handleSubmitExam = async (data: { exam_name: string; exam_category: string; method?: string; exam_date: string; notes?: string }) => {
+  const handleSubmitExam = async (data: { exam_name: string; exam_category: string; method?: string; exam_date: string; preference_order?: number; border_score?: number; notes?: string }) => {
     if (editingExam) {
       await updateExam(editingExam.id, data)
     } else {
@@ -255,24 +257,10 @@ export default function StudentCurriculumPage() {
     return Array.from(set)
   }, [materials])
 
-  // Year selection
-  const currentYear = new Date().getFullYear()
+  // Year selection - default to current academic year (April-March)
+  const now = new Date()
+  const currentYear = now.getMonth() < 3 ? now.getFullYear() - 1 : now.getFullYear()
 
-  const handleCopyToNextYear = async () => {
-    if (!selectedYear) return
-    setCopyingYear(true)
-    try {
-      const nextYear = String(Number(selectedYear) + 1)
-      await copyToNextYear(nextYear)
-      setSelectedYear(nextYear)
-      toast.success(`${nextYear}年度のカリキュラムを作成しました`)
-      setShowCopyYearDialog(false)
-    } catch {
-      toast.error('次年度カリキュラムの作成に失敗しました')
-    } finally {
-      setCopyingYear(false)
-    }
-  }
 
   const anyError = error || materialsError || examsError || scoresError
 
@@ -316,19 +304,10 @@ export default function StudentCurriculumPage() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Copy to next year */}
-            <button
-              className="flex items-center gap-1.5 text-[13px] font-medium text-muted-foreground border border-border rounded-lg px-3 py-2 hover:bg-muted/50 transition-colors bg-card"
-              onClick={() => setShowCopyYearDialog(true)}
-            >
-              <Copy className="w-4 h-4" />
-              <span className="hidden sm:inline">次年度作成</span>
-            </button>
-
             <Link href="/teacher/curriculum">
-              <button className="flex items-center gap-1.5 text-[13px] font-semibold text-white bg-[#7C3AED] hover:bg-[#6D28D9] rounded-lg px-3.5 py-2 transition-colors">
-                <Plus className="w-4 h-4" />
-                <span className="hidden sm:inline">生徒を追加</span>
+              <button className="flex items-center gap-1.5 text-[13px] font-medium text-muted-foreground border border-border rounded-lg px-3 py-2 hover:bg-muted/50 transition-colors bg-card">
+                <ChevronLeft className="w-4 h-4" />
+                <span className="hidden sm:inline">生徒一覧</span>
               </button>
             </Link>
           </div>
@@ -425,6 +404,7 @@ export default function StudentCurriculumPage() {
                   onEditPhase={handleEditPhase}
                   onDeletePhase={deletePhase}
                   onUpdatePhase={updatePhase}
+                  onReorderMaterials={reorderMaterials}
                   onAddExam={handleAddExam}
                   onPhaseClick={handlePhaseClick}
                   t={(key: string) => tGantt(key)}
@@ -443,7 +423,7 @@ export default function StudentCurriculumPage() {
           {/* Test Scores tab */}
           <TabsContent value="scores">
             <div className="space-y-6">
-              <TestScoreChart scores={scores} t={(key: string) => tTestScores(key)} />
+              <TestScoreChart scores={scores} exams={exams} t={(key: string) => tTestScores(key)} />
               <TestScoreList
                 scores={scores}
                 onAdd={handleAddScore}
@@ -469,7 +449,7 @@ export default function StudentCurriculumPage() {
           open={showPhaseForm}
           onOpenChange={setShowPhaseForm}
           onSubmit={handleSubmitPhase}
-          initialData={editingPhase ? { phase_name: editingPhase.phase_name, total_hours: editingPhase.total_hours || undefined, start_date: editingPhase.start_date || undefined, end_date: editingPhase.end_date || undefined } : undefined}
+          initialData={editingPhase ? { phase_name: editingPhase.phase_name, total_hours: editingPhase.total_hours || undefined, start_date: editingPhase.start_date || undefined, end_date: editingPhase.end_date || undefined } : prefilledPhaseDates ? { phase_name: '', ...prefilledPhaseDates } : undefined}
           materialName={phaseTargetMaterialName}
           t={(key: string) => tPhases(key)}
         />
@@ -488,7 +468,7 @@ export default function StudentCurriculumPage() {
           open={showExamForm}
           onOpenChange={setShowExamForm}
           onSubmit={handleSubmitExam}
-          initialData={editingExam ? { exam_name: editingExam.exam_name, exam_category: editingExam.exam_category, method: editingExam.method || undefined, exam_date: editingExam.exam_date, notes: editingExam.notes || undefined } : undefined}
+          initialData={editingExam ? { exam_name: editingExam.exam_name, exam_category: editingExam.exam_category, method: editingExam.method || undefined, exam_date: editingExam.exam_date, preference_order: editingExam.preference_order || undefined, border_score: editingExam.border_score || undefined, notes: editingExam.notes || undefined } : undefined}
           t={(key: string) => tExams(key)}
         />
         <TestScoreForm
@@ -520,23 +500,6 @@ export default function StudentCurriculumPage() {
           </DialogContent>
         </Dialog>
 
-        {/* Copy Year Dialog */}
-        <Dialog open={showCopyYearDialog} onOpenChange={setShowCopyYearDialog}>
-          <DialogContent className="max-w-[400px]">
-            <DialogHeader>
-              <DialogTitle>次年度カリキュラムを作成</DialogTitle>
-              <DialogDescription>
-                {selectedYear}年度のカリキュラムを{Number(selectedYear) + 1}年度にコピーします。日程は1年後にシフトされ、ステータスはリセットされます。
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowCopyYearDialog(false)} disabled={copyingYear}>{tc('cancel')}</Button>
-              <LoadingButton onClick={handleCopyToNextYear} loading={copyingYear}>
-                作成する
-              </LoadingButton>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
         </>)}
       </div>
     </ProtectedRoute>

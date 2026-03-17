@@ -26,6 +26,7 @@ export default function TeacherStudentsPage() {
   const { user, loading: authLoading } = useAuth()
   const { profiles, loading, error, createProfile } = useStudentProfiles(user?.id)
   const [search, setSearch] = useState('')
+  const [hideInactive, setHideInactive] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const [newName, setNewName] = useState('')
   const [newGrade, setNewGrade] = useState('')
@@ -49,10 +50,11 @@ export default function TeacherStudentsPage() {
       })
   }, [user?.id, supabase])
 
-  const filtered = profiles.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    (p.grade || '').toLowerCase().includes(search.toLowerCase())
-  )
+  const filtered = profiles.filter(p => {
+    if (hideInactive && p.status !== 'active') return false
+    return p.name.toLowerCase().includes(search.toLowerCase()) ||
+      (p.grade || '').toLowerCase().includes(search.toLowerCase())
+  })
 
   const handleAdd = async () => {
     if (!newName.trim()) return
@@ -108,14 +110,25 @@ export default function TeacherStudentsPage() {
         {error && <ErrorAlert message={error} />}
 
         {profiles.length > 0 && (
-          <div className="relative mb-6">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500" />
-            <Input
-              className="pl-10"
-              placeholder={t('searchPlaceholder')}
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
+          <div className="flex items-center gap-4 mb-6">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500" />
+              <Input
+                className="pl-10"
+                placeholder={t('searchPlaceholder')}
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
+            <label className="flex items-center gap-2 text-sm text-muted-foreground whitespace-nowrap cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={hideInactive}
+                onChange={e => setHideInactive(e.target.checked)}
+                className="rounded border-gray-300 text-[#7C3AED] focus:ring-[#7C3AED]"
+              />
+              {t('hideInactive')}
+            </label>
           </div>
         )}
 

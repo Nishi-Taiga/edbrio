@@ -1,6 +1,5 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { Plus, Trash2, Pencil, Calendar } from 'lucide-react'
 import { ExamSchedule } from '@/lib/types/database'
 import { format, isBefore, startOfDay } from 'date-fns'
@@ -11,14 +10,6 @@ interface ExamScheduleListProps {
   onEdit: (exam: ExamSchedule) => void
   onDelete: (id: string) => Promise<void>
   t: (key: string) => string
-}
-
-const categoryLabel: Record<string, string> = {
-  recommendation: '推薦',
-  common_test: '共通',
-  general: '一般',
-  certification: '検定',
-  school_exam: '定期',
 }
 
 const statusConfig = (examDate: string) => {
@@ -39,7 +30,13 @@ const statusConfig = (examDate: string) => {
 }
 
 export function ExamScheduleList({ exams, onAdd, onEdit, onDelete, t }: ExamScheduleListProps) {
-  const sorted = [...exams].sort((a, b) => new Date(a.exam_date).getTime() - new Date(b.exam_date).getTime())
+  const sorted = [...exams].sort((a, b) => {
+    // First-choice first, then by date
+    const aOrder = a.preference_order ?? 999
+    const bOrder = b.preference_order ?? 999
+    if (aOrder !== bOrder) return aOrder - bOrder
+    return new Date(a.exam_date).getTime() - new Date(b.exam_date).getTime()
+  })
 
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden">
@@ -66,9 +63,11 @@ export function ExamScheduleList({ exams, onAdd, onEdit, onDelete, t }: ExamSche
           <table className="w-full text-sm min-w-[480px]">
             <thead>
               <tr className="bg-[#F9FAFB] dark:bg-muted/30">
+                <th className="text-center py-2.5 px-2 text-[11px] font-bold text-muted-foreground tracking-wider w-[50px]">志望順</th>
                 <th className="text-left py-2.5 px-4 text-[11px] font-bold text-muted-foreground tracking-wider">大学</th>
                 <th className="text-left py-2.5 px-4 text-[11px] font-bold text-muted-foreground tracking-wider">方式</th>
                 <th className="text-left py-2.5 px-4 text-[11px] font-bold text-muted-foreground tracking-wider w-[120px]">日付</th>
+                <th className="text-right py-2.5 px-4 text-[11px] font-bold text-muted-foreground tracking-wider w-[80px] hidden sm:table-cell">ボーダー</th>
                 <th className="text-left py-2.5 px-4 text-[11px] font-bold text-muted-foreground tracking-wider w-[100px] hidden sm:table-cell">ステータス</th>
                 <th className="w-[60px]"></th>
               </tr>
@@ -78,10 +77,16 @@ export function ExamScheduleList({ exams, onAdd, onEdit, onDelete, t }: ExamSche
                 const status = statusConfig(exam.exam_date)
                 return (
                   <tr key={exam.id} className="border-t border-border hover:bg-muted/20 transition-colors group">
+                    <td className="py-2.5 px-2 text-center text-xs font-bold text-foreground">
+                      {exam.preference_order ? `第${exam.preference_order}` : '—'}
+                    </td>
                     <td className="py-2.5 px-4 font-semibold text-foreground text-xs">{exam.exam_name}</td>
                     <td className="py-2.5 px-4 text-muted-foreground text-xs">{exam.method || '—'}</td>
                     <td className="py-2.5 px-4 font-medium text-foreground text-xs whitespace-nowrap">
                       {format(new Date(exam.exam_date), 'M/d')}
+                    </td>
+                    <td className="py-2.5 px-4 text-right font-mono text-xs text-muted-foreground hidden sm:table-cell">
+                      {exam.border_score != null ? exam.border_score : '—'}
                     </td>
                     <td className="py-2.5 px-4 hidden sm:table-cell">
                       <span

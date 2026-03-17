@@ -17,11 +17,21 @@ const EXAM_CATEGORIES = [
   'school_exam',
 ] as const
 
+interface ExamFormData {
+  exam_name: string
+  exam_category: string
+  method?: string
+  exam_date: string
+  preference_order?: number
+  border_score?: number
+  notes?: string
+}
+
 interface ExamScheduleFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (exam: { exam_name: string; exam_category: string; method?: string; exam_date: string; notes?: string }) => Promise<void>
-  initialData?: { exam_name: string; exam_category: string; method?: string; exam_date: string; notes?: string }
+  onSubmit: (exam: ExamFormData) => Promise<void>
+  initialData?: ExamFormData
   t: (key: string) => string
 }
 
@@ -30,6 +40,8 @@ export function ExamScheduleForm({ open, onOpenChange, onSubmit, initialData, t 
   const [examCategory, setExamCategory] = useState('')
   const [method, setMethod] = useState('')
   const [examDate, setExamDate] = useState('')
+  const [preferenceOrder, setPreferenceOrder] = useState('')
+  const [borderScore, setBorderScore] = useState('')
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -39,6 +51,8 @@ export function ExamScheduleForm({ open, onOpenChange, onSubmit, initialData, t 
       setExamCategory(initialData?.exam_category ?? '')
       setMethod(initialData?.method ?? '')
       setExamDate(initialData?.exam_date ?? '')
+      setPreferenceOrder(initialData?.preference_order != null ? String(initialData.preference_order) : '')
+      setBorderScore(initialData?.border_score != null ? String(initialData.border_score) : '')
       setNotes(initialData?.notes ?? '')
     }
   }, [open, initialData])
@@ -52,6 +66,8 @@ export function ExamScheduleForm({ open, onOpenChange, onSubmit, initialData, t 
         exam_category: examCategory,
         method: method.trim() || undefined,
         exam_date: examDate,
+        preference_order: preferenceOrder ? Number(preferenceOrder) : undefined,
+        border_score: borderScore ? Number(borderScore) : undefined,
         notes: notes.trim() || undefined,
       })
       onOpenChange(false)
@@ -102,6 +118,30 @@ export function ExamScheduleForm({ open, onOpenChange, onSubmit, initialData, t 
               onChange={e => setMethod(e.target.value)}
               placeholder={t('methodPlaceholder')}
             />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="exam-preference">{t('preferenceOrder')}</Label>
+              <Input
+                id="exam-preference"
+                type="number"
+                min={1}
+                value={preferenceOrder}
+                onChange={e => setPreferenceOrder(e.target.value)}
+                placeholder={t('preferenceOrderPlaceholder')}
+              />
+            </div>
+            <div>
+              <Label htmlFor="exam-border">{t('borderScore')}</Label>
+              <Input
+                id="exam-border"
+                type="number"
+                step="0.1"
+                value={borderScore}
+                onChange={e => setBorderScore(e.target.value)}
+                placeholder={t('borderScorePlaceholder')}
+              />
+            </div>
           </div>
           <div>
             <Label htmlFor="exam-date">{t('examDate')}</Label>
