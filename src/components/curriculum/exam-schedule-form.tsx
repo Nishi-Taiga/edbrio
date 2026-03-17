@@ -24,6 +24,7 @@ interface ExamFormData {
   exam_date: string
   preference_order?: number
   border_score?: number
+  border_score_type?: 'deviation' | 'percentage'
   notes?: string
 }
 
@@ -35,6 +36,20 @@ interface ExamScheduleFormProps {
   t: (key: string) => string
 }
 
+/** Allow only half-width digits (and empty string) */
+function sanitizeHalfWidthDigits(value: string): string {
+  return value.replace(/[^\d]/g, '')
+}
+
+/** Allow only numeric values (digits, decimal point) */
+function sanitizeNumeric(value: string): string {
+  // Allow digits and at most one decimal point
+  const cleaned = value.replace(/[^\d.]/g, '')
+  const parts = cleaned.split('.')
+  if (parts.length <= 2) return cleaned
+  return parts[0] + '.' + parts.slice(1).join('')
+}
+
 export function ExamScheduleForm({ open, onOpenChange, onSubmit, initialData, t }: ExamScheduleFormProps) {
   const [examName, setExamName] = useState('')
   const [examCategory, setExamCategory] = useState('')
@@ -42,6 +57,7 @@ export function ExamScheduleForm({ open, onOpenChange, onSubmit, initialData, t 
   const [examDate, setExamDate] = useState('')
   const [preferenceOrder, setPreferenceOrder] = useState('')
   const [borderScore, setBorderScore] = useState('')
+  const [borderScoreType, setBorderScoreType] = useState<'deviation' | 'percentage'>('deviation')
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -53,6 +69,7 @@ export function ExamScheduleForm({ open, onOpenChange, onSubmit, initialData, t 
       setExamDate(initialData?.exam_date ?? '')
       setPreferenceOrder(initialData?.preference_order != null ? String(initialData.preference_order) : '')
       setBorderScore(initialData?.border_score != null ? String(initialData.border_score) : '')
+      setBorderScoreType(initialData?.border_score_type ?? 'deviation')
       setNotes(initialData?.notes ?? '')
     }
   }, [open, initialData])
@@ -68,6 +85,7 @@ export function ExamScheduleForm({ open, onOpenChange, onSubmit, initialData, t 
         exam_date: examDate,
         preference_order: preferenceOrder ? Number(preferenceOrder) : undefined,
         border_score: borderScore ? Number(borderScore) : undefined,
+        border_score_type: borderScore ? borderScoreType : undefined,
         notes: notes.trim() || undefined,
       })
       onOpenChange(false)
@@ -87,7 +105,7 @@ export function ExamScheduleForm({ open, onOpenChange, onSubmit, initialData, t 
         </DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label htmlFor="exam-name">{t('examName')}</Label>
+            <Label htmlFor="exam-name">{t('examNameLabel')}</Label>
             <Input
               id="exam-name"
               value={examName}
@@ -124,23 +142,33 @@ export function ExamScheduleForm({ open, onOpenChange, onSubmit, initialData, t 
               <Label htmlFor="exam-preference">{t('preferenceOrder')}</Label>
               <Input
                 id="exam-preference"
-                type="number"
-                min={1}
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={preferenceOrder}
-                onChange={e => setPreferenceOrder(e.target.value)}
+                onChange={e => setPreferenceOrder(sanitizeHalfWidthDigits(e.target.value))}
                 placeholder={t('preferenceOrderPlaceholder')}
               />
             </div>
             <div>
               <Label htmlFor="exam-border">{t('borderScore')}</Label>
-              <Input
-                id="exam-border"
-                type="number"
-                step="0.1"
-                value={borderScore}
-                onChange={e => setBorderScore(e.target.value)}
-                placeholder={t('borderScorePlaceholder')}
-              />
+              <div className="flex gap-1.5">
+                <Select value={borderScoreType} onValueChange={(v) => setBorderScoreType(v as 'deviation' | 'percentage')}>
+                  <SelectTrigger className="w-[90px] shrink-0">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="deviation">{t('borderTypeDeviation')}</SelectItem>
+                    <SelectItem value="percentage">{t('borderTypePercentage')}</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input
+                  id="exam-border"
+                  inputMode="decimal"
+                  value={borderScore}
+                  onChange={e => setBorderScore(sanitizeNumeric(e.target.value))}
+                  placeholder={t('borderScorePlaceholder')}
+                />
+              </div>
             </div>
           </div>
           <div>

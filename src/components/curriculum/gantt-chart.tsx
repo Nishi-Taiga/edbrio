@@ -55,7 +55,8 @@ interface GanttChartProps {
   phaseTasks: PhaseTask[]
   exams: ExamSchedule[]
   curriculumYear?: string
-  onAddMaterial: () => void
+  onAddSubject: () => void
+  onAddMaterialToSubject: (subject: string) => void
   onEditMaterial: (material: CurriculumMaterial) => void
   onDeleteMaterial: (id: string) => void
   onAddPhase: (materialId: string, startDate?: string, endDate?: string) => void
@@ -99,7 +100,8 @@ export function GanttChart({
   phaseTasks,
   exams,
   curriculumYear,
-  onAddMaterial,
+  onAddSubject,
+  onAddMaterialToSubject,
   onEditMaterial,
   onDeleteMaterial,
   onAddPhase,
@@ -288,13 +290,18 @@ export function GanttChart({
   }, [academicYearStart, academicYearEnd, timelineWidth, totalDays])
 
   // Build row list
-  type Row = { type: 'subject'; subject: string } | { type: 'material'; subject: string; material: CurriculumMaterial }
+  type Row =
+    | { type: 'subject'; subject: string }
+    | { type: 'material'; subject: string; material: CurriculumMaterial }
+    | { type: 'addMaterial'; subject: string }
   const rows: Row[] = []
+  const ADD_MATERIAL_ROW_HEIGHT = 28
   subjects.forEach(subject => {
     rows.push({ type: 'subject', subject })
     grouped[subject].forEach(material => {
       rows.push({ type: 'material', subject, material })
     })
+    rows.push({ type: 'addMaterial', subject })
   })
 
   // Compute exam marker layout to determine dynamic row height
@@ -326,8 +333,12 @@ export function GanttChart({
   const examRowHeight = 4 + examMarkerLayout.rowCount * EXAM_MARKER_ROW_H + 4
 
   // Total body height
-  const bodyHeight = examRowHeight + rows.reduce((h, r) =>
-    h + (r.type === 'subject' ? SUBJECT_HEADER_HEIGHT : rowHeight), 0)
+  const getRowHeight = (r: Row) => {
+    if (r.type === 'subject') return SUBJECT_HEADER_HEIGHT
+    if (r.type === 'addMaterial') return ADD_MATERIAL_ROW_HEIGHT
+    return rowHeight
+  }
+  const bodyHeight = examRowHeight + rows.reduce((h, r) => h + getRowHeight(r), 0)
 
   // Render a phase bar with drag handles
   function renderPhaseBar(phase: CurriculumPhase, mat: CurriculumMaterial) {
@@ -534,6 +545,25 @@ export function GanttChart({
                 </div>
               )
             }
+            if (row.type === 'addMaterial') {
+              const sc2 = getSubjectStyle(row.subject)
+              return (
+                <div
+                  key={`label-${idx}`}
+                  className="flex items-center justify-center border-b border-border"
+                  style={{ height: ADD_MATERIAL_ROW_HEIGHT }}
+                >
+                  <button
+                    className="flex items-center gap-0.5 text-[10px] font-medium transition-colors hover:opacity-80 px-2 py-0.5 rounded"
+                    style={{ color: sc2.color }}
+                    onClick={() => onAddMaterialToSubject(row.subject)}
+                  >
+                    <Plus className="w-3 h-3" />
+                    {t('addMaterialToSubject')}
+                  </button>
+                </div>
+              )
+            }
             const mat = row.material
             const matIdx = (grouped[row.subject] || []).indexOf(mat)
             const isDragging = reorderDrag?.type === 'material' && reorderDrag.id === mat.id
@@ -604,7 +634,7 @@ export function GanttChart({
             {(() => {
               let yOffset = examRowHeight
               return rows.map((row, idx) => {
-                const h = row.type === 'subject' ? SUBJECT_HEADER_HEIGHT : rowHeight
+                const h = getRowHeight(row)
                 const y = yOffset
                 yOffset += h
 
@@ -615,6 +645,16 @@ export function GanttChart({
                       key={`row-${idx}`}
                       className="absolute left-0 right-0 border-b border-border"
                       style={{ top: y, height: h, backgroundColor: sc.bg }}
+                    />
+                  )
+                }
+
+                if (row.type === 'addMaterial') {
+                  return (
+                    <div
+                      key={`row-${idx}`}
+                      className="absolute left-0 right-0 border-b border-border"
+                      style={{ top: y, height: h }}
                     />
                   )
                 }
@@ -666,22 +706,22 @@ export function GanttChart({
         </div>
       </div>
 
-      {/* Empty state or Add material button */}
+      {/* Empty state or Add subject button */}
       {materials.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-muted-foreground border-t">
           <p className="text-sm mb-3">{t('emptyGantt')}</p>
-          <Button size="sm" onClick={onAddMaterial}>
-            <Plus className="w-4 h-4 mr-1" />{t('addMaterial')}
+          <Button size="sm" onClick={onAddSubject}>
+            <Plus className="w-4 h-4 mr-1" />{t('addSubject')}
           </Button>
         </div>
       ) : (
         <div className="flex justify-center py-2 border-t border-border">
           <button
             className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors py-1 px-3 rounded hover:bg-muted/50"
-            onClick={onAddMaterial}
+            onClick={onAddSubject}
           >
             <Plus className="w-3.5 h-3.5" />
-            {t('addMaterial')}
+            {t('addSubject')}
           </button>
         </div>
       )}

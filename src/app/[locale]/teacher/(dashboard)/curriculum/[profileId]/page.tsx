@@ -161,8 +161,14 @@ export default function StudentCurriculumPage() {
   }
 
   // Material handlers
-  const handleAddMaterial = () => { setEditingMaterial(null); setShowMaterialForm(true) }
-  const handleEditMaterial = (m: CurriculumMaterial) => { setEditingMaterial(m); setShowMaterialForm(true) }
+  const [prefilledSubject, setPrefilledSubject] = useState<string | null>(null)
+  const handleAddSubject = () => { setEditingMaterial(null); setPrefilledSubject(null); setShowMaterialForm(true) }
+  const handleAddMaterialToSubject = (subject: string) => {
+    setEditingMaterial(null)
+    setPrefilledSubject(subject)
+    setShowMaterialForm(true)
+  }
+  const handleEditMaterial = (m: CurriculumMaterial) => { setEditingMaterial(m); setPrefilledSubject(null); setShowMaterialForm(true) }
   const handleSubmitMaterial = async (data: { material_name: string; subject: string; notes?: string }) => {
     if (editingMaterial) {
       await updateMaterial(editingMaterial.id, data)
@@ -170,6 +176,7 @@ export default function StudentCurriculumPage() {
       await addMaterial({ ...data, order_index: materials.length, curriculum_year: selectedYear })
     }
     setShowMaterialForm(false)
+    setPrefilledSubject(null)
   }
 
   // Phase handlers (optional dates from Gantt timeline click/drag)
@@ -181,7 +188,7 @@ export default function StudentCurriculumPage() {
     setShowPhaseForm(true)
   }
   const handleEditPhase = (p: CurriculumPhase) => { setPhaseTargetMaterialId(p.material_id); setEditingPhase(p); setShowPhaseForm(true) }
-  const handleSubmitPhase = async (data: { phase_name: string; total_hours?: number; start_date?: string; end_date?: string }) => {
+  const handleSubmitPhase = async (data: { phase_name: string; start_date?: string; end_date?: string }) => {
     if (editingPhase) {
       await updatePhase(editingPhase.id, data)
     } else {
@@ -201,7 +208,7 @@ export default function StudentCurriculumPage() {
   // Exam handlers
   const handleAddExam = () => { setEditingExam(null); setShowExamForm(true) }
   const handleEditExam = (e: ExamSchedule) => { setEditingExam(e); setShowExamForm(true) }
-  const handleSubmitExam = async (data: { exam_name: string; exam_category: string; method?: string; exam_date: string; preference_order?: number; border_score?: number; notes?: string }) => {
+  const handleSubmitExam = async (data: { exam_name: string; exam_category: string; method?: string; exam_date: string; preference_order?: number; border_score?: number; border_score_type?: 'deviation' | 'percentage'; notes?: string }) => {
     if (editingExam) {
       await updateExam(editingExam.id, data)
     } else {
@@ -397,7 +404,8 @@ export default function StudentCurriculumPage() {
                   phaseTasks={phaseTasks}
                   exams={exams}
                   curriculumYear={selectedYear || profile.curriculum_year}
-                  onAddMaterial={handleAddMaterial}
+                  onAddSubject={handleAddSubject}
+                  onAddMaterialToSubject={handleAddMaterialToSubject}
                   onEditMaterial={handleEditMaterial}
                   onDeleteMaterial={deleteMaterial}
                   onAddPhase={handleAddPhase}
@@ -412,6 +420,7 @@ export default function StudentCurriculumPage() {
               </div>
               <ExamScheduleList
                 exams={exams}
+                academicYear={Number(selectedYear || currentYear)}
                 onAdd={handleAddExam}
                 onEdit={handleEditExam}
                 onDelete={deleteExam}
@@ -441,7 +450,7 @@ export default function StudentCurriculumPage() {
           open={showMaterialForm}
           onOpenChange={setShowMaterialForm}
           onSubmit={handleSubmitMaterial}
-          initialData={editingMaterial ? { material_name: editingMaterial.material_name, subject: editingMaterial.subject, notes: editingMaterial.notes || undefined } : undefined}
+          initialData={editingMaterial ? { material_name: editingMaterial.material_name, subject: editingMaterial.subject, notes: editingMaterial.notes || undefined } : prefilledSubject ? { material_name: '', subject: prefilledSubject } : undefined}
           existingSubjects={existingSubjects}
           t={(key: string) => tMaterials(key)}
         />
@@ -449,7 +458,7 @@ export default function StudentCurriculumPage() {
           open={showPhaseForm}
           onOpenChange={setShowPhaseForm}
           onSubmit={handleSubmitPhase}
-          initialData={editingPhase ? { phase_name: editingPhase.phase_name, total_hours: editingPhase.total_hours || undefined, start_date: editingPhase.start_date || undefined, end_date: editingPhase.end_date || undefined } : prefilledPhaseDates ? { phase_name: '', ...prefilledPhaseDates } : undefined}
+          initialData={editingPhase ? { phase_name: editingPhase.phase_name, start_date: editingPhase.start_date || undefined, end_date: editingPhase.end_date || undefined } : prefilledPhaseDates ? { phase_name: '', ...prefilledPhaseDates } : undefined}
           materialName={phaseTargetMaterialName}
           t={(key: string) => tPhases(key)}
         />
@@ -468,7 +477,7 @@ export default function StudentCurriculumPage() {
           open={showExamForm}
           onOpenChange={setShowExamForm}
           onSubmit={handleSubmitExam}
-          initialData={editingExam ? { exam_name: editingExam.exam_name, exam_category: editingExam.exam_category, method: editingExam.method || undefined, exam_date: editingExam.exam_date, preference_order: editingExam.preference_order || undefined, border_score: editingExam.border_score || undefined, notes: editingExam.notes || undefined } : undefined}
+          initialData={editingExam ? { exam_name: editingExam.exam_name, exam_category: editingExam.exam_category, method: editingExam.method || undefined, exam_date: editingExam.exam_date, preference_order: editingExam.preference_order || undefined, border_score: editingExam.border_score || undefined, border_score_type: editingExam.border_score_type || undefined, notes: editingExam.notes || undefined } : undefined}
           t={(key: string) => tExams(key)}
         />
         <TestScoreForm

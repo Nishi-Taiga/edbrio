@@ -10,15 +10,14 @@ import { Loader2 } from 'lucide-react'
 interface PhaseFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (phase: { phase_name: string; total_hours?: number; start_date?: string; end_date?: string }) => Promise<void>
-  initialData?: { phase_name: string; total_hours?: number; start_date?: string; end_date?: string }
+  onSubmit: (phase: { phase_name: string; start_date?: string; end_date?: string }) => Promise<void>
+  initialData?: { phase_name: string; start_date?: string; end_date?: string }
   materialName?: string
   t: (key: string) => string
 }
 
 export function PhaseForm({ open, onOpenChange, onSubmit, initialData, materialName, t }: PhaseFormProps) {
   const [phaseName, setPhaseName] = useState('')
-  const [totalHours, setTotalHours] = useState('')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [saving, setSaving] = useState(false)
@@ -26,7 +25,6 @@ export function PhaseForm({ open, onOpenChange, onSubmit, initialData, materialN
   useEffect(() => {
     if (open) {
       setPhaseName(initialData?.phase_name ?? '')
-      setTotalHours(initialData?.total_hours != null ? String(initialData.total_hours) : '')
       setStartDate(initialData?.start_date ?? '')
       setEndDate(initialData?.end_date ?? '')
     }
@@ -38,7 +36,6 @@ export function PhaseForm({ open, onOpenChange, onSubmit, initialData, materialN
     try {
       await onSubmit({
         phase_name: phaseName.trim(),
-        total_hours: totalHours ? Number(totalHours) : undefined,
         start_date: startDate || undefined,
         end_date: endDate || undefined,
       })
@@ -66,18 +63,6 @@ export function PhaseForm({ open, onOpenChange, onSubmit, initialData, materialN
               value={phaseName}
               onChange={e => setPhaseName(e.target.value)}
               placeholder={t('phaseNamePlaceholder')}
-            />
-          </div>
-          <div>
-            <Label htmlFor="phase-hours">{t('totalHours')}</Label>
-            <Input
-              id="phase-hours"
-              type="number"
-              min={0}
-              step={0.5}
-              value={totalHours}
-              onChange={e => setTotalHours(e.target.value)}
-              placeholder={t('totalHoursPlaceholder')}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">

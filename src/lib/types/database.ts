@@ -372,6 +372,7 @@ export interface ExamSchedule {
   exam_date: string
   preference_order?: number
   border_score?: number
+  border_score_type?: 'deviation' | 'percentage'
   notes?: string
   created_at: string
   updated_at: string
