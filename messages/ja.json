@@ -423,7 +423,14 @@
     "footerHome": "ホーム",
     "footerReports": "レポート",
     "footerCalendar": "シフト",
-    "footerChat": "チャット"
+    "footerChat": "チャット",
+    "onboardingTitle": "はじめの3ステップ",
+    "onboardingSubtitle": "以下のステップを完了して、最初の保護者を迎えましょう",
+    "onboardingStep1": "プロフィールを完成させる",
+    "onboardingStep2": "空き枠（シフト）を登録する",
+    "onboardingStep3": "保護者を招待する",
+    "onboardingGoToCalendar": "シフトを登録する",
+    "onboardingGoToInvite": "保護者を招待する"
   },
   "teacherSetup": {
     "title": "初期設定",
@@ -942,6 +949,7 @@
     "emptyBalanceDescription": "上の一覧からチケットを購入しましょう",
     "tableTicketName": "チケット名",
     "tableRemaining": "残り",
+    "remainingWithCount": "{count}回（{minutes}分）",
     "tablePurchaseDate": "購入日",
     "tableExpiry": "有効期限",
     "daysRemaining": "残り{days}日",

@@ -15,6 +15,7 @@ import { getMissingSetupItems } from '@/lib/teacher-setup'
 import { toast } from 'sonner'
 
 import { SetupBanner } from './_components/setup-banner'
+import { OnboardingBanner } from './_components/onboarding-banner'
 import { UpcomingLessons } from './_components/upcoming-lessons'
 import { QuickActions } from './_components/quick-actions'
 
@@ -36,6 +37,8 @@ export default function TeacherDashboard() {
   const [setupComplete, setSetupComplete] = useState<boolean | null>(null)
   const [missingItems, setMissingItems] = useState<string[]>([])
   const [displayName, setDisplayName] = useState<string | null>(null)
+  const [hasShift, setHasShift] = useState<boolean>(false)
+  const [hasInvite, setHasInvite] = useState<boolean>(false)
   const [studentNames, setStudentNames] = useState<Record<string, string>>({})
   const [studentSubjects, setStudentSubjects] = useState<Record<string, string>>({})
   const [isUpdating, setIsUpdating] = useState<string | null>(null)
@@ -62,13 +65,27 @@ export default function TeacherDashboard() {
         setSetupComplete(missing.length === 0)
         setMissingItems(missing)
         // Extract display_name from public_profile
-        const dn = (data.public_profile as Record<string, any>)?.display_name
-        if (dn) setDisplayName(dn)
+        const dn = (data.public_profile as Record<string, unknown>)?.display_name
+        if (typeof dn === 'string' && dn) setDisplayName(dn)
       } else {
         setSetupComplete(false)
       }
     }
     checkSetup()
+  }, [user, dbUser, supabase])
+
+  // Check onboarding progress: has first shift + has first invite
+  useEffect(() => {
+    if (!user?.id || dbUser?.role !== 'teacher') return
+    async function checkOnboarding() {
+      const [shiftsResult, invitesResult] = await Promise.all([
+        supabase.from('shifts').select('id', { count: 'exact', head: true }).eq('teacher_id', user!.id),
+        supabase.from('invites').select('id', { count: 'exact', head: true }).eq('teacher_id', user!.id),
+      ])
+      setHasShift((shiftsResult.count ?? 0) > 0)
+      setHasInvite((invitesResult.count ?? 0) > 0)
+    }
+    checkOnboarding()
   }, [user, dbUser, supabase])
 
   // Load calendar week start: localStorage first (instant), then API for freshness
@@ -293,9 +310,14 @@ export default function TeacherDashboard() {
     <ProtectedRoute allowedRoles={['teacher']}>
       <div className="bg-[#F9F6F2] dark:bg-[#13111C] min-h-screen lg:min-h-0 lg:h-[calc(100vh-3.5rem)] px-4 md:px-5 lg:px-7 py-4 md:py-5 lg:py-3 flex flex-col gap-4 lg:gap-3 pb-24 md:pb-5 lg:pb-3 lg:overflow-hidden">
 
-        {/* ── Setup Banner (conditional) ── */}
+        {/* ── Setup Banner (profile incomplete) ── */}
         {setupComplete === false && (
           <SetupBanner missingItems={missingItems} totalItems={4} />
+        )}
+
+        {/* ── Onboarding Banner (profile done, but no shift or invite yet) ── */}
+        {setupComplete === true && (!hasShift || !hasInvite) && (
+          <OnboardingBanner hasShift={hasShift} hasInvite={hasInvite} />
         )}
 
         {/* ── Summary (full width, responsive) ── */}
