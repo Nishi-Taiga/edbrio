@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { adminLimiter } from '@/lib/rate-limit'
 import { adminUserUpdateSchema } from '@/lib/validations'
+import { verifyAdminRequest } from '@/lib/admin/auth'
+import { writeAuditLog } from '@/lib/admin/queries'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,6 +24,9 @@ export async function GET(
         { status: 429 }
       )
     }
+
+    const authResult = await verifyAdminRequest()
+    if (!authResult.ok) return authResult.response
 
     const supabase = createAdminClient()
 
@@ -205,6 +210,9 @@ export async function PATCH(
       )
     }
 
+    const authResult = await verifyAdminRequest()
+    if (!authResult.ok) return authResult.response
+
     const body = await req.json()
     const parsed = adminUserUpdateSchema.safeParse(body)
     if (!parsed.success) {
@@ -245,6 +253,13 @@ export async function PATCH(
           { status: 500 }
         )
       }
+
+      await writeAuditLog({
+        actor_id: authResult.adminId,
+        action: is_suspended ? 'admin.user.suspend' : 'admin.user.unsuspend',
+        target_table: 'users',
+        target_id: id,
+      })
     }
 
     // Update plan on teachers table
@@ -271,6 +286,14 @@ export async function PATCH(
           { status: 500 }
         )
       }
+
+      await writeAuditLog({
+        actor_id: authResult.adminId,
+        action: 'admin.user.plan_change',
+        target_table: 'teachers',
+        target_id: id,
+        meta: { plan },
+      })
     }
 
     // Fetch and return the updated user

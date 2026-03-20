@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { adminLimiter } from '@/lib/rate-limit'
 import { z } from 'zod'
+import { verifyAdminRequest } from '@/lib/admin/auth'
+import { writeAuditLog } from '@/lib/admin/queries'
 
 const announcementSchema = z.object({
   title: z.string().min(1).max(200),
@@ -18,6 +20,9 @@ export async function GET(req: NextRequest) {
     if (!success) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
     }
+
+    const authResult = await verifyAdminRequest()
+    if (!authResult.ok) return authResult.response
 
     const supabase = createAdminClient()
 
@@ -45,6 +50,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
     }
 
+    const authResult = await verifyAdminRequest()
+    if (!authResult.ok) return authResult.response
+
     const supabase = createAdminClient()
     const body = await req.json()
 
@@ -60,7 +68,7 @@ export async function POST(req: NextRequest) {
         title,
         content,
         target_role: target_role || null,
-        created_by: null,
+        created_by: authResult.adminId,
       })
       .select()
       .single()
@@ -68,6 +76,14 @@ export async function POST(req: NextRequest) {
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    await writeAuditLog({
+      actor_id: authResult.adminId,
+      action: 'admin.announcement.create',
+      target_table: 'announcements',
+      target_id: data.id,
+      meta: { title },
+    })
 
     return NextResponse.json({ announcement: data })
   } catch {

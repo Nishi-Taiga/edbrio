@@ -299,6 +299,7 @@ export async function getReportStats() {
 // ── Audit Log Write ──
 
 export async function writeAuditLog(params: {
+  actor_id?: string | null
   action: string
   target_table: string
   target_id?: string
@@ -306,7 +307,7 @@ export async function writeAuditLog(params: {
 }) {
   const supabase = createAdminClient()
   await supabase.from('audit_logs').insert({
-    actor_id: null,
+    actor_id: params.actor_id ?? null,
     action: params.action,
     target_table: params.target_table,
     target_id: params.target_id,

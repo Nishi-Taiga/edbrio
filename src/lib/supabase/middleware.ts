@@ -89,7 +89,23 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   // Permissions policy
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
-  // CSP
+  // CSP Report-Only (監視用 — 実際の制限なし。GTM が unsafe-eval を必要とするため完全排除は保留)
+  response.headers.set(
+    'Content-Security-Policy-Report-Only',
+    [
+      "default-src 'self'",
+      "script-src 'self' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob: https:",
+      "font-src 'self' data:",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://api.anthropic.com https://api.resend.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://accounts.google.com",
+      "frame-src https://js.stripe.com https://hooks.stripe.com https://accounts.google.com",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self' https://accounts.google.com",
+    ].join('; ')
+  )
+  // CSP (enforced)
   response.headers.set(
     'Content-Security-Policy',
     [

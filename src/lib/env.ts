@@ -1,0 +1,20 @@
+const REQUIRED_ENV_VARS = [
+  'NEXT_PUBLIC_SUPABASE_URL',
+  'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+  'SUPABASE_SERVICE_ROLE_KEY',
+  'ADMIN_BASIC_AUTH_USER',
+  'ADMIN_BASIC_AUTH_PASS',
+  'ADMIN_ALLOWED_EMAILS',
+  'STRIPE_SECRET_KEY',
+  'STRIPE_WEBHOOK_SECRET',
+  'ANTHROPIC_API_KEY',
+] as const
+
+export function validateEnv(): void {
+  const missing = REQUIRED_ENV_VARS.filter((key) => !process.env[key])
+  if (missing.length > 0) {
+    throw new Error(
+      `[EdBrio] Missing required environment variables:\n${missing.map((k) => `  - ${k}`).join('\n')}`
+    )
+  }
+}
