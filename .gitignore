@@ -91,3 +91,6 @@ supabase/migrations/018_curriculum_revamp.sql
 tests/screenshots/
 scripts/take-screenshots.ts
 UI.pen
+.gstack/
+LAUNCH-PLAN.md
+scripts/take-screenshots.mjs
