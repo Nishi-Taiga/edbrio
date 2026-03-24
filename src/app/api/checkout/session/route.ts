@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { createClient } from '@/lib/supabase/server'
 import { checkoutLimiter } from '@/lib/rate-limit'
 import { checkoutSessionSchema } from '@/lib/validations'
 
@@ -16,11 +17,18 @@ function getStripe() {
 }
 
 export async function POST(req: NextRequest) {
-  // Rate limit by IP since this route doesn't require auth
+  // Rate limit by IP
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
   const { success: rateLimitOk } = checkoutLimiter.check(ip)
   if (!rateLimitOk) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+
+  // Authentication required
+  const supabase = await createClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const stripe = getStripe()

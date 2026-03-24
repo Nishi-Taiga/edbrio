@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { bookingReportLimiter } from '@/lib/rate-limit'
+import { bookingReportCreateSchema } from '@/lib/validations'
 
 export const dynamic = 'force-dynamic'
 
 // POST: 保護者が問題報告を作成
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+    if (!bookingReportLimiter.check(ip).success) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+    }
+
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
@@ -14,15 +21,11 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { bookingId, reason, description } = body
-
-    if (!bookingId || !reason) {
-      return NextResponse.json({ error: 'bookingId and reason are required' }, { status: 400 })
+    const parsed = bookingReportCreateSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: '入力内容に不備があります' }, { status: 400 })
     }
-
-    if (!['late', 'absent', 'other'].includes(reason)) {
-      return NextResponse.json({ error: 'Invalid reason' }, { status: 400 })
-    }
+    const { bookingId, reason, description } = parsed.data
 
     if (reason === 'other' && !description?.trim()) {
       return NextResponse.json({ error: 'Description is required for "other" reason' }, { status: 400 })

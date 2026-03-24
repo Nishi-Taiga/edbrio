@@ -138,6 +138,14 @@ export const preRegisterConfirmSchema = z.object({
   token: z.string().uuid(),
 })
 
+// ── /api/booking-reports POST ──
+
+export const bookingReportCreateSchema = z.object({
+  bookingId: uuidSchema,
+  reason: z.enum(['late', 'absent', 'other']),
+  description: z.string().max(5000).optional(),
+})
+
 // ── /api/admin/users/[id] PATCH ──
 
 export const adminUserUpdateSchema = z

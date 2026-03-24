@@ -67,7 +67,35 @@ function checkBasicAuth(request: NextRequest): NextResponse | null {
   const user = decoded.slice(0, colonIndex)
   const pass = decoded.slice(colonIndex + 1)
 
-  if (user !== adminUser || pass !== adminPass) {
+  // Constant-time comparison to prevent timing attacks (Edge Runtime compatible)
+  const encoder = new TextEncoder()
+  const userBytes = encoder.encode(user)
+  const adminUserBytes = encoder.encode(adminUser)
+  const passBytes = encoder.encode(pass)
+  const adminPassBytes = encoder.encode(adminPass)
+
+  // Pad to same length to avoid early-exit timing leak
+  const maxUserLen = Math.max(userBytes.length, adminUserBytes.length)
+  const maxPassLen = Math.max(passBytes.length, adminPassBytes.length)
+  const userPadded = new Uint8Array(maxUserLen)
+  const adminUserPadded = new Uint8Array(maxUserLen)
+  const passPadded = new Uint8Array(maxPassLen)
+  const adminPassPadded = new Uint8Array(maxPassLen)
+  userPadded.set(userBytes)
+  adminUserPadded.set(adminUserBytes)
+  passPadded.set(passBytes)
+  adminPassPadded.set(adminPassBytes)
+
+  let userDiff = userBytes.length ^ adminUserBytes.length
+  for (let i = 0; i < maxUserLen; i++) {
+    userDiff |= userPadded[i] ^ adminUserPadded[i]
+  }
+  let passDiff = passBytes.length ^ adminPassBytes.length
+  for (let i = 0; i < maxPassLen; i++) {
+    passDiff |= passPadded[i] ^ adminPassPadded[i]
+  }
+
+  if (userDiff !== 0 || passDiff !== 0) {
     return new NextResponse('Invalid credentials', {
       status: 401,
       headers: { 'WWW-Authenticate': 'Basic realm="EdBrio Admin"' },

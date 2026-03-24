@@ -108,7 +108,7 @@ export async function GET(req: NextRequest) {
   } catch (error: unknown) {
     console.error('Booking reminder cron error:', error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }
