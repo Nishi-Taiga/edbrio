@@ -26,7 +26,7 @@ npx playwright test [path]
 ## Key Rules
 
 - **Import**: `@/*` alias only, never relative paths
-- **i18n**: 日本語最優先、他言語は後回し。未翻訳は memory/i18n-pending.md に追記
+- **i18n**: 日本語最優先、他言語は後回し。未翻訳は docs/i18n-pending.md に追記
 - **Client Component**: `'use client'` + `useMemo(() => createClient(), [])`
 - **Server Component**: `await createClient()` from `@/lib/supabase/server`
 - **API Routes**: `force-dynamic` + `getUser()` (not getSession) + Zod + rate limit → see `.claude/skills/api-route.md`

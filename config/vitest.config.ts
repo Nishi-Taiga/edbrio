@@ -9,8 +9,8 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      '#test': path.resolve(__dirname, './tests/helpers'),
+      '@': path.resolve(__dirname, '../src'),
+      '#test': path.resolve(__dirname, '../tests/helpers'),
     },
   },
   test: {
