@@ -1,8 +1,5 @@
 import { useTranslations } from 'next-intl'
-import { CtaButton } from '@/app/[locale]/_components/landing/cta-link'
 import { PreRegisterForm } from '@/app/[locale]/_components/landing/pre-register-form'
-
-const isPreLaunch = process.env.NEXT_PUBLIC_PRE_LAUNCH === 'true'
 
 export function LandingCta() {
   const t = useTranslations('landing')
@@ -17,18 +14,7 @@ export function LandingCta() {
           {t('cta.description')}
         </p>
         <div className="mt-6 max-w-md">
-          {isPreLaunch ? (
-            <PreRegisterForm location="bottom_cta" />
-          ) : (
-            <div className="flex flex-wrap gap-3">
-              <CtaButton href="/auth/signup" location="bottom_cta">
-                {t('cta.primary')}
-              </CtaButton>
-              <CtaButton href="/pricing" location="bottom_cta_pricing" variant="secondary">
-                {t('cta.secondary')}
-              </CtaButton>
-            </div>
-          )}
+          <PreRegisterForm location="bottom_cta" />
         </div>
       </div>
     </section>

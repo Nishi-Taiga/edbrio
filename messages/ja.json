@@ -86,7 +86,15 @@
       "errorRateLimit": "送信回数の上限に達しました。しばらくお待ちください。",
       "benefit": "事前登録で、Standardプランを2ヶ月間無料でお試しいただけます",
       "confirmedToast": "メールアドレスが確認されました。リリース時にお知らせいたします！",
-      "confirmedErrorToast": "確認リンクが無効です。再度お試しください。"
+      "confirmedErrorToast": "確認リンクが無効です。再度お試しください。",
+      "pageTitle": "事前登録",
+      "pageDescription": "EdBrio は 2026年4月にリリース予定です。事前登録いただくと、サービス公開時にいち早くお知らせいたします。",
+      "featureAi": "AI が授業レポートを自動生成",
+      "featureSchedule": "予約・カレンダー・請求を一元管理",
+      "featureChat": "保護者とのチャット連絡",
+      "featureFee": "業界最低水準の手数料 1.4%",
+      "alreadyRegistered": "すでに登録済みの方は",
+      "loginLink": "ログイン"
     },
     "screenshots": {
       "teacherAlt": "講師ダッシュボード画面",

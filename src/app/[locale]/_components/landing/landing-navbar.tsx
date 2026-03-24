@@ -8,14 +8,10 @@ import { EdBrioLogo } from '@/components/ui/edbrio-logo'
 import { LanguageSwitcher } from '@/components/ui/language-switcher'
 import { CtaButton } from '@/app/[locale]/_components/landing/cta-link'
 
-const isPreLaunch = process.env.NEXT_PUBLIC_PRE_LAUNCH === 'true'
-
 export function LandingNavbar() {
   const t = useTranslations('landing')
   const tCommon = useTranslations('common')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const navCtaLabel = isPreLaunch ? t('preRegister.submit') : tCommon('freeRegister')
-  const navCtaHref = isPreLaunch ? '#hero' : '/auth/signup'
 
   return (
     <header className="sticky top-0 z-50 bg-background/85 backdrop-blur-md">
@@ -52,8 +48,8 @@ export function LandingNavbar() {
           >
             {tCommon('login')}
           </Link>
-          <CtaButton href={navCtaHref} location="navbar" className="h-7 px-4 text-xs">
-            {navCtaLabel}
+          <CtaButton href="/pre-register" location="navbar" className="h-7 px-4 text-xs">
+            {t('preRegister.submit')}
           </CtaButton>
         </div>
 
@@ -94,8 +90,8 @@ export function LandingNavbar() {
             </Link>
             <div className="flex items-center gap-3 pt-2">
               <LanguageSwitcher className="text-sm" />
-              <CtaButton href={navCtaHref} location="navbar_mobile" className="h-8 flex-1 text-xs">
-                {navCtaLabel}
+              <CtaButton href="/pre-register" location="navbar_mobile" className="h-8 flex-1 text-xs">
+                {t('preRegister.submit')}
               </CtaButton>
             </div>
           </nav>
