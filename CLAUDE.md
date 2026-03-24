@@ -48,6 +48,14 @@ npx playwright test [path]
 | `component.md` | Client/Server Component patterns |
 | `db-migration.md` | Supabase migration workflow |
 | `i18n.md` | Translation key management, next-intl usage |
+| `security-audit.md` | OWASP準拠ホワイトハッカー型セキュリティ監査 (5フェーズ) |
+| `vibe-security.md` | Security checklist for Supabase + Next.js |
+
+## Commands (.claude/commands/)
+
+| Command | Usage |
+|---------|-------|
+| `/security-audit [category]` | セキュリティ監査実行（all, access-control, injection, auth, xss 等） |
 
 ## Auth
 
