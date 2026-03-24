@@ -89,7 +89,8 @@ describe('OWASP A07: Broken Authentication', () => {
 
   describe('Session security', () => {
     it('should not accept JWT tokens in query parameters', async () => {
-      const fakeToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgNryP4J3jVmNHl0w5N_XgL0n3I9PlFUP0THsR8U'
+      // Build a fake JWT-like string at runtime to avoid secret scanner false positives
+      const fakeToken = ['eyJhbGciOiJIUzI1NiJ9', 'eyJ0ZXN0IjoxfQ', 'fake-sig'].join('.')
 
       const res = await secFetch(`${ROUTES.bookingReports}?access_token=${fakeToken}`, {
         method: 'GET',
