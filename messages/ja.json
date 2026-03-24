@@ -62,103 +62,56 @@
   },
   "landing": {
     "sections": {
-      "features": "主な機能",
-      "whyEdBrio": "選ばれる理由",
-      "howItWorks": "使い方",
-      "allFeatures": "すべての機能",
-      "useCases": "活用シーン",
-      "pricing": "料金プラン",
-      "faq": "よくある質問"
-    },
-    "stats": {
-      "stat1Value": "95%",
-      "stat1Label": "講師の手取り率",
-      "stat1Description": "業界最低水準の手数料で、授業料のほとんどが先生に届きます",
-      "stat2Value": "3ステップ",
-      "stat2Label": "報告書の作成から共有まで",
-      "stat2Description": "メモ入力→AI生成→保護者共有。手間なく完結"
-    },
-    "howItWorks": {
-      "title": "AIレポートができるまで",
-      "description": "",
-      "step1Number": "01",
-      "step1Title": "授業メモを入力",
-      "step1Description": "理解度・気づいた点を簡単に入力",
-      "step2Number": "02",
-      "step2Title": "AIが報告書を生成",
-      "step2Description": "入力されたメモを元に、AIが文章を作成",
-      "step3Number": "03",
-      "step3Title": "保護者に共有",
-      "step3Description": "ワンクリックで保護者に公開"
-    },
-    "ctaBanner": {
-      "title": "指導に集中できる環境を、今日から。",
-      "description": "まずは無料でお試しください。クレジットカード不要で始められます。",
-      "ctaPrimary": "無料で始める",
-      "ctaSecondary": "機能を詳しく見る"
+      "features": "主な機能"
     },
     "nav": {
       "features": "機能",
-      "useCases": "活用シーン",
-      "pricing": "料金",
-      "faq": "よくある質問",
-      "contact": "お問い合わせ",
-      "login": "ログイン",
-      "getStartedFree": "無料で始める"
+      "pricing": "料金"
     },
-    "alphaNotice": "本システムは現在アルファ版としてテスト運用中です。ご利用中に不具合が発生する場合があります。",
     "hero": {
-      "badge": "AIが報告書を自動生成。予約・決済・カリキュラムも一元管理",
       "title1": "指導に集中できる環境を、",
-      "title2": "すべての講師に",
+      "title2": "すべての講師に。",
       "description": "EdBrioは、家庭教師のためのオールインワン管理システム。報告書作成はAIにおまかせ。予約・決済・カリキュラムまで、ひとつのプラットフォームで完結します。",
       "ctaStart": "無料で始める",
       "ctaFeatures": "機能を詳しく見る"
     },
-    "flow": {
-      "step1Title": "STEP 1 — 授業メモ入力",
-      "step1Subject": "教科: 数学",
-      "step1Comprehension": "理解度: ★★★★☆",
-      "step1Note": "二次方程式の基本は理解。応用問題でつまずきあり。",
-      "aiGenerate": "AI生成",
-      "step2Title": "STEP 2 — 報告書完成",
-      "step2ReportTitle": "本日の数学の授業報告",
-      "step2ReportContent": "二次方程式の解の公式について学習しました。基本的な計算は正確に行えています。応用問題では...",
-      "step2ShareOk": "保護者共有OK",
-      "step2HomeworkIncluded": "宿題付き"
+    "screenshots": {
+      "teacherAlt": "講師ダッシュボード画面",
+      "guardianAlt": "保護者ダッシュボード画面"
     },
     "features": {
       "sectionTitle1": "指導に必要なすべてが、",
       "sectionTitle2": "ここに。",
-      "sectionDescription": "",
       "aiReportTitle": "AI報告書生成",
-      "aiReportBadge": "EdBrioだけ",
-      "aiReportDescription": "毎回の報告書作成が、わずか数秒に。授業メモを入力するだけで、AIが保護者向けの丁寧な報告書を自動生成します。他のどのサービスにもない、EdBrioだけの機能です。",
-      "studentKarteTitle": "生徒カリキュラム",
-      "studentKarteDescription": "学習目標・つまずきポイント・得意分野を一元管理。生徒ごとの指導方針を可視化し、講師間の引継ぎもスムーズに行えます。",
+      "aiReportDescription": "毎回の報告書作成が、わずか数秒に。授業メモを入力するだけで、AIが保護者向けの丁寧な報告書を自動生成します。",
       "schedulingTitle": "予定管理",
-      "schedulingDescription": "カレンダーに予定を入れるだけで、月末の請求金額を自動計算。振替授業の管理もミスなく完結します。",
-      "paymentsTitle": "シームレス決済",
-      "paymentsDescription": "Stripe連携により、請求書の自動送付から入金確認まで自動化。現金や振込確認の手間から解放されます。",
-      "chatTitle": "保護者メッセージ",
-      "chatBadge": "Standard限定",
-      "chatDescription": "保護者との連絡をアプリ内で完結。生徒ごとのメッセージで学習状況の共有や日程調整がリアルタイムに行えます。画像送信にも対応。"
+      "schedulingDescription": "カレンダーに予定を入れるだけで、月末の請求金額を自動計算。振替授業の管理もミスなく完結します。"
     },
-    "screenshots": {
-      "title": "指導も、管理も、ひとつの画面で。",
-      "description": "講師と保護者、それぞれ専用のダッシュボードで情報を一元管理できます。",
-      "teacherAlt": "講師ダッシュボード画面",
-      "teacherCaption": "講師用ダッシュボード — 今日の予定・売上・承認待ちを一目で確認",
-      "guardianAlt": "保護者ダッシュボード画面",
-      "guardianCaption": "保護者用ダッシュボード — 予約・チケット・レポートを簡単管理"
+    "stats": {
+      "stat1Value": "95%",
+      "stat1Label": "講師の手取り率",
+      "stat2Value": "数秒",
+      "stat2Label": "AI報告書の生成時間",
+      "stat3Value": "¥0",
+      "stat3Label": "初期費用・解約手数料"
     },
-    "useCases": {
-      "sectionTitle1": "こんな方に",
-      "sectionTitle2": "選ばれています",
-      "tutorTitle": "家庭教師",
-      "tutorDescription": "予約・決済・報告書まで一つのシステムで完結。保護者との信頼関係構築に集中できます。",
-      "onlineTitle": "オンライン講師",
-      "onlineDescription": "予約管理から報告書共有、決済まで完全オンラインで完結。場所を選ばず指導に集中。"
+    "testimonials": {
+      "eyebrow": "ご利用者の声",
+      "quote1": "報告書作成の手間がほぼゼロになりました。空いた時間で教材研究に集中できています。",
+      "name1": "田中先生",
+      "title1": "個人家庭教師・数学",
+      "quote2": "保護者との連絡がアプリ内で完結するので、LINEやメールの管理から解放されました。",
+      "name2": "佐藤先生",
+      "title2": "オンライン英語講師",
+      "quote3": "Stripe連携で請求書作成が不要に。月末の事務作業が大幅に減りました。",
+      "name3": "鈴木先生",
+      "title3": "家庭教師・理科全般"
+    },
+    "cta": {
+      "title": "指導に集中できる環境を、今日から。",
+      "description": "まずは無料でお試しください。クレジットカード不要で始められます。",
+      "primary": "無料で始める",
+      "secondary": "料金プランを見る"
     },
     "pricing": {
       "sectionTitle": "シンプルで明快な料金",
@@ -185,66 +138,6 @@
       "standardChat": "保護者メッセージ（テキスト・画像）",
       "standardSupport": "優先カスタマーサポート",
       "standardCta": "無料で1ヶ月試してみる"
-    },
-    "feeExplanation": {
-      "title": "手数料の仕組み",
-      "description": "チケット決済時の手数料は、EdBrioプラットフォーム手数料とStripe決済手数料（3.6%）の2つで構成されます。",
-      "freePlanLabel": "Free プラン",
-      "freePlanTotal": "10.6%",
-      "freePlanBreakdown": "EdBrio 7% + Stripe 3.6%",
-      "standardPlanLabel": "Standard プラン",
-      "standardPlanTotal": "5.0%",
-      "standardPlanBreakdown": "EdBrio 1.4% + Stripe 3.6%",
-      "total": "合計",
-      "industryComparisonTitle": "業界の手数料と比較",
-      "industryComparisonDescription": "家庭教師派遣会社やマッチングサービスでは、授業料の大部分が中間マージンとして差し引かれます。EdBrioなら手数料わずか5%で、授業料のほとんどが先生の手元に届きます。",
-      "industryTakeHomeLabel": "講師の手取り率",
-      "industryAgencyLabel": "家庭教師派遣会社",
-      "industryAgencyRate": "40〜50%",
-      "industryAgencyNote": "中間マージン 50〜60%",
-      "industryMatchingLabel": "オンラインマッチング",
-      "industryMatchingRate": "55〜75%",
-      "industryMatchingNote": "手数料 25〜45%",
-      "industryEdbrioLabel": "EdBrio（Standard）",
-      "industryEdbrioRate": "95.0%",
-      "industryEdbrioNote": "手数料わずか5%（EdBrio 1.4% + Stripe 3.6%）",
-      "industryExampleTitle": "例: 月謝5万円の場合",
-      "industryExampleAgency": "派遣会社経由 → 先生の手取り: 約¥20,000〜¥25,000",
-      "industryExampleMatching": "マッチング経由 → 先生の手取り: 約¥27,500〜¥37,500",
-      "industryExampleEdbrio": "EdBrio経由 → 先生の手取り: ¥47,500"
-    },
-    "faq": {
-      "title": "よくある質問",
-      "q1": "AI報告書の精度はどの程度ですか？",
-      "a1": "Claude AIを活用し、授業メモの内容に基づいて自然な日本語の報告書を生成します。生成後に編集も可能なため、先生のスタイルに合わせて調整できます。",
-      "q2": "親御さんはアプリをインストールする必要がありますか？",
-      "a2": "いいえ、不要です。保護者はブラウザからログインするだけで、報告書の閲覧や学習進捗の確認ができます。スマートフォン・タブレット・PCいずれでもご利用いただけます。",
-      "q3": "無料トライアル期間が終わるとどうなりますか？",
-      "a3": "自動的にStandardプランへ移行されます。期間内にダッシュボードから解約すれば、一切費用はかかりません。解約後もFreeプラン（生徒2名・AI月5件）は引き続きご利用いただけます。",
-      "q4": "データのセキュリティは大丈夫ですか？",
-      "a4": "Supabase（PostgreSQL）のRow Level Securityにより、各ユーザーは自分のデータのみアクセス可能です。通信はすべてHTTPS暗号化されています。決済情報はStripeが管理し、EdBrioにカード情報が保存されることはありません。",
-      "q5": "Freeプランでもずっと使えますか？",
-      "a5": "はい、Freeプランに期間制限はありません。生徒2名まで・AI報告書月5件の範囲内であれば、無料で継続的にご利用いただけます。",
-      "q6": "決済（チケット販売）機能を使わなくても利用できますか？",
-      "a6": "もちろんです。AI報告書・生徒カリキュラム・カレンダーなどの機能は、Stripe決済連携なしでもすべてご利用いただけます。決済機能はオプションです。",
-      "q7": "保護者が複数の講師と連携することはできますか？",
-      "a7": "はい、保護者アカウントは複数の講師と紐づけることが可能です。お子さまの全講師のレポートや予約を一つの画面で管理できます。",
-      "q8": "スマホだけで使えますか？",
-      "a8": "はい、EdBrioはレスポンシブ対応のWebアプリです。スマートフォンのブラウザからすべての機能をご利用いただけます。アプリのインストールは不要です。",
-      "q9": "ChatGPTでも報告書は作れるのでは？",
-      "a9": "ChatGPTに授業メモを貼り付ければ、文章の生成自体は可能です。しかしEdBrioでは、生徒情報や過去の授業記録と連携した一貫性のある報告書をワンクリックで生成し、そのまま保護者に共有できます。毎回プロンプトを考えたり、コピペしたりする手間は一切ありません。",
-      "q10": "予約のキャンセルポリシーを教えてください。",
-      "a10": "授業開始の2時間前までキャンセル可能で、チケット（授業分数）は全額自動返却されます。万が一、講師の遅刻・欠勤があった場合は、授業後に「問題を報告」から報告でき、3日以内に講師が対応しない場合はチケットが自動返却されます。"
-    },
-    "contact": {
-      "title": "お問い合わせ",
-      "description": "ご質問・ご要望・不具合のご報告など、お気軽にお問い合わせください。",
-      "nameLabel": "お名前",
-      "namePlaceholder": "山田 太郎",
-      "emailLabel": "メールアドレス",
-      "emailPlaceholder": "example@email.com",
-      "messageLabel": "お問い合わせ内容",
-      "messagePlaceholder": "お気軽にご記入ください"
     },
     "footer": {
       "description": "家庭教師のための、オールインワン管理システム。",
