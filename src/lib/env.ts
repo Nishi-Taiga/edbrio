@@ -13,7 +13,7 @@ const REQUIRED_ENV_VARS = [
 export function validateEnv(): void {
   const missing = REQUIRED_ENV_VARS.filter((key) => !process.env[key])
   if (missing.length > 0) {
-    throw new Error(
+    console.error(
       `[EdBrio] Missing required environment variables:\n${missing.map((k) => `  - ${k}`).join('\n')}`
     )
   }
