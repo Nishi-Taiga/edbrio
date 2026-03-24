@@ -1,27 +1,13 @@
-import { test, expect, Page } from '@playwright/test'
+import { test, expect } from '../fixtures/auth.fixture'
+import type { Page } from '@playwright/test'
+import { dismissThemeDialog } from '../helpers/dismiss-theme'
+import { LoginPage } from '../pages/login.page'
 
 const BASE = 'http://localhost:3000'
 
-const TEACHER = {
-  email: process.env.E2E_TEACHER_EMAIL || '',
-  password: process.env.E2E_TEACHER_PASSWORD || '',
-}
-
-async function dismissThemeDialog(page: Page) {
-  const themeBtn = page.locator('text=ライト').first()
-  if (await themeBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-    await themeBtn.click()
-    await page.waitForTimeout(500)
-  }
-}
-
 async function login(page: Page) {
-  await page.goto(`${BASE}/ja/login`, { waitUntil: 'networkidle' })
-  await page.fill('input#email', TEACHER.email)
-  await page.fill('input#password', TEACHER.password)
-  await page.click('button[type="submit"]')
-  await page.waitForURL(/\/(teacher|ja\/teacher)\//, { timeout: 30000 })
-  await dismissThemeDialog(page)
+  const loginPage = new LoginPage(page)
+  await loginPage.loginAsTeacher()
 }
 
 test.describe.serial('Curriculum Feature Tests', () => {

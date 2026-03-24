@@ -8,6 +8,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:e2e": "npx playwright test",
+    "test:all": "vitest run && npx playwright test",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "db:check": "node scripts/check-database.js",
     "db:setup": "echo 'データベースセットアップ手順: database/README.md を参照してください'"
   },
@@ -70,12 +77,18 @@
     "@eslint/eslintrc": "^3",
     "@playwright/test": "^1.55.1",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitest/coverage-v8": "^4.1.1",
     "eslint": "^9",
     "eslint-config-next": "15.5.12",
+    "jsdom": "^29.0.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.1"
   }
 }
