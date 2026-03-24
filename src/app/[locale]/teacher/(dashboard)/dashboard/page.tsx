@@ -13,6 +13,7 @@ import { Booking, Report } from '@/lib/types/database'
 import { useTranslations } from 'next-intl'
 import { getMissingSetupItems } from '@/lib/teacher-setup'
 import { toast } from 'sonner'
+import { trackEvent } from '@/lib/analytics'
 
 import { SetupBanner } from './_components/setup-banner'
 import { OnboardingBanner } from './_components/onboarding-banner'
@@ -46,6 +47,15 @@ export default function TeacherDashboard() {
   const [weekStartsOn, setWeekStartsOn] = useState<0 | 1 | null>(null)
 
   const supabase = useMemo(() => createClient(), [])
+
+  // Track Google OAuth sign_up conversion
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('signup') === 'google') {
+      trackEvent({ name: 'sign_up', params: { method: 'google', role: 'teacher' } })
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [])
 
   // Check setup completion
   useEffect(() => {

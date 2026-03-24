@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -18,6 +18,7 @@ import { SkeletonProductCard } from '@/components/ui/skeleton-card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorAlert } from '@/components/ui/error-alert'
 import { getRemainingSessionCount } from '@/lib/utils/ticket'
+import { trackEvent } from '@/lib/analytics'
 
 type TicketRow = {
   id: string
@@ -59,6 +60,16 @@ export default function GuardianTickets() {
   const [filterStudent, setFilterStudent] = useState<string>('all')
 
   const supabase = useMemo(() => createClient(), [])
+  const purchaseTracked = useRef(false)
+
+  // Track ticket_purchase conversion on Stripe checkout success redirect
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('success') === 'true' && !purchaseTracked.current) {
+      purchaseTracked.current = true
+      trackEvent({ name: 'ticket_purchase', params: { ticket_id: params.get('session_id') || '' } })
+    }
+  }, [])
 
   useEffect(() => {
     let mounted = true

@@ -19,6 +19,7 @@ import { ProgressChart } from '@/components/reports/progress-chart'
 import { SkeletonStatsGrid, SkeletonList } from '@/components/ui/skeleton-card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorAlert } from '@/components/ui/error-alert'
+import { trackEvent } from '@/lib/analytics'
 
 
 export default function GuardianHome() {
@@ -29,6 +30,15 @@ export default function GuardianHome() {
   const { balances, loading: ticketsLoading } = useTickets(user?.id, 'guardian')
   const { reports, loading: reportsLoading } = useReports(user?.id, 'guardian')
   const [teacherNames, setTeacherNames] = useState<Record<string, string>>({})
+
+  // Track Google OAuth sign_up conversion
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('signup') === 'google') {
+      trackEvent({ name: 'sign_up', params: { method: 'google', role: 'guardian' } })
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [])
 
   // Resolve teacher UUIDs to display names
   const supabaseForNames = useMemo(() => createClient(), [])

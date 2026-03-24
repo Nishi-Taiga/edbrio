@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { trackEvent } from '@/lib/analytics'
 
 function redirectByRole(router: ReturnType<typeof useRouter>, role: string) {
   const path = role === 'guardian'
@@ -154,6 +155,8 @@ export function AuthForm({ mode, onModeChange, inviteToken, lockedRole, prefillE
           }
         })
         if (error) throw error
+
+        trackEvent({ name: 'sign_up', params: { method: 'email', role } })
 
         if (data.user && !data.user.email_confirmed_at) {
           setMessage(t('confirmationEmailSent'))

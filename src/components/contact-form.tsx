@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Send, Check } from 'lucide-react'
+import { trackEvent } from '@/lib/analytics'
 
 interface ContactFormProps {
   defaultName?: string
@@ -35,6 +36,7 @@ export function ContactForm({ defaultName, defaultEmail }: ContactFormProps) {
         throw new Error(data.error || t('sendFailed'))
       }
       setStatus('sent')
+      trackEvent({ name: 'contact_submit' })
       setForm(prev => ({ ...prev, message: '' }))
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : t('sendFailed'))
