@@ -9,6 +9,7 @@ type GA4Event =
   | { name: 'contact_submit' }
   | { name: 'ticket_purchase'; params: { ticket_id: string } }
   | { name: 'report_generate'; params: { tokens_used?: number } }
+  | { name: 'pre_register'; params: { location: string } }
 
 export function trackEvent(event: GA4Event): void {
   if (typeof window === 'undefined' || !window.gtag) return

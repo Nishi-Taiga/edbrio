@@ -73,7 +73,20 @@
       "title2": "すべての講師に。",
       "description": "EdBrioは、家庭教師のためのオールインワン管理システム。報告書作成はAIにおまかせ。予約・決済・カリキュラムまで、ひとつのプラットフォームで完結します。",
       "ctaStart": "無料で始める",
-      "ctaFeatures": "機能を詳しく見る"
+      "ctaFeatures": "機能を詳しく見る",
+      "launchBadge": "2026年4月リリース予定"
+    },
+    "preRegister": {
+      "placeholder": "メールアドレスを入力",
+      "submit": "事前登録する",
+      "sending": "送信中...",
+      "successTitle": "ご登録ありがとうございます！",
+      "successMessage": "確認メールをお送りしました。ご確認ください。",
+      "errorGeneric": "送信に失敗しました。しばらくしてからお試しください。",
+      "errorRateLimit": "送信回数の上限に達しました。しばらくお待ちください。",
+      "benefit": "事前登録で、Standardプランを2ヶ月間無料でお試しいただけます",
+      "confirmedToast": "メールアドレスが確認されました。リリース時にお知らせいたします！",
+      "confirmedErrorToast": "確認リンクが無効です。再度お試しください。"
     },
     "screenshots": {
       "teacherAlt": "講師ダッシュボード画面",
@@ -108,8 +121,8 @@
       "title3": "家庭教師・理科全般"
     },
     "cta": {
-      "title": "指導に集中できる環境を、今日から。",
-      "description": "まずは無料でお試しください。クレジットカード不要で始められます。",
+      "title": "指導に集中できる環境を、4月から。",
+      "description": "事前登録で、Standardプランを2ヶ月間無料でお試しいただけます。",
       "primary": "無料で始める",
       "secondary": "料金プランを見る"
     },

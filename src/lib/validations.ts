@@ -126,6 +126,18 @@ export const ticketGrantSchema = z.object({
   sendNotification: z.boolean().default(true),
 })
 
+// ── /api/pre-register ──
+
+export const preRegisterSchema = z.object({
+  email: emailSchema,
+})
+
+// ── /api/pre-register/confirm ──
+
+export const preRegisterConfirmSchema = z.object({
+  token: z.string().uuid(),
+})
+
 // ── /api/admin/users/[id] PATCH ──
 
 export const adminUserUpdateSchema = z
