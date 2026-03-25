@@ -52,6 +52,13 @@ next-env.d.ts
 edbrio-dev.txt
 tests/testacounts.txt
 tests/e2e-full.spec.ts
+tests/e2e/flows/
+tests/e2e/helpers/auth.ts
+tests/e2e/helpers/resend-checker.ts
+tests/e2e/helpers/stripe-helper.ts
+tests/e2e/helpers/supabase-admin.ts
+tests/e2e/fixtures/seed.ts
+tests/e2e/fixtures/cleanup.ts
 MILESTONES.md
 TODO.md
 SNS-MARKETING.md
@@ -94,3 +101,4 @@ UI.pen
 .gstack/
 LAUNCH-PLAN.md
 scripts/take-screenshots.mjs
+docs/EdBrio_E2Eテスト自動化仕様書.docx
