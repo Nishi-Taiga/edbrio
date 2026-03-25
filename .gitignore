@@ -102,3 +102,5 @@ UI.pen
 LAUNCH-PLAN.md
 scripts/take-screenshots.mjs
 docs/EdBrio_E2Eテスト自動化仕様書.docx
+config/playwright.config.ts
+config/playwright.config.ts

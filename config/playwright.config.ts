@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 dotenv.config({ path: path.resolve(__dirname, '..', '.env.local') })
+dotenv.config({ path: path.resolve(__dirname, '..', '.env.test') })
 
 export default defineConfig({
   testDir: '../tests',
@@ -24,6 +25,29 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'], locale: 'ja-JP' },
+    },
+    {
+      name: 'flows',
+      testDir: '../tests/e2e/flows',
+      use: {
+        ...devices['Desktop Chrome'],
+        locale: 'ja-JP',
+        baseURL: process.env.E2E_BASE_URL || 'http://localhost:3000',
+      },
+      globalSetup: path.resolve(__dirname, '../tests/e2e/fixtures/seed.ts'),
+      globalTeardown: path.resolve(__dirname, '../tests/e2e/fixtures/cleanup.ts'),
+    },
+    {
+      name: 'mobile',
+      testDir: '../tests/e2e/flows',
+      testMatch: 'mobile-*.spec.ts',
+      use: {
+        ...devices['iPhone 14'],
+        locale: 'ja-JP',
+        baseURL: process.env.E2E_BASE_URL || 'http://localhost:3000',
+      },
+      globalSetup: path.resolve(__dirname, '../tests/e2e/fixtures/seed.ts'),
+      globalTeardown: path.resolve(__dirname, '../tests/e2e/fixtures/cleanup.ts'),
     },
   ],
 })
