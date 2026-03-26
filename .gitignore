@@ -104,3 +104,6 @@ scripts/take-screenshots.mjs
 docs/EdBrio_E2Eテスト自動化仕様書.docx
 config/playwright.config.ts
 config/playwright.config.ts
+tests/e2e/fixtures/debug-seed.ts
+tests/e2e/fixtures/run-cleanup.ts
+tests/e2e/fixtures/run-seed.ts
