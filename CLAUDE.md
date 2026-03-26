@@ -50,6 +50,7 @@ npx playwright test [path]
 | `i18n.md` | Translation key management, next-intl usage |
 | `security-audit.md` | OWASP準拠ホワイトハッカー型セキュリティ監査 (5フェーズ) |
 | `vibe-security.md` | Security checklist for Supabase + Next.js |
+| `verify-implementation.md` | 実装後の検証フロー (build/type/lint/E2E/受入基準) |
 
 ## Commands (.claude/commands/)
 
@@ -61,6 +62,10 @@ npx playwright test [path]
 
 - Supabase Auth (Email/Password + Google OAuth), cookie-based sessions (`@supabase/ssr`)
 - `useAuth` hook (client), `ProtectedRoute` component, 10 failed attempts = 30min lock
+
+## Verification & Specs
+- 実装完了後は `verify-implementation` スキルに従って検証してからコミット
+- 複雑な機能は `docs/specs/{feature}.md` にスペックを書いてから実装
 
 ## Build Notes
 
