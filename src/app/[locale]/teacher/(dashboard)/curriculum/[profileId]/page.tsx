@@ -9,6 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Download, ChevronDown, ChevronLeft, ChevronRight, FileSpreadsheet, FileText } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { SkeletonList } from '@/components/ui/skeleton-card'
 import { ErrorAlert } from '@/components/ui/error-alert'
 import { useAuth } from '@/hooks/use-auth'
@@ -160,9 +162,33 @@ export default function StudentCurriculumPage() {
     }
   }
 
+  // Subject form dialog
+  const [showSubjectForm, setShowSubjectForm] = useState(false)
+  const [newSubjectName, setNewSubjectName] = useState('')
+  const [newFirstMaterialName, setNewFirstMaterialName] = useState('')
+  const [savingSubject, setSavingSubject] = useState(false)
+
+  const handleAddSubject = () => { setNewSubjectName(''); setNewFirstMaterialName(''); setShowSubjectForm(true) }
+  const handleSubmitSubject = async () => {
+    if (!newSubjectName.trim() || !newFirstMaterialName.trim()) return
+    setSavingSubject(true)
+    try {
+      await addMaterial({
+        material_name: newFirstMaterialName.trim(),
+        subject: newSubjectName.trim(),
+        order_index: materials.length,
+        curriculum_year: selectedYear,
+      })
+      setShowSubjectForm(false)
+    } catch {
+      toast.error('科目の追加に失敗しました')
+    } finally {
+      setSavingSubject(false)
+    }
+  }
+
   // Material handlers
   const [prefilledSubject, setPrefilledSubject] = useState<string | null>(null)
-  const handleAddSubject = () => { setEditingMaterial(null); setPrefilledSubject(null); setShowMaterialForm(true) }
   const handleAddMaterialToSubject = (subject: string) => {
     setEditingMaterial(null)
     setPrefilledSubject(subject)
@@ -487,6 +513,42 @@ export default function StudentCurriculumPage() {
           initialData={editingScore ? { test_name: editingScore.test_name, test_type: editingScore.test_type, subject: editingScore.subject, score: editingScore.score, max_score: editingScore.max_score, percentile: editingScore.percentile || undefined, test_date: editingScore.test_date, notes: editingScore.notes || undefined } : undefined}
           t={(key: string) => tTestScores(key)}
         />
+        {/* Subject Add Dialog */}
+        <Dialog open={showSubjectForm} onOpenChange={v => !v && setShowSubjectForm(false)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{tGantt('addSubject')}</DialogTitle>
+              <DialogDescription>科目名と最初の教材名を入力してください</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="subject-name">科目名</Label>
+                <Input
+                  id="subject-name"
+                  value={newSubjectName}
+                  onChange={e => setNewSubjectName(e.target.value)}
+                  placeholder="例: 数学"
+                />
+              </div>
+              <div>
+                <Label htmlFor="first-material-name">教材名</Label>
+                <Input
+                  id="first-material-name"
+                  value={newFirstMaterialName}
+                  onChange={e => setNewFirstMaterialName(e.target.value)}
+                  placeholder="例: 黄チャート数ⅡB"
+                  onKeyDown={e => { if (e.key === 'Enter') handleSubmitSubject() }}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowSubjectForm(false)} disabled={savingSubject}>{tc('cancel')}</Button>
+              <LoadingButton onClick={handleSubmitSubject} loading={savingSubject} disabled={!newSubjectName.trim() || !newFirstMaterialName.trim()}>
+                {tc('add')}
+              </LoadingButton>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         {/* Detail Dialog */}
         <Dialog open={showDetailDialog} onOpenChange={v => !v && setShowDetailDialog(false)}>
           <DialogContent>

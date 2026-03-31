@@ -589,7 +589,6 @@ export function GanttChart({
                 </div>
                 {hoveredRow === mat.id && (
                   <div className="flex gap-0.5 shrink-0 ml-1">
-                    <button className="p-0.5 rounded hover:bg-muted" onClick={() => onAddPhase(mat.id)}><Plus className="w-3 h-3 text-muted-foreground" /></button>
                     <button className="p-0.5 rounded hover:bg-muted" onClick={() => onEditMaterial(mat)}><Pencil className="w-3 h-3 text-muted-foreground" /></button>
                     <button className="p-0.5 rounded hover:bg-muted" onClick={() => onDeleteMaterial(mat.id)}><Trash2 className="w-3 h-3 text-destructive" /></button>
                   </div>
