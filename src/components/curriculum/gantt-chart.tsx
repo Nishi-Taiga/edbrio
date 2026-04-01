@@ -217,6 +217,7 @@ export function GanttChart({
     handleBarMouseDown,
     getVisualBounds,
     createPreview,
+    xToDate,
   } = useGanttInteractions(
     timelineRef,
     timelineWidth,
@@ -663,24 +664,38 @@ export function GanttChart({
                   <div
                     key={`row-${idx}`}
                     className="absolute left-0 right-0 border-b border-border cursor-crosshair"
+                    data-timeline-row={mat.id}
                     style={{ top: y, height: h }}
                     onMouseDown={(e) => handleRowMouseDown(e, mat.id)}
                   >
                     {getPhases(mat.id).map(phase => renderPhaseBar(phase, mat))}
                     {/* Creation preview bar */}
-                    {createPreview && createPreview.materialId === mat.id && (
-                      <div
-                        className="absolute rounded opacity-40 pointer-events-none"
-                        style={{
-                          left: createPreview.left,
-                          width: createPreview.width,
-                          height: 20,
-                          top: 12,
-                          backgroundColor: getSubjectStyle(mat.subject).color,
-                          zIndex: 4,
-                        }}
-                      />
-                    )}
+                    {createPreview && createPreview.materialId === mat.id && (() => {
+                      const previewStartDate = xToDate(createPreview.left)
+                      const previewEndDate = xToDate(createPreview.left + createPreview.width)
+                      const startLabel = format(new Date(previewStartDate), 'M/d')
+                      const endLabel = format(new Date(previewEndDate), 'M/d')
+                      return (
+                        <div
+                          className="absolute rounded opacity-40 pointer-events-none"
+                          style={{
+                            left: createPreview.left,
+                            width: createPreview.width,
+                            height: 20,
+                            top: 12,
+                            backgroundColor: getSubjectStyle(mat.subject).color,
+                            zIndex: 4,
+                          }}
+                        >
+                          <div
+                            className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-foreground px-1.5 py-0.5 text-[10px] font-medium text-background opacity-100 shadow"
+                            style={{ zIndex: 10 }}
+                          >
+                            {startLabel} 〜 {endLabel}
+                          </div>
+                        </div>
+                      )
+                    })()}
                   </div>
                 )
               })

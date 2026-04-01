@@ -179,5 +179,6 @@ export function useGanttInteractions(
     handleBarMouseDown,
     getVisualBounds,
     createPreview,
+    xToDate,
   }
 }

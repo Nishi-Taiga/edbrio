@@ -59,9 +59,12 @@ export default function StudentCurriculumPage() {
   const yearStorageKey = `curriculum_year_${profileId}`
   const [selectedYear, setSelectedYear] = useState<string | undefined>(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem(yearStorageKey) || undefined
+      const saved = localStorage.getItem(yearStorageKey)
+      if (saved) return saved
     }
-    return undefined
+    // Default to current academic year (April-March)
+    const now = new Date()
+    return String(now.getMonth() < 3 ? now.getFullYear() - 1 : now.getFullYear())
   })
 
   // Persist year selection to localStorage
@@ -165,16 +168,15 @@ export default function StudentCurriculumPage() {
   // Subject form dialog
   const [showSubjectForm, setShowSubjectForm] = useState(false)
   const [newSubjectName, setNewSubjectName] = useState('')
-  const [newFirstMaterialName, setNewFirstMaterialName] = useState('')
   const [savingSubject, setSavingSubject] = useState(false)
 
-  const handleAddSubject = () => { setNewSubjectName(''); setNewFirstMaterialName(''); setShowSubjectForm(true) }
+  const handleAddSubject = () => { setNewSubjectName(''); setShowSubjectForm(true) }
   const handleSubmitSubject = async () => {
-    if (!newSubjectName.trim() || !newFirstMaterialName.trim()) return
+    if (!newSubjectName.trim()) return
     setSavingSubject(true)
     try {
       await addMaterial({
-        material_name: newFirstMaterialName.trim(),
+        material_name: newSubjectName.trim(),
         subject: newSubjectName.trim(),
         order_index: materials.length,
         curriculum_year: selectedYear,
@@ -518,32 +520,21 @@ export default function StudentCurriculumPage() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{tGantt('addSubject')}</DialogTitle>
-              <DialogDescription>科目名と最初の教材名を入力してください</DialogDescription>
+              <DialogDescription>追加する科目名を入力してください</DialogDescription>
             </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="subject-name">科目名</Label>
-                <Input
-                  id="subject-name"
-                  value={newSubjectName}
-                  onChange={e => setNewSubjectName(e.target.value)}
-                  placeholder="例: 数学"
-                />
-              </div>
-              <div>
-                <Label htmlFor="first-material-name">教材名</Label>
-                <Input
-                  id="first-material-name"
-                  value={newFirstMaterialName}
-                  onChange={e => setNewFirstMaterialName(e.target.value)}
-                  placeholder="例: 黄チャート数ⅡB"
-                  onKeyDown={e => { if (e.key === 'Enter') handleSubmitSubject() }}
-                />
-              </div>
+            <div>
+              <Label htmlFor="subject-name">科目名</Label>
+              <Input
+                id="subject-name"
+                value={newSubjectName}
+                onChange={e => setNewSubjectName(e.target.value)}
+                placeholder="例: 数学"
+                onKeyDown={e => { if (e.key === 'Enter') handleSubmitSubject() }}
+              />
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowSubjectForm(false)} disabled={savingSubject}>{tc('cancel')}</Button>
-              <LoadingButton onClick={handleSubmitSubject} loading={savingSubject} disabled={!newSubjectName.trim() || !newFirstMaterialName.trim()}>
+              <LoadingButton onClick={handleSubmitSubject} loading={savingSubject} disabled={!newSubjectName.trim()}>
                 {tc('add')}
               </LoadingButton>
             </DialogFooter>
