@@ -17,7 +17,8 @@
     "test:coverage": "vitest run --config config/vitest.config.ts --coverage",
     "test:security": "vitest run --config config/vitest.config.security.ts",
     "db:check": "node scripts/check-database.js",
-    "db:setup": "echo 'データベースセットアップ手順: database/README.md を参照してください'"
+    "db:setup": "echo 'データベースセットアップ手順: database/README.md を参照してください'",
+    "prepare": "husky"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
@@ -87,9 +88,20 @@
     "@vitest/coverage-v8": "^4.1.1",
     "eslint": "^9",
     "eslint-config-next": "15.5.12",
+    "husky": "^9.1.7",
     "jsdom": "^29.0.1",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.1",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.1"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --max-warnings 0"
+    ],
+    "*.{ts,tsx,js,jsx,json,md}": [
+      "prettier --write"
+    ]
   }
 }

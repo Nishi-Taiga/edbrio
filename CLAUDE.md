@@ -1,20 +1,45 @@
 # EdBrio - CLAUDE.md
 
-家庭教師プラットフォーム SaaS。Next.js 15 App Router + React 19 + Supabase + Stripe。
+## プロジェクト概要
+
+- プロジェクト名: EdBrio
+- 概要: 家庭教師・個別指導講師向けオールインワン管理 SaaS（予約・決済・AI報告書・カリキュラム・チャット）
+- ターゲットユーザー: 家庭教師（講師）、保護者（生徒の親）、管理者
+- 用語辞書: @docs/GLOSSARY.md
 
 ## Tech Stack
 
-| Category | Tech |
-|----------|------|
-| Framework | Next.js 15 (App Router), React 19, TypeScript 5 (strict) |
-| UI | shadcn/ui (new-york), Radix UI, Tailwind CSS v4, lucide-react |
-| DB/Auth | Supabase (PostgreSQL + Auth + RLS) |
-| Payments | Stripe (Checkout + Webhook + Billing Portal) |
-| i18n | next-intl v4 (14 locales, default: ja) |
-| AI | Anthropic Claude SDK (lesson reports) |
-| Email | Resend |
-| Testing | Playwright E2E (POM pattern) |
-| Hosting | Vercel |
+| Category   | Tech                                                                      |
+| ---------- | ------------------------------------------------------------------------- |
+| Framework  | Next.js 15 (App Router), React 19, TypeScript 5 (strict)                  |
+| UI         | shadcn/ui (new-york), Radix UI, Tailwind CSS v4, lucide-react             |
+| DB/Auth    | Supabase (PostgreSQL + Auth + RLS), cookie-based sessions (@supabase/ssr) |
+| Payments   | Stripe (Checkout + Connect + Application Fees + Webhook)                  |
+| i18n       | next-intl v4 (14 locales, default: ja)                                    |
+| AI         | Anthropic Claude SDK (@anthropic-ai/sdk) — lesson report generation       |
+| Email      | Resend                                                                    |
+| Testing    | Vitest (unit/integration) + Playwright E2E (POM pattern)                  |
+| Hosting    | Vercel                                                                    |
+| Validation | Zod v4                                                                    |
+| Calendar   | FullCalendar v6 + rrule                                                   |
+| Editor     | Tiptap v3                                                                 |
+| Charts     | Recharts v3                                                               |
+
+## カラーパレット
+
+ブランドカラー: `#6528F7`（紫）。Tailwindデフォルトカラー使用禁止。
+
+| 用途        | Light     | Dark      |
+| ----------- | --------- | --------- |
+| Primary     | `#7c3aed` | `#8b4ff6` |
+| Background  | `#ffffff` | `#0a0812` |
+| Foreground  | `#0f0a1a` | `#f0ecf7` |
+| Muted       | `#f5f0ff` | `#1a1625` |
+| Border      | `#e9e5f0` | `#2a2538` |
+| Destructive | `#dc2626` | `#dc2626` |
+| Ring        | `#7c3aed` | `#8b4ff6` |
+
+Brand scale: `brand-50` ~ `brand-950` (CSS変数 `--color-brand-*`)
 
 ## Commands
 
@@ -41,21 +66,21 @@ npx playwright test [path]
 
 ## Skills (.claude/skills/)
 
-| Skill | Purpose |
-|-------|---------|
-| `e2e-testing.md` | Playwright patterns, login flow, Radix UI handling |
-| `api-route.md` | API route template with auth, validation, error handling |
-| `component.md` | Client/Server Component patterns |
-| `db-migration.md` | Supabase migration workflow |
-| `i18n.md` | Translation key management, next-intl usage |
-| `security-audit.md` | OWASP準拠ホワイトハッカー型セキュリティ監査 (5フェーズ) |
-| `vibe-security.md` | Security checklist for Supabase + Next.js |
-| `verify-implementation.md` | 実装後の検証フロー (build/type/lint/E2E/受入基準) |
+| Skill                      | Purpose                                                  |
+| -------------------------- | -------------------------------------------------------- |
+| `e2e-testing.md`           | Playwright patterns, login flow, Radix UI handling       |
+| `api-route.md`             | API route template with auth, validation, error handling |
+| `component.md`             | Client/Server Component patterns                         |
+| `db-migration.md`          | Supabase migration workflow                              |
+| `i18n.md`                  | Translation key management, next-intl usage              |
+| `security-audit.md`        | OWASP準拠ホワイトハッカー型セキュリティ監査 (5フェーズ)  |
+| `vibe-security.md`         | Security checklist for Supabase + Next.js                |
+| `verify-implementation.md` | 実装後の検証フロー (build/type/lint/E2E/受入基準)        |
 
 ## Commands (.claude/commands/)
 
-| Command | Usage |
-|---------|-------|
+| Command                      | Usage                                                                |
+| ---------------------------- | -------------------------------------------------------------------- |
 | `/security-audit [category]` | セキュリティ監査実行（all, access-control, injection, auth, xss 等） |
 
 ## Auth
@@ -64,6 +89,7 @@ npx playwright test [path]
 - `useAuth` hook (client), `ProtectedRoute` component, 10 failed attempts = 30min lock
 
 ## Verification & Specs
+
 - 実装完了後は `verify-implementation` スキルに従って検証してからコミット
 - 複雑な機能は `docs/specs/{feature}.md` にスペックを書いてから実装
 
