@@ -1,4 +1,7 @@
 import type { Preview } from "@storybook/nextjs-vite";
+import { NextIntlClientProvider } from "next-intl";
+import { SidebarProvider } from "@/components/layout/sidebar-context";
+import messages from "../messages/ja.json";
 import "../src/app/globals.css";
 
 const preview: Preview = {
@@ -35,18 +38,21 @@ const preview: Preview = {
     (Story, context) => {
       const theme = context.globals.theme || "light";
       return (
-        <div className={theme === "dark" ? "dark" : ""}>
-          <div
-            style={{
-              background: "var(--background)",
-              color: "var(--foreground)",
-              padding: "1rem",
-              minHeight: "100vh",
-            }}
-          >
-            <Story />
-          </div>
-        </div>
+        <NextIntlClientProvider locale="ja" messages={messages}>
+          <SidebarProvider>
+            <div className={theme === "dark" ? "dark" : ""}>
+              <div
+                style={{
+                  background: "var(--background)",
+                  color: "var(--foreground)",
+                  minHeight: "100vh",
+                }}
+              >
+                <Story />
+              </div>
+            </div>
+          </SidebarProvider>
+        </NextIntlClientProvider>
       );
     },
   ],
