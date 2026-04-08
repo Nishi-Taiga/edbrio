@@ -60,9 +60,19 @@ function createMockQueryBuilder(table: string): unknown {
       return builder;
     },
     eq: () => builder,
+    neq: () => builder,
     in: () => builder,
+    is: () => builder,
+    gte: () => builder,
+    lte: () => builder,
     order: () => builder,
     limit: () => builder,
+    single: () => {
+      if (table === "teachers") {
+        return Promise.resolve({ data: teacherRow, error: null });
+      }
+      return Promise.resolve({ data: null, error: null });
+    },
     maybeSingle: () => {
       if (table === "teachers") {
         return Promise.resolve({ data: teacherRow, error: null });

@@ -33,6 +33,21 @@ const config: StorybookConfig = {
         mockDir,
         "use-booking-reports.ts",
       ),
+      "@/hooks/use-student-profiles": path.join(
+        mockDir,
+        "use-student-profiles.ts",
+      ),
+      "@/hooks/use-shifts": path.join(mockDir, "use-shifts.ts"),
+      "@/hooks/use-availability": path.join(mockDir, "use-availability.ts"),
+      "@/hooks/use-curriculum-materials": path.join(
+        mockDir,
+        "use-curriculum-materials.ts",
+      ),
+      "@/hooks/use-exam-schedules": path.join(mockDir, "use-exam-schedules.ts"),
+      "@/hooks/use-test-scores": path.join(mockDir, "use-test-scores.ts"),
+      "@/hooks/use-ai-report": path.join(mockDir, "use-ai-report.ts"),
+      "@/hooks/use-conversations": path.join(mockDir, "use-conversations.ts"),
+      "@/hooks/use-messages": path.join(mockDir, "use-messages.ts"),
       // Mock Supabase client
       "@/lib/supabase/client": path.join(mockDir, "supabase-client.ts"),
       // Mock ProtectedRoute (pass-through)
@@ -42,8 +57,9 @@ const config: StorybookConfig = {
       ),
       // Mock next-intl navigation
       "@/i18n/navigation": path.join(mockDir, "navigation.ts"),
-      // Mock analytics
+      // Mock analytics & Stripe
       "@/lib/analytics": path.join(mockDir, "analytics.ts"),
+      "@/lib/stripe": path.join(mockDir, "stripe.ts"),
     };
     return config;
   },
