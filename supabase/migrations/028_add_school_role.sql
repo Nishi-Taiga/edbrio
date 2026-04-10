@@ -1,16 +1,14 @@
--- Add 'school' role for standalone curriculum users
-ALTER TYPE user_role ADD VALUE IF NOT EXISTS 'school';
-
 -- Update handle_new_user trigger to provision school users
 -- School users need a teachers row because student_profiles.teacher_id
 -- references teachers(id).
+-- Note: role column is varchar, not enum, so no ALTER TYPE needed.
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO public.users (id, role, email, name)
   VALUES (
     NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'role', 'guardian')::public.user_role,
+    COALESCE(NEW.raw_user_meta_data->>'role', 'guardian'),
     NEW.email,
     COALESCE(NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1))
   );
