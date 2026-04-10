@@ -1193,6 +1193,20 @@
     "header": {
       "title": "カリキュラム管理",
       "logout": "ログアウト"
+    },
+    "share": {
+      "title": "カリキュラムを共有",
+      "description": "{name}のカリキュラムを閲覧専用リンクで共有します",
+      "generateHint": "リンクを知っている人がこの生徒のカリキュラムを閲覧できます。",
+      "generateButton": "共有リンクを発行",
+      "generateFailed": "リンクの発行に失敗しました",
+      "copied": "リンクをコピーしました",
+      "copyButton": "リンクをコピー",
+      "readOnlyHint": "このリンクを知っている人は閲覧のみ可能です。編集はできません。",
+      "revokeHint": "リンクを無効にする",
+      "revokeButton": "無効化",
+      "revokeFailed": "リンクの無効化に失敗しました",
+      "revoked": "リンクを無効化しました"
     }
   },
   "reports": {

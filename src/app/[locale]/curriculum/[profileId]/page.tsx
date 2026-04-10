@@ -32,6 +32,7 @@ import {
   ChevronLeft,
   FileSpreadsheet,
   FileText,
+  Share2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -69,6 +70,7 @@ import {
 import { useTranslations } from "next-intl";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { toast } from "sonner";
+import { ShareLinkDialog } from "@/components/curriculum/share-link-dialog";
 
 export default function StudentCurriculumPage() {
   const params = useParams();
@@ -144,6 +146,7 @@ export default function StudentCurriculumPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("curriculum");
   const [exporting, setExporting] = useState(false);
+  const [showShare, setShowShare] = useState(false);
 
   // Material form dialog
   const [showMaterialForm, setShowMaterialForm] = useState(false);
@@ -470,6 +473,14 @@ export default function StudentCurriculumPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            {/* Share button */}
+            <button
+              className="flex items-center gap-1.5 text-[13px] font-medium text-muted-foreground border border-border rounded-lg px-3 py-2 hover:bg-muted/50 transition-colors bg-card"
+              onClick={() => setShowShare(true)}
+            >
+              <Share2 className="w-4 h-4" />
+              <span className="hidden sm:inline">共有</span>
+            </button>
             {/* Export dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -781,6 +792,16 @@ export default function StudentCurriculumPage() {
               </DialogContent>
             </Dialog>
           </>
+        )}
+
+        {/* Share Link Dialog */}
+        {profile && (
+          <ShareLinkDialog
+            open={showShare}
+            onOpenChange={setShowShare}
+            profileId={profileId}
+            studentName={profile.name}
+          />
         )}
       </div>
     </>
