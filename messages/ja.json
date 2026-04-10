@@ -1174,7 +1174,21 @@
       "email": "メールアドレス",
       "password": "パスワード",
       "loginButton": "ログイン",
-      "schoolOnly": "このログイン画面は学校アカウント専用です"
+      "schoolOnly": "このログイン画面は学校アカウント専用です",
+      "signupTitle": "新規登録",
+      "signupDescription": "新しいアカウントを作成します",
+      "passwordHint": "8文字以上",
+      "name": "名前",
+      "namePlaceholder": "例: 山田 太郎",
+      "signupButton": "登録する",
+      "loginFailed": "ログインに失敗しました。",
+      "signupFailed": "登録に失敗しました。",
+      "networkError": "通信エラーが発生しました。",
+      "confirmationSent": "確認メールを送信しました。メール内のリンクをクリックしてアカウントを有効化してください。",
+      "noAccount": "アカウントをお持ちでないですか？",
+      "hasAccount": "すでにアカウントをお持ちですか？",
+      "signupLink": "新規登録",
+      "loginLink": "ログイン"
     },
     "header": {
       "title": "カリキュラム管理",
