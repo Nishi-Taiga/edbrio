@@ -24,12 +24,12 @@ const mockExamSchedules: ExamSchedule[] = [
 
 export function useExamSchedules() {
   return {
-    examSchedules: mockExamSchedules,
+    exams: mockExamSchedules,
     loading: false,
     error: null,
-    createExamSchedule: async () => {},
-    updateExamSchedule: async () => {},
-    deleteExamSchedule: async () => {},
+    addExam: async () => {},
+    updateExam: async () => {},
+    deleteExam: async () => {},
     refresh: async () => {},
   };
 }

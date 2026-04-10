@@ -32,6 +32,26 @@ const profileRows = Object.entries(mockProfileNames).map(([id, name]) => ({
   name,
 }));
 
+// Full student profile for single() queries
+const fullStudentProfile = {
+  id: "profile-001",
+  teacher_id: "teacher-001",
+  student_id: "student-001",
+  guardian_id: "guardian-001",
+  name: "佐藤 一郎",
+  grade: "中学2年",
+  school: "第一中学校",
+  subjects: ["数学", "英語"],
+  personality_notes: "真面目で集中力が高い",
+  enrollment_date: "2025-09-01",
+  status: "active",
+  curriculum_year: "2026",
+  curriculum_title: "中学2年カリキュラム",
+  subject_colors: { 数学: "#3B82F6", 英語: "#10B981" },
+  created_at: "2025-09-01T00:00:00Z",
+  updated_at: "2026-04-01T00:00:00Z",
+};
+
 const teacherRow = {
   subjects: ["数学", "英語", "国語"],
   grades: ["中学1年", "中学2年", "中学3年"],
@@ -47,7 +67,8 @@ const userRows = [
 function createMockQueryBuilder(table: string): unknown {
   let _selectFields = "*";
 
-  const builder = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const builder: any = {
     select: (fields?: string, opts?: { count?: string; head?: boolean }) => {
       _selectFields = fields || "*";
       if (opts?.head) {
@@ -71,11 +92,17 @@ function createMockQueryBuilder(table: string): unknown {
       if (table === "teachers") {
         return Promise.resolve({ data: teacherRow, error: null });
       }
+      if (table === "student_profiles") {
+        return Promise.resolve({ data: fullStudentProfile, error: null });
+      }
       return Promise.resolve({ data: null, error: null });
     },
     maybeSingle: () => {
       if (table === "teachers") {
         return Promise.resolve({ data: teacherRow, error: null });
+      }
+      if (table === "student_profiles") {
+        return Promise.resolve({ data: fullStudentProfile, error: null });
       }
       return Promise.resolve({ data: null, error: null });
     },

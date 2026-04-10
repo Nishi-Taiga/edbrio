@@ -1,4 +1,8 @@
-import type { CurriculumMaterial, CurriculumPhase } from "@/lib/types/database";
+import type {
+  CurriculumMaterial,
+  CurriculumPhase,
+  PhaseTask,
+} from "@/lib/types/database";
 
 const mockMaterials: CurriculumMaterial[] = [
   {
@@ -69,20 +73,43 @@ const mockPhases: CurriculumPhase[] = [
   },
 ];
 
+const mockPhaseTasks: PhaseTask[] = [
+  {
+    id: "task-001",
+    phase_id: "phase-001",
+    task_name: "例題1〜10",
+    is_completed: true,
+    order_index: 0,
+    created_at: "2026-04-01T00:00:00Z",
+  },
+  {
+    id: "task-002",
+    phase_id: "phase-001",
+    task_name: "練習問題 p.12〜p.20",
+    is_completed: false,
+    order_index: 1,
+    created_at: "2026-04-05T00:00:00Z",
+  },
+];
+
 export function useCurriculumMaterials() {
   return {
     materials: mockMaterials,
     phases: mockPhases,
+    phaseTasks: mockPhaseTasks,
     loading: false,
     error: null,
-    createMaterial: async () => {},
+    addMaterial: async () => {},
     updateMaterial: async () => {},
     deleteMaterial: async () => {},
-    createPhase: async () => {},
+    addPhase: async () => {},
     updatePhase: async () => {},
     deletePhase: async () => {},
+    addTask: async () => {},
+    updateTask: async () => {},
+    deleteTask: async () => {},
+    copyToNextYear: async () => {},
     reorderMaterials: async () => {},
-    reorderPhases: async () => {},
     refresh: async () => {},
   };
 }

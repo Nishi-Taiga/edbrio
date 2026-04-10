@@ -10,7 +10,7 @@ const meta = {
       appDirectory: true,
       navigation: {
         pathname: "/invite/test-token",
-        params: { token: "test-token-123" },
+        segments: [["token", "test-token-123"]],
       },
     },
   },

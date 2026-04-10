@@ -10,7 +10,7 @@ const meta = {
       appDirectory: true,
       navigation: {
         pathname: "/teacher/curriculum/profile-001",
-        params: { profileId: "profile-001" },
+        segments: [["profileId", "profile-001"]],
       },
     },
   },

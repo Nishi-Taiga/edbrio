@@ -29,12 +29,12 @@ const mockTestScores: TestScore[] = [
 
 export function useTestScores() {
   return {
-    testScores: mockTestScores,
+    scores: mockTestScores,
     loading: false,
     error: null,
-    createTestScore: async () => {},
-    updateTestScore: async () => {},
-    deleteTestScore: async () => {},
+    addScore: async () => {},
+    updateScore: async () => {},
+    deleteScore: async () => {},
     refresh: async () => {},
   };
 }

@@ -10,7 +10,7 @@ const meta = {
       appDirectory: true,
       navigation: {
         pathname: "/guardian/reports/report-001",
-        params: { reportId: "report-001" },
+        segments: [["reportId", "report-001"]],
       },
     },
   },
