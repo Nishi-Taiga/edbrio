@@ -56,6 +56,7 @@ const teacherRow = {
   subjects: ["数学", "英語", "国語"],
   grades: ["中学1年", "中学2年", "中学3年"],
   public_profile: { display_name: "田中先生" },
+  plan: "standard",
   is_onboarding_complete: true,
 };
 

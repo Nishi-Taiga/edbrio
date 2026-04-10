@@ -5,6 +5,7 @@ import type {
 } from "@/lib/types/database";
 
 const mockMaterials: CurriculumMaterial[] = [
+  // 数学: 3教材
   {
     id: "mat-001",
     profile_id: "profile-001",
@@ -18,12 +19,35 @@ const mockMaterials: CurriculumMaterial[] = [
     updated_at: "2026-04-01T00:00:00Z",
   },
   {
+    id: "mat-003",
+    profile_id: "profile-001",
+    subject: "数学",
+    material_name: "チャート式 数学2年",
+    color: "#3B82F6",
+    order_index: 1,
+    curriculum_year: "2026",
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-04-01T00:00:00Z",
+  },
+  {
+    id: "mat-004",
+    profile_id: "profile-001",
+    subject: "数学",
+    material_name: "入試過去問 数学",
+    color: "#3B82F6",
+    order_index: 2,
+    curriculum_year: "2026",
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-04-01T00:00:00Z",
+  },
+  // 英語: 1教材
+  {
     id: "mat-002",
     profile_id: "profile-001",
     subject: "英語",
     material_name: "NEW HORIZON 2",
     color: "#10B981",
-    order_index: 1,
+    order_index: 3,
     curriculum_year: "2026",
     created_at: "2026-01-01T00:00:00Z",
     updated_at: "2026-04-01T00:00:00Z",
@@ -31,6 +55,7 @@ const mockMaterials: CurriculumMaterial[] = [
 ];
 
 const mockPhases: CurriculumPhase[] = [
+  // 新中学問題集 数学2年 (mat-001): 4〜7月
   {
     id: "phase-001",
     material_id: "mat-001",
@@ -57,6 +82,61 @@ const mockPhases: CurriculumPhase[] = [
     created_at: "2026-01-01T00:00:00Z",
     updated_at: "2026-04-01T00:00:00Z",
   },
+  // チャート式 数学2年 (mat-003): 7〜12月
+  {
+    id: "phase-010",
+    material_id: "mat-003",
+    phase_name: "1次関数",
+    total_hours: 12,
+    start_date: "2026-07-01",
+    end_date: "2026-09-15",
+    is_date_manual: false,
+    status: "not_started",
+    order_index: 0,
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-04-01T00:00:00Z",
+  },
+  {
+    id: "phase-011",
+    material_id: "mat-003",
+    phase_name: "図形の証明",
+    total_hours: 14,
+    start_date: "2026-09-16",
+    end_date: "2026-12-20",
+    is_date_manual: false,
+    status: "not_started",
+    order_index: 1,
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-04-01T00:00:00Z",
+  },
+  // 入試過去問 数学 (mat-004): 1〜3月
+  {
+    id: "phase-020",
+    material_id: "mat-004",
+    phase_name: "過去問演習（基礎）",
+    total_hours: 10,
+    start_date: "2027-01-05",
+    end_date: "2027-02-10",
+    is_date_manual: false,
+    status: "not_started",
+    order_index: 0,
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-04-01T00:00:00Z",
+  },
+  {
+    id: "phase-021",
+    material_id: "mat-004",
+    phase_name: "過去問演習（応用）",
+    total_hours: 10,
+    start_date: "2027-02-11",
+    end_date: "2027-03-20",
+    is_date_manual: false,
+    status: "not_started",
+    order_index: 1,
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-04-01T00:00:00Z",
+  },
+  // NEW HORIZON 2 (mat-002): 4〜9月
   {
     id: "phase-003",
     material_id: "mat-002",
@@ -70,6 +150,32 @@ const mockPhases: CurriculumPhase[] = [
     completed_at: "2026-04-25T00:00:00Z",
     created_at: "2026-01-01T00:00:00Z",
     updated_at: "2026-04-25T00:00:00Z",
+  },
+  {
+    id: "phase-004",
+    material_id: "mat-002",
+    phase_name: "Unit 2 - Food Traditions",
+    total_hours: 8,
+    start_date: "2026-05-01",
+    end_date: "2026-06-15",
+    is_date_manual: false,
+    status: "not_started",
+    order_index: 1,
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-04-01T00:00:00Z",
+  },
+  {
+    id: "phase-005",
+    material_id: "mat-002",
+    phase_name: "Unit 3 - My Future Job",
+    total_hours: 8,
+    start_date: "2026-06-16",
+    end_date: "2026-09-01",
+    is_date_manual: false,
+    status: "not_started",
+    order_index: 2,
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-04-01T00:00:00Z",
   },
 ];
 
@@ -88,6 +194,14 @@ const mockPhaseTasks: PhaseTask[] = [
     task_name: "練習問題 p.12〜p.20",
     is_completed: false,
     order_index: 1,
+    created_at: "2026-04-05T00:00:00Z",
+  },
+  {
+    id: "task-003",
+    phase_id: "phase-001",
+    task_name: "章末問題",
+    is_completed: false,
+    order_index: 2,
     created_at: "2026-04-05T00:00:00Z",
   },
 ];

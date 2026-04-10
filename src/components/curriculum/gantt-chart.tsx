@@ -94,7 +94,7 @@ interface GanttChartProps {
   onReorderMaterials?: (
     updates: Array<{ id: string; order_index: number }>,
   ) => Promise<void>;
-  onAddExam: () => void;
+  onAddExam: (date?: string) => void;
   onPhaseClick?: (phase: CurriculumPhase, materialName: string) => void;
   t: (key: string) => string;
 }
@@ -135,6 +135,7 @@ function dateToX(
 export function GanttChart({
   materials,
   phases,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   phaseTasks,
   exams,
   curriculumYear,
@@ -148,7 +149,6 @@ export function GanttChart({
   onDeletePhase,
   onUpdatePhase,
   onReorderMaterials,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onAddExam,
   onPhaseClick,
   t,
@@ -426,6 +426,11 @@ export function GanttChart({
   // Render a phase bar with drag handles
   function renderPhaseBar(phase: CurriculumPhase, mat: CurriculumMaterial) {
     if (!phase.start_date || !phase.end_date) return null;
+    // Hide phases completely outside the current academic year
+    const phaseStart = new Date(phase.start_date);
+    const phaseEnd = new Date(phase.end_date);
+    if (phaseEnd < academicYearStart || phaseStart > academicYearEnd)
+      return null;
     const rawX1 = dateToX(
       new Date(phase.start_date),
       academicYearStart,
@@ -449,16 +454,6 @@ export function GanttChart({
 
     const color = getSubjectStyle(mat.subject).color;
     const isCompleted = phase.status === "completed";
-    const isInProgress = phase.status === "in_progress";
-
-    // Task progress
-    const tasks = phaseTasks.filter((pt) => pt.phase_id === phase.id);
-    const taskProgress =
-      tasks.length > 0
-        ? Math.round(
-            (tasks.filter((pt) => pt.is_completed).length / tasks.length) * 100,
-          )
-        : null;
 
     // Text color: for light bars (like yellow #F1C232), use dark text
     const isLightColor = ["#F1C232", "#FDE047", "#FBBF24", "#D97706"].includes(
@@ -470,13 +465,7 @@ export function GanttChart({
       <div
         key={phase.id}
         data-phase-bar
-        className={`absolute flex flex-col rounded cursor-grab transition-opacity hover:opacity-100 overflow-visible group/bar ${
-          isCompleted
-            ? "opacity-100"
-            : isInProgress
-              ? "opacity-90"
-              : "opacity-60"
-        }`}
+        className="absolute flex flex-col rounded cursor-grab overflow-visible group/bar"
         style={{
           left: x1,
           width: barWidth,
@@ -494,7 +483,7 @@ export function GanttChart({
             onEditPhase(phase);
           }
         }}
-        title={`${phase.phase_name}${phase.total_hours ? ` (${phase.total_hours}h)` : ""}${taskProgress !== null ? ` - ${taskProgress}%` : ""}`}
+        title={`${phase.phase_name}${phase.total_hours ? ` (${phase.total_hours}h)` : ""}`}
       >
         {/* Left resize handle */}
         <div
@@ -512,13 +501,10 @@ export function GanttChart({
         />
         <div className="flex items-center flex-1 min-h-0 overflow-hidden rounded">
           <span
-            className={`${isMobile ? "text-[8px]" : "text-[9px]"} font-semibold truncate leading-tight pl-2 pr-1`}
+            className={`${isMobile ? "text-[9px]" : "text-[10px]"} font-bold truncate leading-tight pl-2 pr-1`}
             style={{ color: textColor }}
           >
             {phase.phase_name}
-            {taskProgress !== null && barWidth > 60 && (
-              <span className="ml-1 opacity-80">{taskProgress}%</span>
-            )}
           </span>
           {isCompleted && (
             <CheckCircle
@@ -527,20 +513,6 @@ export function GanttChart({
             />
           )}
         </div>
-        {taskProgress !== null && (
-          <div
-            className="w-full"
-            style={{ height: 2, backgroundColor: "rgba(0,0,0,0.15)" }}
-          >
-            <div
-              style={{
-                height: 2,
-                width: `${taskProgress}%`,
-                backgroundColor: "#10B981",
-              }}
-            />
-          </div>
-        )}
       </div>
     );
   }
@@ -591,7 +563,7 @@ export function GanttChart({
     return markers.map((m) => (
       <div
         key={m.exam.id}
-        className="absolute flex items-center gap-1 rounded text-[9px] font-semibold whitespace-nowrap px-1.5 py-0.5 cursor-pointer hover:opacity-80"
+        className="absolute flex items-center gap-1 rounded text-[10px] font-bold whitespace-nowrap px-1.5 py-0.5 cursor-pointer hover:opacity-80"
         style={{
           left: m.x,
           top: 2 + m.row * ROW_H,
@@ -670,7 +642,7 @@ export function GanttChart({
                   }}
                 >
                   <div
-                    className="cursor-grab active:cursor-grabbing p-0.5 opacity-0 group-hover/subj:opacity-60 transition-opacity"
+                    className="cursor-grab active:cursor-grabbing p-0.5 opacity-40 hover:opacity-70 transition-opacity"
                     onMouseDown={(e) =>
                       handleReorderMouseDown(
                         e,
@@ -680,9 +652,10 @@ export function GanttChart({
                         subjectIdx,
                       )
                     }
+                    title="ドラッグして科目を並び替え"
                   >
                     <GripVertical
-                      className="w-3 h-3"
+                      className="w-3.5 h-3.5"
                       style={{ color: sc.color }}
                     />
                   </div>
@@ -693,9 +666,9 @@ export function GanttChart({
                     {row.subject}
                   </span>
                   <span
-                    className="text-[9px] font-medium px-1.5 py-0 rounded"
+                    className="text-[10px] font-semibold px-1.5 py-0 rounded"
                     style={{
-                      backgroundColor: sc.color + "15",
+                      backgroundColor: sc.bg,
                       color: sc.color,
                     }}
                   >
@@ -755,11 +728,6 @@ export function GanttChart({
                   >
                     {mat.material_name}
                   </div>
-                  <div className="text-[9px] text-muted-foreground truncate">
-                    {getPhases(mat.id)
-                      .map((p) => p.phase_name)
-                      .join("→")}
-                  </div>
                 </div>
                 {hoveredRow === mat.id && (
                   <div className="flex gap-0.5 shrink-0 ml-1">
@@ -783,7 +751,13 @@ export function GanttChart({
         </div>
 
         {/* Timeline area */}
-        <div className="flex-1 relative overflow-x-auto" ref={timelineRef}>
+        <div
+          className="flex-1 relative overflow-x-auto"
+          ref={timelineRef}
+          tabIndex={0}
+          role="region"
+          aria-label="カリキュラムタイムライン"
+        >
           <div
             style={{
               width: timelineWidth,
@@ -822,10 +796,16 @@ export function GanttChart({
               style={{ left: 0 }}
             />
 
-            {/* Exam markers row */}
+            {/* Exam markers row — click to add exam at date */}
             <div
-              className="relative border-b border-border"
+              className="relative border-b border-border cursor-crosshair"
               style={{ height: examRowHeight, backgroundColor: "#FEF2F2" }}
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const date = xToDate(clickX);
+                onAddExam(date);
+              }}
             >
               {renderExamMarkers()}
             </div>

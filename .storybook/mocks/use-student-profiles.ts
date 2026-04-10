@@ -55,7 +55,7 @@ export function useStudentProfiles() {
     loading: false,
     error: null,
     refresh: async () => {},
-    addProfile: async () => {},
+    createProfile: async () => {},
     updateProfile: async () => {},
     deleteProfile: async () => {},
   };
