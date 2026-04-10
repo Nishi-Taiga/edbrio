@@ -34,31 +34,36 @@ const MONTH_LABELS = [
 ];
 
 // Subject color mapping (fixed by subject)
-const SUBJECT_COLORS: Record<string, { color: string; bg: string }> = {
-  国語: { color: "#BE123C", bg: "#FFF1F2" },
-  算数: { color: "#2563EB", bg: "#EFF6FF" },
-  数学: { color: "#2563EB", bg: "#EFF6FF" },
-  理科: { color: "#15803D", bg: "#ECFDF5" },
-  物理: { color: "#15803D", bg: "#ECFDF5" },
-  化学: { color: "#059669", bg: "#ECFDF5" },
-  生物: { color: "#16A34A", bg: "#ECFDF5" },
-  社会: { color: "#D97706", bg: "#FFFBEB" },
-  地理: { color: "#D97706", bg: "#FFFBEB" },
-  歴史: { color: "#EA580C", bg: "#FFF7ED" },
-  英語: { color: "#7C3AED", bg: "#F5F3FF" },
+const SUBJECT_COLORS: Record<
+  string,
+  { color: string; bg: string; darkBg: string }
+> = {
+  国語: { color: "#BE123C", bg: "#FFF1F2", darkBg: "#2A1520" },
+  算数: { color: "#2563EB", bg: "#EFF6FF", darkBg: "#151D2E" },
+  数学: { color: "#2563EB", bg: "#EFF6FF", darkBg: "#151D2E" },
+  理科: { color: "#15803D", bg: "#ECFDF5", darkBg: "#142620" },
+  物理: { color: "#15803D", bg: "#ECFDF5", darkBg: "#142620" },
+  化学: { color: "#059669", bg: "#ECFDF5", darkBg: "#142620" },
+  生物: { color: "#16A34A", bg: "#ECFDF5", darkBg: "#142620" },
+  社会: { color: "#D97706", bg: "#FFFBEB", darkBg: "#2A2214" },
+  地理: { color: "#D97706", bg: "#FFFBEB", darkBg: "#2A2214" },
+  歴史: { color: "#EA580C", bg: "#FFF7ED", darkBg: "#2A1F14" },
+  英語: { color: "#7C3AED", bg: "#F5F3FF", darkBg: "#1C162E" },
 };
 
 /** Get color for a subject, with fallback for unknown subjects */
-export function getSubjectColor(subject: string): {
+export function getSubjectColor(
+  subject: string,
+  dark = false,
+): {
   color: string;
   bg: string;
 } {
-  if (SUBJECT_COLORS[subject]) return SUBJECT_COLORS[subject];
-  // Partial match: e.g. "数学A" matches "数学"
-  for (const key of Object.keys(SUBJECT_COLORS)) {
-    if (subject.includes(key)) return SUBJECT_COLORS[key];
-  }
-  return { color: "#6B7280", bg: "#F9FAFB" };
+  const entry =
+    SUBJECT_COLORS[subject] ??
+    Object.entries(SUBJECT_COLORS).find(([key]) => subject.includes(key))?.[1];
+  if (entry) return { color: entry.color, bg: dark ? entry.darkBg : entry.bg };
+  return { color: "#6B7280", bg: dark ? "#1A1A1F" : "#F9FAFB" };
 }
 
 const EXAM_CATEGORY_COLORS: Record<string, string> = {
@@ -242,7 +247,23 @@ export function GanttChart({
     window.addEventListener("mouseup", onUp);
   };
 
-  const getSubjectStyle = (subject: string) => getSubjectColor(subject);
+  // Detect dark mode (check closest ancestor with .dark class)
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const check = () => setIsDark(!!el.closest(".dark"));
+    check();
+    const obs = new MutationObserver(check);
+    obs.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+      subtree: true,
+    });
+    return () => obs.disconnect();
+  }, []);
+
+  const getSubjectStyle = (subject: string) => getSubjectColor(subject, isDark);
 
   const year = getAcademicYear(curriculumYear);
   const academicYearStart = useMemo(() => new Date(year, 3, 1), [year]); // April 1
@@ -618,7 +639,10 @@ export function GanttChart({
           {/* Exam row label */}
           <div
             className="flex items-center gap-1.5 px-4 border-b border-border"
-            style={{ height: examRowHeight, backgroundColor: "#FEF2F2" }}
+            style={{
+              height: examRowHeight,
+              backgroundColor: isDark ? "#2A1818" : "#FEF2F2",
+            }}
           >
             <span className="text-[11px] font-bold text-red-500">
               {t("examScheduleLabel")}
@@ -773,7 +797,9 @@ export function GanttChart({
                 style={{
                   left: x,
                   width: 0,
-                  borderLeft: "1px dotted #E5E7EB60",
+                  borderLeft: isDark
+                    ? "1px dotted #ffffff10"
+                    : "1px dotted #E5E7EB60",
                 }}
               />
             ))}
@@ -785,7 +811,9 @@ export function GanttChart({
                 style={{
                   left: mc.x + mc.width,
                   width: 0,
-                  borderLeft: "1px solid #D1D5DB",
+                  borderLeft: isDark
+                    ? "1px solid #2A2538"
+                    : "1px solid #D1D5DB",
                 }}
               />
             ))}
@@ -799,7 +827,10 @@ export function GanttChart({
             {/* Exam markers row — click to add exam at date */}
             <div
               className="relative border-b border-border cursor-crosshair"
-              style={{ height: examRowHeight, backgroundColor: "#FEF2F2" }}
+              style={{
+                height: examRowHeight,
+                backgroundColor: isDark ? "#2A1818" : "#FEF2F2",
+              }}
               onClick={(e) => {
                 const rect = e.currentTarget.getBoundingClientRect();
                 const clickX = e.clientX - rect.left;
