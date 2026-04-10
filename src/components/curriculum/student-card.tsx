@@ -8,16 +8,20 @@ import { useTranslations } from "next-intl";
 
 interface StudentCardProps {
   profile: StudentProfile;
+  basePath?: string;
 }
 
-export function StudentCard({ profile }: StudentCardProps) {
+export function StudentCard({
+  profile,
+  basePath = "/teacher/curriculum",
+}: StudentCardProps) {
   const t = useTranslations("curriculum");
   const router = useRouter();
 
   return (
     <tr
       className="border-b border-border hover:bg-muted/30 transition-colors cursor-pointer group"
-      onClick={() => router.push(`/teacher/curriculum/${profile.id}`)}
+      onClick={() => router.push(`${basePath}/${profile.id}`)}
     >
       <td className="py-3 px-4 font-semibold text-foreground">
         {profile.name}

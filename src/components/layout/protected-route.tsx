@@ -1,43 +1,45 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react'
-import { useRouter } from '@/i18n/navigation'
-import { useAuth } from '@/hooks/use-auth'
-import { UserRole } from '@/lib/types/database'
+import { useEffect } from "react";
+import { useRouter } from "@/i18n/navigation";
+import { useAuth } from "@/hooks/use-auth";
+import { UserRole } from "@/lib/types/database";
 
 interface ProtectedRouteProps {
-  children: React.ReactNode
-  allowedRoles?: UserRole[]
-  redirectTo?: string
+  children: React.ReactNode;
+  allowedRoles?: UserRole[];
+  redirectTo?: string;
 }
 
 export function ProtectedRoute({
   children,
   allowedRoles,
-  redirectTo = '/login'
+  redirectTo = "/login",
 }: ProtectedRouteProps) {
-  const { user, dbUser, loading } = useAuth()
-  const router = useRouter()
+  const { user, dbUser, loading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        router.replace(redirectTo)
-        return
+        router.replace(redirectTo);
+        return;
       }
 
       if (allowedRoles && dbUser && !allowedRoles.includes(dbUser.role)) {
-        if (dbUser.role === 'teacher') {
-          router.replace('/teacher/dashboard')
-        } else if (dbUser.role === 'guardian') {
-          router.replace('/guardian/dashboard')
+        if (dbUser.role === "teacher") {
+          router.replace("/teacher/dashboard");
+        } else if (dbUser.role === "guardian") {
+          router.replace("/guardian/dashboard");
+        } else if (dbUser.role === "school") {
+          router.replace("/curriculum/dashboard");
         } else {
-          router.replace('/')
+          router.replace("/");
         }
-        return
+        return;
       }
     }
-  }, [user, dbUser, loading, router, allowedRoles, redirectTo])
+  }, [user, dbUser, loading, router, allowedRoles, redirectTo]);
 
   if (loading) {
     return (
@@ -47,16 +49,16 @@ export function ProtectedRoute({
           <p className="mt-2 text-muted-foreground">読み込み中...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!user) {
-    return null
+    return null;
   }
 
   if (allowedRoles && dbUser && !allowedRoles.includes(dbUser.role)) {
-    return null
+    return null;
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }

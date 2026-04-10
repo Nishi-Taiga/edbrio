@@ -1167,6 +1167,18 @@
       "cancel": "キャンセル",
       "save": "保存",
       "add": "追加"
+    },
+    "login": {
+      "title": "ログイン",
+      "description": "アカウントにログインしてください",
+      "email": "メールアドレス",
+      "password": "パスワード",
+      "loginButton": "ログイン",
+      "schoolOnly": "このログイン画面は学校アカウント専用です"
+    },
+    "header": {
+      "title": "カリキュラム管理",
+      "logout": "ログアウト"
     }
   },
   "reports": {
