@@ -40,34 +40,72 @@ export async function POST(req: NextRequest) {
 
   const supabase = createAdminClient();
 
-  // Use admin API to create user (bypasses email confirmation)
-  const { data, error } = await supabase.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: {
-      name,
-      role: "school",
-    },
-  });
+  // Check if email already exists
+  const { data: existingUsers } = await supabase
+    .from("users")
+    .select("id")
+    .eq("email", email)
+    .limit(1);
 
-  if (error) {
-    // Handle duplicate email
-    if (error.message?.includes("already been registered")) {
-      return NextResponse.json(
-        { error: "このメールアドレスは既に登録されています。" },
-        { status: 409 },
-      );
-    }
-    return NextResponse.json({ error: error.message }, { status: 400 });
+  if (existingUsers && existingUsers.length > 0) {
+    return NextResponse.json(
+      { error: "このメールアドレスは既に登録されています。" },
+      { status: 409 },
+    );
   }
 
-  if (!data.user) {
+  // Create auth user
+  const { data: authData, error: authError } =
+    await supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { name, role: "school" },
+    });
+
+  if (authError) {
+    // Trigger may have failed — auth user might exist, provision manually
+    if (authError.message?.includes("Database error")) {
+      const { data: authUser } =
+        await supabase.auth.admin.getUserByEmail(email);
+      if (authUser?.user) {
+        await provisionSchoolUser(supabase, authUser.user.id, email, name);
+        return NextResponse.json({ role: "school" });
+      }
+    }
+    return NextResponse.json({ error: authError.message }, { status: 400 });
+  }
+
+  if (!authData.user) {
     return NextResponse.json(
       { error: "ユーザーの作成に失敗しました。" },
       { status: 500 },
     );
   }
 
+  // Ensure public tables are provisioned (trigger may or may not have worked)
+  await provisionSchoolUser(supabase, authData.user.id, email, name);
+
   return NextResponse.json({ role: "school" });
+}
+
+async function provisionSchoolUser(
+  supabase: ReturnType<typeof createAdminClient>,
+  userId: string,
+  email: string,
+  name: string,
+) {
+  await supabase
+    .from("users")
+    .upsert({ id: userId, role: "school", email, name }, { onConflict: "id" });
+  await supabase.from("teachers").upsert(
+    {
+      id: userId,
+      handle: "school-" + userId.substring(0, 8),
+      subjects: [],
+      grades: [],
+      public_profile: {},
+    },
+    { onConflict: "id" },
+  );
 }
