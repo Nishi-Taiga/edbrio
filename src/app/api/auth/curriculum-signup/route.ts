@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createRateLimiter } from "@/lib/rate-limit";
 import { z } from "zod";
 
@@ -38,24 +38,35 @@ export async function POST(req: NextRequest) {
   }
   const { email, password, name } = result.data;
 
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.signUp({
+  const supabase = createAdminClient();
+
+  // Use admin API to create user (bypasses email confirmation)
+  const { data, error } = await supabase.auth.admin.createUser({
     email,
     password,
-    options: {
-      data: {
-        name,
-        role: "school",
-      },
+    email_confirm: true,
+    user_metadata: {
+      name,
+      role: "school",
     },
   });
 
   if (error) {
+    // Handle duplicate email
+    if (error.message?.includes("already been registered")) {
+      return NextResponse.json(
+        { error: "このメールアドレスは既に登録されています。" },
+        { status: 409 },
+      );
+    }
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
-  if (data.user && !data.user.email_confirmed_at) {
-    return NextResponse.json({ needsConfirmation: true });
+  if (!data.user) {
+    return NextResponse.json(
+      { error: "ユーザーの作成に失敗しました。" },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ role: "school" });
