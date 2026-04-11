@@ -38,7 +38,16 @@ export async function POST(req: NextRequest) {
   }
   const { email, password, name } = result.data;
 
-  const supabase = createAdminClient();
+  let supabase: ReturnType<typeof createAdminClient>;
+  try {
+    supabase = createAdminClient();
+  } catch (e) {
+    console.error("curriculum-signup: admin client error:", e);
+    return NextResponse.json(
+      { error: "サーバー設定エラーです。管理者に連絡してください。" },
+      { status: 500 },
+    );
+  }
 
   // Check if email already exists
   const { data: existingUsers } = await supabase
