@@ -932,6 +932,14 @@ export function GanttChart({
                 readOnly
                   ? undefined
                   : (e) => {
+                      // Ignore clicks that bubble from dialogs closing
+                      if (
+                        e.target !== e.currentTarget &&
+                        !(e.currentTarget as HTMLElement).contains(
+                          e.target as Node,
+                        )
+                      )
+                        return;
                       const rect = e.currentTarget.getBoundingClientRect();
                       const clickX = e.clientX - rect.left;
                       const date = xToDate(clickX);

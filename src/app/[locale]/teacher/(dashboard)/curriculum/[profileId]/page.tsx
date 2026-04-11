@@ -353,7 +353,9 @@ export default function StudentCurriculumPage() {
   const [prefilledExamDate, setPrefilledExamDate] = useState<string | null>(
     null,
   );
+  const lastDialogCloseRef = useRef(0);
   const handleAddExam = (date?: string) => {
+    if (Date.now() - lastDialogCloseRef.current < 300) return;
     setEditingExam(null);
     setPrefilledExamDate(date || null);
     setShowExamForm(true);
@@ -614,7 +616,10 @@ export default function StudentCurriculumPage() {
             {/* Dialogs */}
             <MaterialForm
               open={showMaterialForm}
-              onOpenChange={setShowMaterialForm}
+              onOpenChange={(v) => {
+                setShowMaterialForm(v);
+                if (!v) lastDialogCloseRef.current = Date.now();
+              }}
               onSubmit={handleSubmitMaterial}
               initialData={
                 editingMaterial
@@ -632,7 +637,10 @@ export default function StudentCurriculumPage() {
             />
             <PhaseForm
               open={showPhaseForm}
-              onOpenChange={setShowPhaseForm}
+              onOpenChange={(v) => {
+                setShowPhaseForm(v);
+                if (!v) lastDialogCloseRef.current = Date.now();
+              }}
               onSubmit={handleSubmitPhase}
               initialData={
                 editingPhase
@@ -646,11 +654,15 @@ export default function StudentCurriculumPage() {
                     : undefined
               }
               materialName={phaseTargetMaterialName}
+              curriculumYear={selectedYear}
               t={(key: string) => tPhases(key)}
             />
             <PhaseDetailDialog
               open={showPhaseDetail}
-              onOpenChange={setShowPhaseDetail}
+              onOpenChange={(v) => {
+                setShowPhaseDetail(v);
+                if (!v) lastDialogCloseRef.current = Date.now();
+              }}
               phase={detailPhase}
               materialName={detailMaterialName}
               tasks={phaseTasks.filter((t) => t.phase_id === detailPhase?.id)}
