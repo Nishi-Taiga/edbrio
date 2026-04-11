@@ -33,6 +33,7 @@ import {
   FileSpreadsheet,
   FileText,
   Share2,
+  Undo2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -108,6 +109,21 @@ export default function StudentCurriculumPage() {
     }
   }, [selectedYear, yearStorageKey]);
 
+  // Ctrl+Z to undo (refresh data from DB)
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
+        const target = e.target as HTMLElement;
+        if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
+        e.preventDefault();
+        refreshCurriculum();
+        toast.success("データを再読み込みしました");
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [refreshCurriculum]);
+
   const {
     materials,
     phases,
@@ -123,6 +139,7 @@ export default function StudentCurriculumPage() {
     updateTask,
     deleteTask,
     reorderMaterials,
+    refresh: refreshCurriculum,
   } = useCurriculumMaterials(profileId, selectedYear);
   const {
     exams,
@@ -562,6 +579,15 @@ export default function StudentCurriculumPage() {
                   </TabsTrigger>
                   <TabsTrigger value="scores">{tPage("tabScores")}</TabsTrigger>
                 </TabsList>
+                <button
+                  className="flex items-center gap-1 text-[12px] font-medium text-muted-foreground hover:text-foreground border border-border rounded-md px-2 py-1.5 hover:bg-muted/50 transition-colors ml-auto"
+                  onClick={() => refreshCurriculum()}
+                  title="元に戻す (Ctrl+Z)"
+                  aria-label="元に戻す"
+                >
+                  <Undo2 className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">元に戻す</span>
+                </button>
               </div>
 
               {/* Curriculum (Gantt) tab */}
@@ -575,6 +601,9 @@ export default function StudentCurriculumPage() {
                       exams={exams}
                       curriculumYear={selectedYear || profile.curriculum_year}
                       onAddSubject={handleAddSubject}
+                      onDeleteSubject={async (_subject, materialIds) => {
+                        for (const id of materialIds) await deleteMaterial(id);
+                      }}
                       onAddMaterialToSubject={handleAddMaterialToSubject}
                       onEditMaterial={handleEditMaterial}
                       onDeleteMaterial={deleteMaterial}

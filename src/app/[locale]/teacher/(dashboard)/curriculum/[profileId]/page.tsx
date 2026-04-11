@@ -565,6 +565,9 @@ export default function StudentCurriculumPage() {
                       exams={exams}
                       curriculumYear={selectedYear || profile.curriculum_year}
                       onAddSubject={handleAddSubject}
+                      onDeleteSubject={async (_subject, materialIds) => {
+                        for (const id of materialIds) await deleteMaterial(id);
+                      }}
                       onAddMaterialToSubject={handleAddMaterialToSubject}
                       onEditMaterial={handleEditMaterial}
                       onDeleteMaterial={deleteMaterial}

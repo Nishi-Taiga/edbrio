@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Copy, Check, LinkIcon, Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import QRCode from "qrcode";
 
 interface ShareLinkDialogProps {
   open: boolean;
@@ -33,6 +34,11 @@ export function ShareLinkDialog({
   const [fetching, setFetching] = useState(false);
   const [copied, setCopied] = useState(false);
   const [revoking, setRevoking] = useState(false);
+  const qrCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  const shareUrl = token
+    ? `${window.location.origin}/curriculum/share/${token}`
+    : null;
 
   // Fetch existing active link when dialog opens
   useEffect(() => {
@@ -52,9 +58,15 @@ export function ShareLinkDialog({
       .finally(() => setFetching(false));
   }, [open, profileId]);
 
-  const shareUrl = token
-    ? `${window.location.origin}/curriculum/share/${token}`
-    : null;
+  // Generate QR code when shareUrl changes
+  useEffect(() => {
+    if (!shareUrl || !qrCanvasRef.current) return;
+    QRCode.toCanvas(qrCanvasRef.current, shareUrl, {
+      width: 160,
+      margin: 2,
+      color: { dark: "#000000", light: "#ffffff" },
+    }).catch(() => {});
+  }, [shareUrl]);
 
   const handleGenerate = async () => {
     setLoading(true);
@@ -137,6 +149,12 @@ export function ShareLinkDialog({
           </div>
         ) : (
           <div className="space-y-4">
+            {/* QR Code */}
+            <div className="flex justify-center">
+              <canvas ref={qrCanvasRef} className="rounded-lg" />
+            </div>
+
+            {/* URL */}
             <div className="flex gap-2">
               <Input
                 value={shareUrl || ""}

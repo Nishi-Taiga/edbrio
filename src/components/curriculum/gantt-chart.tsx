@@ -82,6 +82,7 @@ interface GanttChartProps {
   exams: ExamSchedule[];
   curriculumYear?: string;
   onAddSubject: () => void;
+  onDeleteSubject?: (subject: string, materialIds: string[]) => void;
   onAddMaterialToSubject: (subject: string) => void;
   onEditMaterial: (material: CurriculumMaterial) => void;
   onDeleteMaterial: (id: string) => void;
@@ -146,6 +147,7 @@ export function GanttChart({
   exams,
   curriculumYear,
   onAddSubject,
+  onDeleteSubject,
   onAddMaterialToSubject,
   onEditMaterial,
   onDeleteMaterial,
@@ -758,6 +760,18 @@ export function GanttChart({
                     >
                       {grouped[row.subject].length}教材
                     </span>
+                    {!readOnly && onDeleteSubject && (
+                      <button
+                        className="ml-auto p-0.5 rounded opacity-0 group-hover/subj:opacity-60 hover:!opacity-100 hover:bg-muted transition-opacity"
+                        onClick={() => {
+                          const ids = grouped[row.subject].map((m) => m.id);
+                          onDeleteSubject(row.subject, ids);
+                        }}
+                        aria-label={`${row.subject}を削除`}
+                      >
+                        <Trash2 className="w-3 h-3 text-destructive" />
+                      </button>
+                    )}
                   </div>
                 </div>
               );
