@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -30,8 +30,27 @@ export function ShareLinkDialog({
   const t = useTranslations("curriculum.share");
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(false);
   const [copied, setCopied] = useState(false);
   const [revoking, setRevoking] = useState(false);
+
+  // Fetch existing active link when dialog opens
+  useEffect(() => {
+    if (!open) return;
+    setCopied(false);
+    setFetching(true);
+    fetch("/api/curriculum/share", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ profileId }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.token) setToken(data.token);
+      })
+      .catch(() => {})
+      .finally(() => setFetching(false));
+  }, [open, profileId]);
 
   const shareUrl = token
     ? `${window.location.origin}/curriculum/share/${token}`
@@ -89,16 +108,7 @@ export function ShareLinkDialog({
   };
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(v) => {
-        if (!v) {
-          setToken(null);
-          setCopied(false);
-        }
-        onOpenChange(v);
-      }}
-    >
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -110,7 +120,11 @@ export function ShareLinkDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {!token ? (
+        {fetching ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : !token ? (
           <div className="flex flex-col items-center py-4 gap-3">
             <p className="text-sm text-muted-foreground text-center">
               {t("generateHint")}
