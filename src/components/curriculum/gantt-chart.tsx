@@ -168,10 +168,13 @@ export function GanttChart({
   // Drag reorder state for materials and subjects
   const [reorderDrag, setReorderDrag] = useState<{
     type: "material" | "subject";
-    id: string; // materialId or subject name
+    id: string;
     subject: string;
+    label: string;
     startIdx: number;
     currentIdx: number;
+    mouseY: number;
+    originY: number;
   } | null>(null);
 
   const handleReorderMouseDown = (
@@ -180,11 +183,22 @@ export function GanttChart({
     id: string,
     subject: string,
     idx: number,
+    label: string,
   ) => {
     if (e.button !== 0) return;
     e.preventDefault();
     const startY = e.clientY;
-    setReorderDrag({ type, id, subject, startIdx: idx, currentIdx: idx });
+    const originY = e.clientY;
+    setReorderDrag({
+      type,
+      id,
+      subject,
+      label,
+      startIdx: idx,
+      currentIdx: idx,
+      mouseY: originY,
+      originY,
+    });
 
     const getTargetIdx = (clientY: number) => {
       const delta = clientY - startY;
@@ -195,7 +209,9 @@ export function GanttChart({
     const onMove = (me: MouseEvent) => {
       me.preventDefault();
       const newIdx = getTargetIdx(me.clientY);
-      setReorderDrag((prev) => (prev ? { ...prev, currentIdx: newIdx } : null));
+      setReorderDrag((prev) =>
+        prev ? { ...prev, currentIdx: newIdx, mouseY: me.clientY } : null,
+      );
     };
     const onUp = (me: MouseEvent) => {
       window.removeEventListener("mousemove", onMove);
@@ -681,50 +697,68 @@ export function GanttChart({
               const isDragging =
                 reorderDrag?.type === "subject" &&
                 reorderDrag.id === row.subject;
+              const showInsertBefore =
+                reorderDrag?.type === "subject" &&
+                reorderDrag.currentIdx === subjectIdx &&
+                reorderDrag.startIdx !== subjectIdx &&
+                reorderDrag.startIdx > subjectIdx;
+              const showInsertAfter =
+                reorderDrag?.type === "subject" &&
+                reorderDrag.currentIdx === subjectIdx &&
+                reorderDrag.startIdx !== subjectIdx &&
+                reorderDrag.startIdx < subjectIdx;
               return (
-                <div
-                  key={`label-${idx}`}
-                  className={`flex items-center gap-1 px-1 border-b border-border group/subj ${isDragging ? "opacity-50" : ""}`}
-                  style={{
-                    height: SUBJECT_HEADER_HEIGHT,
-                    backgroundColor: sc.bg,
-                  }}
-                >
-                  {!readOnly && (
-                    <div
-                      className="cursor-grab active:cursor-grabbing p-0.5 opacity-40 hover:opacity-70 transition-opacity"
-                      onMouseDown={(e) =>
-                        handleReorderMouseDown(
-                          e,
-                          "subject",
-                          row.subject,
-                          row.subject,
-                          subjectIdx,
-                        )
-                      }
-                      title="ドラッグして科目を並び替え"
-                    >
-                      <GripVertical
-                        className="w-3.5 h-3.5"
-                        style={{ color: sc.color }}
-                      />
-                    </div>
+                <div key={`label-${idx}`} className="relative">
+                  {showInsertBefore && (
+                    <div className="absolute top-0 left-2 right-2 h-0.5 bg-primary rounded-full z-10" />
                   )}
-                  <span
-                    className="text-xs font-bold"
-                    style={{ color: sc.color }}
-                  >
-                    {row.subject}
-                  </span>
-                  <span
-                    className="text-[10px] font-semibold px-1.5 py-0 rounded"
+                  {showInsertAfter && (
+                    <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-primary rounded-full z-10" />
+                  )}
+                  <div
+                    className={`flex items-center gap-1 px-1 border-b border-border group/subj ${isDragging ? "opacity-30 bg-muted" : ""}`}
                     style={{
+                      height: SUBJECT_HEADER_HEIGHT,
                       backgroundColor: sc.bg,
-                      color: sc.color,
                     }}
                   >
-                    {grouped[row.subject].length}教材
-                  </span>
+                    {!readOnly && (
+                      <div
+                        className="cursor-grab active:cursor-grabbing p-0.5 opacity-40 hover:opacity-70 transition-opacity"
+                        onMouseDown={(e) =>
+                          handleReorderMouseDown(
+                            e,
+                            "subject",
+                            row.subject,
+                            row.subject,
+                            subjectIdx,
+                            row.subject,
+                          )
+                        }
+                        title="ドラッグして科目を並び替え"
+                      >
+                        <GripVertical
+                          className="w-3.5 h-3.5"
+                          style={{ color: sc.color }}
+                        />
+                      </div>
+                    )}
+                    <span
+                      className="text-xs font-bold"
+                      style={{ color: sc.color }}
+                    >
+                      {row.subject}
+                    </span>
+                    <span
+                      className="text-[10px] font-semibold px-1.5 py-0 rounded"
+                      style={{
+                        backgroundColor: sc.bg,
+                        color: sc.color,
+                      }}
+                    >
+                      {grouped[row.subject].length}教材
+                    </span>
+                  </div>
                 </div>
               );
             }
@@ -751,53 +785,73 @@ export function GanttChart({
             const matIdx = (grouped[row.subject] || []).indexOf(mat);
             const isDragging =
               reorderDrag?.type === "material" && reorderDrag.id === mat.id;
+            const showMatInsertBefore =
+              reorderDrag?.type === "material" &&
+              reorderDrag.subject === row.subject &&
+              reorderDrag.currentIdx === matIdx &&
+              reorderDrag.startIdx !== matIdx &&
+              reorderDrag.startIdx > matIdx;
+            const showMatInsertAfter =
+              reorderDrag?.type === "material" &&
+              reorderDrag.subject === row.subject &&
+              reorderDrag.currentIdx === matIdx &&
+              reorderDrag.startIdx !== matIdx &&
+              reorderDrag.startIdx < matIdx;
             return (
-              <div
-                key={`label-${idx}`}
-                className={`flex items-center justify-between px-1 border-b border-border hover:bg-muted/30 transition-colors group/row ${isDragging ? "opacity-50" : ""}`}
-                style={{ height: rowHeight }}
-                onMouseEnter={() => setHoveredRow(mat.id)}
-                onMouseLeave={() => setHoveredRow(null)}
-              >
-                {!readOnly && (
-                  <div
-                    className="cursor-grab active:cursor-grabbing p-0.5 opacity-0 group-hover/row:opacity-40 transition-opacity shrink-0"
-                    onMouseDown={(e) =>
-                      handleReorderMouseDown(
-                        e,
-                        "material",
-                        mat.id,
-                        row.subject,
-                        matIdx,
-                      )
-                    }
-                  >
-                    <GripVertical className="w-3 h-3 text-muted-foreground" />
-                  </div>
+              <div key={`label-${idx}`} className="relative">
+                {showMatInsertBefore && (
+                  <div className="absolute top-0 left-2 right-2 h-0.5 bg-primary rounded-full z-10" />
                 )}
-                <div className="min-w-0 flex-1 px-1">
-                  <div
-                    className={`${isMobile ? "text-[10px]" : "text-[11px]"} font-semibold text-foreground truncate`}
-                  >
-                    {mat.material_name}
+                {showMatInsertAfter && (
+                  <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-primary rounded-full z-10" />
+                )}
+                <div
+                  className={`flex items-center justify-between px-1 border-b border-border hover:bg-muted/30 transition-colors group/row ${isDragging ? "opacity-30 bg-muted" : ""}`}
+                  style={{ height: rowHeight }}
+                  onMouseEnter={() => setHoveredRow(mat.id)}
+                  onMouseLeave={() => setHoveredRow(null)}
+                >
+                  {!readOnly && (
+                    <div
+                      className="cursor-grab active:cursor-grabbing p-0.5 opacity-0 group-hover/row:opacity-40 transition-opacity shrink-0"
+                      onMouseDown={(e) =>
+                        handleReorderMouseDown(
+                          e,
+                          "material",
+                          mat.id,
+                          row.subject,
+                          matIdx,
+                          mat.material_name,
+                        )
+                      }
+                    >
+                      <GripVertical className="w-3 h-3 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1 px-1">
+                    <div
+                      className={`${isMobile ? "text-[10px]" : "text-[11px]"} font-semibold text-foreground truncate`}
+                    >
+                      {mat.material_name}
+                    </div>
                   </div>
+                  {!readOnly && hoveredRow === mat.id && (
+                    <div className="flex gap-0.5 shrink-0 ml-1">
+                      <button
+                        className="p-0.5 rounded hover:bg-muted"
+                        onClick={() => onEditMaterial(mat)}
+                      >
+                        <Pencil className="w-3 h-3 text-muted-foreground" />
+                      </button>
+                      <button
+                        className="p-0.5 rounded hover:bg-muted"
+                        onClick={() => onDeleteMaterial(mat.id)}
+                      >
+                        <Trash2 className="w-3 h-3 text-destructive" />
+                      </button>
+                    </div>
+                  )}
                 </div>
-                {!readOnly && hoveredRow === mat.id && (
-                  <div className="flex gap-0.5 shrink-0 ml-1">
-                    <button
-                      className="p-0.5 rounded hover:bg-muted"
-                      onClick={() => onEditMaterial(mat)}
-                    >
-                      <Pencil className="w-3 h-3 text-muted-foreground" />
-                    </button>
-                    <button
-                      className="p-0.5 rounded hover:bg-muted"
-                      onClick={() => onDeleteMaterial(mat.id)}
-                    >
-                      <Trash2 className="w-3 h-3 text-destructive" />
-                    </button>
-                  </div>
-                )}
               </div>
             );
           })}
@@ -993,6 +1047,20 @@ export function GanttChart({
           </button>
         </div>
       ) : null}
+
+      {/* Drag ghost overlay */}
+      {reorderDrag && (
+        <div
+          className="fixed pointer-events-none z-50 rounded-lg border-2 border-primary/50 bg-card/90 shadow-lg px-3 py-1.5 text-xs font-semibold text-foreground backdrop-blur-sm"
+          style={{
+            left: 16,
+            top: reorderDrag.mouseY - 16,
+            minWidth: labelWidth - 32,
+          }}
+        >
+          {reorderDrag.label}
+        </div>
+      )}
     </div>
   );
 }
