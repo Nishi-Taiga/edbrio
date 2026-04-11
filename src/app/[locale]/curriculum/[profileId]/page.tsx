@@ -109,21 +109,6 @@ export default function StudentCurriculumPage() {
     }
   }, [selectedYear, yearStorageKey]);
 
-  // Ctrl+Z to undo (refresh data from DB)
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
-        const target = e.target as HTMLElement;
-        if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
-        e.preventDefault();
-        refreshCurriculum();
-        toast.success("データを再読み込みしました");
-      }
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [refreshCurriculum]);
-
   const {
     materials,
     phases,
@@ -141,6 +126,22 @@ export default function StudentCurriculumPage() {
     reorderMaterials,
     refresh: refreshCurriculum,
   } = useCurriculumMaterials(profileId, selectedYear);
+
+  // Ctrl+Z to undo (refresh data from DB)
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
+        const target = e.target as HTMLElement;
+        if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
+        e.preventDefault();
+        refreshCurriculum();
+        toast.success("データを再読み込みしました");
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [refreshCurriculum]);
+
   const {
     exams,
     error: examsError,
