@@ -101,6 +101,7 @@ interface GanttChartProps {
   ) => Promise<void>;
   onAddExam: (date?: string) => void;
   onPhaseClick?: (phase: CurriculumPhase, materialName: string) => void;
+  readOnly?: boolean;
   t: (key: string) => string;
 }
 
@@ -156,6 +157,7 @@ export function GanttChart({
   onReorderMaterials,
   onAddExam,
   onPhaseClick,
+  readOnly = false,
   t,
 }: GanttChartProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -390,7 +392,7 @@ export function GanttChart({
     grouped[subject].forEach((material) => {
       rows.push({ type: "material", subject, material });
     });
-    rows.push({ type: "addMaterial", subject });
+    if (!readOnly) rows.push({ type: "addMaterial", subject });
   });
 
   // Compute exam marker layout to determine dynamic row height
@@ -486,7 +488,7 @@ export function GanttChart({
       <div
         key={phase.id}
         data-phase-bar
-        className="absolute flex flex-col rounded cursor-grab overflow-visible group/bar"
+        className={`absolute flex flex-col rounded overflow-visible group/bar ${readOnly ? "cursor-default" : "cursor-grab"}`}
         style={{
           left: x1,
           width: barWidth,
@@ -495,31 +497,54 @@ export function GanttChart({
           backgroundColor: color,
           zIndex: 5,
         }}
-        onMouseDown={(e) => handleBarMouseDown(e, phase.id, rawX1, rawWidth)}
-        onClick={() => {
-          if (skipClickRef.current) return;
-          if (onPhaseClick) {
-            onPhaseClick(phase, mat.material_name);
-          } else {
-            onEditPhase(phase);
-          }
-        }}
+        onMouseDown={
+          readOnly
+            ? undefined
+            : (e) => handleBarMouseDown(e, phase.id, rawX1, rawWidth)
+        }
+        onClick={
+          readOnly
+            ? undefined
+            : () => {
+                if (skipClickRef.current) return;
+                if (onPhaseClick) {
+                  onPhaseClick(phase, mat.material_name);
+                } else {
+                  onEditPhase(phase);
+                }
+              }
+        }
         title={`${phase.phase_name}${phase.total_hours ? ` (${phase.total_hours}h)` : ""}`}
       >
-        {/* Left resize handle */}
-        <div
-          className="absolute left-0 top-0 bottom-0 w-2 cursor-col-resize z-10 opacity-0 group-hover/bar:opacity-100 hover:bg-white/30 rounded-l"
-          onMouseDown={(e) =>
-            handleEdgeMouseDown(e, phase.id, "left", rawX1, rawX1 + rawWidth)
-          }
-        />
-        {/* Right resize handle */}
-        <div
-          className="absolute right-0 top-0 bottom-0 w-2 cursor-col-resize z-10 opacity-0 group-hover/bar:opacity-100 hover:bg-white/30 rounded-r"
-          onMouseDown={(e) =>
-            handleEdgeMouseDown(e, phase.id, "right", rawX1, rawX1 + rawWidth)
-          }
-        />
+        {/* Resize handles (hidden in readOnly) */}
+        {!readOnly && (
+          <>
+            <div
+              className="absolute left-0 top-0 bottom-0 w-2 cursor-col-resize z-10 opacity-0 group-hover/bar:opacity-100 hover:bg-white/30 rounded-l"
+              onMouseDown={(e) =>
+                handleEdgeMouseDown(
+                  e,
+                  phase.id,
+                  "left",
+                  rawX1,
+                  rawX1 + rawWidth,
+                )
+              }
+            />
+            <div
+              className="absolute right-0 top-0 bottom-0 w-2 cursor-col-resize z-10 opacity-0 group-hover/bar:opacity-100 hover:bg-white/30 rounded-r"
+              onMouseDown={(e) =>
+                handleEdgeMouseDown(
+                  e,
+                  phase.id,
+                  "right",
+                  rawX1,
+                  rawX1 + rawWidth,
+                )
+              }
+            />
+          </>
+        )}
         <div className="flex items-center flex-1 min-h-0 overflow-hidden rounded">
           <span
             className={`${isMobile ? "text-[9px]" : "text-[10px]"} font-bold truncate leading-tight pl-2 pr-1`}
@@ -665,24 +690,26 @@ export function GanttChart({
                     backgroundColor: sc.bg,
                   }}
                 >
-                  <div
-                    className="cursor-grab active:cursor-grabbing p-0.5 opacity-40 hover:opacity-70 transition-opacity"
-                    onMouseDown={(e) =>
-                      handleReorderMouseDown(
-                        e,
-                        "subject",
-                        row.subject,
-                        row.subject,
-                        subjectIdx,
-                      )
-                    }
-                    title="ドラッグして科目を並び替え"
-                  >
-                    <GripVertical
-                      className="w-3.5 h-3.5"
-                      style={{ color: sc.color }}
-                    />
-                  </div>
+                  {!readOnly && (
+                    <div
+                      className="cursor-grab active:cursor-grabbing p-0.5 opacity-40 hover:opacity-70 transition-opacity"
+                      onMouseDown={(e) =>
+                        handleReorderMouseDown(
+                          e,
+                          "subject",
+                          row.subject,
+                          row.subject,
+                          subjectIdx,
+                        )
+                      }
+                      title="ドラッグして科目を並び替え"
+                    >
+                      <GripVertical
+                        className="w-3.5 h-3.5"
+                        style={{ color: sc.color }}
+                      />
+                    </div>
+                  )}
                   <span
                     className="text-xs font-bold"
                     style={{ color: sc.color }}
@@ -732,20 +759,22 @@ export function GanttChart({
                 onMouseEnter={() => setHoveredRow(mat.id)}
                 onMouseLeave={() => setHoveredRow(null)}
               >
-                <div
-                  className="cursor-grab active:cursor-grabbing p-0.5 opacity-0 group-hover/row:opacity-40 transition-opacity shrink-0"
-                  onMouseDown={(e) =>
-                    handleReorderMouseDown(
-                      e,
-                      "material",
-                      mat.id,
-                      row.subject,
-                      matIdx,
-                    )
-                  }
-                >
-                  <GripVertical className="w-3 h-3 text-muted-foreground" />
-                </div>
+                {!readOnly && (
+                  <div
+                    className="cursor-grab active:cursor-grabbing p-0.5 opacity-0 group-hover/row:opacity-40 transition-opacity shrink-0"
+                    onMouseDown={(e) =>
+                      handleReorderMouseDown(
+                        e,
+                        "material",
+                        mat.id,
+                        row.subject,
+                        matIdx,
+                      )
+                    }
+                  >
+                    <GripVertical className="w-3 h-3 text-muted-foreground" />
+                  </div>
+                )}
                 <div className="min-w-0 flex-1 px-1">
                   <div
                     className={`${isMobile ? "text-[10px]" : "text-[11px]"} font-semibold text-foreground truncate`}
@@ -753,7 +782,7 @@ export function GanttChart({
                     {mat.material_name}
                   </div>
                 </div>
-                {hoveredRow === mat.id && (
+                {!readOnly && hoveredRow === mat.id && (
                   <div className="flex gap-0.5 shrink-0 ml-1">
                     <button
                       className="p-0.5 rounded hover:bg-muted"
@@ -824,19 +853,23 @@ export function GanttChart({
               style={{ left: 0 }}
             />
 
-            {/* Exam markers row — click to add exam at date */}
+            {/* Exam markers row */}
             <div
-              className="relative border-b border-border cursor-crosshair"
+              className={`relative border-b border-border ${readOnly ? "" : "cursor-crosshair"}`}
               style={{
                 height: examRowHeight,
                 backgroundColor: isDark ? "#2A1818" : "#FEF2F2",
               }}
-              onClick={(e) => {
-                const rect = e.currentTarget.getBoundingClientRect();
-                const clickX = e.clientX - rect.left;
-                const date = xToDate(clickX);
-                onAddExam(date);
-              }}
+              onClick={
+                readOnly
+                  ? undefined
+                  : (e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const clickX = e.clientX - rect.left;
+                      const date = xToDate(clickX);
+                      onAddExam(date);
+                    }
+              }
             >
               {renderExamMarkers()}
             </div>
@@ -874,10 +907,14 @@ export function GanttChart({
                 return (
                   <div
                     key={`row-${idx}`}
-                    className="absolute left-0 right-0 border-b border-border cursor-crosshair"
+                    className={`absolute left-0 right-0 border-b border-border ${readOnly ? "" : "cursor-crosshair"}`}
                     data-timeline-row={mat.id}
                     style={{ top: y, height: h }}
-                    onMouseDown={(e) => handleRowMouseDown(e, mat.id)}
+                    onMouseDown={
+                      readOnly
+                        ? undefined
+                        : (e) => handleRowMouseDown(e, mat.id)
+                    }
                   >
                     {getPhases(mat.id).map((phase) =>
                       renderPhaseBar(phase, mat),
@@ -937,7 +974,7 @@ export function GanttChart({
       </div>
 
       {/* Empty state or Add subject button */}
-      {materials.length === 0 ? (
+      {!readOnly && materials.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-muted-foreground border-t">
           <p className="text-sm mb-3">{t("emptyGantt")}</p>
           <Button size="sm" onClick={onAddSubject}>
@@ -945,7 +982,7 @@ export function GanttChart({
             {t("addSubject")}
           </Button>
         </div>
-      ) : (
+      ) : !readOnly ? (
         <div className="flex justify-center py-2 border-t border-border">
           <button
             className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors py-1 px-3 rounded hover:bg-muted/50"
@@ -955,7 +992,7 @@ export function GanttChart({
             {t("addSubject")}
           </button>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

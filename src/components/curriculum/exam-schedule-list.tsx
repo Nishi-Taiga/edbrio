@@ -11,6 +11,7 @@ interface ExamScheduleListProps {
   onAdd: (date?: string) => void;
   onEdit: (exam: ExamSchedule) => void;
   onDelete: (id: string) => Promise<void>;
+  readOnly?: boolean;
   t: (key: string) => string;
 }
 
@@ -59,6 +60,7 @@ function ExamTable({
   showPreference,
   showMethod = true,
   showBorder = true,
+  readOnly = false,
 }: {
   exams: ExamSchedule[];
   onEdit: (exam: ExamSchedule) => void;
@@ -66,6 +68,7 @@ function ExamTable({
   showPreference: boolean;
   showMethod?: boolean;
   showBorder?: boolean;
+  readOnly?: boolean;
 }) {
   if (exams.length === 0) {
     return (
@@ -104,9 +107,11 @@ function ExamTable({
             <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider w-[70px] hidden sm:table-cell">
               状態
             </th>
-            <th className="w-[50px]">
-              <span className="sr-only">操作</span>
-            </th>
+            {!readOnly && (
+              <th className="w-[50px]">
+                <span className="sr-only">操作</span>
+              </th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -146,24 +151,26 @@ function ExamTable({
                     {status.label}
                   </span>
                 </td>
-                <td className="py-2 px-2">
-                  <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      className="p-1 rounded hover:bg-muted"
-                      onClick={() => onEdit(exam)}
-                      aria-label={`${exam.exam_name}を編集`}
-                    >
-                      <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
-                    </button>
-                    <button
-                      className="p-1 rounded hover:bg-muted"
-                      onClick={() => onDelete(exam.id)}
-                      aria-label={`${exam.exam_name}を削除`}
-                    >
-                      <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                    </button>
-                  </div>
-                </td>
+                {!readOnly && (
+                  <td className="py-2 px-2">
+                    <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        className="p-1 rounded hover:bg-muted"
+                        onClick={() => onEdit(exam)}
+                        aria-label={`${exam.exam_name}を編集`}
+                      >
+                        <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                      </button>
+                      <button
+                        className="p-1 rounded hover:bg-muted"
+                        onClick={() => onDelete(exam.id)}
+                        aria-label={`${exam.exam_name}を削除`}
+                      >
+                        <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                      </button>
+                    </div>
+                  </td>
+                )}
               </tr>
             );
           })}
@@ -179,6 +186,7 @@ export function ExamScheduleList({
   onAdd,
   onEdit,
   onDelete,
+  readOnly = false,
 }: ExamScheduleListProps) {
   const filtered = useMemo(() => {
     if (academicYear == null) return exams;
@@ -223,13 +231,15 @@ export function ExamScheduleList({
               試験スケジュール
             </h2>
           </div>
-          <button
-            className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground border border-border rounded-md px-2.5 py-1.5 hover:bg-muted/50 transition-colors"
-            onClick={() => onAdd()}
-          >
-            <Plus className="w-3.5 h-3.5" />
-            追加
-          </button>
+          {!readOnly && (
+            <button
+              className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground border border-border rounded-md px-2.5 py-1.5 hover:bg-muted/50 transition-colors"
+              onClick={() => onAdd()}
+            >
+              <Plus className="w-3.5 h-3.5" />
+              追加
+            </button>
+          )}
         </div>
         <div className="px-5 pb-4">
           <ExamTable
@@ -239,6 +249,7 @@ export function ExamScheduleList({
             showPreference={false}
             showMethod={true}
             showBorder={false}
+            readOnly={readOnly}
           />
         </div>
       </div>
@@ -252,13 +263,15 @@ export function ExamScheduleList({
               入試スケジュール
             </h2>
           </div>
-          <button
-            className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground border border-border rounded-md px-2.5 py-1.5 hover:bg-muted/50 transition-colors"
-            onClick={() => onAdd()}
-          >
-            <Plus className="w-3.5 h-3.5" />
-            追加
-          </button>
+          {!readOnly && (
+            <button
+              className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground border border-border rounded-md px-2.5 py-1.5 hover:bg-muted/50 transition-colors"
+              onClick={() => onAdd()}
+            >
+              <Plus className="w-3.5 h-3.5" />
+              追加
+            </button>
+          )}
         </div>
         <div className="px-5 pb-4">
           <ExamTable
@@ -267,6 +280,7 @@ export function ExamScheduleList({
             onDelete={onDelete}
             showPreference={true}
             showMethod={true}
+            readOnly={readOnly}
             showBorder={true}
           />
         </div>

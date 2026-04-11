@@ -178,6 +178,7 @@ export default function SharedCurriculumPage() {
                 onDeletePhase={noop}
                 onUpdatePhase={noopAsync}
                 onAddExam={noop}
+                readOnly
                 t={(key: string) => tGantt(key)}
               />
               <ExamScheduleList
@@ -186,6 +187,7 @@ export default function SharedCurriculumPage() {
                 onAdd={noop}
                 onEdit={noop}
                 onDelete={noopAsync}
+                readOnly
                 t={(key: string) => tExams(key)}
               />
             </div>
@@ -203,6 +205,7 @@ export default function SharedCurriculumPage() {
                 onAdd={noop}
                 onEdit={noop}
                 onDelete={noopAsync}
+                readOnly
                 t={(key: string) => tTestScores(key)}
               />
             </div>
