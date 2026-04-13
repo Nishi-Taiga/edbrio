@@ -230,13 +230,28 @@ export function StudentListView({
               />
             </div>
             <div>
-              <Label htmlFor="add-grade">{t("gradeLabel")}</Label>
-              <Input
-                id="add-grade"
-                value={newGrade}
-                onChange={(e) => setNewGrade(e.target.value)}
-                placeholder={t("gradePlaceholder")}
-              />
+              <Label>{t("gradeLabel")}</Label>
+              <Select value={newGrade} onValueChange={setNewGrade}>
+                <SelectTrigger aria-label={t("gradeLabel")}>
+                  <SelectValue placeholder={t("gradePlaceholder")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="小学1年">小学1年</SelectItem>
+                  <SelectItem value="小学2年">小学2年</SelectItem>
+                  <SelectItem value="小学3年">小学3年</SelectItem>
+                  <SelectItem value="小学4年">小学4年</SelectItem>
+                  <SelectItem value="小学5年">小学5年</SelectItem>
+                  <SelectItem value="小学6年">小学6年</SelectItem>
+                  <SelectItem value="中学1年">中学1年</SelectItem>
+                  <SelectItem value="中学2年">中学2年</SelectItem>
+                  <SelectItem value="中学3年">中学3年</SelectItem>
+                  <SelectItem value="高校1年">高校1年</SelectItem>
+                  <SelectItem value="高校2年">高校2年</SelectItem>
+                  <SelectItem value="高校3年">高校3年</SelectItem>
+                  <SelectItem value="浪人">浪人</SelectItem>
+                  <SelectItem value="その他">その他</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label>科目</Label>
