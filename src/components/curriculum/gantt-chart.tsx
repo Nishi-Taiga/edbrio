@@ -227,7 +227,13 @@ export function GanttChart({
 
     const getTargetIdx = (clientY: number) => {
       const delta = clientY - startY;
-      const steps = Math.round(delta / rowHeight);
+      if (type === "material") {
+        // Clamp within same subject
+        const maxIdx = (grouped[subject] || []).length - 1;
+        const steps = Math.round(delta / rowHeight);
+        return Math.max(0, Math.min(maxIdx, idx + steps));
+      }
+      const steps = Math.round(delta / (SUBJECT_HEADER_HEIGHT + rowHeight * 2));
       return idx + steps;
     };
 
@@ -246,14 +252,11 @@ export function GanttChart({
       if (finalIdx === idx || !onReorderMaterials) return;
 
       if (type === "material") {
-        // Reorder materials within the same subject
+        // Reorder materials within the same subject only
         const subjectMats = [...(grouped[subject] || [])];
         const fromIdx = subjectMats.findIndex((m) => m.id === id);
         if (fromIdx < 0) return;
-        const toIdx = Math.max(
-          0,
-          Math.min(subjectMats.length - 1, fromIdx + (finalIdx - idx)),
-        );
+        const toIdx = Math.max(0, Math.min(subjectMats.length - 1, finalIdx));
         if (fromIdx === toIdx) return;
         const [moved] = subjectMats.splice(fromIdx, 1);
         subjectMats.splice(toIdx, 0, moved);
@@ -735,13 +738,13 @@ export function GanttChart({
               return (
                 <div key={`label-${idx}`} className="relative">
                   {showInsertBefore && (
-                    <div className="absolute top-0 left-2 right-2 h-0.5 bg-primary rounded-full z-10" />
+                    <div className="absolute top-0 left-2 right-2 h-0.5 bg-primary rounded-full z-10 animate-pulse" />
                   )}
                   {showInsertAfter && (
-                    <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-primary rounded-full z-10" />
+                    <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-primary rounded-full z-10 animate-pulse" />
                   )}
                   <div
-                    className={`flex items-center gap-1 px-1 border-b border-border group/subj ${isDragging ? "opacity-30 bg-muted" : ""}`}
+                    className={`flex items-center gap-1 px-1 border-b border-border group/subj transition-all duration-200 ${isDragging ? "opacity-30 bg-muted scale-[0.98]" : ""}`}
                     style={{
                       height: SUBJECT_HEADER_HEIGHT,
                       backgroundColor: sc.bg,
@@ -837,13 +840,13 @@ export function GanttChart({
             return (
               <div key={`label-${idx}`} className="relative">
                 {showMatInsertBefore && (
-                  <div className="absolute top-0 left-2 right-2 h-0.5 bg-primary rounded-full z-10" />
+                  <div className="absolute top-0 left-2 right-2 h-0.5 bg-primary rounded-full z-10 animate-pulse" />
                 )}
                 {showMatInsertAfter && (
-                  <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-primary rounded-full z-10" />
+                  <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-primary rounded-full z-10 animate-pulse" />
                 )}
                 <div
-                  className={`flex items-center justify-between px-1 border-b border-border hover:bg-muted/30 transition-colors group/row ${isDragging ? "opacity-30 bg-muted" : ""}`}
+                  className={`flex items-center justify-between px-1 border-b border-border hover:bg-muted/30 transition-all duration-200 group/row ${isDragging ? "opacity-30 bg-muted scale-[0.98]" : ""}`}
                   style={{ height: rowHeight }}
                   onMouseEnter={() => setHoveredRow(mat.id)}
                   onMouseLeave={() => setHoveredRow(null)}
@@ -1134,7 +1137,7 @@ export function GanttChart({
       {/* Drag ghost overlay */}
       {reorderDrag && (
         <div
-          className="fixed pointer-events-none z-50 rounded-lg border-2 border-primary/50 bg-card/90 shadow-lg px-3 py-1.5 text-xs font-semibold text-foreground backdrop-blur-sm"
+          className="fixed pointer-events-none z-50 rounded-lg border-2 border-primary/50 bg-card/90 shadow-xl px-3 py-1.5 text-xs font-semibold text-foreground backdrop-blur-sm animate-in fade-in duration-150"
           style={{
             left: 16,
             top: reorderDrag.mouseY - 16,
