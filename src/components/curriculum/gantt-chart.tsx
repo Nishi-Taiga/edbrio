@@ -125,6 +125,22 @@ function getAcademicYearEnd(year: number): Date {
 }
 
 /** Convert a date to a pixel position within the chart timeline area */
+/** Get "M月 第N週" label for a date */
+function getWeekLabel(date: Date): string {
+  const month = date.getMonth() + 1;
+  // Find which week of the month (based on Mondays)
+  const firstOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  const firstMonday = new Date(firstOfMonth);
+  const day = firstOfMonth.getDay();
+  firstMonday.setDate(
+    firstOfMonth.getDate() + (day === 0 ? 1 : day === 1 ? 0 : 8 - day),
+  );
+  if (date < firstMonday) return `${month}月 第1週`;
+  const weekNum =
+    Math.floor((date.getTime() - firstMonday.getTime()) / (7 * 86400000)) + 1;
+  return `${month}月 第${weekNum}週`;
+}
+
 function dateToX(
   date: Date,
   academicYearStart: Date,
@@ -166,6 +182,13 @@ export function GanttChart({
   const timelineRef = useRef<HTMLDivElement>(null);
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [containerWidth, setContainerWidth] = useState(960);
+
+  // Hover tooltip state for timeline
+  const [hoverInfo, setHoverInfo] = useState<{
+    x: number;
+    y: number;
+    label: string;
+  } | null>(null);
 
   // Drag reorder state for materials and subjects
   const [reorderDrag, setReorderDrag] = useState<{
@@ -878,6 +901,31 @@ export function GanttChart({
           tabIndex={0}
           role="region"
           aria-label="カリキュラムタイムライン"
+          onMouseMove={
+            readOnly
+              ? undefined
+              : (e) => {
+                  const rect = (
+                    timelineRef.current ?? e.currentTarget
+                  ).getBoundingClientRect();
+                  const clickX =
+                    e.clientX -
+                    rect.left +
+                    (timelineRef.current?.scrollLeft ?? 0);
+                  const dateStr = xToDate(clickX);
+                  const d = new Date(dateStr);
+                  if (isNaN(d.getTime())) {
+                    setHoverInfo(null);
+                    return;
+                  }
+                  setHoverInfo({
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top,
+                    label: getWeekLabel(d),
+                  });
+                }
+          }
+          onMouseLeave={() => setHoverInfo(null)}
         >
           <div
             style={{
@@ -1046,6 +1094,19 @@ export function GanttChart({
               />
             )}
           </div>
+
+          {/* Hover tooltip */}
+          {hoverInfo && !readOnly && (
+            <div
+              className="absolute pointer-events-none z-30 rounded bg-foreground text-background text-[10px] font-semibold px-2 py-1 shadow whitespace-nowrap"
+              style={{
+                left: hoverInfo.x + 12,
+                top: hoverInfo.y - 8,
+              }}
+            >
+              {hoverInfo.label}
+            </div>
+          )}
         </div>
       </div>
 
