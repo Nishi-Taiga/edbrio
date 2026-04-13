@@ -38,6 +38,11 @@ interface StudentListViewProps {
       "id" | "teacher_id" | "created_at" | "updated_at"
     >,
   ) => Promise<void>;
+  updateProfile?: (
+    id: string,
+    updates: Partial<StudentProfile>,
+  ) => Promise<void>;
+  deleteProfile?: (id: string) => Promise<void>;
   basePath?: string;
 }
 
@@ -46,6 +51,8 @@ export function StudentListView({
   loading,
   error,
   createProfile,
+  updateProfile,
+  deleteProfile,
   basePath = "/teacher/curriculum",
 }: StudentListViewProps) {
   const t = useTranslations("teacherStudents");
@@ -59,6 +66,19 @@ export function StudentListView({
   const [newSubjects, setNewSubjects] = useState<string[]>([]);
   const [newSubjectInput, setNewSubjectInput] = useState("");
   const [saving, setSaving] = useState(false);
+
+  // Edit state
+  const [editingProfile, setEditingProfile] = useState<StudentProfile | null>(
+    null,
+  );
+  const [editName, setEditName] = useState("");
+  const [editSaving, setEditSaving] = useState(false);
+
+  // Delete confirmation state
+  const [deletingProfile, setDeletingProfile] = useState<StudentProfile | null>(
+    null,
+  );
+  const [deleteSaving, setDeleteSaving] = useState(false);
 
   const grades = useMemo(() => {
     const set = new Set(
@@ -206,7 +226,26 @@ export function StudentListView({
             </thead>
             <tbody>
               {filtered.map((p) => (
-                <StudentCard key={p.id} profile={p} basePath={basePath} />
+                <StudentCard
+                  key={p.id}
+                  profile={p}
+                  basePath={basePath}
+                  onEdit={
+                    updateProfile
+                      ? (profile) => {
+                          setEditingProfile(profile);
+                          setEditName(profile.name);
+                        }
+                      : undefined
+                  }
+                  onDelete={
+                    deleteProfile
+                      ? (profile) => {
+                          setDeletingProfile(profile);
+                        }
+                      : undefined
+                  }
+                />
               ))}
             </tbody>
           </table>
@@ -328,6 +367,102 @@ export function StudentListView({
               disabled={!newName.trim()}
             >
               {tc("add")}
+            </LoadingButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Student Name Dialog */}
+      <Dialog
+        open={!!editingProfile}
+        onOpenChange={(v) => !v && setEditingProfile(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>生徒名を編集</DialogTitle>
+          </DialogHeader>
+          <div>
+            <Label htmlFor="edit-name">名前</Label>
+            <Input
+              id="edit-name"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setEditingProfile(null)}
+              disabled={editSaving}
+            >
+              {tc("cancel")}
+            </Button>
+            <LoadingButton
+              loading={editSaving}
+              disabled={!editName.trim()}
+              onClick={async () => {
+                if (!editingProfile || !updateProfile) return;
+                setEditSaving(true);
+                try {
+                  await updateProfile(editingProfile.id, {
+                    name: editName.trim(),
+                  });
+                  setEditingProfile(null);
+                  toast.success("生徒名を更新しました");
+                } catch {
+                  toast.error("更新に失敗しました");
+                } finally {
+                  setEditSaving(false);
+                }
+              }}
+            >
+              {tc("save")}
+            </LoadingButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={!!deletingProfile}
+        onOpenChange={(v) => !v && setDeletingProfile(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>生徒を削除</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">
+              {deletingProfile?.name}
+            </span>
+            のカリキュラムデータをすべて削除します。この操作は取り消せません。
+          </p>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeletingProfile(null)}
+              disabled={deleteSaving}
+            >
+              {tc("cancel")}
+            </Button>
+            <LoadingButton
+              variant="destructive"
+              loading={deleteSaving}
+              onClick={async () => {
+                if (!deletingProfile || !deleteProfile) return;
+                setDeleteSaving(true);
+                try {
+                  await deleteProfile(deletingProfile.id);
+                  setDeletingProfile(null);
+                  toast.success("生徒を削除しました");
+                } catch {
+                  toast.error("削除に失敗しました");
+                } finally {
+                  setDeleteSaving(false);
+                }
+              }}
+            >
+              削除する
             </LoadingButton>
           </DialogFooter>
         </DialogContent>

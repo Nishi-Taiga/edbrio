@@ -2,18 +2,22 @@
 
 import { useRouter } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Pencil, Trash2 } from "lucide-react";
 import { StudentProfile } from "@/lib/types/database";
 import { useTranslations } from "next-intl";
 
 interface StudentCardProps {
   profile: StudentProfile;
   basePath?: string;
+  onEdit?: (profile: StudentProfile) => void;
+  onDelete?: (profile: StudentProfile) => void;
 }
 
 export function StudentCard({
   profile,
   basePath = "/teacher/curriculum",
+  onEdit,
+  onDelete,
 }: StudentCardProps) {
   const t = useTranslations("curriculum");
   const router = useRouter();
@@ -43,7 +47,33 @@ export function StudentCard({
         </Badge>
       </td>
       <td className="py-3 px-2">
-        <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          {onEdit && (
+            <button
+              className="p-1 rounded hover:bg-muted"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(profile);
+              }}
+              aria-label={`${profile.name}を編集`}
+            >
+              <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+            </button>
+          )}
+          {onDelete && (
+            <button
+              className="p-1 rounded hover:bg-muted"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(profile);
+              }}
+              aria-label={`${profile.name}を削除`}
+            >
+              <Trash2 className="w-3.5 h-3.5 text-destructive" />
+            </button>
+          )}
+          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+        </div>
       </td>
     </tr>
   );

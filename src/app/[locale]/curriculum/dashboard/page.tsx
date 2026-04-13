@@ -6,9 +6,14 @@ import { StudentListView } from "@/components/curriculum/student-list-view";
 
 export default function CurriculumDashboardPage() {
   const { user } = useAuth();
-  const { profiles, loading, error, createProfile } = useStudentProfiles(
-    user?.id,
-  );
+  const {
+    profiles,
+    loading,
+    error,
+    createProfile,
+    updateProfile,
+    deleteProfile,
+  } = useStudentProfiles(user?.id);
 
   return (
     <StudentListView
@@ -16,6 +21,8 @@ export default function CurriculumDashboardPage() {
       loading={loading}
       error={error}
       createProfile={createProfile}
+      updateProfile={updateProfile}
+      deleteProfile={deleteProfile}
       basePath="/curriculum"
     />
   );
