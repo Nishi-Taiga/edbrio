@@ -36,19 +36,20 @@ export function StudentInfoBar({
   const today = new Date();
   const avatarColor = AVATAR_COLORS[colorIndex % AVATAR_COLORS.length];
 
-  // Days until first-choice exam (preference_order=1), fallback to nearest future exam
-  const futureExams = exams.filter((e) => new Date(e.exam_date) >= today);
-  const firstChoice = futureExams.find((e) => e.preference_order === 1);
-  const nextExam =
-    firstChoice ||
-    futureExams.sort(
+  const futureExams = exams
+    .filter((e) => new Date(e.exam_date) >= today)
+    .sort(
       (a, b) =>
         new Date(a.exam_date).getTime() - new Date(b.exam_date).getTime(),
-    )[0];
-  const daysUntilExam = nextExam
+    );
+  const nextExam = futureExams[0] ?? null;
+  const daysUntilNext = nextExam
     ? differenceInDays(new Date(nextExam.exam_date), today)
     : null;
-  const examLabel = firstChoice ? "第一志望まで" : "試験まで";
+  const firstChoice = futureExams.find((e) => e.preference_order === 1);
+  const daysUntilFirst = firstChoice
+    ? differenceInDays(new Date(firstChoice.exam_date), today)
+    : null;
 
   const nameInitial = profile.name[0] || "?";
   const metaParts: string[] = [];
@@ -82,31 +83,44 @@ export function StudentInfoBar({
 
       {/* Right: Stats */}
       <div className="flex flex-wrap items-center gap-2 sm:gap-4 sm:ml-auto">
-        {nextExam && daysUntilExam !== null && (
-          <>
-            <div className="flex flex-col items-center bg-[#362358] rounded-[10px] px-3 sm:px-5 py-2 sm:py-2.5 min-w-[80px]">
-              <span className="text-[#E8D5F5] text-[10px] font-medium tracking-wider">
-                次の試験
-              </span>
-              <span className="text-white text-sm font-bold leading-tight mt-0.5">
-                {nextExam.exam_name}
-              </span>
-              <span className="text-[#E8D5F5] text-[10px] mt-0.5">
-                ({format(new Date(nextExam.exam_date), "M/d")})
-              </span>
-            </div>
-            <div className="flex flex-col items-center bg-[#362358] rounded-[10px] px-3 sm:px-5 py-2 sm:py-2.5 min-w-[56px] sm:min-w-[70px]">
-              <span className="text-[#E8D5F5] text-[10px] font-medium tracking-wider">
-                {examLabel}
-              </span>
-              <span className="text-[#F59E0B] text-[22px] font-extrabold leading-tight">
-                {daysUntilExam}日
-              </span>
-              <span className="text-[#E8D5F5] text-[10px] mt-0.5">
-                ({Math.floor(daysUntilExam / 7)}週)
-              </span>
-            </div>
-          </>
+        {nextExam && daysUntilNext !== null && (
+          <div className="flex flex-col items-center bg-[#362358] rounded-[10px] px-3 sm:px-5 py-2 sm:py-2.5 min-w-[80px]">
+            <span className="text-[#E8D5F5] text-[10px] font-medium tracking-wider">
+              次の試験
+            </span>
+            <span className="text-white text-sm font-bold leading-tight mt-0.5">
+              {nextExam.exam_name}
+            </span>
+            <span className="text-[#E8D5F5] text-[10px] mt-0.5">
+              ({format(new Date(nextExam.exam_date), "M/d")})
+            </span>
+          </div>
+        )}
+        {firstChoice && daysUntilFirst !== null && (
+          <div className="flex flex-col items-center bg-[#362358] rounded-[10px] px-3 sm:px-5 py-2 sm:py-2.5 min-w-[56px] sm:min-w-[70px]">
+            <span className="text-[#E8D5F5] text-[10px] font-medium tracking-wider">
+              第一志望まで
+            </span>
+            <span className="text-[#F59E0B] text-[22px] font-extrabold leading-tight">
+              {daysUntilFirst}日
+            </span>
+            <span className="text-[#E8D5F5] text-[10px] mt-0.5">
+              ({Math.floor(daysUntilFirst / 7)}週)
+            </span>
+          </div>
+        )}
+        {!firstChoice && nextExam && daysUntilNext !== null && (
+          <div className="flex flex-col items-center bg-[#362358] rounded-[10px] px-3 sm:px-5 py-2 sm:py-2.5 min-w-[56px] sm:min-w-[70px]">
+            <span className="text-[#E8D5F5] text-[10px] font-medium tracking-wider">
+              試験まで
+            </span>
+            <span className="text-[#F59E0B] text-[22px] font-extrabold leading-tight">
+              {daysUntilNext}日
+            </span>
+            <span className="text-[#E8D5F5] text-[10px] mt-0.5">
+              ({Math.floor(daysUntilNext / 7)}週)
+            </span>
+          </div>
         )}
       </div>
     </div>

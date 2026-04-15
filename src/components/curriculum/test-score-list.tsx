@@ -1,9 +1,17 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, ClipboardList } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Pencil,
+  ClipboardList,
+  ChevronDown,
+  ChevronRight,
+} from "lucide-react";
 import { TestScore } from "@/lib/types/database";
 import { format } from "date-fns";
 
@@ -24,6 +32,16 @@ const testTypeLabel: Record<string, string> = {
   other: "その他",
 };
 
+interface TestGroup {
+  key: string;
+  test_name: string;
+  test_type: string;
+  test_date: string;
+  scores: TestScore[];
+  totalScore: number;
+  totalMax: number;
+}
+
 export function TestScoreList({
   scores,
   onAdd,
@@ -32,9 +50,34 @@ export function TestScoreList({
   readOnly = false,
   t,
 }: TestScoreListProps) {
-  const sorted = [...scores].sort(
-    (a, b) => new Date(b.test_date).getTime() - new Date(a.test_date).getTime(),
-  );
+  const [expandedKey, setExpandedKey] = useState<string | null>(null);
+
+  // Group scores by test_name + test_date
+  const groups = useMemo(() => {
+    const map = new Map<string, TestGroup>();
+    for (const s of scores) {
+      const key = `${s.test_name}__${s.test_date}`;
+      if (!map.has(key)) {
+        map.set(key, {
+          key,
+          test_name: s.test_name,
+          test_type: s.test_type,
+          test_date: s.test_date,
+          scores: [],
+          totalScore: 0,
+          totalMax: 0,
+        });
+      }
+      const g = map.get(key)!;
+      g.scores.push(s);
+      g.totalScore += s.score;
+      g.totalMax += s.max_score;
+    }
+    return Array.from(map.values()).sort(
+      (a, b) =>
+        new Date(b.test_date).getTime() - new Date(a.test_date).getTime(),
+    );
+  }, [scores]);
 
   return (
     <Card>
@@ -53,21 +96,19 @@ export function TestScoreList({
         </div>
       </CardHeader>
       <CardContent>
-        {sorted.length === 0 ? (
+        {groups.length === 0 ? (
           <p className="text-muted-foreground text-sm">{t("testEmpty")}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b">
+                  <th className="w-8 py-2 px-1"></th>
                   <th className="text-left py-2 px-2 font-medium text-muted-foreground">
                     {t("testDate")}
                   </th>
                   <th className="text-left py-2 px-2 font-medium text-muted-foreground">
                     {t("testName")}
-                  </th>
-                  <th className="text-left py-2 px-2 font-medium text-muted-foreground">
-                    {t("testSubject")}
                   </th>
                   <th className="text-left py-2 px-2 font-medium text-muted-foreground">
                     {t("testType")}
@@ -76,73 +117,25 @@ export function TestScoreList({
                     {t("testScore")}
                   </th>
                   <th className="text-right py-2 px-2 font-medium text-muted-foreground">
-                    {t("testPercentile")}
+                    科目数
                   </th>
-                  {!readOnly && <th className="py-2 px-2"></th>}
                 </tr>
               </thead>
               <tbody>
-                {sorted.map((score) => {
-                  const pct = (score.score / score.max_score) * 100;
+                {groups.map((group) => {
+                  const isExpanded = expandedKey === group.key;
                   return (
-                    <tr
-                      key={score.id}
-                      className="border-b hover:bg-muted/30 transition-colors"
-                    >
-                      <td className="py-2 px-2 whitespace-nowrap">
-                        {format(new Date(score.test_date), "M/d")}
-                      </td>
-                      <td className="py-2 px-2 font-medium">
-                        {score.test_name}
-                      </td>
-                      <td className="py-2 px-2">{score.subject}</td>
-                      <td className="py-2 px-2">
-                        <Badge variant="outline">
-                          {testTypeLabel[score.test_type] || score.test_type}
-                        </Badge>
-                      </td>
-                      <td className="py-2 px-2 text-right font-mono">
-                        <span
-                          className={
-                            pct >= 80
-                              ? "text-green-600"
-                              : pct >= 60
-                                ? "text-foreground"
-                                : "text-red-600"
-                          }
-                        >
-                          {score.score}
-                        </span>
-                        <span className="text-muted-foreground">
-                          /{score.max_score}
-                        </span>
-                      </td>
-                      <td className="py-2 px-2 text-right font-mono text-muted-foreground">
-                        {score.percentile ? score.percentile.toFixed(1) : "—"}
-                      </td>
-                      {!readOnly && (
-                        <td className="py-2 px-2">
-                          <div className="flex gap-1 justify-end">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
-                              onClick={() => onEdit(score)}
-                            >
-                              <Pencil className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-destructive"
-                              onClick={() => onDelete(score.id)}
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
-                        </td>
-                      )}
-                    </tr>
+                    <GroupRow
+                      key={group.key}
+                      group={group}
+                      isExpanded={isExpanded}
+                      onToggle={() =>
+                        setExpandedKey(isExpanded ? null : group.key)
+                      }
+                      onEdit={onEdit}
+                      onDelete={onDelete}
+                      readOnly={readOnly}
+                    />
                   );
                 })}
               </tbody>
@@ -151,5 +144,110 @@ export function TestScoreList({
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function GroupRow({
+  group,
+  isExpanded,
+  onToggle,
+  onEdit,
+  onDelete,
+  readOnly,
+}: {
+  group: TestGroup;
+  isExpanded: boolean;
+  onToggle: () => void;
+  onEdit: (score: TestScore) => void;
+  onDelete: (id: string) => Promise<void>;
+  readOnly: boolean;
+}) {
+  return (
+    <>
+      {/* Summary row */}
+      <tr
+        className="border-b hover:bg-muted/30 transition-colors cursor-pointer"
+        onClick={onToggle}
+      >
+        <td className="py-2.5 px-1 text-center">
+          {isExpanded ? (
+            <ChevronDown className="w-4 h-4 text-muted-foreground inline" />
+          ) : (
+            <ChevronRight className="w-4 h-4 text-muted-foreground inline" />
+          )}
+        </td>
+        <td className="py-2.5 px-2 whitespace-nowrap">
+          {format(new Date(group.test_date), "M/d")}
+        </td>
+        <td className="py-2.5 px-2 font-semibold">{group.test_name}</td>
+        <td className="py-2.5 px-2">
+          <Badge variant="outline">
+            {testTypeLabel[group.test_type] || group.test_type}
+          </Badge>
+        </td>
+        <td className="py-2.5 px-2 text-right font-mono">
+          {group.totalScore}
+          <span className="text-muted-foreground">/{group.totalMax}</span>
+        </td>
+        <td className="py-2.5 px-2 text-right text-muted-foreground">
+          {group.scores.length}科目
+        </td>
+      </tr>
+
+      {/* Expanded detail rows */}
+      {isExpanded &&
+        group.scores
+          .sort((a, b) => a.subject.localeCompare(b.subject))
+          .map((score) => (
+            <tr
+              key={score.id}
+              className="border-b bg-muted/10 hover:bg-muted/20 transition-colors"
+            >
+              <td className="py-1.5 px-1"></td>
+              <td className="py-1.5 px-2"></td>
+              <td className="py-1.5 px-2 text-muted-foreground text-xs pl-6">
+                {score.subject}
+              </td>
+              <td className="py-1.5 px-2"></td>
+              <td className="py-1.5 px-2 text-right font-mono text-xs">
+                {score.score}
+                <span className="text-muted-foreground">
+                  /{score.max_score}
+                </span>
+              </td>
+              <td className="py-1.5 px-2 text-right font-mono text-xs text-muted-foreground">
+                {score.percentile ? `偏${score.percentile.toFixed(1)}` : ""}
+              </td>
+              {!readOnly && (
+                <td className="py-1.5 px-2">
+                  <div className="flex gap-1 justify-end">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit(score);
+                      }}
+                    >
+                      <Pencil className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 text-destructive"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(score.id);
+                      }}
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </td>
+              )}
+            </tr>
+          ))}
+    </>
   );
 }

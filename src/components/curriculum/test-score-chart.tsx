@@ -143,7 +143,10 @@ export function TestScoreChart({
       if (effectiveViewMode === "deviation" && score.percentile != null) {
         entry[score.subject] = score.percentile;
       } else {
-        entry[score.subject] = score.score;
+        // Convert to percentage (得点率)
+        entry[score.subject] = Math.round(
+          (score.score / score.max_score) * 100,
+        );
       }
       entry[`_id_${score.subject}`] = score.id;
     });
@@ -165,7 +168,7 @@ export function TestScoreChart({
 
   if (scores.length === 0) return null;
 
-  const yLabel = effectiveViewMode === "deviation" ? "偏差値" : "得点";
+  const yLabel = effectiveViewMode === "deviation" ? "偏差値" : "得点率(%)";
   const yDomain: [number, number] =
     effectiveViewMode === "deviation" ? [30, 80] : [0, 100];
 
@@ -251,7 +254,7 @@ export function TestScoreChart({
               formatter={(value: any) =>
                 effectiveViewMode === "deviation"
                   ? `${Number(value).toFixed(1)}`
-                  : `${Number(value).toFixed(0)}点`
+                  : `${Number(value).toFixed(0)}%`
               }
             />
             <Legend />
