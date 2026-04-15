@@ -373,6 +373,7 @@ export interface PhaseTask {
   phase_id: string;
   task_name: string;
   is_completed: boolean;
+  completed_at?: string;
   order_index: number;
   created_at: string;
 }

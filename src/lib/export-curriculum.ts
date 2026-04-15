@@ -22,21 +22,35 @@ export async function exportCurriculumPDF(
       useCORS: true,
       logging: false,
       backgroundColor: "#ffffff",
-      ignoreElements: (el) => {
-        // Skip elements with oklch colors that html2canvas can't parse
-        const style = window.getComputedStyle(el);
-        return style.display === "none";
-      },
       onclone: (doc) => {
-        // Replace oklch colors with fallback hex in cloned document
+        const view = doc.defaultView || window;
         const all = doc.querySelectorAll("*");
         all.forEach((el) => {
-          const cs = window.getComputedStyle(el);
-          const style = (el as HTMLElement).style;
-          if (cs.color?.includes("oklch")) style.color = "#000000";
-          if (cs.backgroundColor?.includes("oklch"))
-            style.backgroundColor = "transparent";
-          if (cs.borderColor?.includes("oklch")) style.borderColor = "#e5e7eb";
+          const htmlEl = el as HTMLElement;
+          try {
+            const cs = view.getComputedStyle(el);
+            // Fix oklch colors that html2canvas can't parse
+            if (cs.color?.includes("oklch")) htmlEl.style.color = "#000000";
+            if (cs.backgroundColor?.includes("oklch"))
+              htmlEl.style.backgroundColor = "transparent";
+            if (cs.borderColor?.includes("oklch"))
+              htmlEl.style.borderColor = "#e5e7eb";
+            // Fix CSS custom properties (var(--...)) that may not resolve
+            if (cs.color?.includes("var(")) htmlEl.style.color = "#000000";
+            if (cs.backgroundColor?.includes("var("))
+              htmlEl.style.backgroundColor = "transparent";
+            if (cs.borderColor?.includes("var("))
+              htmlEl.style.borderColor = "#e5e7eb";
+          } catch {
+            // getComputedStyle may fail on some elements
+          }
+        });
+        // Ensure scrollable areas are fully visible
+        const scrollables = doc.querySelectorAll(
+          "[style*='overflow'],.overflow-x-auto,.overflow-y-auto,.overflow-hidden",
+        );
+        scrollables.forEach((el) => {
+          (el as HTMLElement).style.overflow = "visible";
         });
       },
     });

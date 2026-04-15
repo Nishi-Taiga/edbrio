@@ -102,6 +102,9 @@ export function StudentInfoBar({
               <span className="text-[#F59E0B] text-[22px] font-extrabold leading-tight">
                 {daysUntilExam}日
               </span>
+              <span className="text-[#E8D5F5] text-[10px] mt-0.5">
+                ({Math.floor(daysUntilExam / 7)}週)
+              </span>
             </div>
           </>
         )}

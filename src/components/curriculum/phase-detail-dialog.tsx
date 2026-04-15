@@ -208,6 +208,14 @@ export function PhaseDetailDialog({
                     }`}
                   >
                     {task.task_name}
+                    {task.is_completed && task.completed_at && (
+                      <span className="ml-2 text-[10px] text-muted-foreground/60 no-underline">
+                        {new Date(task.completed_at).toLocaleDateString(
+                          "ja-JP",
+                          { month: "short", day: "numeric" },
+                        )}
+                      </span>
+                    )}
                   </span>
                   {togglingId === task.id && (
                     <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
