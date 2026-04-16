@@ -23,7 +23,7 @@ export default function CurriculumLayout({
   return (
     <ProtectedRoute allowedRoles={["school"]} redirectTo="/curriculum/login">
       <CurriculumHeader />
-      <main className="flex-1 overflow-auto">{children}</main>
+      <main className="flex-1">{children}</main>
     </ProtectedRoute>
   );
 }

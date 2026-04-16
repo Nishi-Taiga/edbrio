@@ -128,7 +128,7 @@ function getAcademicYearEnd(year: number): Date {
 
 /** Convert a date to a pixel position within the chart timeline area */
 /** Get "M月 第N週" label for a date */
-function getWeekLabel(date: Date): string {
+export function getWeekLabel(date: Date): string {
   const month = date.getMonth() + 1;
   // Find which week of the month (based on Mondays)
   const firstOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);

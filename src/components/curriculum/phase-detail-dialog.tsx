@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Check, Plus, Trash2, Pencil, Loader2 } from "lucide-react";
 import type { CurriculumPhase, PhaseTask } from "@/lib/types/database";
-import { format } from "date-fns";
+import { getWeekLabel } from "@/components/curriculum/gantt-chart";
 
 interface PhaseDetailDialogProps {
   open: boolean;
@@ -163,8 +163,8 @@ export function PhaseDetailDialog({
           <p className="text-xs text-muted-foreground">{materialName}</p>
           {phase.start_date && phase.end_date && (
             <p className="text-xs text-muted-foreground">
-              {format(new Date(phase.start_date), "M/d")} 〜{" "}
-              {format(new Date(phase.end_date), "M/d")}
+              {getWeekLabel(new Date(phase.start_date))} 〜{" "}
+              {getWeekLabel(new Date(phase.end_date))}
             </p>
           )}
         </DialogHeader>
