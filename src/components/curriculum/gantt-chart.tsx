@@ -1076,14 +1076,10 @@ export function GanttChart({
                         const previewEndDate = xToDate(
                           createPreview.left + createPreview.width,
                         );
-                        const startLabel = format(
+                        const startLabel = getWeekLabel(
                           new Date(previewStartDate),
-                          "M/d",
                         );
-                        const endLabel = format(
-                          new Date(previewEndDate),
-                          "M/d",
-                        );
+                        const endLabel = getWeekLabel(new Date(previewEndDate));
                         return (
                           <div
                             className="absolute rounded opacity-40 pointer-events-none"

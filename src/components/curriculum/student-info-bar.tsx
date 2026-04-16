@@ -102,10 +102,10 @@ export function StudentInfoBar({
               第一志望まで
             </span>
             <span className="text-[#F59E0B] text-[22px] font-extrabold leading-tight">
-              {daysUntilFirst}日
+              {Math.floor(daysUntilFirst / 7)}週
             </span>
             <span className="text-[#E8D5F5] text-[10px] mt-0.5">
-              ({Math.floor(daysUntilFirst / 7)}週)
+              ({daysUntilFirst}日)
             </span>
           </div>
         )}
@@ -115,10 +115,10 @@ export function StudentInfoBar({
               試験まで
             </span>
             <span className="text-[#F59E0B] text-[22px] font-extrabold leading-tight">
-              {daysUntilNext}日
+              {Math.floor(daysUntilNext / 7)}週
             </span>
             <span className="text-[#E8D5F5] text-[10px] mt-0.5">
-              ({Math.floor(daysUntilNext / 7)}週)
+              ({daysUntilNext}日)
             </span>
           </div>
         )}

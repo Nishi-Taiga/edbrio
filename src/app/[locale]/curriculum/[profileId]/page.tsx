@@ -755,6 +755,8 @@ export default function StudentCurriculumPage() {
               onUpdateTask={updateTask}
               onDeleteTask={deleteTask}
               onUpdatePhase={updatePhase}
+              onEditPhase={handleEditPhase}
+              onDeletePhase={deletePhase}
             />
             <ExamScheduleForm
               open={showExamForm}
