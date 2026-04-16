@@ -264,9 +264,50 @@ export default function StudentCurriculumPage() {
   const [newSubjectName, setNewSubjectName] = useState("");
   const [savingSubject, setSavingSubject] = useState(false);
 
+  // Subject edit dialog
+  const [editingSubjectName, setEditingSubjectName] = useState<string | null>(
+    null,
+  );
+  const [editSubjectNewName, setEditSubjectNewName] = useState("");
+  const [editSubjectColor, setEditSubjectColor] = useState("");
+  const [savingSubjectEdit, setSavingSubjectEdit] = useState(false);
+
   const handleAddSubject = () => {
     setNewSubjectName("");
     setShowSubjectForm(true);
+  };
+  const handleEditSubject = (subject: string) => {
+    setEditingSubjectName(subject);
+    setEditSubjectNewName(subject);
+    // Find existing color from subject_colors
+    const existingColor = profile?.subject_colors?.[subject] || "";
+    setEditSubjectColor(existingColor);
+  };
+  const handleSubmitSubjectEdit = async () => {
+    if (!editingSubjectName || !editSubjectNewName.trim()) return;
+    setSavingSubjectEdit(true);
+    try {
+      const oldName = editingSubjectName;
+      const newName = editSubjectNewName.trim();
+      // Update all materials with this subject
+      const mats = materials.filter((m) => m.subject === oldName);
+      for (const m of mats) {
+        await updateMaterial(m.id, { subject: newName });
+      }
+      // Save color to profile subject_colors
+      if (editSubjectColor && profile) {
+        const colors = { ...(profile.subject_colors || {}) };
+        if (oldName !== newName) delete colors[oldName];
+        if (editSubjectColor) colors[newName] = editSubjectColor;
+        await handleUpdateProfile(profile.id, { subject_colors: colors });
+      }
+      setEditingSubjectName(null);
+      toast.success("科目を更新しました");
+    } catch {
+      toast.error("更新に失敗しました");
+    } finally {
+      setSavingSubjectEdit(false);
+    }
   };
   const handleSubmitSubject = async () => {
     if (!newSubjectName.trim()) return;
@@ -605,6 +646,12 @@ export default function StudentCurriculumPage() {
                       exams={exams}
                       curriculumYear={selectedYear || profile.curriculum_year}
                       onAddSubject={handleAddSubject}
+                      onEditSubject={handleEditSubject}
+                      subjectColors={
+                        profile?.subject_colors as
+                          | Record<string, string>
+                          | undefined
+                      }
                       onDeleteSubject={async (_subject, materialIds) => {
                         for (const id of materialIds) await deleteMaterial(id);
                       }}
@@ -757,6 +804,60 @@ export default function StudentCurriculumPage() {
               }
               t={(key: string) => tTestScores(key)}
             />
+            {/* Subject Edit Dialog */}
+            <Dialog
+              open={!!editingSubjectName}
+              onOpenChange={(v) => {
+                if (!v) setEditingSubjectName(null);
+              }}
+            >
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>科目を編集</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="edit-subject-name">科目名</Label>
+                    <Input
+                      id="edit-subject-name"
+                      value={editSubjectNewName}
+                      onChange={(e) => setEditSubjectNewName(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>科目カラー</Label>
+                    <div className="flex items-center gap-2 mt-1">
+                      <input
+                        type="color"
+                        value={editSubjectColor || "#2563EB"}
+                        onChange={(e) => setEditSubjectColor(e.target.value)}
+                        className="w-8 h-8 rounded border border-border cursor-pointer"
+                      />
+                      <span className="text-xs text-muted-foreground">
+                        {editSubjectColor || "デフォルト"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setEditingSubjectName(null)}
+                    disabled={savingSubjectEdit}
+                  >
+                    {tc("cancel")}
+                  </Button>
+                  <LoadingButton
+                    onClick={handleSubmitSubjectEdit}
+                    loading={savingSubjectEdit}
+                    disabled={!editSubjectNewName.trim()}
+                  >
+                    {tc("save")}
+                  </LoadingButton>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
             {/* Subject Add Dialog */}
             <Dialog
               open={showSubjectForm}

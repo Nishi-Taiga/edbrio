@@ -83,6 +83,7 @@ interface GanttChartProps {
   curriculumYear?: string;
   onAddSubject: () => void;
   onDeleteSubject?: (subject: string, materialIds: string[]) => void;
+  onEditSubject?: (subject: string) => void;
   onAddMaterialToSubject: (subject: string) => void;
   onEditMaterial: (material: CurriculumMaterial) => void;
   onDeleteMaterial: (id: string) => void;
@@ -103,6 +104,7 @@ interface GanttChartProps {
   onAddExam: (date?: string) => void;
   onPhaseClick?: (phase: CurriculumPhase, materialName: string) => void;
   readOnly?: boolean;
+  subjectColors?: Record<string, string>;
   t: (key: string) => string;
 }
 
@@ -164,6 +166,7 @@ export function GanttChart({
   curriculumYear,
   onAddSubject,
   onDeleteSubject,
+  onEditSubject,
   onAddMaterialToSubject,
   onEditMaterial,
   onDeleteMaterial,
@@ -176,6 +179,7 @@ export function GanttChart({
   onAddExam,
   onPhaseClick,
   readOnly = false,
+  subjectColors,
   t,
 }: GanttChartProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -309,7 +313,17 @@ export function GanttChart({
     return () => obs.disconnect();
   }, []);
 
-  const getSubjectStyle = (subject: string) => getSubjectColor(subject, isDark);
+  const getSubjectStyle = (subject: string) => {
+    const customColor = subjectColors?.[subject];
+    if (customColor) {
+      // Generate a light bg from the custom color
+      return {
+        color: customColor,
+        bg: isDark ? customColor + "18" : customColor + "12",
+      };
+    }
+    return getSubjectColor(subject, isDark);
+  };
 
   const year = getAcademicYear(curriculumYear);
   const academicYearStart = useMemo(() => new Date(year, 3, 1), [year]); // April 1
@@ -772,8 +786,16 @@ export function GanttChart({
                       </div>
                     )}
                     <span
-                      className="text-xs font-bold"
+                      className={`text-xs font-bold ${!readOnly && onEditSubject ? "cursor-pointer hover:underline" : ""}`}
                       style={{ color: sc.color }}
+                      onClick={
+                        !readOnly && onEditSubject
+                          ? (e) => {
+                              e.stopPropagation();
+                              onEditSubject(row.subject);
+                            }
+                          : undefined
+                      }
                     >
                       {row.subject}
                     </span>
