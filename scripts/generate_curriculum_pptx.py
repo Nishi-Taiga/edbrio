@@ -731,7 +731,8 @@ add_textbox(slide, Inches(1), Inches(6.2), Inches(11), Inches(0.6),
 
 
 # ── Save ──
-output_path = "/home/user/edbrio/curriculum_presentation.pptx"
+import os
+output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "curriculum_presentation.pptx")
 prs.save(output_path)
 print(f"Presentation saved to: {output_path}")
 print(f"Total slides: {len(prs.slides)}")
