@@ -1,9 +1,17 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Pencil, ClipboardList } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Pencil,
+  ClipboardList,
+  ChevronDown,
+  ChevronRight,
+} from "lucide-react";
 import { TestScore } from "@/lib/types/database";
 import { format } from "date-fns";
 
@@ -24,6 +32,21 @@ const testTypeLabel: Record<string, string> = {
   other: "その他",
 };
 
+interface ScoreGroup {
+  name: string;
+  testType: string;
+  latestDate: string;
+  items: TestScore[];
+  totalScore: number;
+  totalMax: number;
+}
+
+function scoreColor(pct: number) {
+  if (pct >= 80) return "text-green-600";
+  if (pct >= 60) return "text-foreground";
+  return "text-red-600";
+}
+
 export function TestScoreList({
   scores,
   onAdd,
@@ -32,9 +55,47 @@ export function TestScoreList({
   readOnly = false,
   t,
 }: TestScoreListProps) {
-  const sorted = [...scores].sort(
-    (a, b) => new Date(b.test_date).getTime() - new Date(a.test_date).getTime(),
-  );
+  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
+
+  const groups = useMemo<ScoreGroup[]>(() => {
+    const map = new Map<string, TestScore[]>();
+    for (const score of scores) {
+      const key = score.test_name;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(score);
+    }
+    return Array.from(map.entries())
+      .map(([name, items]) => {
+        const sorted = [...items].sort((a, b) =>
+          a.subject.localeCompare(b.subject, "ja"),
+        );
+        const latestDate = items.reduce(
+          (latest, s) => (s.test_date > latest ? s.test_date : latest),
+          items[0].test_date,
+        );
+        return {
+          name,
+          testType: items[0].test_type,
+          latestDate,
+          items: sorted,
+          totalScore: items.reduce((sum, s) => sum + s.score, 0),
+          totalMax: items.reduce((sum, s) => sum + s.max_score, 0),
+        };
+      })
+      .sort((a, b) => b.latestDate.localeCompare(a.latestDate));
+  }, [scores]);
+
+  const toggleGroup = (name: string) => {
+    setOpenGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) {
+        next.delete(name);
+      } else {
+        next.add(name);
+      }
+      return next;
+    });
+  };
 
   return (
     <Card>
@@ -53,100 +114,113 @@ export function TestScoreList({
         </div>
       </CardHeader>
       <CardContent>
-        {sorted.length === 0 ? (
+        {groups.length === 0 ? (
           <p className="text-muted-foreground text-sm">{t("testEmpty")}</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2 px-2 font-medium text-muted-foreground">
-                    {t("testDate")}
-                  </th>
-                  <th className="text-left py-2 px-2 font-medium text-muted-foreground">
-                    {t("testName")}
-                  </th>
-                  <th className="text-left py-2 px-2 font-medium text-muted-foreground">
-                    {t("testSubject")}
-                  </th>
-                  <th className="text-left py-2 px-2 font-medium text-muted-foreground">
-                    {t("testType")}
-                  </th>
-                  <th className="text-right py-2 px-2 font-medium text-muted-foreground">
-                    {t("testScore")}
-                  </th>
-                  <th className="text-right py-2 px-2 font-medium text-muted-foreground">
-                    {t("testPercentile")}
-                  </th>
-                  {!readOnly && <th className="py-2 px-2"></th>}
-                </tr>
-              </thead>
-              <tbody>
-                {sorted.map((score) => {
-                  const pct = (score.score / score.max_score) * 100;
-                  return (
-                    <tr
-                      key={score.id}
-                      className="border-b hover:bg-muted/30 transition-colors"
-                    >
-                      <td className="py-2 px-2 whitespace-nowrap">
-                        {format(new Date(score.test_date), "M/d")}
-                      </td>
-                      <td className="py-2 px-2 font-medium">
-                        {score.test_name}
-                      </td>
-                      <td className="py-2 px-2">{score.subject}</td>
-                      <td className="py-2 px-2">
-                        <Badge variant="outline">
-                          {testTypeLabel[score.test_type] || score.test_type}
-                        </Badge>
-                      </td>
-                      <td className="py-2 px-2 text-right font-mono">
-                        <span
-                          className={
-                            pct >= 80
-                              ? "text-green-600"
-                              : pct >= 60
-                                ? "text-foreground"
-                                : "text-red-600"
-                          }
-                        >
-                          {score.score}
-                        </span>
-                        <span className="text-muted-foreground">
-                          /{score.max_score}
-                        </span>
-                      </td>
-                      <td className="py-2 px-2 text-right font-mono text-muted-foreground">
-                        {score.percentile ? score.percentile.toFixed(1) : "—"}
-                      </td>
-                      {!readOnly && (
-                        <td className="py-2 px-2">
-                          <div className="flex gap-1 justify-end">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
-                              onClick={() => onEdit(score)}
-                            >
-                              <Pencil className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-destructive"
-                              onClick={() => onDelete(score.id)}
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
-                        </td>
+          <div className="space-y-2">
+            {groups.map((group) => {
+              const isOpen = openGroups.has(group.name);
+              const avgPct =
+                group.totalMax > 0
+                  ? (group.totalScore / group.totalMax) * 100
+                  : 0;
+              return (
+                <div
+                  key={group.name}
+                  className="rounded-lg border border-border overflow-hidden"
+                >
+                  {/* Group header */}
+                  <button
+                    className="w-full flex items-center gap-3 px-4 py-3 bg-muted/30 hover:bg-muted/50 transition-colors text-left"
+                    onClick={() => toggleGroup(group.name)}
+                  >
+                    <span className="text-muted-foreground shrink-0">
+                      {isOpen ? (
+                        <ChevronDown className="w-4 h-4" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4" />
                       )}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                    </span>
+                    <span className="font-semibold text-sm flex-1 min-w-0">
+                      {group.name}
+                      <span className="ml-2 text-xs font-normal text-muted-foreground">
+                        {format(new Date(group.latestDate), "M/d")}
+                      </span>
+                    </span>
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] shrink-0 hidden sm:flex"
+                    >
+                      {testTypeLabel[group.testType] || group.testType}
+                    </Badge>
+                    <span className="text-xs shrink-0 hidden sm:block">
+                      {group.items.length}科目
+                    </span>
+                    <span
+                      className={`text-sm font-mono font-semibold shrink-0 ${scoreColor(avgPct)}`}
+                    >
+                      {group.totalScore}
+                      <span className="text-muted-foreground font-normal text-xs">
+                        /{group.totalMax}点
+                      </span>
+                    </span>
+                  </button>
+
+                  {/* Expanded subject rows */}
+                  {isOpen && (
+                    <div className="divide-y divide-border">
+                      {group.items.map((score) => {
+                        const pct = (score.score / score.max_score) * 100;
+                        return (
+                          <div
+                            key={score.id}
+                            className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/20 transition-colors group"
+                          >
+                            <span className="w-4 shrink-0" />
+                            <span className="text-sm flex-1 min-w-0">
+                              {score.subject}
+                            </span>
+                            <span className="font-mono text-sm shrink-0">
+                              <span className={scoreColor(pct)}>
+                                {score.score}
+                              </span>
+                              <span className="text-muted-foreground text-xs">
+                                /{score.max_score}
+                              </span>
+                            </span>
+                            <span className="font-mono text-xs text-muted-foreground w-12 text-right shrink-0">
+                              {score.percentile
+                                ? `偏差値${score.percentile.toFixed(1)}`
+                                : ""}
+                            </span>
+                            {!readOnly && (
+                              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6"
+                                  onClick={() => onEdit(score)}
+                                >
+                                  <Pencil className="w-3 h-3" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6 text-destructive"
+                                  onClick={() => onDelete(score.id)}
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </CardContent>

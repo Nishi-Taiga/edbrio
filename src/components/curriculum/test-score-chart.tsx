@@ -48,6 +48,19 @@ const ENTRANCE_CATEGORIES = new Set([
   "general",
 ]);
 
+const KANJI_NUMBERS = [
+  "一",
+  "二",
+  "三",
+  "四",
+  "五",
+  "六",
+  "七",
+  "八",
+  "九",
+  "十",
+];
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomDot(props: any) {
   const { cx, cy, payload, dataKey, onScoreClick } = props;
@@ -102,6 +115,8 @@ export function TestScoreChart({
   );
   const [viewMode, setViewMode] = useState<ViewMode>("score");
   const effectiveViewMode = hasDeviation ? viewMode : "score";
+  const [showBorderLines, setShowBorderLines] = useState(true);
+  const [showMainOnly, setShowMainOnly] = useState(false);
 
   // Border lines from entrance exams
   const borderLines = useMemo(() => {
@@ -114,17 +129,29 @@ export function TestScoreChart({
           e.border_score_type === "deviation",
       )
       .sort((a, b) => (a.preference_order ?? 999) - (b.preference_order ?? 999))
-      .map((e) => ({
-        name: e.exam_name,
-        value: e.border_score!,
-        order: e.preference_order,
-      }));
+      .map((e) => {
+        const order = e.preference_order;
+        const orderLabel =
+          order != null && order >= 1 && order <= 10
+            ? `第${KANJI_NUMBERS[order - 1]}志望`
+            : order != null
+              ? `第${order}志望`
+              : "志望校";
+        return {
+          name: e.exam_name,
+          label: `${orderLabel} ${e.exam_name} (偏差値${e.border_score})`,
+          value: e.border_score!,
+          order,
+        };
+      });
   }, [exams, effectiveViewMode]);
 
   const { chartData, subjects } = useMemo(() => {
     if (!activeType) return { chartData: [], subjects: [] };
 
-    const filtered = scores.filter((s) => s.test_type === activeType);
+    const filtered = scores.filter(
+      (s) => s.test_type === activeType && (!showMainOnly || s.is_main_subject),
+    );
     if (filtered.length === 0) return { chartData: [], subjects: [] };
 
     const subjectSet = new Set(filtered.map((s) => s.subject));
@@ -154,7 +181,7 @@ export function TestScoreChart({
     }));
 
     return { chartData, subjects };
-  }, [scores, activeType, effectiveViewMode]);
+  }, [scores, activeType, effectiveViewMode, showMainOnly]);
 
   const handleDotClick = useCallback(
     (scoreId: string) => {
@@ -178,6 +205,43 @@ export function TestScoreChart({
             {t("testChartTitle")}
           </CardTitle>
           <div className="flex items-center gap-2">
+            {/* 主要5教科フィルター — 模試は主要教科のみのため非表示 */}
+            {activeType !== "mock_exam" && (
+              <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={showMainOnly}
+                  onChange={(e) => setShowMainOnly(e.target.checked)}
+                  className="rounded border-border text-primary focus:ring-primary"
+                />
+                主要5教科
+              </label>
+            )}
+            {/* Score / Deviation toggle — 常に左側に固定表示（スペース確保） */}
+            <div className="flex rounded-md border border-border overflow-hidden">
+              <button
+                onClick={() => setViewMode("score")}
+                disabled={!hasDeviation}
+                className={`px-2.5 py-1 text-xs font-medium transition-colors ${
+                  effectiveViewMode === "score"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-default"
+                }`}
+              >
+                得点
+              </button>
+              <button
+                onClick={() => setViewMode("deviation")}
+                disabled={!hasDeviation}
+                className={`px-2.5 py-1 text-xs font-medium transition-colors ${
+                  effectiveViewMode === "deviation"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-default"
+                }`}
+              >
+                偏差値
+              </button>
+            </div>
             {/* Test type filter */}
             <Select
               value={activeType || ""}
@@ -197,97 +261,87 @@ export function TestScoreChart({
                 ))}
               </SelectContent>
             </Select>
-            {/* Score / Deviation toggle */}
-            {hasDeviation && (
-              <div className="flex rounded-md border border-border overflow-hidden">
-                <button
-                  onClick={() => setViewMode("score")}
-                  className={`px-2.5 py-1 text-xs font-medium transition-colors ${
-                    effectiveViewMode === "score"
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted"
-                  }`}
-                >
-                  得点
-                </button>
-                <button
-                  onClick={() => setViewMode("deviation")}
-                  className={`px-2.5 py-1 text-xs font-medium transition-colors ${
-                    effectiveViewMode === "deviation"
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted"
-                  }`}
-                >
-                  偏差値
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={280}>
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-            <XAxis dataKey="date" className="text-xs" />
-            <YAxis
-              domain={yDomain}
-              className="text-xs"
-              label={{
-                value: yLabel,
-                angle: -90,
-                position: "insideLeft",
-                style: { fontSize: 11, fill: "#9CA3AF" },
-              }}
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "hsl(var(--card))",
-                border: "1px solid hsl(var(--border))",
-                borderRadius: "6px",
-                fontSize: "12px",
-              }}
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              formatter={(value: any) =>
-                effectiveViewMode === "deviation"
-                  ? `${Number(value).toFixed(1)}`
-                  : `${Number(value).toFixed(0)}点`
-              }
-            />
-            <Legend />
-            {/* Border lines for entrance exams */}
-            {borderLines.map((bl, i) => (
-              <ReferenceLine
-                key={`border-${i}`}
-                y={bl.value}
-                stroke="#EF4444"
-                strokeDasharray="6 3"
-                strokeWidth={1.5}
+        {/* 志望校ライン表示切替 — グラフ右下にオーバーレイ */}
+        <div className="relative">
+          {effectiveViewMode === "deviation" && borderLines.length > 0 && (
+            <label className="absolute bottom-2 right-2 z-10 flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer select-none bg-card/80 backdrop-blur-sm px-2 py-1 rounded-md border border-border">
+              <input
+                type="checkbox"
+                checked={showBorderLines}
+                onChange={(e) => setShowBorderLines(e.target.checked)}
+                className="rounded border-border text-primary focus:ring-primary"
+              />
+              志望校ラインを表示
+            </label>
+          )}
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+              <XAxis dataKey="date" className="text-xs" />
+              <YAxis
+                domain={yDomain}
+                className="text-xs"
                 label={{
-                  value: `${bl.name} (偏差値${bl.value})`,
-                  position: "left",
-                  fill: "#EF4444",
-                  fontSize: 10,
+                  value: yLabel,
+                  angle: -90,
+                  position: "insideLeft",
+                  style: { fontSize: 11, fill: "#9CA3AF" },
                 }}
               />
-            ))}
-            {subjects.map((subject) => {
-              const subjectColor = getSubjectColor(subject);
-              return (
-                <Line
-                  key={subject}
-                  type="monotone"
-                  dataKey={subject}
-                  stroke={subjectColor.color}
-                  strokeWidth={2}
-                  dot={<CustomDot onScoreClick={handleDotClick} />}
-                  activeDot={{ r: 7, strokeWidth: 2 }}
-                  name={subject}
-                />
-              );
-            })}
-          </LineChart>
-        </ResponsiveContainer>
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "hsl(var(--card))",
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: "6px",
+                  fontSize: "12px",
+                }}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                formatter={(value: any) =>
+                  effectiveViewMode === "deviation"
+                    ? `${Number(value).toFixed(1)}`
+                    : `${Number(value).toFixed(0)}点`
+                }
+              />
+              <Legend />
+              {/* Border lines for entrance exams */}
+              {showBorderLines &&
+                borderLines.map((bl, i) => (
+                  <ReferenceLine
+                    key={`border-${i}`}
+                    y={bl.value}
+                    stroke="#EF4444"
+                    strokeDasharray="6 3"
+                    strokeWidth={1.5}
+                    label={{
+                      value: bl.label,
+                      position: "insideTopRight",
+                      fill: "#EF4444",
+                      fontSize: 10,
+                    }}
+                  />
+                ))}
+              {subjects.map((subject) => {
+                const subjectColor = getSubjectColor(subject);
+                return (
+                  <Line
+                    key={subject}
+                    type="monotone"
+                    dataKey={subject}
+                    stroke={subjectColor.color}
+                    strokeWidth={2}
+                    dot={<CustomDot onScoreClick={handleDotClick} />}
+                    activeDot={{ r: 7, strokeWidth: 2 }}
+                    name={subject}
+                  />
+                );
+              })}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </CardContent>
     </Card>
   );

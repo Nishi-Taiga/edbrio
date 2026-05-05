@@ -160,7 +160,6 @@ export function createClient() {
   return {
     auth: mockAuth,
     from: (table: string) => createMockQueryBuilder(table),
-  } as unknown as ReturnType<
-    typeof import("@/lib/supabase/client").createClient
-  >;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } as unknown as any;
 }

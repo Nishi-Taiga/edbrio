@@ -60,6 +60,7 @@ function ExamTable({
   showPreference,
   showMethod = true,
   showBorder = true,
+  showDepartment = false,
   readOnly = false,
 }: {
   exams: ExamSchedule[];
@@ -68,6 +69,7 @@ function ExamTable({
   showPreference: boolean;
   showMethod?: boolean;
   showBorder?: boolean;
+  showDepartment?: boolean;
   readOnly?: boolean;
 }) {
   if (exams.length === 0) {
@@ -91,20 +93,25 @@ function ExamTable({
             <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider">
               試験名
             </th>
+            {showDepartment && (
+              <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider hidden md:table-cell">
+                学部・学科・コース
+              </th>
+            )}
             {showMethod && (
-              <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider hidden sm:table-cell">
+              <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider hidden md:table-cell">
                 種類
               </th>
             )}
             {showBorder && (
-              <th className="text-right py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider w-[80px] hidden sm:table-cell">
+              <th className="text-right py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider w-[80px] hidden md:table-cell">
                 ボーダー
               </th>
             )}
             <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider w-[60px]">
               日付
             </th>
-            <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider w-[70px] hidden sm:table-cell">
+            <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider w-[70px] hidden md:table-cell">
               状態
             </th>
             {!readOnly && (
@@ -130,20 +137,25 @@ function ExamTable({
                 <td className="py-2 px-3 font-semibold text-foreground text-xs">
                   {exam.exam_name}
                 </td>
+                {showDepartment && (
+                  <td className="py-2 px-3 text-muted-foreground text-xs hidden md:table-cell">
+                    {exam.department || "—"}
+                  </td>
+                )}
                 {showMethod && (
-                  <td className="py-2 px-3 text-muted-foreground text-xs hidden sm:table-cell">
+                  <td className="py-2 px-3 text-muted-foreground text-xs hidden md:table-cell">
                     {exam.method || "—"}
                   </td>
                 )}
                 {showBorder && (
-                  <td className="py-2 px-3 text-right font-mono text-xs text-muted-foreground hidden sm:table-cell">
+                  <td className="py-2 px-3 text-right font-mono text-xs text-muted-foreground hidden md:table-cell">
                     {formatBorderScore(exam)}
                   </td>
                 )}
                 <td className="py-2 px-3 font-medium text-foreground text-xs whitespace-nowrap">
                   {format(new Date(exam.exam_date), "M/d")}
                 </td>
-                <td className="py-2 px-3 hidden sm:table-cell">
+                <td className="py-2 px-3 hidden md:table-cell">
                   <span
                     className="text-[10px] font-semibold px-2 py-0.5 rounded"
                     style={{ backgroundColor: status.bg, color: status.color }}
@@ -221,8 +233,8 @@ export function ExamScheduleList({
   );
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      {/* 試験スケジュール（左） */}
+    <div className="flex flex-col gap-4">
+      {/* 試験スケジュール */}
       <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4">
           <div className="flex items-center gap-2">
@@ -254,7 +266,7 @@ export function ExamScheduleList({
         </div>
       </div>
 
-      {/* 入試スケジュール（右） */}
+      {/* 入試スケジュール */}
       <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4">
           <div className="flex items-center gap-2">
@@ -279,6 +291,7 @@ export function ExamScheduleList({
             onEdit={onEdit}
             onDelete={onDelete}
             showPreference={true}
+            showDepartment={true}
             showMethod={true}
             readOnly={readOnly}
             showBorder={true}

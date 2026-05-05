@@ -383,6 +383,7 @@ export interface ExamSchedule {
   exam_name: string;
   exam_category: string;
   method?: string;
+  department?: string;
   exam_date: string;
   preference_order?: number;
   border_score?: number;
@@ -421,6 +422,7 @@ export interface TestScore {
   score: number;
   max_score: number;
   percentile?: number;
+  is_main_subject: boolean;
   test_date: string;
   notes?: string;
   created_at: string;

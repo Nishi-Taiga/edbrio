@@ -12,5 +12,13 @@ DO $$ BEGIN
   END IF;
 END $$;
 
--- Step 2: Update any remaining 'pro' rows to 'standard'
-UPDATE public.teachers SET plan = 'standard' WHERE plan = 'pro';
+-- Step 2: Update any remaining 'pro' rows to 'standard' (only if 'pro' exists in enum)
+DO $$ BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_enum
+    WHERE enumlabel = 'pro'
+      AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'teacher_plan')
+  ) THEN
+    EXECUTE 'UPDATE public.teachers SET plan = ''standard'' WHERE plan = ''pro''';
+  END IF;
+END $$;
