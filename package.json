@@ -20,7 +20,8 @@
     "db:setup": "echo 'データベースセットアップ手順: database/README.md を参照してください'",
     "prepare": "husky",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "sync:kb": "bash scripts/sync-to-kb.sh"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",

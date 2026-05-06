@@ -56,10 +56,9 @@ function generateWeeks(year: number) {
   while (cursor <= end) {
     const monthLabel = `${cursor.getMonth() + 1}月`;
     const dateStr = cursor.toISOString().slice(0, 10);
-    const dayLabel = `${cursor.getMonth() + 1}/${cursor.getDate()}`;
     weeks.push({
       value: dateStr,
-      label: `${monthLabel} 第${weekNum}週 (${dayLabel}〜)`,
+      label: `${monthLabel} 第${weekNum}週`,
       date: dateStr,
     });
 

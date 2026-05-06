@@ -83,6 +83,7 @@ interface GanttChartProps {
   curriculumYear?: string;
   onAddSubject: () => void;
   onDeleteSubject?: (subject: string, materialIds: string[]) => void;
+  onEditSubject?: (subject: string) => void;
   onAddMaterialToSubject: (subject: string) => void;
   onEditMaterial: (material: CurriculumMaterial) => void;
   onDeleteMaterial: (id: string) => void;
@@ -103,6 +104,7 @@ interface GanttChartProps {
   onAddExam: (date?: string) => void;
   onPhaseClick?: (phase: CurriculumPhase, materialName: string) => void;
   readOnly?: boolean;
+  subjectColors?: Record<string, string>;
   t: (key: string) => string;
 }
 
@@ -126,7 +128,24 @@ function getAcademicYearEnd(year: number): Date {
 
 /** Convert a date to a pixel position within the chart timeline area */
 /** Get "M月 第N週" label for a date */
-function getWeekLabel(date: Date): string {
+/** Snap a date to the previous Monday (or same day if already Monday) */
+function snapToMonday(date: Date): Date {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = day === 0 ? 6 : day - 1; // Monday=0 offset
+  d.setDate(d.getDate() - diff);
+  return d;
+}
+
+/** Snap a date to the next Sunday (or same day if already Sunday) */
+function snapToSunday(date: Date): Date {
+  const d = new Date(date);
+  const day = d.getDay();
+  if (day !== 0) d.setDate(d.getDate() + (7 - day));
+  return d;
+}
+
+export function getWeekLabel(date: Date): string {
   const month = date.getMonth() + 1;
   // Find which week of the month (based on Mondays)
   const firstOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
@@ -164,6 +183,7 @@ export function GanttChart({
   curriculumYear,
   onAddSubject,
   onDeleteSubject,
+  onEditSubject,
   onAddMaterialToSubject,
   onEditMaterial,
   onDeleteMaterial,
@@ -176,6 +196,7 @@ export function GanttChart({
   onAddExam,
   onPhaseClick,
   readOnly = false,
+  subjectColors,
   t,
 }: GanttChartProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -309,7 +330,17 @@ export function GanttChart({
     return () => obs.disconnect();
   }, []);
 
-  const getSubjectStyle = (subject: string) => getSubjectColor(subject, isDark);
+  const getSubjectStyle = (subject: string) => {
+    const customColor = subjectColors?.[subject];
+    if (customColor) {
+      // Generate a light bg from the custom color
+      return {
+        color: customColor,
+        bg: isDark ? customColor + "18" : customColor + "12",
+      };
+    }
+    return getSubjectColor(subject, isDark);
+  };
 
   const year = getAcademicYear(curriculumYear);
   const academicYearStart = useMemo(() => new Date(year, 3, 1), [year]); // April 1
@@ -498,14 +529,17 @@ export function GanttChart({
     const phaseEnd = new Date(phase.end_date);
     if (phaseEnd < academicYearStart || phaseStart > academicYearEnd)
       return null;
+    // Snap to week boundaries (Monday start, Sunday end)
+    const snappedStart = snapToMonday(phaseStart);
+    const snappedEnd = snapToSunday(phaseEnd);
     const rawX1 = dateToX(
-      new Date(phase.start_date),
+      snappedStart,
       academicYearStart,
       timelineWidth,
       totalDays,
     );
     const rawX2 = dateToX(
-      new Date(phase.end_date),
+      snappedEnd,
       academicYearStart,
       timelineWidth,
       totalDays,
@@ -772,8 +806,16 @@ export function GanttChart({
                       </div>
                     )}
                     <span
-                      className="text-xs font-bold"
+                      className={`text-xs font-bold ${!readOnly && onEditSubject ? "cursor-pointer hover:underline" : ""}`}
                       style={{ color: sc.color }}
+                      onClick={
+                        !readOnly && onEditSubject
+                          ? (e) => {
+                              e.stopPropagation();
+                              onEditSubject(row.subject);
+                            }
+                          : undefined
+                      }
                     >
                       {row.subject}
                     </span>
@@ -899,7 +941,7 @@ export function GanttChart({
 
         {/* Timeline area */}
         <div
-          className="flex-1 relative overflow-x-auto"
+          className="flex-1 relative overflow-x-auto scrollbar-thin"
           ref={timelineRef}
           tabIndex={0}
           role="region"
@@ -1054,14 +1096,10 @@ export function GanttChart({
                         const previewEndDate = xToDate(
                           createPreview.left + createPreview.width,
                         );
-                        const startLabel = format(
+                        const startLabel = getWeekLabel(
                           new Date(previewStartDate),
-                          "M/d",
                         );
-                        const endLabel = format(
-                          new Date(previewEndDate),
-                          "M/d",
-                        );
+                        const endLabel = getWeekLabel(new Date(previewEndDate));
                         return (
                           <div
                             className="absolute rounded opacity-40 pointer-events-none"

@@ -10,8 +10,9 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Check, Plus, Trash2, Loader2 } from "lucide-react";
+import { Check, Plus, Trash2, Pencil, Loader2 } from "lucide-react";
 import type { CurriculumPhase, PhaseTask } from "@/lib/types/database";
+import { getWeekLabel } from "@/components/curriculum/gantt-chart";
 
 interface PhaseDetailDialogProps {
   open: boolean;
@@ -26,6 +27,8 @@ interface PhaseDetailDialogProps {
     id: string,
     updates: Partial<CurriculumPhase>,
   ) => Promise<void>;
+  onEditPhase?: (phase: CurriculumPhase) => void;
+  onDeletePhase?: (id: string) => Promise<void>;
 }
 
 export function PhaseDetailDialog({
@@ -38,6 +41,8 @@ export function PhaseDetailDialog({
   onUpdateTask,
   onDeleteTask,
   onUpdatePhase,
+  onEditPhase,
+  onDeletePhase,
 }: PhaseDetailDialogProps) {
   const [newTaskName, setNewTaskName] = useState("");
   const [addingTask, setAddingTask] = useState(false);
@@ -126,8 +131,42 @@ export function PhaseDetailDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[480px]">
         <DialogHeader>
-          <DialogTitle>{phase.phase_name}</DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle>{phase.phase_name}</DialogTitle>
+            <div className="flex items-center gap-1">
+              {onEditPhase && (
+                <button
+                  className="p-1 rounded hover:bg-muted"
+                  onClick={() => {
+                    onOpenChange(false);
+                    onEditPhase(phase);
+                  }}
+                  aria-label="フェーズを編集"
+                >
+                  <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                </button>
+              )}
+              {onDeletePhase && (
+                <button
+                  className="p-1 rounded hover:bg-muted"
+                  onClick={async () => {
+                    await onDeletePhase(phase.id);
+                    onOpenChange(false);
+                  }}
+                  aria-label="フェーズを削除"
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                </button>
+              )}
+            </div>
+          </div>
           <p className="text-xs text-muted-foreground">{materialName}</p>
+          {phase.start_date && phase.end_date && (
+            <p className="text-xs text-muted-foreground">
+              {getWeekLabel(new Date(phase.start_date))} 〜{" "}
+              {getWeekLabel(new Date(phase.end_date))}
+            </p>
+          )}
         </DialogHeader>
 
         {/* Status selector — auto-computed when tasks exist */}
@@ -208,6 +247,14 @@ export function PhaseDetailDialog({
                     }`}
                   >
                     {task.task_name}
+                    {task.is_completed && task.completed_at && (
+                      <span className="ml-2 text-[10px] text-muted-foreground/60 no-underline">
+                        {new Date(task.completed_at).toLocaleDateString(
+                          "ja-JP",
+                          { month: "short", day: "numeric" },
+                        )}
+                      </span>
+                    )}
                   </span>
                   {togglingId === task.id && (
                     <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
