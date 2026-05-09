@@ -143,7 +143,10 @@ export async function getUsers({ role, plan, search, page = 1, perPage = 20 }: G
     query = query.eq('role', role)
   }
   if (search) {
-    query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%`)
+    const sanitized = search.replace(/[%_\\.,()]/g, '')
+    if (sanitized) {
+      query = query.or(`name.ilike.%${sanitized}%,email.ilike.%${sanitized}%`)
+    }
   }
 
   const { data, count } = await query
@@ -296,6 +299,7 @@ export async function getReportStats() {
 // ── Audit Log Write ──
 
 export async function writeAuditLog(params: {
+  actor_id?: string | null
   action: string
   target_table: string
   target_id?: string
@@ -303,7 +307,7 @@ export async function writeAuditLog(params: {
 }) {
   const supabase = createAdminClient()
   await supabase.from('audit_logs').insert({
-    actor_id: null,
+    actor_id: params.actor_id ?? null,
     action: params.action,
     target_table: params.target_table,
     target_id: params.target_id,

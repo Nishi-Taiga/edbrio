@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { adminLimiter } from '@/lib/rate-limit'
+import { verifyAdminRequest } from '@/lib/admin/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,6 +12,9 @@ export async function GET(req: NextRequest) {
     if (!success) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
     }
+
+    const authResult = await verifyAdminRequest()
+    if (!authResult.ok) return authResult.response
 
     const supabase = createAdminClient()
     const { searchParams } = new URL(req.url)

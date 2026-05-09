@@ -52,6 +52,13 @@ next-env.d.ts
 edbrio-dev.txt
 tests/testacounts.txt
 tests/e2e-full.spec.ts
+tests/e2e/flows/
+tests/e2e/helpers/auth.ts
+tests/e2e/helpers/resend-checker.ts
+tests/e2e/helpers/stripe-helper.ts
+tests/e2e/helpers/supabase-admin.ts
+tests/e2e/fixtures/seed.ts
+tests/e2e/fixtures/cleanup.ts
 MILESTONES.md
 TODO.md
 SNS-MARKETING.md
@@ -79,8 +86,30 @@ src/app/landing.css
 
 # SQL files
 *.sql
+!supabase/migrations/*.sql
+supabase/migrations/011_rls_audit_fixes.sql
+supabase/migrations/018_curriculum_revamp.sql
+
+# Excel files (curriculum reference)
+*.xlsx
 
 # screenshots (local only)
 /screenshots/
 tests/screenshots/
 scripts/take-screenshots.ts
+UI.pen
+.gstack/
+LAUNCH-PLAN.md
+scripts/take-screenshots.mjs
+docs/EdBrio_E2Eテスト自動化仕様書.docx
+config/playwright.config.ts
+config/playwright.config.ts
+tests/e2e/fixtures/debug-seed.ts
+tests/e2e/fixtures/run-cleanup.ts
+tests/e2e/fixtures/run-seed.ts
+
+*storybook.log
+storybook-static
+.playwright-mcp/
+vitest.config.ts
+vitest.shims.d.ts

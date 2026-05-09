@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { trackEvent } from '@/lib/analytics'
 
 const MAX_GENERATIONS_PER_REPORT = 3
 
@@ -47,6 +48,7 @@ export function useAiReport() {
       setGeneratedContent(data.generatedContent)
       setTokensUsed(data.tokensUsed ?? null)
       setGenerationCount(prev => prev + 1)
+      trackEvent({ name: 'report_generate', params: { tokens_used: data.tokensUsed } })
       return { generatedContent: data.generatedContent, tokensUsed: data.tokensUsed as number | undefined }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e)

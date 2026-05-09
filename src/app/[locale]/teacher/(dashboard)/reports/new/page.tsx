@@ -11,11 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label'
 import { Save, Send, Sparkles } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
-import { useStudentCurriculum } from '@/hooks/use-student-curriculum'
 import { useAiReport } from '@/hooks/use-ai-report'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { ReportForm } from '@/components/reports/report-form'
+import { CurriculumPhaseSelector } from '@/components/reports/curriculum-phase-selector'
 import { AiGenerateButton } from '@/components/reports/ai-generate-button'
 import { ErrorAlert } from '@/components/ui/error-alert'
 import { LoadingButton } from '@/components/ui/loading-button'
@@ -62,7 +62,6 @@ function NewReportContent() {
 
   const selectedBooking = unreportedBookings.find(b => b.id === selectedBookingId)
   const selectedProfileId = selectedBooking?.profileId || ''
-  const { goals, skills } = useStudentCurriculum(selectedProfileId || undefined)
   const {
     generateReport, generatedContent, tokensUsed, loading: aiLoading, error: aiError,
     canGenerate, remainingGenerations, maxGenerations,
@@ -78,6 +77,7 @@ function NewReportContent() {
     maxLength: 100,
     teacherMemo: '',
   })
+  const [selectedPhaseIds, setSelectedPhaseIds] = useState<string[]>([])
 
   const [memoSubmitted, setMemoSubmitted] = useState<'ai' | 'skip' | null>(null)
   const [saving, setSaving] = useState(false)
@@ -175,6 +175,7 @@ function NewReportContent() {
   const handleBookingChange = (bookingId: string) => {
     setSelectedBookingId(bookingId)
     setMemoSubmitted(null)
+    setSelectedPhaseIds([])
   }
 
   const handleGenerate = async () => {
@@ -183,8 +184,6 @@ function NewReportContent() {
       contentRaw: formData.contentRaw,
       studentName: selectedBooking.studentName,
       subject: formData.subject || undefined,
-      goals: goals.filter(g => g.status === 'active').map(g => g.title),
-      weakPoints: skills.filter(s => s.rating <= 2).map(s => `${s.subject}: ${s.topic}`),
       comprehensionLevel: formData.comprehensionLevel,
       studentMood: formData.studentMood,
       maxLength: formData.maxLength,
@@ -220,6 +219,31 @@ function NewReportContent() {
         .select('id')
         .single()
       if (err) throw err
+
+      // Create lesson_log and link selected phases
+      if (selectedPhaseIds.length > 0 && insertedReport?.id) {
+        const { data: lessonLog } = await supabase
+          .from('lesson_logs')
+          .insert({
+            profile_id: selectedBooking.profileId,
+            booking_id: selectedBooking.id,
+            report_id: insertedReport.id,
+            lesson_date: new Date(selectedBooking.start_time).toISOString().slice(0, 10),
+            subject: formData.subject || '',
+            notes: formData.contentRaw || null,
+          })
+          .select('id')
+          .single()
+
+        if (lessonLog?.id) {
+          await supabase
+            .from('lesson_log_phases')
+            .insert(selectedPhaseIds.map(phaseId => ({
+              lesson_log_id: lessonLog.id,
+              phase_id: phaseId,
+            })))
+        }
+      }
 
       // Fire-and-forget email notification on publish
       if (publish && insertedReport?.id) {
@@ -331,8 +355,15 @@ function NewReportContent() {
               <CardHeader>
                 <CardTitle className="text-base">{t('step2Title')}</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
                 <ReportForm data={formData} onChange={setFormData} />
+                {selectedProfileId && (
+                  <CurriculumPhaseSelector
+                    profileId={selectedProfileId}
+                    selectedPhaseIds={selectedPhaseIds}
+                    onChange={setSelectedPhaseIds}
+                  />
+                )}
                 {/* Navigation buttons */}
                 {!memoSubmitted && (
                   <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
@@ -413,6 +444,13 @@ function NewReportContent() {
                   <div>
                     <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{tf('nextPlanLabel')}</p>
                     <p className="text-sm">{formData.nextPlan}</p>
+                  </div>
+                )}
+
+                {selectedPhaseIds.length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">扱った教材・フェーズ</p>
+                    <p className="text-sm text-muted-foreground">{selectedPhaseIds.length}件のフェーズを記録</p>
                   </div>
                 )}
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { ProtectedRoute } from '@/components/layout/protected-route'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -17,6 +17,8 @@ import { LoadingButton } from '@/components/ui/loading-button'
 import { SkeletonProductCard } from '@/components/ui/skeleton-card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ErrorAlert } from '@/components/ui/error-alert'
+import { getRemainingSessionCount } from '@/lib/utils/ticket'
+import { trackEvent } from '@/lib/analytics'
 
 type TicketRow = {
   id: string
@@ -53,10 +55,21 @@ export default function GuardianTickets() {
   const [error, setError] = useState<string | null>(null)
   const [teacherNames, setTeacherNames] = useState<Record<string, string>>({})
   const [ticketNames, setTicketNames] = useState<Record<string, string>>({})
+  const [ticketMinutesMap, setTicketMinutesMap] = useState<Record<string, number>>({})
   const [studentNames, setStudentNames] = useState<Record<string, string>>({})
   const [filterStudent, setFilterStudent] = useState<string>('all')
 
   const supabase = useMemo(() => createClient(), [])
+  const purchaseTracked = useRef(false)
+
+  // Track ticket_purchase conversion on Stripe checkout success redirect
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('success') === 'true' && !purchaseTracked.current) {
+      purchaseTracked.current = true
+      trackEvent({ name: 'ticket_purchase', params: { ticket_id: params.get('session_id') || '' } })
+    }
+  }, [])
 
   useEffect(() => {
     let mounted = true
@@ -126,14 +139,17 @@ export default function GuardianTickets() {
             if (ticketIds.length > 0) {
               const { data: ticketData } = await supabase
                 .from('tickets')
-                .select('id, name')
+                .select('id, name, minutes')
                 .in('id', ticketIds)
               if (mounted && ticketData) {
                 const tNameMap: Record<string, string> = {}
-                ticketData.forEach((t: { id: string; name: string }) => {
+                const tMinutesMap: Record<string, number> = {}
+                ticketData.forEach((t: { id: string; name: string; minutes: number }) => {
                   tNameMap[t.id] = t.name
+                  tMinutesMap[t.id] = t.minutes
                 })
                 setTicketNames(tNameMap)
+                setTicketMinutesMap(tMinutesMap)
               }
             }
           }
@@ -286,7 +302,15 @@ export default function GuardianTickets() {
                         <TableCell className="font-medium">{studentNames[b.student_id] || '-'}</TableCell>
                       )}
                       <TableCell>{ticketNames[b.ticket_id] || b.ticket_id}</TableCell>
-                      <TableCell>{b.remaining_minutes}{tc('minutes')}</TableCell>
+                      <TableCell>
+                        {(() => {
+                          const mins = ticketMinutesMap[b.ticket_id]
+                          const count = mins != null ? getRemainingSessionCount(b.remaining_minutes, mins) : null
+                          return count != null
+                            ? t('remainingWithCount', { count, minutes: b.remaining_minutes })
+                            : `${b.remaining_minutes}${tc('minutes')}`
+                        })()}
+                      </TableCell>
                       <TableCell>{b.purchased_at ? format(new Date(b.purchased_at), 'PPP', { locale: ja }) : '-'}</TableCell>
                       <TableCell>
                         <span className={isExpiringSoon ? 'text-amber-600 dark:text-amber-400 font-medium' : ''}>

@@ -28,7 +28,7 @@ export function MobileSidebar() {
   }, [mobileOpen])
 
   return (
-    <div className={`lg:hidden fixed top-16 left-0 right-0 bottom-0 z-40 ${mobileOpen ? '' : 'pointer-events-none'}`}>
+    <div className={`lg:hidden fixed top-14 left-0 right-0 bottom-0 z-40 ${mobileOpen ? '' : 'pointer-events-none'}`}>
       {/* Backdrop */}
       <div
         className={`absolute inset-0 bg-black transition-opacity duration-300 ease-in-out ${mobileOpen ? 'opacity-100' : 'opacity-0'}`}
@@ -36,7 +36,7 @@ export function MobileSidebar() {
       />
       {/* Sidebar panel */}
       <div
-        className={`absolute top-0 left-0 bottom-0 w-64 bg-background border-r border-border-semantic shadow-lg transition-transform duration-300 ease-in-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`absolute top-0 left-0 bottom-0 w-60 bg-[#2D1B4E] dark:bg-[#0F0D18] border-r border-[#3D2B5E] dark:border-[#1A1726] shadow-lg transition-transform duration-300 ease-in-out ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         <Sidebar mobile onClose={closeMobile} />
       </div>

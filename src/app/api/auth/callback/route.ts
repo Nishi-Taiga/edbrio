@@ -128,10 +128,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(new URL(`/invite/${inviteToken}`, origin))
     }
 
-    // Redirect new user to appropriate dashboard
+    // Redirect new user to appropriate dashboard (with signup flag for GA4 tracking)
     const redirectPath = selectedRole === 'guardian'
-      ? '/guardian/dashboard'
-      : '/teacher/dashboard'
+      ? '/guardian/dashboard?signup=google'
+      : '/teacher/dashboard?signup=google'
     return NextResponse.redirect(new URL(redirectPath, origin))
   }
 

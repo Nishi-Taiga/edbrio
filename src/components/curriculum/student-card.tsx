@@ -1,55 +1,80 @@
-'use client'
+"use client";
 
-import { Link } from '@/i18n/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { GraduationCap, BookOpen } from 'lucide-react'
-import { StudentProfile } from '@/lib/types/database'
-import { useTranslations } from 'next-intl'
+import { useRouter } from "@/i18n/navigation";
+import { Badge } from "@/components/ui/badge";
+import { ChevronRight, Pencil, Trash2 } from "lucide-react";
+import { StudentProfile } from "@/lib/types/database";
+import { useTranslations } from "next-intl";
 
 interface StudentCardProps {
-  profile: StudentProfile
+  profile: StudentProfile;
+  basePath?: string;
+  onEdit?: (profile: StudentProfile) => void;
+  onDelete?: (profile: StudentProfile) => void;
 }
 
-export function StudentCard({ profile }: StudentCardProps) {
-  const t = useTranslations('curriculum')
+export function StudentCard({
+  profile,
+  basePath = "/teacher/curriculum",
+  onEdit,
+  onDelete,
+}: StudentCardProps) {
+  const t = useTranslations("curriculum");
+  const router = useRouter();
+
   return (
-    <Link href={`/teacher/curriculum/${profile.id}`}>
-      <Card className="hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors cursor-pointer h-full">
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base">{profile.name}</CardTitle>
-            <Badge variant={profile.status === 'active' ? 'default' : 'secondary'}>
-              {profile.status === 'active' ? t('card.statusActive') : t('card.statusInactive')}
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-            {profile.grade && (
-              <div className="flex items-center gap-1.5">
-                <GraduationCap className="w-4 h-4" />
-                <span>{profile.grade}</span>
-              </div>
-            )}
-            {profile.subjects && profile.subjects.length > 0 && (
-              <div className="flex items-center gap-1.5">
-                <BookOpen className="w-4 h-4" />
-                <div className="flex flex-wrap gap-1">
-                  {profile.subjects.map((s) => (
-                    <span key={s} className="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200 text-xs rounded px-1.5 py-0.5">
-                      {s}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-            {profile.school && (
-              <div className="text-xs text-gray-500">{profile.school}</div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
-  )
+    <tr
+      className="border-b border-border hover:bg-muted/30 transition-colors cursor-pointer group"
+      onClick={() => router.push(`${basePath}/${profile.id}`)}
+    >
+      <td className="py-3 px-4 font-semibold text-foreground">
+        {profile.name}
+      </td>
+      <td className="py-3 px-4 text-muted-foreground">
+        {profile.grade || "—"}
+      </td>
+      <td className="py-3 px-4 text-muted-foreground text-xs hidden md:table-cell">
+        {profile.school || "—"}
+      </td>
+      <td className="py-3 px-4">
+        <Badge
+          variant={profile.status === "active" ? "default" : "secondary"}
+          className="text-[10px]"
+        >
+          {profile.status === "active"
+            ? t("card.statusActive")
+            : t("card.statusInactive")}
+        </Badge>
+      </td>
+      <td className="py-3 px-2">
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          {onEdit && (
+            <button
+              className="p-1 rounded hover:bg-muted"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(profile);
+              }}
+              aria-label={`${profile.name}を編集`}
+            >
+              <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+            </button>
+          )}
+          {onDelete && (
+            <button
+              className="p-1 rounded hover:bg-muted"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(profile);
+              }}
+              aria-label={`${profile.name}を削除`}
+            >
+              <Trash2 className="w-3.5 h-3.5 text-destructive" />
+            </button>
+          )}
+          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+        </div>
+      </td>
+    </tr>
+  );
 }

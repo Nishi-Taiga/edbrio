@@ -13,8 +13,10 @@ import { Booking, Report } from '@/lib/types/database'
 import { useTranslations } from 'next-intl'
 import { getMissingSetupItems } from '@/lib/teacher-setup'
 import { toast } from 'sonner'
+import { trackEvent } from '@/lib/analytics'
 
 import { SetupBanner } from './_components/setup-banner'
+import { OnboardingBanner } from './_components/onboarding-banner'
 import { UpcomingLessons } from './_components/upcoming-lessons'
 import { QuickActions } from './_components/quick-actions'
 
@@ -35,11 +37,25 @@ export default function TeacherDashboard() {
 
   const [setupComplete, setSetupComplete] = useState<boolean | null>(null)
   const [missingItems, setMissingItems] = useState<string[]>([])
+  const [displayName, setDisplayName] = useState<string | null>(null)
+  const [hasShift, setHasShift] = useState<boolean>(false)
+  const [hasInvite, setHasInvite] = useState<boolean>(false)
   const [studentNames, setStudentNames] = useState<Record<string, string>>({})
+  const [studentSubjects, setStudentSubjects] = useState<Record<string, string>>({})
   const [isUpdating, setIsUpdating] = useState<string | null>(null)
   const [ticketPriceMap, setTicketPriceMap] = useState<Record<string, number>>({})
+  const [weekStartsOn, setWeekStartsOn] = useState<0 | 1 | null>(null)
 
   const supabase = useMemo(() => createClient(), [])
+
+  // Track Google OAuth sign_up conversion
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('signup') === 'google') {
+      trackEvent({ name: 'sign_up', params: { method: 'google', role: 'teacher' } })
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [])
 
   // Check setup completion
   useEffect(() => {
@@ -58,6 +74,9 @@ export default function TeacherDashboard() {
         )
         setSetupComplete(missing.length === 0)
         setMissingItems(missing)
+        // Extract display_name from public_profile
+        const dn = (data.public_profile as Record<string, unknown>)?.display_name
+        if (typeof dn === 'string' && dn) setDisplayName(dn)
       } else {
         setSetupComplete(false)
       }
@@ -65,21 +84,61 @@ export default function TeacherDashboard() {
     checkSetup()
   }, [user, dbUser, supabase])
 
+  // Check onboarding progress: has first shift + has first invite
+  useEffect(() => {
+    if (!user?.id || dbUser?.role !== 'teacher') return
+    async function checkOnboarding() {
+      const [shiftsResult, invitesResult] = await Promise.all([
+        supabase.from('shifts').select('id', { count: 'exact', head: true }).eq('teacher_id', user!.id),
+        supabase.from('invites').select('id', { count: 'exact', head: true }).eq('teacher_id', user!.id),
+      ])
+      setHasShift((shiftsResult.count ?? 0) > 0)
+      setHasInvite((invitesResult.count ?? 0) > 0)
+    }
+    checkOnboarding()
+  }, [user, dbUser, supabase])
+
+  // Load calendar week start: localStorage first (instant), then API for freshness
+  useEffect(() => {
+    const cached = localStorage.getItem('calendar_week_start')
+    setWeekStartsOn(cached === '1' ? 1 : 0)
+
+    async function loadPrefs() {
+      try {
+        const res = await fetch('/api/notification-preferences')
+        if (res.ok) {
+          const data = await res.json()
+          const ws = data.preferences?.calendar_week_start
+          if (ws === 0 || ws === 1) {
+            setWeekStartsOn(ws)
+            localStorage.setItem('calendar_week_start', String(ws))
+          }
+        }
+      } catch { /* non-critical */ }
+    }
+    loadPrefs()
+  }, [])
+
   // Resolve student UUIDs to names
   useEffect(() => {
     if (bookings.length === 0) return
     const ids = [...new Set(bookings.map((b: Booking) => b.student_id))]
     supabase
       .from('student_profiles')
-      .select('student_id, name')
+      .select('student_id, name, subjects')
       .in('student_id', ids)
       .then(({ data }) => {
         if (data) {
-          const map: Record<string, string> = {}
-          data.forEach((p: { student_id: string | null; name: string }) => {
-            if (p.student_id) map[p.student_id] = p.name
+          const nameMap: Record<string, string> = {}
+          const subjectMap: Record<string, string> = {}
+          data.forEach((p: { student_id: string | null; name: string; subjects: string[] }) => {
+            if (p.student_id) {
+              nameMap[p.student_id] = p.name
+              if (p.subjects?.length > 0) subjectMap[p.student_id] = p.subjects[0]
+            }
           })
-          setStudentNames(map)
+          setStudentNames(nameMap)
+          setStudentSubjects(subjectMap)
         }
       })
   }, [bookings, supabase])
@@ -232,7 +291,7 @@ export default function TeacherDashboard() {
         (b.status === 'confirmed' || b.status === 'pending') && new Date(b.start_time) > now
       )
       .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())
-      .slice(0, 5),
+      .slice(0, 4),
     [bookings, now]
   )
 
@@ -253,17 +312,22 @@ export default function TeacherDashboard() {
   // Time-based greeting
   const hour = new Date().getHours()
   const greeting = hour < 12 ? t('greetingMorning') : hour < 18 ? t('greetingAfternoon') : t('greetingEvening')
-  const greetingText = t('greeting', { name: dbUser?.name || '', greeting })
+  const greetingText = t('greeting', { name: displayName || dbUser?.name || '', greeting })
 
   const loading = authLoading || bookingsLoading || reportsLoading
 
   return (
     <ProtectedRoute allowedRoles={['teacher']}>
-      <div className="bg-[#F9F6F2] md:bg-[#F3F4F6] dark:bg-[#13111C] min-h-screen px-4 md:px-5 lg:px-7 py-4 md:py-6 space-y-5 pb-24 md:pb-6">
+      <div className="bg-[#F9F6F2] dark:bg-[#13111C] min-h-screen lg:min-h-0 lg:h-[calc(100vh-3.5rem)] px-4 md:px-5 lg:px-7 py-4 md:py-5 lg:py-3 flex flex-col gap-4 lg:gap-3 pb-24 md:pb-5 lg:pb-3 lg:overflow-hidden">
 
-        {/* ── Setup Banner (conditional) ── */}
+        {/* ── Setup Banner (profile incomplete) ── */}
         {setupComplete === false && (
           <SetupBanner missingItems={missingItems} totalItems={4} />
+        )}
+
+        {/* ── Onboarding Banner (profile done, but no shift or invite yet) ── */}
+        {setupComplete === true && (!hasShift || !hasInvite) && (
+          <OnboardingBanner hasShift={hasShift} hasInvite={hasInvite} />
         )}
 
         {/* ── Summary (full width, responsive) ── */}
@@ -278,17 +342,18 @@ export default function TeacherDashboard() {
         />
 
         {/* ── Calendar + Tasks ── */}
-        <div className="flex flex-col lg:flex-row gap-5" style={{ minHeight: 560 }}>
-          <div className="flex-1 min-w-0 order-2 lg:order-1">
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-5 lg:flex-[3] lg:min-h-0">
+          <div className="flex-[2] min-w-0 order-2 lg:order-1">
             <ResponsiveCalendar
               calendarEvents={calendarEvents}
               loading={loading}
               bookings={bookings}
               reportedBookingIds={reportedBookingIds}
               studentNames={studentNames}
+              weekStartsOn={weekStartsOn ?? 0}
             />
           </div>
-          <div className="w-full lg:w-[380px] shrink-0 order-1 lg:order-2">
+          <div className="flex-1 min-w-0 order-1 lg:order-2">
             <ResponsiveTasks
               loading={loading}
               needsReportBookings={needsReportBookings}
@@ -303,8 +368,8 @@ export default function TeacherDashboard() {
         </div>
 
         {/* ── Bottom Row: Monthly Stats + Upcoming Lessons + Quick Actions ── */}
-        <div className="flex flex-col md:flex-row gap-5" style={{ minHeight: 320 }}>
-          <div className="flex-1 min-w-0">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-5 lg:gap-4 lg:flex-[2] lg:min-h-0">
+          <div className="flex-1 min-w-0 lg:overflow-hidden">
             <ResponsiveStats
               thisMonthDone={thisMonthDone}
               thisMonthTotal={thisMonthBookings.length}
@@ -315,14 +380,15 @@ export default function TeacherDashboard() {
               loading={loading}
             />
           </div>
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 lg:overflow-hidden">
             <UpcomingLessons
               upcomingLessons={upcomingLessons}
               studentNames={studentNames}
+              studentSubjects={studentSubjects}
               loading={loading}
             />
           </div>
-          <div className="w-full md:w-[380px] shrink-0">
+          <div className="flex-1 min-w-0 lg:overflow-hidden">
             <QuickActions />
           </div>
         </div>

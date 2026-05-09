@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -16,22 +16,35 @@ interface ShiftFormProps {
   onClose: () => void
   onSubmit: (params: { startTime: string; endTime: string; rrule?: string }) => Promise<void>
   initialDate?: Date
+  initialStartTime?: string // "HH:MM" format from calendar click
 }
 
-export function ShiftForm({ open, onClose, onSubmit, initialDate }: ShiftFormProps) {
+export function ShiftForm({ open, onClose, onSubmit, initialDate, initialStartTime }: ShiftFormProps) {
   const t = useTranslations('slotForm')
   const tc = useTranslations('common')
 
-  const defaultDate = initialDate
-    ? formatDateLocal(initialDate)
-    : formatDateLocal(new Date())
-
-  const [date, setDate] = useState(defaultDate)
+  const [date, setDate] = useState(() => formatDateLocal(initialDate ?? new Date()))
   const [startTime, setStartTime] = useState('09:00')
   const [endTime, setEndTime] = useState('10:00')
   const [recurrence, setRecurrence] = useState<RecurrenceType>('none')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Reset form when dialog opens
+  useEffect(() => {
+    if (open) {
+      setDate(formatDateLocal(initialDate ?? new Date()))
+      // Use clicked time or default to 09:00-10:00
+      const start = initialStartTime || '09:00'
+      setStartTime(start)
+      // Auto-set end time to 1 hour after start
+      const [h, m] = start.split(':').map(Number)
+      const endH = Math.min(h + 1, 23)
+      setEndTime(`${String(endH).padStart(2, '0')}:${String(m).padStart(2, '0')}`)
+      setRecurrence('none')
+      setError(null)
+    }
+  }, [open, initialDate, initialStartTime])
 
   const handleSubmit = async () => {
     setError(null)

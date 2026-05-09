@@ -1,28 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { bookingReportLimiter } from '@/lib/rate-limit'
+import { bookingReportCreateSchema } from '@/lib/validations'
 
 export const dynamic = 'force-dynamic'
 
 // POST: 保護者が問題報告を作成
 export async function POST(req: NextRequest) {
   try {
-    const supabase = await createClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+    if (!bookingReportLimiter.check(ip).success) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+    }
 
-    if (!session) {
+    const supabase = await createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await req.json()
-    const { bookingId, reason, description } = body
-
-    if (!bookingId || !reason) {
-      return NextResponse.json({ error: 'bookingId and reason are required' }, { status: 400 })
+    const parsed = bookingReportCreateSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: '入力内容に不備があります' }, { status: 400 })
     }
-
-    if (!['late', 'absent', 'other'].includes(reason)) {
-      return NextResponse.json({ error: 'Invalid reason' }, { status: 400 })
-    }
+    const { bookingId, reason, description } = parsed.data
 
     if (reason === 'other' && !description?.trim()) {
       return NextResponse.json({ error: 'Description is required for "other" reason' }, { status: 400 })
@@ -32,7 +35,7 @@ export async function POST(req: NextRequest) {
     const { data: students } = await supabase
       .from('students')
       .select('id')
-      .eq('guardian_id', session.user.id)
+      .eq('guardian_id', user.id)
 
     if (!students || students.length === 0) {
       return NextResponse.json({ error: 'No students found' }, { status: 403 })
@@ -76,7 +79,7 @@ export async function POST(req: NextRequest) {
       .from('booking_reports')
       .insert({
         booking_id: bookingId,
-        reporter_id: session.user.id,
+        reporter_id: user.id,
         reason,
         description: description?.trim() || null,
         deadline: deadline.toISOString(),
@@ -100,9 +103,9 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     const supabase = await createClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    if (!session) {
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -112,7 +115,7 @@ export async function GET(req: NextRequest) {
     const { data: bookings } = await supabase
       .from('bookings')
       .select('id')
-      .eq('teacher_id', session.user.id)
+      .eq('teacher_id', user.id)
 
     if (!bookings || bookings.length === 0) {
       return NextResponse.json({ reports: [] })

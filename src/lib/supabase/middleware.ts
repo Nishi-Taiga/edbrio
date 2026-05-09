@@ -67,7 +67,35 @@ function checkBasicAuth(request: NextRequest): NextResponse | null {
   const user = decoded.slice(0, colonIndex)
   const pass = decoded.slice(colonIndex + 1)
 
-  if (user !== adminUser || pass !== adminPass) {
+  // Constant-time comparison to prevent timing attacks (Edge Runtime compatible)
+  const encoder = new TextEncoder()
+  const userBytes = encoder.encode(user)
+  const adminUserBytes = encoder.encode(adminUser)
+  const passBytes = encoder.encode(pass)
+  const adminPassBytes = encoder.encode(adminPass)
+
+  // Pad to same length to avoid early-exit timing leak
+  const maxUserLen = Math.max(userBytes.length, adminUserBytes.length)
+  const maxPassLen = Math.max(passBytes.length, adminPassBytes.length)
+  const userPadded = new Uint8Array(maxUserLen)
+  const adminUserPadded = new Uint8Array(maxUserLen)
+  const passPadded = new Uint8Array(maxPassLen)
+  const adminPassPadded = new Uint8Array(maxPassLen)
+  userPadded.set(userBytes)
+  adminUserPadded.set(adminUserBytes)
+  passPadded.set(passBytes)
+  adminPassPadded.set(adminPassBytes)
+
+  let userDiff = userBytes.length ^ adminUserBytes.length
+  for (let i = 0; i < maxUserLen; i++) {
+    userDiff |= userPadded[i] ^ adminUserPadded[i]
+  }
+  let passDiff = passBytes.length ^ adminPassBytes.length
+  for (let i = 0; i < maxPassLen; i++) {
+    passDiff |= passPadded[i] ^ adminPassPadded[i]
+  }
+
+  if (userDiff !== 0 || passDiff !== 0) {
     return new NextResponse('Invalid credentials', {
       status: 401,
       headers: { 'WWW-Authenticate': 'Basic realm="EdBrio Admin"' },
@@ -89,7 +117,23 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   // Permissions policy
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
-  // CSP
+  // CSP Report-Only (監視用 — 実際の制限なし。GTM が unsafe-eval を必要とするため完全排除は保留)
+  response.headers.set(
+    'Content-Security-Policy-Report-Only',
+    [
+      "default-src 'self'",
+      "script-src 'self' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob: https:",
+      "font-src 'self' data:",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://api.anthropic.com https://api.resend.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://accounts.google.com",
+      "frame-src https://js.stripe.com https://hooks.stripe.com https://accounts.google.com",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self' https://accounts.google.com",
+    ].join('; ')
+  )
+  // CSP (enforced)
   response.headers.set(
     'Content-Security-Policy',
     [
@@ -112,9 +156,8 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
 export const updateSession = async (request: NextRequest, existingResponse?: NextResponse) => {
   const { pathname } = request.nextUrl
 
-  // Basic auth for admin routes only (strip locale prefix like /ja/ first)
-  const strippedPath = pathname.replace(/^\/[a-z]{2}(-[A-Z]{2})?(?=\/)/, '')
-  if (strippedPath.startsWith('/admin') || strippedPath.startsWith('/api/admin')) {
+  // Basic auth for admin routes
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
     const authResult = checkBasicAuth(request)
     if (authResult) return authResult
   }

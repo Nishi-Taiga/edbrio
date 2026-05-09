@@ -9,13 +9,13 @@ export const dynamic = 'force-dynamic'
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    if (!session) {
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { success: rateLimitOk } = emailLimiter.check(session.user.id)
+    const { success: rateLimitOk } = emailLimiter.check(user.id)
     if (!rateLimitOk) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
     }
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
         .from('invites')
         .select('id')
         .eq('email', email)
-        .eq('teacher_id', session.user.id)
+        .eq('teacher_id', user.id)
         .eq('used', false)
         .gt('expires_at', new Date().toISOString())
         .maybeSingle()
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
       : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)   // 7 days for email
 
     const { error: insertErr } = await supabase.from('invites').insert({
-      teacher_id: session.user.id,
+      teacher_id: user.id,
       email: method === 'email' ? email : null,
       student_profile_id: null,
       token,
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       const { data: teacher } = await supabase
         .from('users')
         .select('name')
-        .eq('id', session.user.id)
+        .eq('id', user.id)
         .single()
 
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://edbrio.com'

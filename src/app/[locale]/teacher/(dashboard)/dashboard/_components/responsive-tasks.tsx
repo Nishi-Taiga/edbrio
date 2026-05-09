@@ -30,32 +30,21 @@ export function ResponsiveTasks({
   onStatusUpdate,
 }: ResponsiveTasksProps) {
   const t = useTranslations('teacherDashboard')
+  const [expanded, setExpanded] = useState(true)
+
   const allTasksDone =
     needsReportBookings.length === 0 &&
     pendingBookings.length === 0 &&
     issueReportCount === 0 &&
     unreadCount === 0
 
-  const [expanded, setExpanded] = useState(!allTasksDone)
-
   const totalTasks = needsReportBookings.length + pendingBookings.length +
     (issueReportCount > 0 ? 1 : 0) + (unreadCount > 0 ? 1 : 0)
 
   return (
     <div
-      className="h-full rounded-2xl border border-[#E5E0D8] md:border-[#D4BEE4] dark:border-[#2E2840] md:dark:border-[#6D5A8A] p-4 md:p-6 flex flex-col gap-3 md:gap-4 overflow-hidden bg-white dark:bg-[#1E1A2B] md:bg-none"
-      style={{
-        background: undefined,
-      }}
+      className="h-full rounded-2xl border border-[#E5E0D8] md:border-gray-200 dark:border-[#2E2840] p-4 md:p-6 flex flex-col gap-3 md:gap-4 overflow-hidden bg-white dark:bg-[#1E1A2B]"
     >
-      {/* Desktop gradient background */}
-      <style>{`
-        @media (min-width: 768px) {
-          .responsive-tasks-panel { background: var(--task-panel-bg) !important; }
-        }
-        :root { --task-panel-bg: linear-gradient(180deg, #EDE8F5 0%, #FFFFFF 100%); }
-        .dark { --task-panel-bg: linear-gradient(180deg, #282237 0%, #1E1A2B 100%); }
-      `}</style>
 
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -77,17 +66,17 @@ export function ResponsiveTasks({
       {loading ? (
         <SkeletonList count={4} />
       ) : allTasksDone ? (
-        <div className={`flex flex-col items-center justify-center py-8 text-center flex-1 ${expanded ? '' : 'hidden'} md:!flex`}>
+        <div className="flex flex-col items-center justify-center py-8 text-center flex-1">
           <CheckCircle2 className="w-10 h-10 text-green-500 mb-3" />
           <p className="text-sm text-gray-500 dark:text-[#6D5A8A]">{t('tasksAllDone')}</p>
         </div>
       ) : (
         /* Task list: always visible on md+, collapsible on mobile */
-        <div className={`flex flex-col gap-3 md:gap-4 flex-1 ${expanded ? '' : 'hidden'} md:!flex`}>
+        <div className={`flex flex-col gap-3 md:gap-4 flex-1 transition-all duration-300 ease-in-out overflow-hidden md:!max-h-none md:!opacity-100 md:!flex ${expanded ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'}`}>
           {/* Task: Reports */}
           {needsReportBookings.length > 0 && (
             <Link href="/teacher/reports/new" className="block">
-              <div className="flex rounded-xl border border-[#FEE2E2] dark:border-[#4A2020] bg-white dark:bg-[#1E1A2B] overflow-hidden">
+              <div className="flex rounded-xl border border-[#FEE2E2] dark:border-[#3D2020] bg-white dark:bg-[#1E1A2B] overflow-hidden">
                 <div className="w-1 shrink-0 bg-[#EF4444]" />
                 <div className="flex items-center gap-2.5 md:gap-3 px-3.5 md:px-3 py-3 md:py-2.5 flex-1 min-w-0">
                   <FileText className="w-5 h-5 text-[#EF4444] shrink-0" />
@@ -107,7 +96,7 @@ export function ResponsiveTasks({
 
           {/* Task: Pending Approvals */}
           {pendingBookings.length > 0 && (
-            <div className="flex rounded-xl border border-[#FEF3C7] dark:border-[#4A3D1A] bg-white dark:bg-[#1E1A2B] overflow-hidden">
+            <div className="flex rounded-xl border border-[#FEF3C7] dark:border-[#3D3520] bg-white dark:bg-[#1E1A2B] overflow-hidden">
               <div className="w-1 shrink-0 bg-[#F59E0B]" />
               <div className="flex-1">
                 <div className="flex items-center gap-2.5 md:gap-3 px-3.5 md:px-3 py-2.5 md:py-2">
@@ -166,7 +155,7 @@ export function ResponsiveTasks({
           <div
             className={`flex rounded-xl border px-4 py-3.5 items-center gap-3 ${
               issueReportCount > 0
-                ? 'border-[#FED7AA] dark:border-[#4A3D1A] bg-white dark:bg-[#1E1A2B]'
+                ? 'border-[#FED7AA] dark:border-[#3D3520] bg-white dark:bg-[#1E1A2B]'
                 : 'border-[#E5E0D8] dark:border-[#2E2840] bg-[#F9F6F2] dark:bg-[#13111C] opacity-60'
             }`}
           >
@@ -195,7 +184,7 @@ export function ResponsiveTasks({
           {/* Task: Unread Messages */}
           {unreadCount > 0 ? (
             <Link href="/teacher/chat" className="block">
-              <div className="flex rounded-xl border border-[#DBEAFE] dark:border-[#1A2A4A] bg-white dark:bg-[#1E1A2B] overflow-hidden">
+              <div className="flex rounded-xl border border-[#DBEAFE] dark:border-[#1A2540] bg-white dark:bg-[#1E1A2B] overflow-hidden">
                 <div className="w-1 shrink-0 bg-[#3B82F6]" />
                 <div className="flex items-center gap-2.5 md:gap-3 px-3.5 md:px-3 py-3 md:py-2.5 flex-1 min-w-0">
                   <Mail className="w-5 h-5 text-[#3B82F6] shrink-0" />

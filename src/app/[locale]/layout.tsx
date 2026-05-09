@@ -77,8 +77,12 @@ export default async function LocaleLayout({
         <Toaster position="top-right" richColors closeButton duration={3000} />
         <ThemeChooserDialog />
         <SidebarProvider>
-          <ConditionalHeader />
-          {children}
+          <div className="flex flex-col h-dvh overflow-hidden">
+            <ConditionalHeader />
+            <div className="flex-1 overflow-y-auto min-h-0">
+              {children}
+            </div>
+          </div>
         </SidebarProvider>
       </ThemeProvider>
     </NextIntlClientProvider>

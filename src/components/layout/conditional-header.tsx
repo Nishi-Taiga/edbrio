@@ -1,17 +1,23 @@
-'use client'
+"use client";
 
-import { usePathname } from '@/i18n/navigation'
-import { Header } from './header'
-import { MobileSidebar } from './mobile-sidebar'
-import { MobileFooter } from './mobile-footer'
+import { usePathname } from "@/i18n/navigation";
+import { Header } from "./header";
+import { MobileSidebar } from "./mobile-sidebar";
+import { MobileFooter } from "./mobile-footer";
 
 export function ConditionalHeader() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   // Hide the global header on the landing page and admin routes.
-  if (pathname === '/' || pathname?.startsWith('/admin')) return null
+  if (
+    pathname === "/" ||
+    pathname?.startsWith("/admin") ||
+    pathname?.startsWith("/curriculum")
+  )
+    return null;
 
-  const hasSidebar = pathname?.startsWith('/teacher') || pathname?.startsWith('/guardian')
+  const hasSidebar =
+    pathname?.startsWith("/teacher") || pathname?.startsWith("/guardian");
 
   return (
     <>
@@ -19,5 +25,5 @@ export function ConditionalHeader() {
       {hasSidebar && <MobileSidebar />}
       {hasSidebar && <MobileFooter />}
     </>
-  )
+  );
 }

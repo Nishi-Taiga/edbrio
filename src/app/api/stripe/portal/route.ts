@@ -15,9 +15,9 @@ function getStripe() {
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-  if (!session) {
+  if (authError || !user) {
     return NextResponse.json({ error: '認証が必要です。' }, { status: 401 })
   }
 
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     const { data: teacher } = await supabase
       .from('teachers')
       .select('stripe_customer_id')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .single()
 
     if (!teacher?.stripe_customer_id) {

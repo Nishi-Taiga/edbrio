@@ -3,30 +3,45 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link, usePathname } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
-import { Home, FileText, Calendar, MessageCircle, LayoutGrid, Ticket, GraduationCap, Settings, X } from 'lucide-react'
+import { Home, FileText, Calendar, CalendarCheck, MessageCircle, LayoutGrid, Ticket, GraduationCap, BookOpen, CalendarPlus, Settings, X } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { useUnreadCount } from '@/hooks/use-unread-count'
 
 export function MobileFooter() {
   const t = useTranslations('teacherDashboard')
+  const ts = useTranslations('sidebar')
   const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
+  const isGuardian = pathname?.startsWith('/guardian')
   const { user } = useAuth()
-  const { count: unreadCount } = useUnreadCount(user?.id, 'teacher')
+  const role = isGuardian ? 'guardian' as const : 'teacher' as const
+  const { count: unreadCount } = useUnreadCount(user?.id, role)
 
-  const isActive = (href: string) => pathname === href || (href !== '/teacher/dashboard' && pathname?.startsWith(href))
+  const homeHref = isGuardian ? '/guardian/dashboard' as const : '/teacher/dashboard' as const
+  const isActive = (href: string) => pathname === href || (href !== homeHref && pathname?.startsWith(href))
 
-  const tabs = [
+  const tabs = isGuardian ? [
+    { icon: Home, label: ts('guardian.home'), href: '/guardian/dashboard' as const },
+    { icon: FileText, label: ts('guardian.reports'), href: '/guardian/reports' as const },
+  ] : [
     { icon: Home, label: t('footerHome'), href: '/teacher/dashboard' as const },
     { icon: FileText, label: t('footerReports'), href: '/teacher/reports' as const },
   ]
 
-  const tabsRight = [
+  const tabsRight = isGuardian ? [
+    { icon: CalendarCheck, label: ts('guardian.bookings'), href: '/guardian/bookings' as const },
+    { icon: MessageCircle, label: ts('guardian.chat'), href: '/guardian/chat' as const },
+  ] : [
     { icon: Calendar, label: t('footerCalendar'), href: '/teacher/calendar' as const },
     { icon: MessageCircle, label: t('footerChat'), href: '/teacher/chat' as const },
   ]
 
-  const fabMenuItems = [
+  const fabMenuItems = isGuardian ? [
+    { icon: CalendarPlus, label: ts('guardian.booking'), href: '/guardian/booking' as const },
+    { icon: BookOpen, label: ts('guardian.curriculum'), href: '/guardian/curriculum' as const },
+    { icon: Ticket, label: ts('guardian.tickets'), href: '/guardian/tickets' as const },
+    { icon: Settings, label: ts('guardian.settings'), href: '/guardian/settings' as const },
+  ] : [
     { icon: Ticket, label: 'チケット', href: '/teacher/tickets' as const },
     { icon: GraduationCap, label: '生徒カリキュラム', href: '/teacher/curriculum' as const },
     { icon: Settings, label: '設定', href: '/teacher/profile' as const },
@@ -59,22 +74,22 @@ export function MobileFooter() {
 
   const toggleMenu = useCallback(() => setMenuOpen(prev => !prev), [])
 
-  const renderTab = (tab: { icon: any; label: string; href: '/teacher/dashboard' | '/teacher/reports' | '/teacher/calendar' | '/teacher/chat' }) => {
+  const renderTab = (tab: { icon: any; label: string; href: string }) => {
     const Icon = tab.icon
     const active = isActive(tab.href)
-    const showBadge = tab.href === '/teacher/chat' && unreadCount > 0
+    const isChatTab = tab.href === '/teacher/chat' || tab.href === '/guardian/chat'
     return (
       <Link
         key={tab.href}
-        href={tab.href}
-        className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full rounded-xl transition-colors relative
-          ${active ? 'bg-[#EDE8F5] dark:bg-[#282237]' : ''}`}
+        href={tab.href as any}
+        className={`flex flex-col items-center justify-center gap-0.5 flex-1 h-full rounded-lg transition-colors relative
+          ${active ? 'bg-[#EDE8F5]/70 dark:bg-[#282237]/70' : ''}`}
       >
         <div className="relative">
           <Icon className={`w-[22px] h-[22px] ${active ? 'text-[#7C3AED] dark:text-[#A78BFA]' : 'text-[#6B7280] dark:text-[#6D5A8A]'}`} />
-          {showBadge && (
-            <span className="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] rounded-full bg-[#EF4444] text-white text-[9px] font-bold flex items-center justify-center px-1">
-              {unreadCount > 9 ? '9+' : unreadCount}
+          {isChatTab && unreadCount > 0 && (
+            <span className="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center px-1">
+              {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}
         </div>
@@ -106,7 +121,7 @@ export function MobileFooter() {
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={item.href as any}
               className="flex items-center gap-3 animate-in fade-in slide-in-from-bottom-2"
               style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'both' }}
             >

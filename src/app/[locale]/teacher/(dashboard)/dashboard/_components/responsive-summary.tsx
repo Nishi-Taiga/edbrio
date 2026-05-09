@@ -2,7 +2,7 @@
 
 import { Booking } from '@/lib/types/database'
 import { useTranslations } from 'next-intl'
-import { format } from 'date-fns'
+import { format, isSameDay, addDays } from 'date-fns'
 
 interface ResponsiveSummaryProps {
   greeting: string
@@ -37,12 +37,25 @@ export function ResponsiveSummary({
   const greetPrefix = greetingParts[0] + '、'
   const greetName = greetingParts[1] || ''
 
-  const nextLessonText = nextLesson
-    ? t('nextLessonFormat', {
-        time: format(new Date(nextLesson.start_time), 'HH:mm'),
-        name: studentNames[nextLesson.student_id] || tc('student'),
-      })
-    : t('noNextLesson')
+  const nextLessonText = (() => {
+    if (!nextLesson) return t('noNextLesson')
+    const lessonDate = new Date(nextLesson.start_time)
+    const now = new Date()
+    const tomorrow = addDays(new Date(now.getFullYear(), now.getMonth(), now.getDate()), 1)
+    let dateStr: string
+    if (isSameDay(lessonDate, now)) {
+      dateStr = t('calendarToday')
+    } else if (isSameDay(lessonDate, tomorrow)) {
+      dateStr = t('tomorrow')
+    } else {
+      dateStr = format(lessonDate, 'M/d')
+    }
+    return t('nextLessonFormat', {
+      date: dateStr,
+      time: format(lessonDate, 'HH:mm'),
+      name: studentNames[nextLesson.student_id] || tc('student'),
+    })
+  })()
 
   const incomeFormatted = `\u00a5${Math.round(todayEstimatedIncome).toLocaleString('ja-JP')}`
 
@@ -54,7 +67,7 @@ export function ResponsiveSummary({
       <div className="hidden md:block absolute w-[300px] h-[300px] rounded-full bg-white/[0.025] right-0 -top-[180px] pointer-events-none" />
 
       {/* Content */}
-      <div className="relative h-full flex items-center justify-between px-5 md:px-9 py-4 md:py-0 md:h-[120px]">
+      <div className="relative h-full flex items-center justify-between px-5 md:px-9 py-4 md:py-0 md:h-[100px]">
         {/* Left: Mobile — next lesson only / Desktop — greeting */}
         <div className="flex flex-col gap-0.5 shrink-0">
           {/* Mobile: next lesson label + text */}

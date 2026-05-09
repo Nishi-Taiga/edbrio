@@ -336,6 +336,67 @@ ${greeting}
   }
 }
 
+export function buildPreRegistrationConfirmationEmail(params: {
+  token: string
+}): { subject: string; html: string } {
+  const { token } = params
+  const confirmUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://edbrio.com'}/api/pre-register/confirm?token=${token}`
+
+  const body = `
+<p style="margin:0 0 16px;font-size:15px;color:#374151;">
+  EdBrio への事前登録ありがとうございます！
+</p>
+<p style="margin:0 0 16px;font-size:14px;color:#6b7280;">
+  以下のボタンをクリックして、メールアドレスの確認を完了してください。<br>
+  サービス公開時に、いち早くお知らせいたします。
+</p>
+<table width="100%" cellpadding="12" cellspacing="0" style="background:#f0fdf4;border-radius:12px;margin:16px 0;">
+<tr>
+  <td style="font-size:14px;color:#15803d;text-align:center;font-weight:600;">
+    🎁 事前登録特典：Standardプランを2ヶ月間無料でご利用いただけます
+  </td>
+</tr>
+</table>
+<p style="margin:24px 0 0;text-align:center;">
+  <a href="${confirmUrl}" style="display:inline-block;background:#7c3aed;color:#ffffff;padding:12px 32px;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px;">メールアドレスを確認する</a>
+</p>
+<p style="margin:16px 0 0;font-size:12px;color:#9ca3af;text-align:center;">
+  心当たりがない場合は、このメールを無視してください。
+</p>`
+
+  return {
+    subject: '【EdBrio】事前登録の確認',
+    html: wrapInLayout(body),
+  }
+}
+
+export function buildLaunchNotificationEmail(): { subject: string; html: string } {
+  const signupUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://edbrio.com'}/auth/signup`
+
+  const body = `
+<p style="margin:0 0 16px;font-size:18px;color:#1f2937;font-weight:700;">
+  EdBrio が正式リリースされました！
+</p>
+<p style="margin:0 0 16px;font-size:15px;color:#374151;">
+  お待たせいたしました。家庭教師向け管理プラットフォーム EdBrio が本日よりご利用いただけます。
+</p>
+<p style="margin:0 0 16px;font-size:14px;color:#6b7280;">
+  事前登録いただいた方への特典として、<strong>Standardプランを2ヶ月間無料</strong>でお使いいただけます。<br>
+  AI レポート生成、無制限の生徒管理、チャット機能など、すべての機能をお試しください。
+</p>
+<p style="margin:24px 0 0;text-align:center;">
+  <a href="${signupUrl}" style="display:inline-block;background:#7c3aed;color:#ffffff;padding:14px 40px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px;">今すぐ無料で始める</a>
+</p>
+<p style="margin:16px 0 0;font-size:12px;color:#9ca3af;text-align:center;">
+  ご不明な点がございましたら、info@edbrio.com までお気軽にお問い合わせください。
+</p>`
+
+  return {
+    subject: '【EdBrio】サービス公開のお知らせ — 2ヶ月無料特典をご利用ください',
+    html: wrapInLayout(body),
+  }
+}
+
 // ── Notification preference check ──
 
 export function isNotificationEnabled(

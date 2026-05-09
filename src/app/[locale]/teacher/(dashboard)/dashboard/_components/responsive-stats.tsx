@@ -50,8 +50,8 @@ export function ResponsiveStats({
   const mobileCircumference = 2 * Math.PI * mobileRadius
   const mobileStrokeDashoffset = mobileCircumference * (1 - completionRate)
 
-  const desktopSize = 120
-  const desktopStrokeWidth = 12
+  const desktopSize = 90
+  const desktopStrokeWidth = 10
   const desktopRadius = (desktopSize - desktopStrokeWidth) / 2
   const desktopCircumference = 2 * Math.PI * desktopRadius
   const desktopStrokeDashoffset = desktopCircumference * (1 - completionRate)
@@ -63,7 +63,7 @@ export function ResponsiveStats({
     : <><Minus className="w-3.5 md:w-4 h-3.5 md:h-4 text-gray-400 dark:text-[#6D5A8A]" /><span className="text-xs font-semibold text-gray-400 dark:text-[#6D5A8A]">{t('momFlat')}</span></>
 
   return (
-    <div className="h-full rounded-2xl border border-[#E5E0D8] md:border-gray-200 dark:border-[#2E2840] bg-white dark:bg-[#1E1A2B] p-4 md:p-6 flex flex-col gap-2 shadow-[0_2px_8px_rgba(0,0,0,0.03)] md:shadow-none">
+    <div className="h-full rounded-2xl border border-[#E5E0D8] md:border-gray-200 dark:border-[#2E2840] bg-white dark:bg-[#1E1A2B] p-4 md:p-5 lg:p-4 flex flex-col gap-2 shadow-[0_2px_8px_rgba(0,0,0,0.03)] md:shadow-none">
       {/* Header — mobile: collapsible with summary, desktop: simple title */}
       <div className="md:hidden">
         <button onClick={() => setExpanded(!expanded)} className="flex items-center justify-between w-full">
@@ -136,8 +136,8 @@ export function ResponsiveStats({
 
         {/* Desktop: centered column layout */}
         <div className="hidden md:flex md:flex-col md:gap-2">
-          {/* Desktop progress ring (120px) */}
-          <div className="flex justify-center py-2">
+          {/* Desktop progress ring */}
+          <div className="flex justify-center py-1">
             <div className="relative" style={{ width: desktopSize, height: desktopSize }}>
               <svg viewBox={`0 0 ${desktopSize} ${desktopSize}`} className="w-full h-full">
                 <circle
@@ -163,7 +163,7 @@ export function ResponsiveStats({
                 </defs>
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-[30px] font-black text-[#2D1B4E] dark:text-[#E8E4F0]">{completionPercent}%</span>
+                <span className="text-[22px] font-black text-[#2D1B4E] dark:text-[#E8E4F0]">{completionPercent}%</span>
                 {remaining > 0 && (
                   <span className="text-[10px] font-semibold text-[#7C3AED] dark:text-[#A78BFA]">{t('remainingLessons', { count: remaining })}</span>
                 )}
@@ -175,14 +175,14 @@ export function ResponsiveStats({
           <div className="flex items-center justify-center gap-2">
             <CheckCircle className="w-[18px] h-[18px] text-[#7C3AED] dark:text-[#A78BFA]" />
             <div className="flex items-end gap-1">
-              <span className="text-[28px] font-black text-[#2D1B4E] dark:text-[#E8E4F0] leading-none">{thisMonthDone}</span>
-              <span className="text-[13px] font-medium text-gray-500 dark:text-[#6D5A8A] mb-0.5">{t('completedSlashTotal', { total: thisMonthTotal })}</span>
+              <span className="text-[22px] font-black text-[#2D1B4E] dark:text-[#E8E4F0] leading-none">{thisMonthDone}</span>
+              <span className="text-[12px] font-medium text-gray-500 dark:text-[#6D5A8A] mb-0.5">{t('completedSlashTotal', { total: thisMonthTotal })}</span>
             </div>
           </div>
 
           {/* Income section */}
-          <div className="flex flex-col items-center gap-1 mt-2">
-            <span className="text-[28px] font-black text-gray-800 dark:text-[#E8E4F0] leading-none">{incomeFormatted}</span>
+          <div className="flex flex-col items-center gap-1 mt-1">
+            <span className="text-[22px] font-black text-gray-800 dark:text-[#E8E4F0] leading-none">{incomeFormatted}</span>
             <span className="text-[11px] text-gray-400 dark:text-[#6D5A8A]">{t('monthlyIncome')}</span>
             <div className="flex items-center gap-1">
               {trendIcon}

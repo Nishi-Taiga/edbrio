@@ -17,22 +17,22 @@ function getStripe() {
 export async function DELETE() {
   try {
     const supabase = await createClient()
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const userId = session.user.id
+    const userId = user.id
     const admin = createAdminClient()
 
     // Get user role and teacher info
-    const { data: user, error: userError } = await admin
+    const { data: dbUser, error: userError } = await admin
       .from('users')
       .select('role')
       .eq('id', userId)
       .single()
 
-    if (userError || !user) {
+    if (userError || !dbUser) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
@@ -42,7 +42,7 @@ export async function DELETE() {
 
     // For teachers: also delete booking_reports that reference their bookings
     // (booking_reports.booking_id references bookings(id) without CASCADE)
-    if (user.role === 'teacher') {
+    if (dbUser.role === 'teacher') {
       const { data: bookings } = await admin
         .from('bookings')
         .select('id')
@@ -56,7 +56,7 @@ export async function DELETE() {
     }
 
     // For teachers: cancel Stripe subscription if active
-    if (user.role === 'teacher') {
+    if (dbUser.role === 'teacher') {
       const { data: teacher } = await admin
         .from('teachers')
         .select('stripe_subscription_id')
@@ -87,7 +87,7 @@ export async function DELETE() {
 
     // Clean up chat images (non-fatal)
     try {
-      const col = user.role === 'teacher' ? 'teacher_id' : 'guardian_id'
+      const col = dbUser.role === 'teacher' ? 'teacher_id' : 'guardian_id'
       const { data: convos } = await admin
         .from('conversations')
         .select('id')

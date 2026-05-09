@@ -8,9 +8,9 @@ export const dynamic = 'force-dynamic'
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-    if (!session) {
+    if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -23,19 +23,25 @@ export async function POST(req: NextRequest) {
 
     const admin = createAdminClient()
 
-    // Validate token
-    const { data: invite } = await admin
+    // Atomically mark invite as used and return it (prevents TOCTOU race condition)
+    const { data: invite, error: inviteError } = await admin
       .from('invites')
-      .select('*')
+      .update({ used: true, accepted_at: new Date().toISOString() })
       .eq('token', token)
       .eq('used', false)
-      .single()
+      .select('*')
+      .maybeSingle()
 
-    if (!invite) {
+    if (inviteError || !invite) {
       return NextResponse.json({ error: 'Invalid or used invite' }, { status: 404 })
     }
 
     if (new Date(invite.expires_at) < new Date()) {
+      // Revert: invite was expired but we already marked it used
+      await admin
+        .from('invites')
+        .update({ used: false, accepted_at: null })
+        .eq('id', invite.id)
       return NextResponse.json({ error: 'Invite expired' }, { status: 410 })
     }
 
@@ -43,18 +49,17 @@ export async function POST(req: NextRequest) {
     const { data: dbUser } = await admin
       .from('users')
       .select('role')
-      .eq('id', session.user.id)
+      .eq('id', user.id)
       .single()
 
     if (dbUser?.role !== 'guardian') {
+      // Revert: user is not a guardian
+      await admin
+        .from('invites')
+        .update({ used: false, accepted_at: null })
+        .eq('id', invite.id)
       return NextResponse.json({ error: 'Only guardian accounts can accept invites' }, { status: 403 })
     }
-
-    // Mark invite as used
-    await admin
-      .from('invites')
-      .update({ used: true, accepted_at: new Date().toISOString() })
-      .eq('id', invite.id)
 
     return NextResponse.json({ success: true, teacherId: invite.teacher_id })
   } catch (error: unknown) {
