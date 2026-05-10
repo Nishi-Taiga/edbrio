@@ -286,11 +286,18 @@ export function GanttChart({
         if (fromIdx === toIdx) return;
         const [moved] = subjectMats.splice(fromIdx, 1);
         subjectMats.splice(toIdx, 0, moved);
-        // Reassign order_index for this subject's materials
-        const updates = subjectMats.map((m, i) => ({
-          id: m.id,
-          order_index: i,
-        }));
+        // Reassign order_index globally so subjects keep their relative order.
+        // Reordering only the dragged subject's materials would leave overlapping
+        // order_index values across subjects and the next render would lose the
+        // subject grouping.
+        const updates: Array<{ id: string; order_index: number }> = [];
+        let orderIdx = 0;
+        for (const subj of subjects) {
+          const subjectGroup = subj === subject ? subjectMats : grouped[subj];
+          for (const mat of subjectGroup) {
+            updates.push({ id: mat.id, order_index: orderIdx++ });
+          }
+        }
         onReorderMaterials(updates);
       } else {
         // Reorder subjects: reassign order_index across all materials
