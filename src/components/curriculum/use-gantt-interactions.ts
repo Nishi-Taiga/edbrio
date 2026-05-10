@@ -10,21 +10,19 @@ export type GanttDragState =
 
 function clamp(v: number, lo: number, hi: number) { return Math.max(lo, Math.min(hi, v)) }
 
-/** Format a Date as a local YYYY-MM-DD string (avoids UTC timezone shift). */
-function formatLocalDate(d: Date): string {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
-}
-
+/**
+ * Gantt drag interactions in week-index space.
+ *
+ * Pixel positions on the timeline are mapped to 1-based week indices
+ * relative to the academic year, matching the storage format on
+ * curriculum_phases.start_week / end_week. The hook never touches dates.
+ */
 export function useGanttInteractions(
   timelineRef: React.RefObject<HTMLDivElement | null>,
   timelineWidth: number,
-  totalDays: number,
-  academicYearStart: Date,
-  onUpdatePhase: (id: string, updates: { start_date?: string; end_date?: string }) => Promise<void>,
-  onAddPhase: (materialId: string, startDate?: string, endDate?: string) => void,
+  totalWeeks: number,
+  onUpdatePhase: (id: string, updates: { start_week?: number; end_week?: number }) => Promise<void>,
+  onAddPhase: (materialId: string, startWeek?: number, endWeek?: number) => void,
 ) {
   const [dragState, setDragState] = useState<GanttDragState>(null)
   const skipClickRef = useRef(false)
@@ -41,13 +39,12 @@ export function useGanttInteractions(
     return clientX - el.getBoundingClientRect().left + el.scrollLeft
   }, [timelineRef])
 
-  const xToDate = useCallback((x: number): string => {
+  /** Pixel offset → 1-based week index (snaps to nearest week, clamped). */
+  const xToWeek = useCallback((x: number): number => {
     const cx = clamp(x, 0, timelineWidth)
-    const days = Math.round((cx / timelineWidth) * totalDays)
-    const d = new Date(academicYearStart)
-    d.setDate(d.getDate() + days)
-    return formatLocalDate(d)
-  }, [timelineWidth, totalDays, academicYearStart])
+    const week = Math.round((cx / timelineWidth) * totalWeeks) + 1
+    return clamp(week, 1, totalWeeks)
+  }, [timelineWidth, totalWeeks])
 
   /** Click/drag on empty timeline space to create a new phase */
   const handleRowMouseDown = useCallback((e: React.MouseEvent, materialId: string) => {
@@ -68,18 +65,17 @@ export function useGanttInteractions(
       const lo = Math.min(startX, endX)
       const hi = Math.max(startX, endX)
       if (hi - lo > 5) {
-        addPhaseRef.current(materialId, xToDate(lo), xToDate(hi))
+        addPhaseRef.current(materialId, xToWeek(lo), xToWeek(hi))
       } else {
-        const d = xToDate(endX)
-        const [y, m, day] = d.split('-').map(Number)
-        const end = new Date(y, m - 1, day)
-        end.setDate(end.getDate() + 14)
-        addPhaseRef.current(materialId, d, formatLocalDate(end))
+        // Click: default to a 2-week phase from the click point
+        const start = xToWeek(endX)
+        const end = clamp(start + 1, 1, totalWeeks)
+        addPhaseRef.current(materialId, start, end)
       }
     }
     window.addEventListener('mousemove', onMove)
     window.addEventListener('mouseup', onUp)
-  }, [getX, xToDate])
+  }, [getX, xToWeek, totalWeeks])
 
   /** Drag phase edge to resize */
   const handleEdgeMouseDown = useCallback((
@@ -106,15 +102,15 @@ export function useGanttInteractions(
       setTimeout(() => { skipClickRef.current = false }, 50)
       if (edge === 'left') {
         const newLeft = clamp(origLeft + delta, 0, origRight - 10)
-        updatePhaseRef.current(phaseId, { start_date: xToDate(newLeft) })
+        updatePhaseRef.current(phaseId, { start_week: xToWeek(newLeft) })
       } else {
         const newRight = clamp(origRight + delta, origLeft + 10, timelineWidth)
-        updatePhaseRef.current(phaseId, { end_date: xToDate(newRight) })
+        updatePhaseRef.current(phaseId, { end_week: xToWeek(newRight) })
       }
     }
     window.addEventListener('mousemove', onMove)
     window.addEventListener('mouseup', onUp)
-  }, [xToDate, timelineWidth])
+  }, [xToWeek, timelineWidth])
 
   /** Drag phase bar to move */
   const handleBarMouseDown = useCallback((
@@ -143,13 +139,13 @@ export function useGanttInteractions(
       const delta = me.clientX - startClientX
       const newLeft = clamp(origLeft + delta, 0, timelineWidth - barWidth)
       updatePhaseRef.current(phaseId, {
-        start_date: xToDate(newLeft),
-        end_date: xToDate(newLeft + barWidth),
+        start_week: xToWeek(newLeft),
+        end_week: xToWeek(newLeft + barWidth),
       })
     }
     window.addEventListener('mousemove', onMove)
     window.addEventListener('mouseup', onUp)
-  }, [xToDate, timelineWidth])
+  }, [xToWeek, timelineWidth])
 
   /** Compute visual bounds for a phase during drag (resize or move) */
   const getVisualBounds = useCallback((phaseId: string, defaultLeft: number, defaultWidth: number): { left: number; width: number } => {
@@ -188,6 +184,6 @@ export function useGanttInteractions(
     handleBarMouseDown,
     getVisualBounds,
     createPreview,
-    xToDate,
+    xToWeek,
   }
 }

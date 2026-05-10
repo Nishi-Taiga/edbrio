@@ -357,7 +357,13 @@ export interface CurriculumPhase {
   material_id: string;
   phase_name: string;
   total_hours?: number;
+  /** 1-based week index within the material's academic year (April → next March). */
+  start_week?: number;
+  /** 1-based week index within the material's academic year. */
+  end_week?: number;
+  /** @deprecated derived from start_week on write; kept for legacy reads. */
   start_date?: string;
+  /** @deprecated derived from end_week on write; kept for legacy reads. */
   end_date?: string;
   is_date_manual: boolean;
   status: PhaseStatus;

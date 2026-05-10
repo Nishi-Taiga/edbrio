@@ -20,94 +20,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
+import { generateWeekOptions } from "@/lib/curriculum/week";
 
 interface PhaseFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (phase: {
     phase_name: string;
-    start_date?: string;
-    end_date?: string;
+    start_week?: number;
+    end_week?: number;
   }) => Promise<void>;
   initialData?: {
     phase_name: string;
-    start_date?: string;
-    end_date?: string;
+    start_week?: number;
+    end_week?: number;
   };
   materialName?: string;
   curriculumYear?: string;
   t: (key: string) => string;
-}
-
-/** Format a Date as a local YYYY-MM-DD string (avoids UTC timezone shift). */
-function formatLocalDate(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
-
-/** Generate weekly options for an academic year (April–March) */
-function generateWeeks(year: number) {
-  const weeks: { value: string; label: string; date: string }[] = [];
-  const start = new Date(year, 3, 1); // April 1
-  // Align to Monday
-  const day = start.getDay();
-  const offset = day === 0 ? 1 : day === 1 ? 0 : 8 - day;
-  const firstMonday = new Date(start);
-  firstMonday.setDate(start.getDate() + offset);
-
-  const end = new Date(year + 1, 2, 31); // March 31
-  const cursor = new Date(firstMonday);
-  let weekNum = 1;
-
-  while (cursor <= end) {
-    const monthLabel = `${cursor.getMonth() + 1}月`;
-    const dateStr = formatLocalDate(cursor);
-    weeks.push({
-      value: dateStr,
-      label: `${monthLabel} 第${weekNum}週`,
-      date: dateStr,
-    });
-
-    // Check if next week is a new month
-    const nextMonday = new Date(cursor);
-    nextMonday.setDate(cursor.getDate() + 7);
-    if (nextMonday.getMonth() !== cursor.getMonth()) {
-      weekNum = 1;
-    } else {
-      weekNum++;
-    }
-
-    cursor.setDate(cursor.getDate() + 7);
-  }
-
-  return weeks;
-}
-
-/** Find the closest week start date for a given date */
-function dateToWeek(dateStr: string, weeks: { value: string }[]): string {
-  if (!dateStr || weeks.length === 0) return "";
-  const target = new Date(dateStr).getTime();
-  let closest = weeks[0].value;
-  let minDiff = Infinity;
-  for (const w of weeks) {
-    const diff = Math.abs(new Date(w.value).getTime() - target);
-    if (diff < minDiff) {
-      minDiff = diff;
-      closest = w.value;
-    }
-  }
-  return closest;
-}
-
-/** Get end-of-week date (Sunday) for a Monday date */
-function weekEndDate(mondayStr: string): string {
-  // Parse YYYY-MM-DD as a local date so subsequent arithmetic stays in local time.
-  const [y, m, d] = mondayStr.split("-").map(Number);
-  const date = new Date(y, m - 1, d);
-  date.setDate(date.getDate() + 6);
-  return formatLocalDate(date);
 }
 
 export function PhaseForm({
@@ -120,8 +50,8 @@ export function PhaseForm({
   t,
 }: PhaseFormProps) {
   const [phaseName, setPhaseName] = useState("");
-  const [startWeek, setStartWeek] = useState("");
-  const [endWeek, setEndWeek] = useState("");
+  const [startWeek, setStartWeek] = useState<string>("");
+  const [endWeek, setEndWeek] = useState<string>("");
   const [saving, setSaving] = useState(false);
 
   const now = new Date();
@@ -131,21 +61,17 @@ export function PhaseForm({
       ? now.getFullYear() - 1
       : now.getFullYear();
 
-  const weeks = useMemo(() => generateWeeks(year), [year]);
+  const weeks = useMemo(() => generateWeekOptions(year), [year]);
 
   useEffect(() => {
     if (open) {
       setPhaseName(initialData?.phase_name ?? "");
       setStartWeek(
-        initialData?.start_date
-          ? dateToWeek(initialData.start_date, weeks)
-          : "",
+        initialData?.start_week ? String(initialData.start_week) : "",
       );
-      setEndWeek(
-        initialData?.end_date ? dateToWeek(initialData.end_date, weeks) : "",
-      );
+      setEndWeek(initialData?.end_week ? String(initialData.end_week) : "");
     }
-  }, [open, initialData, weeks]);
+  }, [open, initialData]);
 
   const handleSubmit = async () => {
     if (!phaseName.trim()) return;
@@ -153,8 +79,8 @@ export function PhaseForm({
     try {
       await onSubmit({
         phase_name: phaseName.trim(),
-        start_date: startWeek || undefined,
-        end_date: endWeek ? weekEndDate(endWeek) : undefined,
+        start_week: startWeek ? Number(startWeek) : undefined,
+        end_week: endWeek ? Number(endWeek) : undefined,
       });
       onOpenChange(false);
     } finally {
@@ -165,8 +91,9 @@ export function PhaseForm({
   const isEdit = !!initialData;
 
   // Filter end weeks to be >= start week
-  const endWeekOptions = startWeek
-    ? weeks.filter((w) => w.value >= startWeek)
+  const startWeekNum = startWeek ? Number(startWeek) : null;
+  const endWeekOptions = startWeekNum
+    ? weeks.filter((w) => w.value >= startWeekNum)
     : weeks;
 
   return (
@@ -202,7 +129,7 @@ export function PhaseForm({
                   {weeks.map((w) => (
                     <SelectItem
                       key={w.value}
-                      value={w.value}
+                      value={String(w.value)}
                       className="text-xs"
                     >
                       {w.label}
@@ -221,7 +148,7 @@ export function PhaseForm({
                   {endWeekOptions.map((w) => (
                     <SelectItem
                       key={w.value}
-                      value={w.value}
+                      value={String(w.value)}
                       className="text-xs"
                     >
                       {w.label}

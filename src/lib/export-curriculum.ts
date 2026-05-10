@@ -4,6 +4,7 @@ import type {
   ExamSchedule,
   PhaseTask,
 } from "@/lib/types/database";
+import { weekIndexToLabel } from "@/lib/curriculum/week";
 
 type ExportResult = { success: boolean; error?: string };
 
@@ -153,13 +154,24 @@ export async function exportCurriculumExcel(data: {
               ? "進行中"
               : "未着手";
 
+        const yearNum = material.curriculum_year
+          ? Number(material.curriculum_year)
+          : NaN;
+        const startWeekLabel =
+          phase.start_week && Number.isFinite(yearNum)
+            ? weekIndexToLabel(yearNum, phase.start_week)
+            : (phase.start_date ?? "");
+        const endWeekLabel =
+          phase.end_week && Number.isFinite(yearNum)
+            ? weekIndexToLabel(yearNum, phase.end_week)
+            : (phase.end_date ?? "");
         curriculumRows.push({
           科目: material.subject,
           教材名: material.material_name,
           フェーズ: phase.phase_name,
           "所要時間(h)": phase.total_hours ?? "",
-          開始日: phase.start_date ?? "",
-          終了日: phase.end_date ?? "",
+          開始週: startWeekLabel,
+          終了週: endWeekLabel,
           ステータス: statusLabel,
           進捗率: progressPercent,
         });

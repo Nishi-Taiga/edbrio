@@ -11,6 +11,11 @@ import {
 } from "@/lib/types/database";
 import { differenceInDays, startOfDay, format } from "date-fns";
 import { useGanttInteractions } from "@/components/curriculum/use-gantt-interactions";
+import {
+  academicYearWeekCount,
+  formatLocalDate,
+  weekIndexToLabel,
+} from "@/lib/curriculum/week";
 
 // --- Constants ---
 const LABEL_WIDTH = 180;
@@ -89,8 +94,8 @@ interface GanttChartProps {
   onDeleteMaterial: (id: string) => void;
   onAddPhase: (
     materialId: string,
-    startDate?: string,
-    endDate?: string,
+    startWeek?: number,
+    endWeek?: number,
   ) => void;
   onEditPhase: (phase: CurriculumPhase) => void;
   onDeletePhase: (id: string) => void;
@@ -346,6 +351,7 @@ export function GanttChart({
   const academicYearStart = useMemo(() => new Date(year, 3, 1), [year]); // April 1
   const academicYearEnd = useMemo(() => getAcademicYearEnd(year), [year]);
   const totalDays = differenceInDays(academicYearEnd, academicYearStart) + 1;
+  const totalWeeks = useMemo(() => academicYearWeekCount(year), [year]);
   const monthStarts = useMemo(() => getMonthStarts(year), [year]);
 
   // Mobile responsive values
@@ -364,12 +370,11 @@ export function GanttChart({
     handleBarMouseDown,
     getVisualBounds,
     createPreview,
-    xToDate,
+    xToWeek,
   } = useGanttInteractions(
     timelineRef,
     timelineWidth,
-    totalDays,
-    academicYearStart,
+    totalWeeks,
     onUpdatePhase,
     onAddPhase,
   );
@@ -523,27 +528,11 @@ export function GanttChart({
 
   // Render a phase bar with drag handles
   function renderPhaseBar(phase: CurriculumPhase, mat: CurriculumMaterial) {
-    if (!phase.start_date || !phase.end_date) return null;
-    // Hide phases completely outside the current academic year
-    const phaseStart = new Date(phase.start_date);
-    const phaseEnd = new Date(phase.end_date);
-    if (phaseEnd < academicYearStart || phaseStart > academicYearEnd)
-      return null;
-    // Snap to week boundaries (Monday start, Sunday end)
-    const snappedStart = snapToMonday(phaseStart);
-    const snappedEnd = snapToSunday(phaseEnd);
-    const rawX1 = dateToX(
-      snappedStart,
-      academicYearStart,
-      timelineWidth,
-      totalDays,
-    );
-    const rawX2 = dateToX(
-      snappedEnd,
-      academicYearStart,
-      timelineWidth,
-      totalDays,
-    );
+    if (phase.start_week == null || phase.end_week == null) return null;
+    if (phase.start_week > totalWeeks || phase.end_week < 1) return null;
+    // Convert 1-based week index → pixel x (week 1 starts at x=0, week N ends at x=timelineWidth).
+    const rawX1 = ((phase.start_week - 1) / totalWeeks) * timelineWidth;
+    const rawX2 = (phase.end_week / totalWeeks) * timelineWidth;
     const rawWidth = Math.max(20, rawX2 - rawX1);
 
     // Apply drag/resize visual offsets
@@ -957,16 +946,11 @@ export function GanttChart({
                     e.clientX -
                     rect.left +
                     (timelineRef.current?.scrollLeft ?? 0);
-                  const dateStr = xToDate(clickX);
-                  const d = new Date(dateStr);
-                  if (isNaN(d.getTime())) {
-                    setHoverInfo(null);
-                    return;
-                  }
+                  const week = xToWeek(clickX);
                   setHoverInfo({
                     x: e.clientX - rect.left,
                     y: e.clientY - rect.top,
-                    label: getWeekLabel(d),
+                    label: weekIndexToLabel(year, week),
                   });
                 }
           }
@@ -1035,8 +1019,12 @@ export function GanttChart({
                         return;
                       const rect = e.currentTarget.getBoundingClientRect();
                       const clickX = e.clientX - rect.left;
-                      const date = xToDate(clickX);
-                      onAddExam(date);
+                      // Exams stay date-based: pixel → day offset from academic year start.
+                      const cx = Math.max(0, Math.min(timelineWidth, clickX));
+                      const days = Math.round((cx / timelineWidth) * totalDays);
+                      const d = new Date(academicYearStart);
+                      d.setDate(d.getDate() + days);
+                      onAddExam(formatLocalDate(d));
                     }
               }
             >
@@ -1092,14 +1080,15 @@ export function GanttChart({
                     {createPreview &&
                       createPreview.materialId === mat.id &&
                       (() => {
-                        const previewStartDate = xToDate(createPreview.left);
-                        const previewEndDate = xToDate(
+                        const previewStartWeek = xToWeek(createPreview.left);
+                        const previewEndWeek = xToWeek(
                           createPreview.left + createPreview.width,
                         );
-                        const startLabel = getWeekLabel(
-                          new Date(previewStartDate),
+                        const startLabel = weekIndexToLabel(
+                          year,
+                          previewStartWeek,
                         );
-                        const endLabel = getWeekLabel(new Date(previewEndDate));
+                        const endLabel = weekIndexToLabel(year, previewEndWeek);
                         return (
                           <div
                             className="absolute rounded opacity-40 pointer-events-none"

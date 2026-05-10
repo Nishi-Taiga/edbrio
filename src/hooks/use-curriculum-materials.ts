@@ -7,6 +7,29 @@ import {
   CurriculumPhase,
   PhaseTask,
 } from "@/lib/types/database";
+import {
+  weekIndexToStartDate,
+  weekIndexToEndDate,
+} from "@/lib/curriculum/week";
+
+/**
+ * Derive start_date / end_date from start_week / end_week when present, so the
+ * legacy date columns stay in sync. Uses the material's curriculum_year.
+ */
+function deriveDatesForPhase<T extends Partial<CurriculumPhase>>(
+  phase: T,
+  curriculumYear: number | undefined,
+): T {
+  if (!curriculumYear) return phase;
+  const next = { ...phase };
+  if (phase.start_week != null) {
+    next.start_date = weekIndexToStartDate(curriculumYear, phase.start_week);
+  }
+  if (phase.end_week != null) {
+    next.end_date = weekIndexToEndDate(curriculumYear, phase.end_week);
+  }
+  return next;
+}
 
 export function useCurriculumMaterials(
   profileId: string | undefined,
@@ -147,17 +170,28 @@ export function useCurriculumMaterials(
   const addPhase = async (
     phase: Omit<CurriculumPhase, "id" | "created_at" | "updated_at">,
   ) => {
+    const material = materials.find((m) => m.id === phase.material_id);
+    const year = material?.curriculum_year
+      ? Number(material.curriculum_year)
+      : undefined;
     const { error: err } = await supabase
       .from("curriculum_phases")
-      .insert(phase);
+      .insert(deriveDatesForPhase(phase, year));
     if (err) throw err;
     await fetchAll();
   };
 
   const updatePhase = async (id: string, updates: Partial<CurriculumPhase>) => {
+    // Find the material to know which academic year this phase belongs to.
+    const phase = phases.find((p) => p.id === id);
+    const material = materials.find((m) => m.id === phase?.material_id);
+    const year = material?.curriculum_year
+      ? Number(material.curriculum_year)
+      : undefined;
+    const finalUpdates = deriveDatesForPhase(updates, year);
     const { error: err } = await supabase
       .from("curriculum_phases")
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update({ ...finalUpdates, updated_at: new Date().toISOString() })
       .eq("id", id);
     if (err) throw err;
     await fetchAll();
@@ -235,24 +269,25 @@ export function useCurriculumMaterials(
       if (matErr || !newMat) continue;
 
       const matPhases = phases.filter((p) => p.material_id === mat.id);
+      const nextYearNum = Number(nextYear);
       for (const phase of matPhases) {
-        // Shift dates by 1 year
-        const shiftDate = (d?: string) => {
-          if (!d) return undefined;
-          const date = new Date(d);
-          date.setFullYear(date.getFullYear() + 1);
-          return date.toISOString().slice(0, 10);
-        };
-        await supabase.from("curriculum_phases").insert({
-          material_id: newMat.id,
-          phase_name: phase.phase_name,
-          total_hours: phase.total_hours,
-          start_date: shiftDate(phase.start_date),
-          end_date: shiftDate(phase.end_date),
-          is_date_manual: phase.is_date_manual,
-          status: "not_started",
-          order_index: phase.order_index,
-        });
+        // Week indices are relative to academic year, so they copy as-is.
+        // Re-derive the legacy date columns against the new year.
+        await supabase.from("curriculum_phases").insert(
+          deriveDatesForPhase(
+            {
+              material_id: newMat.id,
+              phase_name: phase.phase_name,
+              total_hours: phase.total_hours,
+              start_week: phase.start_week,
+              end_week: phase.end_week,
+              is_date_manual: phase.is_date_manual,
+              status: "not_started",
+              order_index: phase.order_index,
+            },
+            Number.isFinite(nextYearNum) ? nextYearNum : undefined,
+          ),
+        );
       }
     }
     await fetchAll();

@@ -12,13 +12,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Check, Plus, Trash2, Pencil, Loader2 } from "lucide-react";
 import type { CurriculumPhase, PhaseTask } from "@/lib/types/database";
-import { getWeekLabel } from "@/components/curriculum/gantt-chart";
+import { weekIndexToLabel } from "@/lib/curriculum/week";
 
 interface PhaseDetailDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   phase: CurriculumPhase | null;
   materialName: string;
+  /** Academic year of the phase's material (e.g. "2026"). Used for week labels. */
+  curriculumYear?: string;
   tasks: PhaseTask[];
   onAddTask: (task: { phase_id: string; task_name: string }) => Promise<void>;
   onUpdateTask: (id: string, updates: Partial<PhaseTask>) => Promise<void>;
@@ -36,6 +38,7 @@ export function PhaseDetailDialog({
   onOpenChange,
   phase,
   materialName,
+  curriculumYear,
   tasks,
   onAddTask,
   onUpdateTask,
@@ -161,10 +164,10 @@ export function PhaseDetailDialog({
             </div>
           </div>
           <p className="text-xs text-muted-foreground">{materialName}</p>
-          {phase.start_date && phase.end_date && (
+          {phase.start_week && phase.end_week && curriculumYear && (
             <p className="text-xs text-muted-foreground">
-              {getWeekLabel(new Date(phase.start_date))} 〜{" "}
-              {getWeekLabel(new Date(phase.end_date))}
+              {weekIndexToLabel(Number(curriculumYear), phase.start_week)} 〜{" "}
+              {weekIndexToLabel(Number(curriculumYear), phase.end_week)}
             </p>
           )}
         </DialogHeader>
