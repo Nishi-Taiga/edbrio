@@ -175,8 +175,9 @@ export const updateSession = async (request: NextRequest, existingResponse?: Nex
   }
 
   // Wrap the entire Supabase session refresh so that ANY error (auth, cookie
-  // write, network) never crashes the middleware Lambda — the page itself
-  // handles unauthenticated state.
+  // write, network, hang) never blocks the middleware — the page itself
+  // handles unauthenticated state. A 2s timeout guards against the Supabase
+  // SDK looping internally on bad refresh tokens.
   try {
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -203,10 +204,15 @@ export const updateSession = async (request: NextRequest, existingResponse?: Nex
       }
     )
 
-    await supabase.auth.getUser()
+    await Promise.race([
+      supabase.auth.getUser(),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('supabase.auth.getUser timeout')), 2000)
+      ),
+    ])
   } catch {
-    // Invalid JWT / refresh token / network error — let downstream code treat
-    // the user as unauthenticated instead of crashing the request
+    // Invalid JWT / refresh token / network error / timeout — let downstream
+    // code treat the user as unauthenticated instead of crashing the request
   }
 
   return addSecurityHeaders(response)
