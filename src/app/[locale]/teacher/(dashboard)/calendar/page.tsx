@@ -99,16 +99,25 @@ export default function TeacherCalendarPage() {
     const ids = [...new Set(bookings.map(b => b.student_id))]
     supabase
       .from('student_profiles')
-      .select('student_id, name, subjects')
+      // Derive subject label from the first curriculum_material (subjects no
+      // longer live on the profile itself).
+      .select('student_id, name, curriculum_materials(subject, order_index)')
       .in('student_id', ids)
       .then(({ data }) => {
         if (data) {
           const nameMap: Record<string, string> = {}
           const subjectMap: Record<string, string> = {}
-          data.forEach((p: { student_id: string | null; name: string; subjects: string[] }) => {
+          ;(data as Array<{
+            student_id: string | null
+            name: string
+            curriculum_materials?: Array<{ subject: string; order_index: number }>
+          }>).forEach((p) => {
             if (p.student_id) {
               nameMap[p.student_id] = p.name
-              if (p.subjects?.length > 0) subjectMap[p.student_id] = p.subjects[0]
+              const firstMaterial = (p.curriculum_materials ?? [])
+                .slice()
+                .sort((a, b) => a.order_index - b.order_index)[0]
+              if (firstMaterial) subjectMap[p.student_id] = firstMaterial.subject
             }
           })
           setStudentNames(nameMap)

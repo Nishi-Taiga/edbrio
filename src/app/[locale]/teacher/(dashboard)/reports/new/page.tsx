@@ -111,15 +111,30 @@ function NewReportContent() {
 
       const reportedBookingIds = new Set((reports || []).map(r => r.booking_id))
 
-      // Get student profiles for this teacher (to map student_id → profile)
+      // Get student profiles for this teacher (to map student_id → profile).
+      // Subjects come from curriculum_materials now, so we pull them via the join.
       const { data: profiles } = await supabase
         .from('student_profiles')
-        .select('id, student_id, name, subjects')
+        .select('id, student_id, name, curriculum_materials(subject, order_index)')
         .eq('teacher_id', user.id)
 
       const profileMap = new Map<string, { id: string; name: string; subjects: string[] }>()
-      for (const p of profiles || []) {
-        if (p.student_id) profileMap.set(p.student_id, { id: p.id, name: p.name, subjects: p.subjects || [] })
+      for (const p of (profiles ?? []) as Array<{
+        id: string
+        student_id: string | null
+        name: string
+        curriculum_materials?: Array<{ subject: string; order_index: number }>
+      }>) {
+        if (!p.student_id) continue
+        const subjects = Array.from(
+          new Set(
+            (p.curriculum_materials ?? [])
+              .slice()
+              .sort((a, b) => a.order_index - b.order_index)
+              .map((m) => m.subject),
+          ),
+        )
+        profileMap.set(p.student_id, { id: p.id, name: p.name, subjects })
       }
 
       // Filter: unreported bookings that have a matching student profile

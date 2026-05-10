@@ -227,7 +227,6 @@ export interface StudentProfile {
   grade?: string;
   school?: string;
   birth_date?: string;
-  subjects: string[];
   personality_notes?: string;
   enrollment_date?: string;
   status: string;

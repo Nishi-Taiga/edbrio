@@ -14,6 +14,9 @@ interface CurriculumProfileProps {
   onUpdate: (id: string, updates: Partial<StudentProfile>) => Promise<void>
 }
 
+// `subjects` is no longer stored on the profile. The curriculum's materials
+// list is the source of truth for which subjects a student is studying, and
+// it's already shown elsewhere on the page.
 export function CurriculumProfile({ profile, onUpdate }: CurriculumProfileProps) {
   const t = useTranslations('curriculum.profile')
   const tc = useTranslations('common')
@@ -24,7 +27,6 @@ export function CurriculumProfile({ profile, onUpdate }: CurriculumProfileProps)
     grade: profile.grade || '',
     school: profile.school || '',
     birth_date: profile.birth_date || '',
-    subjects: (profile.subjects || []).join(', '),
     personality_notes: profile.personality_notes || '',
   })
 
@@ -36,7 +38,6 @@ export function CurriculumProfile({ profile, onUpdate }: CurriculumProfileProps)
         grade: form.grade || undefined,
         school: form.school || undefined,
         birth_date: form.birth_date || undefined,
-        subjects: form.subjects.split(',').map(s => s.trim()).filter(Boolean),
         personality_notes: form.personality_notes || undefined,
       })
       setEditing(false)
@@ -51,7 +52,6 @@ export function CurriculumProfile({ profile, onUpdate }: CurriculumProfileProps)
       grade: profile.grade || '',
       school: profile.school || '',
       birth_date: profile.birth_date || '',
-      subjects: (profile.subjects || []).join(', '),
       personality_notes: profile.personality_notes || '',
     })
     setEditing(false)
@@ -74,17 +74,6 @@ export function CurriculumProfile({ profile, onUpdate }: CurriculumProfileProps)
             <div><dt className="text-gray-500">{t('grade')}</dt><dd>{profile.grade || t('notSet')}</dd></div>
             <div><dt className="text-gray-500">{t('school')}</dt><dd>{profile.school || t('notSet')}</dd></div>
             <div><dt className="text-gray-500">{t('birthDate')}</dt><dd>{profile.birth_date || t('notSet')}</dd></div>
-            <div className="col-span-2">
-              <dt className="text-gray-500">{t('subjects')}</dt>
-              <dd className="flex flex-wrap gap-1 mt-1">
-                {profile.subjects && profile.subjects.length > 0
-                  ? profile.subjects.map(s => (
-                    <span key={s} className="bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200 text-xs rounded px-2 py-0.5">{s}</span>
-                  ))
-                  : <span className="text-gray-400">{t('notSet')}</span>
-                }
-              </dd>
-            </div>
             {profile.personality_notes && (
               <div className="col-span-2">
                 <dt className="text-gray-500">{t('personality')}</dt>
@@ -129,10 +118,6 @@ export function CurriculumProfile({ profile, onUpdate }: CurriculumProfileProps)
           <div>
             <Label htmlFor="birth_date">{t('birthDate')}</Label>
             <Input id="birth_date" type="date" value={form.birth_date} onChange={e => setForm(f => ({ ...f, birth_date: e.target.value }))} />
-          </div>
-          <div className="col-span-2">
-            <Label htmlFor="subjects">{t('subjectsLabel')}</Label>
-            <Input id="subjects" value={form.subjects} onChange={e => setForm(f => ({ ...f, subjects: e.target.value }))} placeholder={t('subjectsPlaceholder')} />
           </div>
         </div>
       </CardContent>

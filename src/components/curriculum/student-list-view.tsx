@@ -37,6 +37,7 @@ interface StudentListViewProps {
       StudentProfile,
       "id" | "teacher_id" | "created_at" | "updated_at"
     >,
+    options?: { initialSubjects?: string[] },
   ) => Promise<void>;
   updateProfile?: (
     id: string,
@@ -100,15 +101,17 @@ export function StudentListView({
     if (!newName.trim()) return;
     setSaving(true);
     try {
-      await createProfile({
-        name: newName.trim(),
-        grade: newGrade.trim() || undefined,
-        subjects: newSubjects,
-        status: "active",
-      } as Omit<
-        StudentProfile,
-        "id" | "teacher_id" | "created_at" | "updated_at"
-      >);
+      await createProfile(
+        {
+          name: newName.trim(),
+          grade: newGrade.trim() || undefined,
+          status: "active",
+        } as Omit<
+          StudentProfile,
+          "id" | "teacher_id" | "created_at" | "updated_at"
+        >,
+        { initialSubjects: newSubjects },
+      );
       setNewName("");
       setNewGrade("");
       setNewSubjects([]);
