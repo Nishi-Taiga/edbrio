@@ -152,6 +152,28 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
   return response
 }
 
+// Public routes that don't need Supabase session refresh in middleware.
+// Skipping the auth check here keeps these pages fast and crash-proof for
+// unauthenticated visitors (and visitors with stale invalid tokens).
+// Locale prefixes are handled via .includes().
+const PUBLIC_ROUTE_FRAGMENTS = [
+  '/curriculum/login',
+  '/curriculum/share/',
+  '/login',
+  '/forgot-password',
+  '/reset-password',
+  '/pre-register',
+  '/legal',
+  '/contact',
+  '/sitemap.xml',
+  '/robots.txt',
+]
+
+function isPublicRoute(pathname: string): boolean {
+  if (pathname === '/') return true
+  return PUBLIC_ROUTE_FRAGMENTS.some((fragment) => pathname.includes(fragment))
+}
+
 // ── Main middleware ──
 export const updateSession = async (request: NextRequest, existingResponse?: NextResponse) => {
   const { pathname } = request.nextUrl
@@ -168,6 +190,12 @@ export const updateSession = async (request: NextRequest, existingResponse?: Nex
       headers: request.headers,
     },
   })
+
+  // Public routes: skip Supabase entirely. No auth needed and refresh-token
+  // failures here have caused production hangs.
+  if (isPublicRoute(pathname)) {
+    return addSecurityHeaders(response)
+  }
 
   // Skip Supabase client creation during build if env vars are missing
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
