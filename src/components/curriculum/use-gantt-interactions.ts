@@ -10,6 +10,14 @@ export type GanttDragState =
 
 function clamp(v: number, lo: number, hi: number) { return Math.max(lo, Math.min(hi, v)) }
 
+/** Format a Date as a local YYYY-MM-DD string (avoids UTC timezone shift). */
+function formatLocalDate(d: Date): string {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
 export function useGanttInteractions(
   timelineRef: React.RefObject<HTMLDivElement | null>,
   timelineWidth: number,
@@ -38,7 +46,7 @@ export function useGanttInteractions(
     const days = Math.round((cx / timelineWidth) * totalDays)
     const d = new Date(academicYearStart)
     d.setDate(d.getDate() + days)
-    return d.toISOString().slice(0, 10)
+    return formatLocalDate(d)
   }, [timelineWidth, totalDays, academicYearStart])
 
   /** Click/drag on empty timeline space to create a new phase */
@@ -63,9 +71,10 @@ export function useGanttInteractions(
         addPhaseRef.current(materialId, xToDate(lo), xToDate(hi))
       } else {
         const d = xToDate(endX)
-        const end = new Date(d)
+        const [y, m, day] = d.split('-').map(Number)
+        const end = new Date(y, m - 1, day)
         end.setDate(end.getDate() + 14)
-        addPhaseRef.current(materialId, d, end.toISOString().slice(0, 10))
+        addPhaseRef.current(materialId, d, formatLocalDate(end))
       }
     }
     window.addEventListener('mousemove', onMove)

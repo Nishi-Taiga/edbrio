@@ -39,6 +39,14 @@ interface PhaseFormProps {
   t: (key: string) => string;
 }
 
+/** Format a Date as a local YYYY-MM-DD string (avoids UTC timezone shift). */
+function formatLocalDate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 /** Generate weekly options for an academic year (April–March) */
 function generateWeeks(year: number) {
   const weeks: { value: string; label: string; date: string }[] = [];
@@ -55,7 +63,7 @@ function generateWeeks(year: number) {
 
   while (cursor <= end) {
     const monthLabel = `${cursor.getMonth() + 1}月`;
-    const dateStr = cursor.toISOString().slice(0, 10);
+    const dateStr = formatLocalDate(cursor);
     weeks.push({
       value: dateStr,
       label: `${monthLabel} 第${weekNum}週`,
@@ -95,9 +103,11 @@ function dateToWeek(dateStr: string, weeks: { value: string }[]): string {
 
 /** Get end-of-week date (Sunday) for a Monday date */
 function weekEndDate(mondayStr: string): string {
-  const d = new Date(mondayStr);
-  d.setDate(d.getDate() + 6);
-  return d.toISOString().slice(0, 10);
+  // Parse YYYY-MM-DD as a local date so subsequent arithmetic stays in local time.
+  const [y, m, d] = mondayStr.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  date.setDate(date.getDate() + 6);
+  return formatLocalDate(date);
 }
 
 export function PhaseForm({
