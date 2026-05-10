@@ -198,8 +198,13 @@ export const updateSession = async (request: NextRequest, existingResponse?: Nex
     }
   )
 
-  // refreshing the auth token
-  await supabase.auth.getUser()
+  // refreshing the auth token (swallow AuthApiError from invalid/expired tokens
+  // so middleware never crashes the request — the page itself handles auth state)
+  try {
+    await supabase.auth.getUser()
+  } catch {
+    // Invalid JWT / refresh token — ignore; downstream code treats user as unauth
+  }
 
   return addSecurityHeaders(response)
 }
