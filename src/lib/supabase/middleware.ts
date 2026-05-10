@@ -174,36 +174,39 @@ export const updateSession = async (request: NextRequest, existingResponse?: Nex
     return addSecurityHeaders(response)
   }
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          // Preserve existing response if provided, otherwise create new
-          if (!existingResponse) {
-            response = NextResponse.next({
-              request,
-            })
-          }
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          )
-        },
-      },
-    }
-  )
-
-  // refreshing the auth token (swallow AuthApiError from invalid/expired tokens
-  // so middleware never crashes the request — the page itself handles auth state)
+  // Wrap the entire Supabase session refresh so that ANY error (auth, cookie
+  // write, network) never crashes the middleware Lambda — the page itself
+  // handles unauthenticated state.
   try {
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll()
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+              if (!existingResponse) {
+                response = NextResponse.next({ request })
+              }
+              cookiesToSet.forEach(({ name, value, options }) =>
+                response.cookies.set(name, value, options)
+              )
+            } catch {
+              // Cookie write failed (e.g. response already finalized) — ignore
+            }
+          },
+        },
+      }
+    )
+
     await supabase.auth.getUser()
   } catch {
-    // Invalid JWT / refresh token — ignore; downstream code treats user as unauth
+    // Invalid JWT / refresh token / network error — let downstream code treat
+    // the user as unauthenticated instead of crashing the request
   }
 
   return addSecurityHeaders(response)
