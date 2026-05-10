@@ -296,21 +296,21 @@ export default function StudentCurriculumPage() {
     setPrefilledSubject(null);
   };
 
-  // Phase handlers (optional dates from Gantt timeline click/drag)
-  const [prefilledPhaseDates, setPrefilledPhaseDates] = useState<{
-    start_date: string;
-    end_date: string;
+  // Phase handlers (optional week range from Gantt timeline click/drag)
+  const [prefilledPhaseWeeks, setPrefilledPhaseWeeks] = useState<{
+    start_week: number;
+    end_week: number;
   } | null>(null);
   const handleAddPhase = (
     materialId: string,
-    startDate?: string,
-    endDate?: string,
+    startWeek?: number,
+    endWeek?: number,
   ) => {
     setPhaseTargetMaterialId(materialId);
     setEditingPhase(null);
-    setPrefilledPhaseDates(
-      startDate && endDate
-        ? { start_date: startDate, end_date: endDate }
+    setPrefilledPhaseWeeks(
+      startWeek && endWeek
+        ? { start_week: startWeek, end_week: endWeek }
         : null,
     );
     setShowPhaseForm(true);
@@ -322,8 +322,8 @@ export default function StudentCurriculumPage() {
   };
   const handleSubmitPhase = async (data: {
     phase_name: string;
-    start_date?: string;
-    end_date?: string;
+    start_week?: number;
+    end_week?: number;
   }) => {
     if (editingPhase) {
       await updatePhase(editingPhase.id, data);
@@ -646,11 +646,11 @@ export default function StudentCurriculumPage() {
                 editingPhase
                   ? {
                       phase_name: editingPhase.phase_name,
-                      start_date: editingPhase.start_date || undefined,
-                      end_date: editingPhase.end_date || undefined,
+                      start_week: editingPhase.start_week ?? undefined,
+                      end_week: editingPhase.end_week ?? undefined,
                     }
-                  : prefilledPhaseDates
-                    ? { phase_name: "", ...prefilledPhaseDates }
+                  : prefilledPhaseWeeks
+                    ? { phase_name: "", ...prefilledPhaseWeeks }
                     : undefined
               }
               materialName={phaseTargetMaterialName}
@@ -665,6 +665,7 @@ export default function StudentCurriculumPage() {
               }}
               phase={detailPhase}
               materialName={detailMaterialName}
+              curriculumYear={selectedYear}
               tasks={phaseTasks.filter((t) => t.phase_id === detailPhase?.id)}
               onAddTask={addTask}
               onUpdateTask={updateTask}
