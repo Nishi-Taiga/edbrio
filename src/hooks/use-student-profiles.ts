@@ -48,6 +48,7 @@ export function useStudentProfiles(teacherId: string | undefined) {
       StudentProfile,
       "id" | "teacher_id" | "created_at" | "updated_at"
     >,
+    options?: { initialSubjects?: string[] },
   ) => {
     if (!teacherId) return null;
     const { data, error: err } = await supabase
@@ -57,13 +58,15 @@ export function useStudentProfiles(teacherId: string | undefined) {
       .single();
     if (err) throw err;
 
-    // Auto-create curriculum_materials for each subject
-    if (data && profile.subjects && profile.subjects.length > 0) {
+    // Seed curriculum_materials from the subjects the teacher picked at creation.
+    // After this point, subjects live only on curriculum_materials.
+    const initialSubjects = options?.initialSubjects ?? [];
+    if (data && initialSubjects.length > 0) {
       const now = new Date();
       const curriculumYear = String(
         now.getMonth() < 3 ? now.getFullYear() - 1 : now.getFullYear(),
       );
-      const materials = profile.subjects.map((subject, idx) => ({
+      const materials = initialSubjects.map((subject, idx) => ({
         profile_id: data.id,
         subject,
         material_name: subject,
