@@ -31,6 +31,17 @@ function deriveDatesForPhase<T extends Partial<CurriculumPhase>>(
   return next;
 }
 
+/**
+ * Generate a stable temporary id for optimistic inserts.
+ * `crypto.randomUUID` is supported in modern browsers and on Vercel Edge.
+ */
+function tempId(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  return `tmp-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 export function useCurriculumMaterials(
   profileId: string | undefined,
   curriculumYear?: string,
@@ -51,7 +62,6 @@ export function useCurriculumMaterials(
       return;
     }
     try {
-      setLoading(true);
       setError(null);
       let query = supabase
         .from("curriculum_materials")
@@ -87,7 +97,6 @@ export function useCurriculumMaterials(
         const fetchedPhases = phasesRes.data || [];
         setPhases(fetchedPhases);
 
-        // Fetch phase tasks (graceful: skip if table not yet created)
         if (fetchedPhases.length > 0) {
           const phaseIds = fetchedPhases.map((p) => p.id);
           const tasksRes = await supabase
@@ -123,6 +132,7 @@ export function useCurriculumMaterials(
 
   useEffect(() => {
     let mounted = true;
+    setLoading(true);
     fetchAll().then(() => {
       if (!mounted) return;
     });
@@ -131,6 +141,19 @@ export function useCurriculumMaterials(
     };
   }, [fetchAll]);
 
+  // ── Optimistic CRUD ──
+  // Pattern: update local state immediately so the UI reflects the change with
+  // zero perceived latency, send to DB in the background, and only call
+  // fetchAll() to resync when the server rejects the write.
+
+  const onWriteError = useCallback(
+    (label: string, err: unknown) => {
+      console.error(`[curriculum] ${label} failed; resyncing`, err);
+      fetchAll();
+    },
+    [fetchAll],
+  );
+
   // Materials CRUD
   const addMaterial = async (
     material: Omit<
@@ -138,32 +161,45 @@ export function useCurriculumMaterials(
       "id" | "profile_id" | "created_at" | "updated_at"
     >,
   ) => {
+    if (!profileId) return;
+    const id = tempId();
+    const now = new Date().toISOString();
+    const optimistic: CurriculumMaterial = {
+      id,
+      profile_id: profileId,
+      created_at: now,
+      updated_at: now,
+      ...material,
+    } as CurriculumMaterial;
+    setMaterials((prev) => [...prev, optimistic]);
     const { error: err } = await supabase
       .from("curriculum_materials")
-      .insert({ ...material, profile_id: profileId });
-    if (err) throw err;
-    await fetchAll();
+      .insert({ id, ...material, profile_id: profileId });
+    if (err) onWriteError("addMaterial", err);
   };
 
   const updateMaterial = async (
     id: string,
     updates: Partial<CurriculumMaterial>,
   ) => {
+    setMaterials((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, ...updates } : m)),
+    );
     const { error: err } = await supabase
       .from("curriculum_materials")
       .update({ ...updates, updated_at: new Date().toISOString() })
       .eq("id", id);
-    if (err) throw err;
-    await fetchAll();
+    if (err) onWriteError("updateMaterial", err);
   };
 
   const deleteMaterial = async (id: string) => {
+    setMaterials((prev) => prev.filter((m) => m.id !== id));
+    setPhases((prev) => prev.filter((p) => p.material_id !== id));
     const { error: err } = await supabase
       .from("curriculum_materials")
       .delete()
       .eq("id", id);
-    if (err) throw err;
-    await fetchAll();
+    if (err) onWriteError("deleteMaterial", err);
   };
 
   // Phases CRUD
@@ -174,36 +210,47 @@ export function useCurriculumMaterials(
     const year = material?.curriculum_year
       ? Number(material.curriculum_year)
       : undefined;
+    const finalPhase = deriveDatesForPhase(phase, year);
+    const id = tempId();
+    const now = new Date().toISOString();
+    const optimistic: CurriculumPhase = {
+      id,
+      created_at: now,
+      updated_at: now,
+      ...finalPhase,
+    } as CurriculumPhase;
+    setPhases((prev) => [...prev, optimistic]);
     const { error: err } = await supabase
       .from("curriculum_phases")
-      .insert(deriveDatesForPhase(phase, year));
-    if (err) throw err;
-    await fetchAll();
+      .insert({ id, ...finalPhase });
+    if (err) onWriteError("addPhase", err);
   };
 
   const updatePhase = async (id: string, updates: Partial<CurriculumPhase>) => {
-    // Find the material to know which academic year this phase belongs to.
     const phase = phases.find((p) => p.id === id);
     const material = materials.find((m) => m.id === phase?.material_id);
     const year = material?.curriculum_year
       ? Number(material.curriculum_year)
       : undefined;
     const finalUpdates = deriveDatesForPhase(updates, year);
+    setPhases((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, ...finalUpdates } : p)),
+    );
     const { error: err } = await supabase
       .from("curriculum_phases")
       .update({ ...finalUpdates, updated_at: new Date().toISOString() })
       .eq("id", id);
-    if (err) throw err;
-    await fetchAll();
+    if (err) onWriteError("updatePhase", err);
   };
 
   const deletePhase = async (id: string) => {
+    setPhases((prev) => prev.filter((p) => p.id !== id));
+    setPhaseTasks((prev) => prev.filter((t) => t.phase_id !== id));
     const { error: err } = await supabase
       .from("curriculum_phases")
       .delete()
       .eq("id", id);
-    if (err) throw err;
-    await fetchAll();
+    if (err) onWriteError("deletePhase", err);
   };
 
   // Phase Tasks CRUD
@@ -215,40 +262,52 @@ export function useCurriculumMaterials(
     const existingTasks = phaseTasks.filter(
       (t) => t.phase_id === task.phase_id,
     );
-    const { error: err } = await supabase.from("phase_tasks").insert({
-      ...task,
-      order_index: task.order_index ?? existingTasks.length,
-    });
-    if (err) throw err;
-    await fetchAll();
+    const order_index = task.order_index ?? existingTasks.length;
+    const id = tempId();
+    const now = new Date().toISOString();
+    const optimistic: PhaseTask = {
+      id,
+      phase_id: task.phase_id,
+      task_name: task.task_name,
+      is_completed: false,
+      order_index,
+      created_at: now,
+    };
+    setPhaseTasks((prev) => [...prev, optimistic]);
+    const { error: err } = await supabase
+      .from("phase_tasks")
+      .insert({ id, ...task, order_index });
+    if (err) onWriteError("addTask", err);
   };
 
   const updateTask = async (id: string, updates: Partial<PhaseTask>) => {
-    // Auto-set completed_at when checking/unchecking
     const finalUpdates = { ...updates };
     if ("is_completed" in updates) {
       finalUpdates.completed_at = updates.is_completed
         ? new Date().toISOString()
         : undefined;
     }
+    setPhaseTasks((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, ...finalUpdates } : t)),
+    );
     const { error: err } = await supabase
       .from("phase_tasks")
       .update(finalUpdates)
       .eq("id", id);
-    if (err) throw err;
-    await fetchAll();
+    if (err) onWriteError("updateTask", err);
   };
 
   const deleteTask = async (id: string) => {
+    setPhaseTasks((prev) => prev.filter((t) => t.id !== id));
     const { error: err } = await supabase
       .from("phase_tasks")
       .delete()
       .eq("id", id);
-    if (err) throw err;
-    await fetchAll();
+    if (err) onWriteError("deleteTask", err);
   };
 
-  // Copy curriculum to next year
+  // Copy curriculum to next year — bulk write, harder to keep optimistic, so
+  // we accept the wait here and refetch on completion.
   const copyToNextYear = async (nextYear: string) => {
     if (!profileId) return;
     for (const mat of materials) {
@@ -271,8 +330,6 @@ export function useCurriculumMaterials(
       const matPhases = phases.filter((p) => p.material_id === mat.id);
       const nextYearNum = Number(nextYear);
       for (const phase of matPhases) {
-        // Week indices are relative to academic year, so they copy as-is.
-        // Re-derive the legacy date columns against the new year.
         await supabase.from("curriculum_phases").insert(
           deriveDatesForPhase(
             {
@@ -297,13 +354,25 @@ export function useCurriculumMaterials(
   const reorderMaterials = async (
     updates: Array<{ id: string; order_index: number }>,
   ) => {
-    for (const { id, order_index } of updates) {
-      await supabase
-        .from("curriculum_materials")
-        .update({ order_index, updated_at: new Date().toISOString() })
-        .eq("id", id);
-    }
-    await fetchAll();
+    const map = new Map(updates.map((u) => [u.id, u.order_index]));
+    setMaterials((prev) =>
+      [...prev]
+        .map((m) =>
+          map.has(m.id) ? { ...m, order_index: map.get(m.id)! } : m,
+        )
+        .sort((a, b) => a.order_index - b.order_index),
+    );
+    // Send all updates in parallel; resync if any fails.
+    const results = await Promise.all(
+      updates.map(({ id, order_index }) =>
+        supabase
+          .from("curriculum_materials")
+          .update({ order_index, updated_at: new Date().toISOString() })
+          .eq("id", id),
+      ),
+    );
+    const failed = results.find((r) => r.error);
+    if (failed?.error) onWriteError("reorderMaterials", failed.error);
   };
 
   return {
