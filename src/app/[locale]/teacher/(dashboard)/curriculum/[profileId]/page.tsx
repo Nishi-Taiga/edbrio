@@ -167,6 +167,7 @@ export default function StudentCurriculumPage() {
   // Exam form dialog
   const [showExamForm, setShowExamForm] = useState(false);
   const [editingExam, setEditingExam] = useState<ExamSchedule | null>(null);
+  const [copyingExam, setCopyingExam] = useState<ExamSchedule | null>(null);
 
   // Test score form dialog
   const [showScoreForm, setShowScoreForm] = useState(false);
@@ -362,6 +363,12 @@ export default function StudentCurriculumPage() {
   };
   const handleEditExam = (e: ExamSchedule) => {
     setEditingExam(e);
+    setCopyingExam(null);
+    setShowExamForm(true);
+  };
+  const handleCopyExam = (e: ExamSchedule) => {
+    setEditingExam(null);
+    setCopyingExam(e);
     setShowExamForm(true);
   };
   const handleSubmitExam = async (data: {
@@ -589,6 +596,7 @@ export default function StudentCurriculumPage() {
                     onAdd={handleAddExam}
                     onEdit={handleEditExam}
                     onDelete={deleteExam}
+                    onCopy={handleCopyExam}
                     t={(key: string) => tExams(key)}
                   />
                 </div>
@@ -690,13 +698,26 @@ export default function StudentCurriculumPage() {
                         editingExam.border_score_type || undefined,
                       notes: editingExam.notes || undefined,
                     }
-                  : prefilledExamDate
+                  : copyingExam
                     ? {
-                        exam_name: "",
-                        exam_category: "school_exam",
-                        exam_date: prefilledExamDate,
+                        exam_name: `${copyingExam.exam_name}（コピー）`,
+                        exam_category: copyingExam.exam_category,
+                        method: copyingExam.method || undefined,
+                        exam_date: copyingExam.exam_date,
+                        preference_order:
+                          copyingExam.preference_order || undefined,
+                        border_score: copyingExam.border_score || undefined,
+                        border_score_type:
+                          copyingExam.border_score_type || undefined,
+                        notes: copyingExam.notes || undefined,
                       }
-                    : undefined
+                    : prefilledExamDate
+                      ? {
+                          exam_name: "",
+                          exam_category: "school_exam",
+                          exam_date: prefilledExamDate,
+                        }
+                      : undefined
               }
               t={(key: string) => tExams(key)}
             />

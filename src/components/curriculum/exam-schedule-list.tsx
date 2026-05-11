@@ -1,7 +1,14 @@
 "use client";
 
 import { useMemo } from "react";
-import { Plus, Trash2, Pencil, Calendar, GraduationCap } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Pencil,
+  Copy,
+  Calendar,
+  GraduationCap,
+} from "lucide-react";
 import { ExamSchedule } from "@/lib/types/database";
 import { format, isBefore, startOfDay } from "date-fns";
 
@@ -11,6 +18,7 @@ interface ExamScheduleListProps {
   onAdd: (date?: string) => void;
   onEdit: (exam: ExamSchedule) => void;
   onDelete: (id: string) => Promise<void>;
+  onCopy: (exam: ExamSchedule) => void;
   readOnly?: boolean;
   t: (key: string) => string;
 }
@@ -57,6 +65,7 @@ function ExamTable({
   exams,
   onEdit,
   onDelete,
+  onCopy,
   showPreference,
   showMethod = true,
   showBorder = true,
@@ -66,6 +75,7 @@ function ExamTable({
   exams: ExamSchedule[];
   onEdit: (exam: ExamSchedule) => void;
   onDelete: (id: string) => Promise<void>;
+  onCopy: (exam: ExamSchedule) => void;
   showPreference: boolean;
   showMethod?: boolean;
   showBorder?: boolean;
@@ -134,7 +144,7 @@ function ExamTable({
                     {exam.preference_order ? `第${exam.preference_order}` : "—"}
                   </td>
                 )}
-                <td className="py-2 px-3 font-semibold text-foreground text-xs">
+                <td className="py-2 px-3 font-semibold text-foreground text-xs max-w-[140px] truncate">
                   {exam.exam_name}
                 </td>
                 {showDepartment && (
@@ -168,6 +178,13 @@ function ExamTable({
                     <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         className="p-1 rounded hover:bg-muted"
+                        onClick={() => onCopy(exam)}
+                        aria-label={`${exam.exam_name}をコピー`}
+                      >
+                        <Copy className="w-3.5 h-3.5 text-muted-foreground" />
+                      </button>
+                      <button
+                        className="p-1 rounded hover:bg-muted"
                         onClick={() => onEdit(exam)}
                         aria-label={`${exam.exam_name}を編集`}
                       >
@@ -198,6 +215,7 @@ export function ExamScheduleList({
   onAdd,
   onEdit,
   onDelete,
+  onCopy,
   readOnly = false,
 }: ExamScheduleListProps) {
   const filtered = useMemo(() => {
@@ -258,6 +276,7 @@ export function ExamScheduleList({
             exams={schoolExams}
             onEdit={onEdit}
             onDelete={onDelete}
+            onCopy={onCopy}
             showPreference={false}
             showMethod={true}
             showBorder={false}
@@ -290,6 +309,7 @@ export function ExamScheduleList({
             exams={entranceExams}
             onEdit={onEdit}
             onDelete={onDelete}
+            onCopy={onCopy}
             showPreference={true}
             showDepartment={true}
             showMethod={true}

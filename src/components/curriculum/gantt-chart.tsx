@@ -131,25 +131,6 @@ function getAcademicYearEnd(year: number): Date {
   return new Date(year + 1, 2, 31); // March 31
 }
 
-/** Convert a date to a pixel position within the chart timeline area */
-/** Get "M月 第N週" label for a date */
-/** Snap a date to the previous Monday (or same day if already Monday) */
-function snapToMonday(date: Date): Date {
-  const d = new Date(date);
-  const day = d.getDay();
-  const diff = day === 0 ? 6 : day - 1; // Monday=0 offset
-  d.setDate(d.getDate() - diff);
-  return d;
-}
-
-/** Snap a date to the next Sunday (or same day if already Sunday) */
-function snapToSunday(date: Date): Date {
-  const d = new Date(date);
-  const day = d.getDay();
-  if (day !== 0) d.setDate(d.getDate() + (7 - day));
-  return d;
-}
-
 export function getWeekLabel(date: Date): string {
   const month = date.getMonth() + 1;
   // Find which week of the month (based on Mondays)
@@ -206,6 +187,7 @@ export function GanttChart({
 }: GanttChartProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
+  const headerTimelineRef = useRef<HTMLDivElement>(null);
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [containerWidth, setContainerWidth] = useState(960);
 
@@ -396,6 +378,18 @@ export function GanttChart({
     });
     obs.observe(el);
     return () => obs.disconnect();
+  }, []);
+
+  // Sync month header scroll with timeline scroll
+  useEffect(() => {
+    const timeline = timelineRef.current;
+    const header = headerTimelineRef.current;
+    if (!timeline || !header) return;
+    const onScroll = () => {
+      header.scrollLeft = timeline.scrollLeft;
+    };
+    timeline.addEventListener("scroll", onScroll);
+    return () => timeline.removeEventListener("scroll", onScroll);
   }, []);
 
   // Group materials by subject
@@ -714,17 +708,19 @@ export function GanttChart({
             教材 / 科目
           </span>
         </div>
-        {/* Month headers */}
-        <div className="flex flex-1 relative">
-          {monthColumns.map((mc, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-center text-[11px] font-semibold text-muted-foreground border-r border-border/50 last:border-r-0"
-              style={{ width: mc.width }}
-            >
-              {mc.label}
-            </div>
-          ))}
+        {/* Month headers — scroll synced with timeline */}
+        <div className="flex-1 overflow-hidden" ref={headerTimelineRef}>
+          <div className="flex" style={{ width: timelineWidth }}>
+            {monthColumns.map((mc, i) => (
+              <div
+                key={i}
+                className="shrink-0 flex items-center justify-center text-[11px] font-semibold text-muted-foreground border-r border-border/50 last:border-r-0"
+                style={{ width: mc.width }}
+              >
+                {mc.label}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -802,7 +798,7 @@ export function GanttChart({
                       </div>
                     )}
                     <span
-                      className={`text-xs font-bold ${!readOnly && onEditSubject ? "cursor-pointer hover:underline" : ""}`}
+                      className={`text-xs font-bold whitespace-nowrap truncate min-w-0 ${!readOnly && onEditSubject ? "cursor-pointer hover:underline" : ""}`}
                       style={{ color: sc.color }}
                       onClick={
                         !readOnly && onEditSubject
@@ -816,7 +812,7 @@ export function GanttChart({
                       {row.subject}
                     </span>
                     <span
-                      className="text-[10px] font-semibold px-1.5 py-0 rounded"
+                      className="text-[10px] font-semibold px-1.5 py-0 rounded shrink-0"
                       style={{
                         backgroundColor: sc.bg,
                         color: sc.color,
