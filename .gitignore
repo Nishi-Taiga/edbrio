@@ -113,3 +113,6 @@ storybook-static
 .playwright-mcp/
 vitest.config.ts
 vitest.shims.d.ts
+
+# Personal meeting notes (not tracked)
+agenda-*.md
