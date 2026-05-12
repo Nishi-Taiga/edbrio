@@ -27,7 +27,13 @@ export function useExamSchedules(profileId: string | undefined) {
       if (examsRes.error) throw examsRes.error;
       setExams(examsRes.data || []);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : String(e));
+      const msg =
+        e instanceof Error
+          ? e.message
+          : e && typeof e === "object" && "message" in e
+            ? String((e as { message: unknown }).message)
+            : String(e);
+      setError(msg);
     } finally {
       setLoading(false);
     }
