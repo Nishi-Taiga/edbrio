@@ -27,7 +27,13 @@ export function useTestScores(profileId: string | undefined) {
       if (scoresRes.error) throw scoresRes.error;
       setScores(scoresRes.data || []);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : String(e));
+      const msg =
+        e instanceof Error
+          ? e.message
+          : e && typeof e === "object" && "message" in e
+            ? String((e as { message: unknown }).message)
+            : String(e);
+      setError(msg);
     } finally {
       setLoading(false);
     }
