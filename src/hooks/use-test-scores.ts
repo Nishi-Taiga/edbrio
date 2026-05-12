@@ -1,95 +1,84 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { TestScore } from '@/lib/types/database'
-
-function tempId(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return crypto.randomUUID()
-  }
-  return `tmp-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
-}
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { TestScore } from "@/lib/types/database";
 
 export function useTestScores(profileId: string | undefined) {
-  const [scores, setScores] = useState<TestScore[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const supabase = useMemo(() => createClient(), [])
+  const [scores, setScores] = useState<TestScore[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const supabase = useMemo(() => createClient(), []);
 
   const fetchAll = useCallback(async () => {
     if (!profileId) {
-      setScores([])
-      setLoading(false)
-      return
+      setScores([]);
+      setLoading(false);
+      return;
     }
     try {
-      setError(null)
+      setLoading(true);
+      setError(null);
       const scoresRes = await supabase
-        .from('test_scores')
-        .select('*')
-        .eq('profile_id', profileId)
-        .order('test_date', { ascending: false })
-      if (scoresRes.error) throw scoresRes.error
-      setScores(scoresRes.data || [])
+        .from("test_scores")
+        .select("*")
+        .eq("student_id", profileId)
+        .order("test_date", { ascending: false });
+      if (scoresRes.error) throw scoresRes.error;
+      setScores(scoresRes.data || []);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : String(e))
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [profileId, supabase])
+  }, [profileId, supabase]);
 
   useEffect(() => {
-    let mounted = true
-    setLoading(true)
-    fetchAll().then(() => { if (!mounted) return })
-    return () => { mounted = false }
-  }, [fetchAll])
+    let mounted = true;
+    fetchAll().then(() => {
+      if (!mounted) return;
+    });
+    return () => {
+      mounted = false;
+    };
+  }, [fetchAll]);
 
-  const onWriteError = useCallback((label: string, err: unknown) => {
-    console.error(`[test-scores] ${label} failed; resyncing`, err)
-    fetchAll()
-  }, [fetchAll])
-
-  // Optimistic CRUD — update state immediately, push to DB in the background.
-  const addScore = async (score: Omit<TestScore, 'id' | 'profile_id' | 'created_at' | 'updated_at'>) => {
-    if (!profileId) return
-    const id = tempId()
-    const now = new Date().toISOString()
-    const optimistic: TestScore = {
-      id,
-      profile_id: profileId,
-      created_at: now,
-      updated_at: now,
-      ...score,
-    } as TestScore
-    setScores(prev => [optimistic, ...prev].sort((a, b) =>
-      (b.test_date ?? '').localeCompare(a.test_date ?? '')
-    ))
+  // Scores CRUD
+  const addScore = async (
+    score: Omit<TestScore, "id" | "student_id" | "created_at" | "updated_at">,
+  ) => {
     const { error: err } = await supabase
-      .from('test_scores')
-      .insert({ id, ...score, profile_id: profileId })
-    if (err) onWriteError('addScore', err)
-  }
+      .from("test_scores")
+      .insert({ ...score, student_id: profileId });
+    if (err) throw err;
+    await fetchAll();
+  };
 
-  const updateScore = async (id: string, updates: Partial<TestScore>) => {
-    setScores(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s))
+  const updateScore = async (id: number, updates: Partial<TestScore>) => {
     const { error: err } = await supabase
-      .from('test_scores')
+      .from("test_scores")
       .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', id)
-    if (err) onWriteError('updateScore', err)
-  }
+      .eq("id", id);
+    if (err) throw err;
+    await fetchAll();
+  };
 
-  const deleteScore = async (id: string) => {
-    setScores(prev => prev.filter(s => s.id !== id))
-    const { error: err } = await supabase.from('test_scores').delete().eq('id', id)
-    if (err) onWriteError('deleteScore', err)
-  }
+  const deleteScore = async (id: number) => {
+    const { error: err } = await supabase
+      .from("test_scores")
+      .delete()
+      .eq("id", id);
+    if (err) throw err;
+    await fetchAll();
+  };
 
   return {
-    scores, loading, error,
-    addScore, updateScore, deleteScore,
+    scores,
+    loading,
+    error,
+    addScore,
+    updateScore,
+    deleteScore,
     refresh: fetchAll,
-  }
+  };
 }

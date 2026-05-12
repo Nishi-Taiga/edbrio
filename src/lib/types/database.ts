@@ -384,8 +384,8 @@ export interface PhaseTask {
 }
 
 export interface ExamSchedule {
-  id: string;
-  profile_id: string;
+  id: number;
+  student_id: number;
   exam_name: string;
   exam_category: string;
   method?: string;
@@ -420,8 +420,8 @@ export interface LessonLogPhase {
 }
 
 export interface TestScore {
-  id: string;
-  profile_id: string;
+  id: number;
+  student_id: number;
   subject: string;
   test_name: string;
   test_type: TestType;

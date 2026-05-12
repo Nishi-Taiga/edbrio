@@ -85,12 +85,12 @@ export async function GET(
       supabase
         .from("exam_schedules")
         .select("*")
-        .eq("profile_id", profileId)
+        .eq("student_id", profileId)
         .order("exam_date"),
       supabase
         .from("test_scores")
         .select("*")
-        .eq("profile_id", profileId)
+        .eq("student_id", profileId)
         .order("test_date", { ascending: false }),
     ]);
 

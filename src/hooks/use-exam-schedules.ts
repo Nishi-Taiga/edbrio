@@ -1,95 +1,84 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { ExamSchedule } from '@/lib/types/database'
-
-function tempId(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return crypto.randomUUID()
-  }
-  return `tmp-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
-}
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { ExamSchedule } from "@/lib/types/database";
 
 export function useExamSchedules(profileId: string | undefined) {
-  const [exams, setExams] = useState<ExamSchedule[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const supabase = useMemo(() => createClient(), [])
+  const [exams, setExams] = useState<ExamSchedule[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const supabase = useMemo(() => createClient(), []);
 
   const fetchAll = useCallback(async () => {
     if (!profileId) {
-      setExams([])
-      setLoading(false)
-      return
+      setExams([]);
+      setLoading(false);
+      return;
     }
     try {
-      setError(null)
+      setLoading(true);
+      setError(null);
       const examsRes = await supabase
-        .from('exam_schedules')
-        .select('*')
-        .eq('profile_id', profileId)
-        .order('exam_date', { ascending: true })
-      if (examsRes.error) throw examsRes.error
-      setExams(examsRes.data || [])
+        .from("exam_schedules")
+        .select("*")
+        .eq("student_id", profileId)
+        .order("exam_date", { ascending: true });
+      if (examsRes.error) throw examsRes.error;
+      setExams(examsRes.data || []);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : String(e))
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [profileId, supabase])
+  }, [profileId, supabase]);
 
   useEffect(() => {
-    let mounted = true
-    setLoading(true)
-    fetchAll().then(() => { if (!mounted) return })
-    return () => { mounted = false }
-  }, [fetchAll])
+    let mounted = true;
+    fetchAll().then(() => {
+      if (!mounted) return;
+    });
+    return () => {
+      mounted = false;
+    };
+  }, [fetchAll]);
 
-  const onWriteError = useCallback((label: string, err: unknown) => {
-    console.error(`[exam-schedules] ${label} failed; resyncing`, err)
-    fetchAll()
-  }, [fetchAll])
-
-  // Optimistic CRUD — update state immediately, push to DB in the background.
-  const addExam = async (exam: Omit<ExamSchedule, 'id' | 'profile_id' | 'created_at' | 'updated_at'>) => {
-    if (!profileId) return
-    const id = tempId()
-    const now = new Date().toISOString()
-    const optimistic: ExamSchedule = {
-      id,
-      profile_id: profileId,
-      created_at: now,
-      updated_at: now,
-      ...exam,
-    } as ExamSchedule
-    setExams(prev => [...prev, optimistic].sort((a, b) =>
-      (a.exam_date ?? '').localeCompare(b.exam_date ?? '')
-    ))
+  // Exams CRUD
+  const addExam = async (
+    exam: Omit<ExamSchedule, "id" | "student_id" | "created_at" | "updated_at">,
+  ) => {
     const { error: err } = await supabase
-      .from('exam_schedules')
-      .insert({ id, ...exam, profile_id: profileId })
-    if (err) onWriteError('addExam', err)
-  }
+      .from("exam_schedules")
+      .insert({ ...exam, student_id: profileId });
+    if (err) throw err;
+    await fetchAll();
+  };
 
-  const updateExam = async (id: string, updates: Partial<ExamSchedule>) => {
-    setExams(prev => prev.map(e => e.id === id ? { ...e, ...updates } : e))
+  const updateExam = async (id: number, updates: Partial<ExamSchedule>) => {
     const { error: err } = await supabase
-      .from('exam_schedules')
+      .from("exam_schedules")
       .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', id)
-    if (err) onWriteError('updateExam', err)
-  }
+      .eq("id", id);
+    if (err) throw err;
+    await fetchAll();
+  };
 
-  const deleteExam = async (id: string) => {
-    setExams(prev => prev.filter(e => e.id !== id))
-    const { error: err } = await supabase.from('exam_schedules').delete().eq('id', id)
-    if (err) onWriteError('deleteExam', err)
-  }
+  const deleteExam = async (id: number) => {
+    const { error: err } = await supabase
+      .from("exam_schedules")
+      .delete()
+      .eq("id", id);
+    if (err) throw err;
+    await fetchAll();
+  };
 
   return {
-    exams, loading, error,
-    addExam, updateExam, deleteExam,
+    exams,
+    loading,
+    error,
+    addExam,
+    updateExam,
+    deleteExam,
     refresh: fetchAll,
-  }
+  };
 }

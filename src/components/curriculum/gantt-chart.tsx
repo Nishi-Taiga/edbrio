@@ -11,11 +11,6 @@ import {
 } from "@/lib/types/database";
 import { differenceInDays, startOfDay, format } from "date-fns";
 import { useGanttInteractions } from "@/components/curriculum/use-gantt-interactions";
-import {
-  academicYearWeekCount,
-  formatLocalDate,
-  weekIndexToLabel,
-} from "@/lib/curriculum/week";
 
 // --- Constants ---
 const LABEL_WIDTH = 180;
@@ -94,8 +89,8 @@ interface GanttChartProps {
   onDeleteMaterial: (id: string) => void;
   onAddPhase: (
     materialId: string,
-    startWeek?: number,
-    endWeek?: number,
+    startDate?: string,
+    endDate?: string,
   ) => void;
   onEditPhase: (phase: CurriculumPhase) => void;
   onDeletePhase: (id: string) => void;
@@ -129,6 +124,25 @@ function getMonthStarts(year: number): Date[] {
 /** Get the last day of March of the next year (end of academic year) */
 function getAcademicYearEnd(year: number): Date {
   return new Date(year + 1, 2, 31); // March 31
+}
+
+/** Convert a date to a pixel position within the chart timeline area */
+/** Get "M月 第N週" label for a date */
+/** Snap a date to the previous Monday (or same day if already Monday) */
+function snapToMonday(date: Date): Date {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = day === 0 ? 6 : day - 1; // Monday=0 offset
+  d.setDate(d.getDate() - diff);
+  return d;
+}
+
+/** Snap a date to the next Sunday (or same day if already Sunday) */
+function snapToSunday(date: Date): Date {
+  const d = new Date(date);
+  const day = d.getDay();
+  if (day !== 0) d.setDate(d.getDate() + (7 - day));
+  return d;
 }
 
 export function getWeekLabel(date: Date): string {
@@ -187,7 +201,6 @@ export function GanttChart({
 }: GanttChartProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
-  const headerTimelineRef = useRef<HTMLDivElement>(null);
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [containerWidth, setContainerWidth] = useState(960);
 
@@ -268,18 +281,11 @@ export function GanttChart({
         if (fromIdx === toIdx) return;
         const [moved] = subjectMats.splice(fromIdx, 1);
         subjectMats.splice(toIdx, 0, moved);
-        // Reassign order_index globally so subjects keep their relative order.
-        // Reordering only the dragged subject's materials would leave overlapping
-        // order_index values across subjects and the next render would lose the
-        // subject grouping.
-        const updates: Array<{ id: string; order_index: number }> = [];
-        let orderIdx = 0;
-        for (const subj of subjects) {
-          const subjectGroup = subj === subject ? subjectMats : grouped[subj];
-          for (const mat of subjectGroup) {
-            updates.push({ id: mat.id, order_index: orderIdx++ });
-          }
-        }
+        // Reassign order_index for this subject's materials
+        const updates = subjectMats.map((m, i) => ({
+          id: m.id,
+          order_index: i,
+        }));
         onReorderMaterials(updates);
       } else {
         // Reorder subjects: reassign order_index across all materials
@@ -340,7 +346,6 @@ export function GanttChart({
   const academicYearStart = useMemo(() => new Date(year, 3, 1), [year]); // April 1
   const academicYearEnd = useMemo(() => getAcademicYearEnd(year), [year]);
   const totalDays = differenceInDays(academicYearEnd, academicYearStart) + 1;
-  const totalWeeks = useMemo(() => academicYearWeekCount(year), [year]);
   const monthStarts = useMemo(() => getMonthStarts(year), [year]);
 
   // Mobile responsive values
@@ -359,18 +364,19 @@ export function GanttChart({
     handleBarMouseDown,
     getVisualBounds,
     createPreview,
-    xToWeek,
+    xToDate,
   } = useGanttInteractions(
     timelineRef,
     timelineWidth,
-    totalWeeks,
+    totalDays,
+    academicYearStart,
     onUpdatePhase,
     onAddPhase,
   );
 
   // Observe container width
   useEffect(() => {
-    const el = scrollRef.current?.parentElement;
+    const el = scrollRef.current;
     if (!el) return;
     const obs = new ResizeObserver((entries) => {
       const w = entries[0]?.contentRect.width;
@@ -378,18 +384,6 @@ export function GanttChart({
     });
     obs.observe(el);
     return () => obs.disconnect();
-  }, []);
-
-  // Sync month header scroll with timeline scroll
-  useEffect(() => {
-    const timeline = timelineRef.current;
-    const header = headerTimelineRef.current;
-    if (!timeline || !header) return;
-    const onScroll = () => {
-      header.scrollLeft = timeline.scrollLeft;
-    };
-    timeline.addEventListener("scroll", onScroll);
-    return () => timeline.removeEventListener("scroll", onScroll);
   }, []);
 
   // Group materials by subject
@@ -529,11 +523,27 @@ export function GanttChart({
 
   // Render a phase bar with drag handles
   function renderPhaseBar(phase: CurriculumPhase, mat: CurriculumMaterial) {
-    if (phase.start_week == null || phase.end_week == null) return null;
-    if (phase.start_week > totalWeeks || phase.end_week < 1) return null;
-    // Convert 1-based week index → pixel x (week 1 starts at x=0, week N ends at x=timelineWidth).
-    const rawX1 = ((phase.start_week - 1) / totalWeeks) * timelineWidth;
-    const rawX2 = (phase.end_week / totalWeeks) * timelineWidth;
+    if (!phase.start_date || !phase.end_date) return null;
+    // Hide phases completely outside the current academic year
+    const phaseStart = new Date(phase.start_date);
+    const phaseEnd = new Date(phase.end_date);
+    if (phaseEnd < academicYearStart || phaseStart > academicYearEnd)
+      return null;
+    // Snap to week boundaries (Monday start, Sunday end)
+    const snappedStart = snapToMonday(phaseStart);
+    const snappedEnd = snapToSunday(phaseEnd);
+    const rawX1 = dateToX(
+      snappedStart,
+      academicYearStart,
+      timelineWidth,
+      totalDays,
+    );
+    const rawX2 = dateToX(
+      snappedEnd,
+      academicYearStart,
+      timelineWidth,
+      totalDays,
+    );
     const rawWidth = Math.max(20, rawX2 - rawX1);
 
     // Apply drag/resize visual offsets
@@ -708,19 +718,20 @@ export function GanttChart({
             教材 / 科目
           </span>
         </div>
-        {/* Month headers — scroll synced with timeline */}
-        <div className="flex-1 overflow-hidden" ref={headerTimelineRef}>
-          <div className="flex" style={{ width: timelineWidth }}>
-            {monthColumns.map((mc, i) => (
-              <div
-                key={i}
-                className="shrink-0 flex items-center justify-center text-[11px] font-semibold text-muted-foreground border-r border-border/50 last:border-r-0"
-                style={{ width: mc.width }}
-              >
-                {mc.label}
-              </div>
-            ))}
-          </div>
+        {/* Month headers */}
+        <div
+          className="flex relative overflow-hidden"
+          style={{ width: timelineWidth }}
+        >
+          {monthColumns.map((mc, i) => (
+            <div
+              key={i}
+              className="flex items-center justify-center text-[11px] font-semibold text-muted-foreground border-r border-border/50 last:border-r-0"
+              style={{ width: mc.width }}
+            >
+              {mc.label}
+            </div>
+          ))}
         </div>
       </div>
 
@@ -798,7 +809,7 @@ export function GanttChart({
                       </div>
                     )}
                     <span
-                      className={`text-xs font-bold whitespace-nowrap truncate min-w-0 ${!readOnly && onEditSubject ? "cursor-pointer hover:underline" : ""}`}
+                      className={`text-xs font-bold ${!readOnly && onEditSubject ? "cursor-pointer hover:underline" : ""}`}
                       style={{ color: sc.color }}
                       onClick={
                         !readOnly && onEditSubject
@@ -812,7 +823,7 @@ export function GanttChart({
                       {row.subject}
                     </span>
                     <span
-                      className="text-[10px] font-semibold px-1.5 py-0 rounded shrink-0"
+                      className="text-[10px] font-semibold px-1.5 py-0 rounded"
                       style={{
                         backgroundColor: sc.bg,
                         color: sc.color,
@@ -949,11 +960,16 @@ export function GanttChart({
                     e.clientX -
                     rect.left +
                     (timelineRef.current?.scrollLeft ?? 0);
-                  const week = xToWeek(clickX);
+                  const dateStr = xToDate(clickX);
+                  const d = new Date(dateStr);
+                  if (isNaN(d.getTime())) {
+                    setHoverInfo(null);
+                    return;
+                  }
                   setHoverInfo({
                     x: e.clientX - rect.left,
                     y: e.clientY - rect.top,
-                    label: weekIndexToLabel(year, week),
+                    label: getWeekLabel(d),
                   });
                 }
           }
@@ -1022,12 +1038,8 @@ export function GanttChart({
                         return;
                       const rect = e.currentTarget.getBoundingClientRect();
                       const clickX = e.clientX - rect.left;
-                      // Exams stay date-based: pixel → day offset from academic year start.
-                      const cx = Math.max(0, Math.min(timelineWidth, clickX));
-                      const days = Math.round((cx / timelineWidth) * totalDays);
-                      const d = new Date(academicYearStart);
-                      d.setDate(d.getDate() + days);
-                      onAddExam(formatLocalDate(d));
+                      const date = xToDate(clickX);
+                      onAddExam(date);
                     }
               }
             >
@@ -1083,15 +1095,14 @@ export function GanttChart({
                     {createPreview &&
                       createPreview.materialId === mat.id &&
                       (() => {
-                        const previewStartWeek = xToWeek(createPreview.left);
-                        const previewEndWeek = xToWeek(
+                        const previewStartDate = xToDate(createPreview.left);
+                        const previewEndDate = xToDate(
                           createPreview.left + createPreview.width,
                         );
-                        const startLabel = weekIndexToLabel(
-                          year,
-                          previewStartWeek,
+                        const startLabel = getWeekLabel(
+                          new Date(previewStartDate),
                         );
-                        const endLabel = weekIndexToLabel(year, previewEndWeek);
+                        const endLabel = getWeekLabel(new Date(previewEndDate));
                         return (
                           <div
                             className="absolute rounded opacity-40 pointer-events-none"

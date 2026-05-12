@@ -1,14 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import {
-  Plus,
-  Trash2,
-  Pencil,
-  Copy,
-  Calendar,
-  GraduationCap,
-} from "lucide-react";
+import { Plus, Trash2, Pencil, Calendar, GraduationCap } from "lucide-react";
 import { ExamSchedule } from "@/lib/types/database";
 import { format, isBefore, startOfDay } from "date-fns";
 
@@ -17,8 +10,7 @@ interface ExamScheduleListProps {
   academicYear?: number;
   onAdd: (date?: string) => void;
   onEdit: (exam: ExamSchedule) => void;
-  onDelete: (id: string) => Promise<void>;
-  onCopy: (exam: ExamSchedule) => void;
+  onDelete: (id: number) => Promise<void>;
   readOnly?: boolean;
   t: (key: string) => string;
 }
@@ -65,21 +57,17 @@ function ExamTable({
   exams,
   onEdit,
   onDelete,
-  onCopy,
   showPreference,
   showMethod = true,
   showBorder = true,
-  showDepartment = false,
   readOnly = false,
 }: {
   exams: ExamSchedule[];
   onEdit: (exam: ExamSchedule) => void;
-  onDelete: (id: string) => Promise<void>;
-  onCopy: (exam: ExamSchedule) => void;
+  onDelete: (id: number) => Promise<void>;
   showPreference: boolean;
   showMethod?: boolean;
   showBorder?: boolean;
-  showDepartment?: boolean;
   readOnly?: boolean;
 }) {
   if (exams.length === 0) {
@@ -103,25 +91,20 @@ function ExamTable({
             <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider">
               試験名
             </th>
-            {showDepartment && (
-              <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider hidden md:table-cell">
-                学部・学科・コース
-              </th>
-            )}
             {showMethod && (
-              <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider hidden md:table-cell">
+              <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider hidden sm:table-cell">
                 種類
               </th>
             )}
             {showBorder && (
-              <th className="text-right py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider w-[80px] hidden md:table-cell">
+              <th className="text-right py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider w-[80px] hidden sm:table-cell">
                 ボーダー
               </th>
             )}
             <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider w-[60px]">
               日付
             </th>
-            <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider w-[70px] hidden md:table-cell">
+            <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider w-[70px] hidden sm:table-cell">
               状態
             </th>
             {!readOnly && (
@@ -144,28 +127,23 @@ function ExamTable({
                     {exam.preference_order ? `第${exam.preference_order}` : "—"}
                   </td>
                 )}
-                <td className="py-2 px-3 font-semibold text-foreground text-xs max-w-[140px] truncate">
+                <td className="py-2 px-3 font-semibold text-foreground text-xs">
                   {exam.exam_name}
                 </td>
-                {showDepartment && (
-                  <td className="py-2 px-3 text-muted-foreground text-xs hidden md:table-cell">
-                    {exam.department || "—"}
-                  </td>
-                )}
                 {showMethod && (
-                  <td className="py-2 px-3 text-muted-foreground text-xs hidden md:table-cell">
+                  <td className="py-2 px-3 text-muted-foreground text-xs hidden sm:table-cell">
                     {exam.method || "—"}
                   </td>
                 )}
                 {showBorder && (
-                  <td className="py-2 px-3 text-right font-mono text-xs text-muted-foreground hidden md:table-cell">
+                  <td className="py-2 px-3 text-right font-mono text-xs text-muted-foreground hidden sm:table-cell">
                     {formatBorderScore(exam)}
                   </td>
                 )}
                 <td className="py-2 px-3 font-medium text-foreground text-xs whitespace-nowrap">
                   {format(new Date(exam.exam_date), "M/d")}
                 </td>
-                <td className="py-2 px-3 hidden md:table-cell">
+                <td className="py-2 px-3 hidden sm:table-cell">
                   <span
                     className="text-[10px] font-semibold px-2 py-0.5 rounded"
                     style={{ backgroundColor: status.bg, color: status.color }}
@@ -176,13 +154,6 @@ function ExamTable({
                 {!readOnly && (
                   <td className="py-2 px-2">
                     <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        className="p-1 rounded hover:bg-muted"
-                        onClick={() => onCopy(exam)}
-                        aria-label={`${exam.exam_name}をコピー`}
-                      >
-                        <Copy className="w-3.5 h-3.5 text-muted-foreground" />
-                      </button>
                       <button
                         className="p-1 rounded hover:bg-muted"
                         onClick={() => onEdit(exam)}
@@ -215,7 +186,6 @@ export function ExamScheduleList({
   onAdd,
   onEdit,
   onDelete,
-  onCopy,
   readOnly = false,
 }: ExamScheduleListProps) {
   const filtered = useMemo(() => {
@@ -251,8 +221,8 @@ export function ExamScheduleList({
   );
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* 試験スケジュール */}
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* 試験スケジュール（左） */}
       <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4">
           <div className="flex items-center gap-2">
@@ -276,7 +246,6 @@ export function ExamScheduleList({
             exams={schoolExams}
             onEdit={onEdit}
             onDelete={onDelete}
-            onCopy={onCopy}
             showPreference={false}
             showMethod={true}
             showBorder={false}
@@ -285,7 +254,7 @@ export function ExamScheduleList({
         </div>
       </div>
 
-      {/* 入試スケジュール */}
+      {/* 入試スケジュール（右） */}
       <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4">
           <div className="flex items-center gap-2">
@@ -309,9 +278,7 @@ export function ExamScheduleList({
             exams={entranceExams}
             onEdit={onEdit}
             onDelete={onDelete}
-            onCopy={onCopy}
             showPreference={true}
-            showDepartment={true}
             showMethod={true}
             readOnly={readOnly}
             showBorder={true}

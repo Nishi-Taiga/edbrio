@@ -18,6 +18,13 @@ export async function exportCurriculumPDF(
     const jsPDFModule = await import("jspdf");
     const jsPDF = jsPDFModule.jsPDF;
 
+    // Build date string before html2canvas so it's available in onclone
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, "0")}/${String(now.getDate()).padStart(2, "0")}`;
+
+    // Mark element so we can find it in the cloned document
+    ganttElement.setAttribute("data-pdf-root", "");
+
     const canvas = await html2canvas(ganttElement, {
       scale: 2,
       useCORS: true,
@@ -53,8 +60,26 @@ export async function exportCurriculumPDF(
         scrollables.forEach((el) => {
           (el as HTMLElement).style.overflow = "visible";
         });
+
+        // Prepend title & date as HTML so Japanese renders correctly
+        const clonedRoot = doc.querySelector("[data-pdf-root]");
+        if (clonedRoot) {
+          const titleDiv = doc.createElement("div");
+          titleDiv.textContent = `${studentName} カリキュラム`;
+          titleDiv.style.cssText =
+            "font-size:16px;font-weight:bold;padding:8px 12px 4px 12px;font-family:sans-serif;color:#000;";
+          const dateDiv = doc.createElement("div");
+          dateDiv.textContent = `出力日: ${dateStr}`;
+          dateDiv.style.cssText =
+            "font-size:10px;color:#666;padding:0 12px 8px 12px;font-family:sans-serif;";
+          clonedRoot.insertBefore(dateDiv, clonedRoot.firstChild);
+          clonedRoot.insertBefore(titleDiv, clonedRoot.firstChild);
+        }
       },
     });
+
+    // Remove temporary attribute
+    ganttElement.removeAttribute("data-pdf-root");
 
     const pdf = new jsPDF({
       orientation: "landscape",
@@ -66,21 +91,11 @@ export async function exportCurriculumPDF(
     const pageHeight = pdf.internal.pageSize.getHeight();
     const margin = 10;
 
-    // Title
-    pdf.setFontSize(16);
-    pdf.text(`${studentName} カリキュラム`, margin, margin + 8);
-
-    // Date
-    const now = new Date();
-    const dateStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, "0")}/${String(now.getDate()).padStart(2, "0")}`;
-    pdf.setFontSize(10);
-    pdf.text(`出力日: ${dateStr}`, margin, margin + 16);
-
-    // Image from canvas
+    // Image from canvas (title & date are already rendered in the image)
     const imgData = canvas.toDataURL("image/png");
     const canvasAspect = canvas.width / canvas.height;
     const availableWidth = pageWidth - margin * 2;
-    const availableHeight = pageHeight - margin * 2 - 22; // space for title + date
+    const availableHeight = pageHeight - margin * 2;
     let imgWidth = availableWidth;
     let imgHeight = imgWidth / canvasAspect;
 
@@ -89,7 +104,7 @@ export async function exportCurriculumPDF(
       imgWidth = imgHeight * canvasAspect;
     }
 
-    pdf.addImage(imgData, "PNG", margin, margin + 22, imgWidth, imgHeight);
+    pdf.addImage(imgData, "PNG", margin, margin, imgWidth, imgHeight);
 
     pdf.save(`${studentName}_カリキュラム.pdf`);
 
