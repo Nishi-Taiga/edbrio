@@ -57,16 +57,15 @@ export function dateToWeekIndex(year: number, date: Date): number {
 export function weekIndexToLabel(year: number, weekIndex: number): string {
   const monday = weekIndexToMonday(year, weekIndex);
   const month = monday.getMonth() + 1;
-  // Find the first Monday of this calendar month
+  // Sunday that starts the Sun-Sat week containing this Monday (Monday = dow 1, so go back 1 day)
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() - 1);
+  // Sunday of the Sun-Sat week containing day 1 of this month
   const firstOfMonth = new Date(monday.getFullYear(), monday.getMonth(), 1);
-  const dow = firstOfMonth.getDay();
-  const offset = dow === 0 ? 1 : dow === 1 ? 0 : 8 - dow;
-  const firstMondayOfMonth = new Date(firstOfMonth);
-  firstMondayOfMonth.setDate(firstOfMonth.getDate() + offset);
+  const firstSunday = new Date(firstOfMonth);
+  firstSunday.setDate(firstOfMonth.getDate() - firstOfMonth.getDay());
   const weekInMonth =
-    Math.floor(
-      (monday.getTime() - firstMondayOfMonth.getTime()) / MS_PER_WEEK,
-    ) + 1;
+    Math.floor((sunday.getTime() - firstSunday.getTime()) / MS_PER_WEEK) + 1;
   return `${month}月 第${weekInMonth}週`;
 }
 
