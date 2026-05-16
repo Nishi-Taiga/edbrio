@@ -147,16 +147,16 @@ function snapToSunday(date: Date): Date {
 
 export function getWeekLabel(date: Date): string {
   const month = date.getMonth() + 1;
-  // Find which week of the month (based on Mondays)
+  // Sunday of the Sun-Sat week containing this date
+  const dow = date.getDay(); // 0=Sun
+  const sunday = new Date(date);
+  sunday.setDate(date.getDate() - dow);
+  // Sunday of the Sun-Sat week containing day 1 of this month
   const firstOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-  const firstMonday = new Date(firstOfMonth);
-  const day = firstOfMonth.getDay();
-  firstMonday.setDate(
-    firstOfMonth.getDate() + (day === 0 ? 1 : day === 1 ? 0 : 8 - day),
-  );
-  if (date < firstMonday) return `${month}月 第1週`;
+  const firstSunday = new Date(firstOfMonth);
+  firstSunday.setDate(firstOfMonth.getDate() - firstOfMonth.getDay());
   const weekNum =
-    Math.floor((date.getTime() - firstMonday.getTime()) / (7 * 86400000)) + 1;
+    Math.floor((sunday.getTime() - firstSunday.getTime()) / (7 * 86400000)) + 1;
   return `${month}月 第${weekNum}週`;
 }
 
