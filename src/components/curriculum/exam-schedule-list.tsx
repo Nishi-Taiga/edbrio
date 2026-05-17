@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { Plus, Trash2, Pencil, Calendar, GraduationCap } from "lucide-react";
 import { ExamSchedule } from "@/lib/types/database";
-import { format, isBefore, startOfDay } from "date-fns";
+import { format } from "date-fns";
 
 interface ExamScheduleListProps {
   exams: ExamSchedule[];
@@ -14,23 +14,6 @@ interface ExamScheduleListProps {
   readOnly?: boolean;
   t: (key: string) => string;
 }
-
-const statusConfig = (examDate: string) => {
-  const today = startOfDay(new Date());
-  const date = new Date(examDate);
-  const daysUntil = Math.ceil((date.getTime() - today.getTime()) / 86400000);
-
-  if (isBefore(date, today)) {
-    return { label: "終了", bg: "#F3F4F6", color: "#6B7280" };
-  }
-  if (daysUntil <= 14) {
-    return { label: "直前", bg: "#FEE2E2", color: "#EF4444" };
-  }
-  if (daysUntil <= 60) {
-    return { label: "準備中", bg: "#FEF3C7", color: "#D97706" };
-  }
-  return { label: "予定", bg: "#DBEAFE", color: "#3B82F6" };
-};
 
 /** Check if an exam date falls within the given academic year (April–March) */
 function isInAcademicYear(examDate: string, year: number): boolean {
@@ -104,8 +87,8 @@ function ExamTable({
             <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider w-[60px]">
               日付
             </th>
-            <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider w-[70px] hidden sm:table-cell">
-              状態
+            <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider hidden sm:table-cell">
+              学部・学科
             </th>
             {!readOnly && (
               <th className="w-[50px]">
@@ -115,65 +98,57 @@ function ExamTable({
           </tr>
         </thead>
         <tbody>
-          {exams.map((exam) => {
-            const status = statusConfig(exam.exam_date);
-            return (
-              <tr
-                key={exam.id}
-                className="border-t border-border hover:bg-muted/20 transition-colors group"
-              >
-                {showPreference && (
-                  <td className="py-2 px-2 text-center text-xs font-bold text-foreground">
-                    {exam.preference_order ? `第${exam.preference_order}` : "—"}
-                  </td>
-                )}
-                <td className="py-2 px-3 font-semibold text-foreground text-xs">
-                  {exam.exam_name}
+          {exams.map((exam) => (
+            <tr
+              key={exam.id}
+              className="border-t border-border hover:bg-muted/20 transition-colors group"
+            >
+              {showPreference && (
+                <td className="py-2 px-2 text-center text-xs font-bold text-foreground">
+                  {exam.preference_order ? `第${exam.preference_order}` : "—"}
                 </td>
-                {showMethod && (
-                  <td className="py-2 px-3 text-muted-foreground text-xs hidden sm:table-cell">
-                    {exam.method || "—"}
-                  </td>
-                )}
-                {showBorder && (
-                  <td className="py-2 px-3 text-right font-mono text-xs text-muted-foreground hidden sm:table-cell">
-                    {formatBorderScore(exam)}
-                  </td>
-                )}
-                <td className="py-2 px-3 font-medium text-foreground text-xs whitespace-nowrap">
-                  {format(new Date(exam.exam_date), "M/d")}
+              )}
+              <td className="py-2 px-3 font-semibold text-foreground text-xs">
+                {exam.exam_name}
+              </td>
+              {showMethod && (
+                <td className="py-2 px-3 text-muted-foreground text-xs hidden sm:table-cell">
+                  {exam.method || "—"}
                 </td>
-                <td className="py-2 px-3 hidden sm:table-cell">
-                  <span
-                    className="text-[10px] font-semibold px-2 py-0.5 rounded"
-                    style={{ backgroundColor: status.bg, color: status.color }}
-                  >
-                    {status.label}
-                  </span>
+              )}
+              {showBorder && (
+                <td className="py-2 px-3 text-right font-mono text-xs text-muted-foreground hidden sm:table-cell">
+                  {formatBorderScore(exam)}
                 </td>
-                {!readOnly && (
-                  <td className="py-2 px-2">
-                    <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        className="p-1 rounded hover:bg-muted"
-                        onClick={() => onEdit(exam)}
-                        aria-label={`${exam.exam_name}を編集`}
-                      >
-                        <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
-                      </button>
-                      <button
-                        className="p-1 rounded hover:bg-muted"
-                        onClick={() => onDelete(exam.id)}
-                        aria-label={`${exam.exam_name}を削除`}
-                      >
-                        <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                      </button>
-                    </div>
-                  </td>
-                )}
-              </tr>
-            );
-          })}
+              )}
+              <td className="py-2 px-3 font-medium text-foreground text-xs whitespace-nowrap">
+                {format(new Date(exam.exam_date), "M/d")}
+              </td>
+              <td className="py-2 px-3 text-muted-foreground text-xs hidden sm:table-cell">
+                {exam.department || "—"}
+              </td>
+              {!readOnly && (
+                <td className="py-2 px-2">
+                  <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      className="p-1 rounded hover:bg-muted"
+                      onClick={() => onEdit(exam)}
+                      aria-label={`${exam.exam_name}を編集`}
+                    >
+                      <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
+                    </button>
+                    <button
+                      className="p-1 rounded hover:bg-muted"
+                      onClick={() => onDelete(exam.id)}
+                      aria-label={`${exam.exam_name}を削除`}
+                    >
+                      <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                    </button>
+                  </div>
+                </td>
+              )}
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
