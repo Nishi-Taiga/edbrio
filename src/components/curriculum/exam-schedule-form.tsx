@@ -26,8 +26,10 @@ const EXAM_CATEGORIES = [
   "recommendation",
   "common_test",
   "general",
+  "mock_exam",
   "certification",
   "school_exam",
+  "custom",
 ] as const;
 
 interface ExamFormData {
@@ -82,12 +84,25 @@ export function ExamScheduleForm({
     "deviation" | "percentage"
   >("deviation");
   const [notes, setNotes] = useState("");
+  const [customCategory, setCustomCategory] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (open) {
       setExamName(initialData?.exam_name ?? "");
-      setExamCategory(initialData?.exam_category ?? "");
+      const cat = initialData?.exam_category ?? "";
+      const isKnown = (
+        [
+          "recommendation",
+          "common_test",
+          "general",
+          "mock_exam",
+          "certification",
+          "school_exam",
+        ] as string[]
+      ).includes(cat);
+      setExamCategory(isKnown || !cat ? cat : "custom");
+      setCustomCategory(isKnown || !cat ? "" : cat);
       setMethod(initialData?.method ?? "");
       setDepartment(initialData?.department ?? "");
       setExamDate(initialData?.exam_date ?? "");
@@ -112,7 +127,8 @@ export function ExamScheduleForm({
     try {
       await onSubmit({
         exam_name: examName.trim(),
-        exam_category: examCategory,
+        exam_category:
+          examCategory === "custom" ? customCategory.trim() : examCategory,
         method: method.trim() || undefined,
         department: department.trim() || undefined,
         exam_date: examDate,
@@ -166,6 +182,14 @@ export function ExamScheduleForm({
                 ))}
               </SelectContent>
             </Select>
+            {examCategory === "custom" && (
+              <Input
+                className="mt-2"
+                value={customCategory}
+                onChange={(e) => setCustomCategory(e.target.value)}
+                placeholder="カテゴリ名を入力"
+              />
+            )}
           </div>
           <div>
             <Label htmlFor="exam-department">{t("department")}</Label>
@@ -262,7 +286,12 @@ export function ExamScheduleForm({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={saving || !examName.trim() || !examDate}
+            disabled={
+              saving ||
+              !examName.trim() ||
+              !examDate ||
+              (examCategory === "custom" && !customCategory.trim())
+            }
           >
             {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isEdit ? t("save") : t("add")}
