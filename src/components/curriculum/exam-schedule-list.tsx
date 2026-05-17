@@ -10,7 +10,7 @@ interface ExamScheduleListProps {
   academicYear?: number;
   onAdd: (date?: string) => void;
   onEdit: (exam: ExamSchedule) => void;
-  onDelete: (id: number) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
   readOnly?: boolean;
   t: (key: string) => string;
 }
@@ -64,7 +64,7 @@ function ExamTable({
 }: {
   exams: ExamSchedule[];
   onEdit: (exam: ExamSchedule) => void;
-  onDelete: (id: number) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
   showPreference: boolean;
   showMethod?: boolean;
   showBorder?: boolean;

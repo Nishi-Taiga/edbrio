@@ -19,7 +19,7 @@ interface TestScoreListProps {
   scores: TestScore[];
   onAdd: () => void;
   onEdit: (score: TestScore) => void;
-  onDelete: (id: number) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
   readOnly?: boolean;
   t: (key: string) => string;
 }
@@ -159,7 +159,7 @@ function GroupRow({
   isExpanded: boolean;
   onToggle: () => void;
   onEdit: (score: TestScore) => void;
-  onDelete: (id: number) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
   readOnly: boolean;
 }) {
   return (
