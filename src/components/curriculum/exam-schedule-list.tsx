@@ -174,7 +174,6 @@ export function ExamScheduleList({
     return exams.filter((e) => isInAcademicYear(e.exam_date, academicYear));
   }, [exams, academicYear]);
 
-  // Split into entrance exams vs school exams
   const entranceExams = useMemo(
     () =>
       [...filtered]
