@@ -43,6 +43,7 @@ function ExamTable({
   showPreference,
   showMethod = true,
   showBorder = true,
+  showDepartment = false,
   readOnly = false,
 }: {
   exams: ExamSchedule[];
@@ -51,6 +52,7 @@ function ExamTable({
   showPreference: boolean;
   showMethod?: boolean;
   showBorder?: boolean;
+  showDepartment?: boolean;
   readOnly?: boolean;
 }) {
   if (exams.length === 0) {
@@ -87,9 +89,11 @@ function ExamTable({
             <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider w-[60px]">
               日付
             </th>
-            <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider hidden sm:table-cell">
-              学部・学科
-            </th>
+            {showDepartment && (
+              <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider hidden sm:table-cell">
+                学部・学科
+              </th>
+            )}
             {!readOnly && (
               <th className="w-[50px]">
                 <span className="sr-only">操作</span>
@@ -124,9 +128,11 @@ function ExamTable({
               <td className="py-2 px-3 font-medium text-foreground text-xs whitespace-nowrap">
                 {format(new Date(exam.exam_date), "M/d")}
               </td>
-              <td className="py-2 px-3 text-muted-foreground text-xs hidden sm:table-cell">
-                {exam.department || "—"}
-              </td>
+              {showDepartment && (
+                <td className="py-2 px-3 text-muted-foreground text-xs hidden sm:table-cell">
+                  {exam.department || "—"}
+                </td>
+              )}
               {!readOnly && (
                 <td className="py-2 px-2">
                   <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -255,8 +261,9 @@ export function ExamScheduleList({
             onDelete={onDelete}
             showPreference={true}
             showMethod={true}
-            readOnly={readOnly}
             showBorder={true}
+            showDepartment={true}
+            readOnly={readOnly}
           />
         </div>
       </div>
