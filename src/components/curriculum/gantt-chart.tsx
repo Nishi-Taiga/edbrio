@@ -133,22 +133,6 @@ function getAcademicYearEnd(year: number): Date {
 
 /** Convert a date to a pixel position within the chart timeline area */
 /** Get "M月 第N週" label for a date */
-/** Snap a date to the previous Monday (or same day if already Monday) */
-function snapToMonday(date: Date): Date {
-  const d = new Date(date);
-  const day = d.getDay();
-  const diff = day === 0 ? 6 : day - 1; // Monday=0 offset
-  d.setDate(d.getDate() - diff);
-  return d;
-}
-
-/** Snap a date to the next Sunday (or same day if already Sunday) */
-function snapToSunday(date: Date): Date {
-  const d = new Date(date);
-  const day = d.getDay();
-  if (day !== 0) d.setDate(d.getDate() + (7 - day));
-  return d;
-}
 
 export function getWeekLabel(date: Date): string {
   const month = date.getMonth() + 1;
@@ -206,6 +190,7 @@ export function GanttChart({
 }: GanttChartProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
+  const headerTimelineRef = useRef<HTMLDivElement>(null);
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [containerWidth, setContainerWidth] = useState(960);
 
@@ -378,6 +363,18 @@ export function GanttChart({
     onUpdatePhase,
     onAddPhase,
   );
+
+  // Sync month header scroll with timeline scroll
+  useEffect(() => {
+    const timeline = timelineRef.current;
+    const header = headerTimelineRef.current;
+    if (!timeline || !header) return;
+    const onScroll = () => {
+      header.scrollLeft = timeline.scrollLeft;
+    };
+    timeline.addEventListener("scroll", onScroll);
+    return () => timeline.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Observe container width
   useEffect(() => {
@@ -708,19 +705,18 @@ export function GanttChart({
           </span>
         </div>
         {/* Month headers */}
-        <div
-          className="flex relative overflow-hidden"
-          style={{ width: timelineWidth }}
-        >
-          {monthColumns.map((mc, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-center text-[11px] font-semibold text-muted-foreground border-r border-border/50 last:border-r-0"
-              style={{ width: mc.width }}
-            >
-              {mc.label}
-            </div>
-          ))}
+        <div className="flex-1 overflow-hidden" ref={headerTimelineRef}>
+          <div className="flex relative" style={{ width: timelineWidth }}>
+            {monthColumns.map((mc, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-center text-[11px] font-semibold text-muted-foreground border-r border-border/50 last:border-r-0"
+                style={{ width: mc.width }}
+              >
+                {mc.label}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
