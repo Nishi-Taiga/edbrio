@@ -9,7 +9,7 @@
 EdBrio を **個別指導塾** 向けに方向転換し、塾 1 校（管理者 1〜2 名 + 講師 3〜10 名 + 生徒 10〜30 名）が完結して使えるクローズドベータをリリースする。
 従来の「家庭教師個人 × 保護者がチケット購入」モデル（Stripe Connect、公開講師ページなど）は **凍結**（コードは残すが UI から隠す）。
 
-塾本体の課金は当面オフライン（ベータ無料 → 月額固定の塾向けサブスクリプションを Phase 2 以降で導入）。
+塾本体の課金は当面オフライン（**ベータでは課金機能を一切提供しない**）。塾向けの課金モデル設計は MVP の範囲外で、ベータ運用後に必要性を見極めて Phase 2 以降で検討する。
 
 ### ターゲット利用シーン
 
@@ -46,7 +46,7 @@ EdBrio を **個別指導塾** 向けに方向転換し、塾 1 校（管理者 
 
 | 機能 | 扱い | 将来 |
 |------|------|------|
-| Stripe 決済 / チケット販売 / Application Fee | UI 非表示、コード凍結 | 塾向けサブスクリプションで再設計 |
+| **Stripe 決済 / チケット販売 / Application Fee** | **完全凍結**（UI 非表示、API は 503、env 必須から外す） | ベータ後にユーザーと相談して塾向け課金を再設計 |
 | 公開講師ページ `/teachers/[handle]` | 非公開化 | 一般公開フェーズで個人講師モデル復活時 |
 | 個別の予約承認フロー（pending→confirmed） | 時間割に置換 | 必要なら振替予約として再実装 |
 | AI レポート要約（Claude） | UI 導線非表示、API は env で 503 | Phase 2 で復活検討 |
@@ -123,7 +123,7 @@ EdBrio を **個別指導塾** 向けに方向転換し、塾 1 校（管理者 
 
 | ID | 優先 | タスク | 工数 | 対象 | 受け入れ基準 |
 |----|------|--------|------|------|------------|
-| F1 | 🔴 | Stripe 決済・チケット販売の UI 非表示（コードは残す） | 60min | `/teacher/(dashboard)/tickets/`, `/guardian/tickets/`, `/api/checkout/`, `/api/stripe/` | feature flag (`NEXT_PUBLIC_BILLING_ENABLED=false`) で非表示、API は 503 |
+| F1 | 🔴 | **Stripe 決済・チケット販売を完全に外す**（UI 非表示、API 503、env 必須から除外） | 90min | `/teacher/(dashboard)/tickets/`, `/guardian/tickets/`, `/api/checkout/`, `/api/stripe/`, `src/lib/env.ts` | UI に決済導線が一切出ない、`STRIPE_*` 系 env が未設定でもビルド緑 |
 | F2 | 🔴 | 公開講師ページの非公開化 | 30min | `/teachers/[handle]`, `sitemap.ts`, `robots.txt` | 一般アクセスで 404 / noindex |
 | F3 | 🔴 | AI レポート要約の UI 非表示 + API 503 化 | 20min | レポート編集画面、`/api/ai/generate-report` | UI ボタンなし、`ANTHROPIC_API_KEY` 任意化 |
 | F4 | 🟡 | skill / goal / handover-note の DB DROP + コンポーネント削除 | 30min | migration + `src/components/curriculum/{skill,goal,handover-note}-*.tsx` | grep でゴーストなし |
@@ -175,7 +175,7 @@ EdBrio を **個別指導塾** 向けに方向転換し、塾 1 校（管理者 
 | シフト/時間割の現行実装 | `supabase/migrations/001_initial_schema.sql` (shifts), 講師シフト系画面 |
 | カリキュラム編集 | `src/app/[locale]/teacher/(dashboard)/curriculum/[profileId]/page.tsx` |
 | カリキュラム共有 API | `src/app/api/curriculum/share/[token]/route.ts` |
-| Stripe（凍結） | `src/app/api/stripe/`, `src/app/api/checkout/` |
+| Stripe（**完全凍結** / F1 対象） | `src/app/api/stripe/`, `src/app/api/checkout/` |
 | 公開講師ページ（凍結） | `src/app/[locale]/teachers/[handle]/` |
 | AI 連携（凍結） | `src/app/api/ai/generate-report/route.ts` |
 | マイグレーション | `supabase/migrations/` |
@@ -205,7 +205,7 @@ EdBrio を **個別指導塾** 向けに方向転換し、塾 1 校（管理者 
 
 | 領域 | 優先度の見立て |
 |------|-------------|
-| 塾向けサブスクリプション課金（月額固定 or 生徒数従量） | 高（収益化のため） |
+| 塾向けサブスクリプション課金（月額固定 or 生徒数従量） | ユーザーと相談しながら設計（ベータ後最優先で着手） |
 | AI レポート要約の復活 | フィードバック次第 |
 | 振替・休講・体験授業のフロー | 高（運用ニーズ） |
 | LINE 通知 | 高（保護者連絡の現場ニーズ） |
