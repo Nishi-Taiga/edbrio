@@ -144,8 +144,10 @@ export function getWeekLabel(date: Date): string {
   const firstOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
   const firstSunday = new Date(firstOfMonth);
   firstSunday.setDate(firstOfMonth.getDate() - firstOfMonth.getDay());
-  const weekNum =
-    Math.floor((sunday.getTime() - firstSunday.getTime()) / (7 * 86400000)) + 1;
+  const weekNum = Math.min(
+    4,
+    Math.floor((sunday.getTime() - firstSunday.getTime()) / (7 * 86400000)) + 1,
+  );
   return `${month}月 第${weekNum}週`;
 }
 

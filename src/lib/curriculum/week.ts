@@ -64,20 +64,28 @@ export function weekIndexToLabel(year: number, weekIndex: number): string {
   const firstOfMonth = new Date(monday.getFullYear(), monday.getMonth(), 1);
   const firstSunday = new Date(firstOfMonth);
   firstSunday.setDate(firstOfMonth.getDate() - firstOfMonth.getDay());
-  const weekInMonth =
-    Math.floor((sunday.getTime() - firstSunday.getTime()) / MS_PER_WEEK) + 1;
+  const weekInMonth = Math.min(
+    4,
+    Math.floor((sunday.getTime() - firstSunday.getTime()) / MS_PER_WEEK) + 1,
+  );
   return `${month}月 第${weekInMonth}週`;
 }
 
-/** All selectable weeks of the academic year as `{ value, label }` pairs. */
+/** All selectable weeks of the academic year as `{ value, label }` pairs. Weeks beyond the 4th of any month are excluded. */
 export function generateWeekOptions(
   year: number,
 ): { value: number; label: string }[] {
   const total = academicYearWeekCount(year);
-  return Array.from({ length: total }, (_, i) => ({
-    value: i + 1,
-    label: weekIndexToLabel(year, i + 1),
-  }));
+  const seen = new Set<string>();
+  const options: { value: number; label: string }[] = [];
+  for (let i = 1; i <= total; i++) {
+    const label = weekIndexToLabel(year, i);
+    if (!seen.has(label)) {
+      seen.add(label);
+      options.push({ value: i, label });
+    }
+  }
+  return options;
 }
 
 /** Format a Date as a local YYYY-MM-DD string (timezone-safe). */
