@@ -76,6 +76,11 @@ function ExamTable({
             <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider">
               試験名
             </th>
+            {showDepartment && (
+              <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider hidden sm:table-cell">
+                学部・学科
+              </th>
+            )}
             {showMethod && (
               <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider hidden sm:table-cell">
                 種類
@@ -89,11 +94,6 @@ function ExamTable({
             <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider w-[60px]">
               日付
             </th>
-            {showDepartment && (
-              <th className="text-left py-2 px-3 text-[11px] font-bold text-muted-foreground tracking-wider hidden sm:table-cell">
-                学部・学科
-              </th>
-            )}
             {!readOnly && (
               <th className="w-[50px]">
                 <span className="sr-only">操作</span>
@@ -115,6 +115,11 @@ function ExamTable({
               <td className="py-2 px-3 font-semibold text-foreground text-xs">
                 {exam.exam_name}
               </td>
+              {showDepartment && (
+                <td className="py-2 px-3 text-muted-foreground text-xs hidden sm:table-cell">
+                  {exam.department || "—"}
+                </td>
+              )}
               {showMethod && (
                 <td className="py-2 px-3 text-muted-foreground text-xs hidden sm:table-cell">
                   {exam.method || "—"}
@@ -128,11 +133,6 @@ function ExamTable({
               <td className="py-2 px-3 font-medium text-foreground text-xs whitespace-nowrap">
                 {format(new Date(exam.exam_date), "M/d")}
               </td>
-              {showDepartment && (
-                <td className="py-2 px-3 text-muted-foreground text-xs hidden sm:table-cell">
-                  {exam.department || "—"}
-                </td>
-              )}
               {!readOnly && (
                 <td className="py-2 px-2">
                   <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -230,6 +230,7 @@ export function ExamScheduleList({
             showPreference={false}
             showMethod={true}
             showBorder={false}
+            showDepartment={true}
             readOnly={readOnly}
           />
         </div>
