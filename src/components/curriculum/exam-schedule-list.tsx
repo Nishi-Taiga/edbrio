@@ -229,7 +229,6 @@ export function ExamScheduleList({
             showPreference={false}
             showMethod={true}
             showBorder={false}
-            showDepartment={true}
             readOnly={readOnly}
           />
         </div>
