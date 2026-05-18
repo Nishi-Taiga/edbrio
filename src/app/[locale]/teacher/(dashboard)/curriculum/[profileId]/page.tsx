@@ -172,6 +172,7 @@ export default function StudentCurriculumPage() {
   // Test score form dialog
   const [showScoreForm, setShowScoreForm] = useState(false);
   const [editingScore, setEditingScore] = useState<TestScore | null>(null);
+  const [copyingScore, setCopyingScore] = useState<TestScore | null>(null);
 
   // Detail dialog
   const [showDetailDialog, setShowDetailDialog] = useState(false);
@@ -392,10 +393,17 @@ export default function StudentCurriculumPage() {
   // Test score handlers
   const handleAddScore = () => {
     setEditingScore(null);
+    setCopyingScore(null);
     setShowScoreForm(true);
   };
   const handleEditScore = (s: TestScore) => {
     setEditingScore(s);
+    setCopyingScore(null);
+    setShowScoreForm(true);
+  };
+  const handleCopyScore = (s: TestScore) => {
+    setEditingScore(null);
+    setCopyingScore(s);
     setShowScoreForm(true);
   };
   const handleSubmitScore = async (data: {
@@ -615,6 +623,7 @@ export default function StudentCurriculumPage() {
                     onAdd={handleAddScore}
                     onEdit={handleEditScore}
                     onDelete={deleteScore}
+                    onCopy={handleCopyScore}
                     t={(key: string) => tTestScores(key)}
                   />
                 </div>
@@ -700,7 +709,7 @@ export default function StudentCurriculumPage() {
                     }
                   : copyingExam
                     ? {
-                        exam_name: `${copyingExam.exam_name}（コピー）`,
+                        exam_name: copyingExam.exam_name,
                         exam_category: copyingExam.exam_category,
                         method: copyingExam.method || undefined,
                         exam_date: copyingExam.exam_date,
@@ -737,7 +746,18 @@ export default function StudentCurriculumPage() {
                       test_date: editingScore.test_date,
                       notes: editingScore.notes || undefined,
                     }
-                  : undefined
+                  : copyingScore
+                    ? {
+                        test_name: copyingScore.test_name,
+                        test_type: copyingScore.test_type,
+                        subject: copyingScore.subject,
+                        score: copyingScore.score,
+                        max_score: copyingScore.max_score,
+                        percentile: copyingScore.percentile || undefined,
+                        test_date: copyingScore.test_date,
+                        notes: copyingScore.notes || undefined,
+                      }
+                    : undefined
               }
               t={(key: string) => tTestScores(key)}
             />
