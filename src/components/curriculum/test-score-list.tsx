@@ -8,6 +8,7 @@ import {
   Plus,
   Trash2,
   Pencil,
+  Copy,
   ClipboardList,
   ChevronDown,
   ChevronRight,
@@ -20,6 +21,7 @@ interface TestScoreListProps {
   onAdd: () => void;
   onEdit: (score: TestScore) => void;
   onDelete: (id: string) => Promise<void>;
+  onCopy?: (score: TestScore) => void;
   readOnly?: boolean;
   t: (key: string) => string;
 }
@@ -47,6 +49,7 @@ export function TestScoreList({
   onAdd,
   onEdit,
   onDelete,
+  onCopy,
   readOnly = false,
   t,
 }: TestScoreListProps) {
@@ -134,6 +137,7 @@ export function TestScoreList({
                       }
                       onEdit={onEdit}
                       onDelete={onDelete}
+                      onCopy={onCopy}
                       readOnly={readOnly}
                     />
                   );
@@ -153,6 +157,7 @@ function GroupRow({
   onToggle,
   onEdit,
   onDelete,
+  onCopy,
   readOnly,
 }: {
   group: TestGroup;
@@ -160,6 +165,7 @@ function GroupRow({
   onToggle: () => void;
   onEdit: (score: TestScore) => void;
   onDelete: (id: string) => Promise<void>;
+  onCopy?: (score: TestScore) => void;
   readOnly: boolean;
 }) {
   return (
@@ -221,6 +227,19 @@ function GroupRow({
               {!readOnly && (
                 <td className="py-1.5 px-2">
                   <div className="flex gap-1 justify-end">
+                    {onCopy && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onCopy(score);
+                        }}
+                      >
+                        <Copy className="w-3 h-3" />
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="icon"

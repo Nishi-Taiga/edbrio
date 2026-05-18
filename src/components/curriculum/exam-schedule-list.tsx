@@ -1,7 +1,14 @@
 "use client";
 
 import { useMemo } from "react";
-import { Plus, Trash2, Pencil, Calendar, GraduationCap } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Pencil,
+  Copy,
+  Calendar,
+  GraduationCap,
+} from "lucide-react";
 import { ExamSchedule } from "@/lib/types/database";
 import { format } from "date-fns";
 
@@ -11,6 +18,7 @@ interface ExamScheduleListProps {
   onAdd: (date?: string) => void;
   onEdit: (exam: ExamSchedule) => void;
   onDelete: (id: string) => Promise<void>;
+  onCopy?: (exam: ExamSchedule) => void;
   readOnly?: boolean;
   t: (key: string) => string;
 }
@@ -40,6 +48,7 @@ function ExamTable({
   exams,
   onEdit,
   onDelete,
+  onCopy,
   showPreference,
   showMethod = true,
   showBorder = true,
@@ -49,6 +58,7 @@ function ExamTable({
   exams: ExamSchedule[];
   onEdit: (exam: ExamSchedule) => void;
   onDelete: (id: string) => Promise<void>;
+  onCopy?: (exam: ExamSchedule) => void;
   showPreference: boolean;
   showMethod?: boolean;
   showBorder?: boolean;
@@ -136,6 +146,15 @@ function ExamTable({
               {!readOnly && (
                 <td className="py-2 px-2">
                   <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {onCopy && (
+                      <button
+                        className="p-1 rounded hover:bg-muted"
+                        onClick={() => onCopy(exam)}
+                        aria-label={`${exam.exam_name}をコピー`}
+                      >
+                        <Copy className="w-3.5 h-3.5 text-muted-foreground" />
+                      </button>
+                    )}
                     <button
                       className="p-1 rounded hover:bg-muted"
                       onClick={() => onEdit(exam)}
@@ -167,6 +186,7 @@ export function ExamScheduleList({
   onAdd,
   onEdit,
   onDelete,
+  onCopy,
   readOnly = false,
 }: ExamScheduleListProps) {
   const filtered = useMemo(() => {
@@ -226,6 +246,7 @@ export function ExamScheduleList({
             exams={schoolExams}
             onEdit={onEdit}
             onDelete={onDelete}
+            onCopy={onCopy}
             showPreference={false}
             showMethod={true}
             showBorder={false}
@@ -258,6 +279,7 @@ export function ExamScheduleList({
             exams={entranceExams}
             onEdit={onEdit}
             onDelete={onDelete}
+            onCopy={onCopy}
             showPreference={true}
             showMethod={true}
             showBorder={true}
